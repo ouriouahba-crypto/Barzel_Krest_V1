@@ -680,7 +680,7 @@
     },
     "santamarinhaesaopedrodaafurada": {
       "constructibility": {
-        "value": 60,
+        "value": 71,
         "conf": "hypothese"
       },
       "connectivity": {
@@ -737,6 +737,90 @@
       },
       "cycle_momentum": {
         "value": 50,
+        "conf": "hypothese"
+      }
+    },
+    "madalena": {
+      "constructibility": {
+        "value": 67,
+        "conf": "hypothese"
+      }
+    },
+    "mafamudeevilardoparaiso": {
+      "constructibility": {
+        "value": 63,
+        "conf": "hypothese"
+      }
+    },
+    "oliveiradodouro": {
+      "constructibility": {
+        "value": 64,
+        "conf": "hypothese"
+      }
+    },
+    "canidelo": {
+      "constructibility": {
+        "value": 69,
+        "conf": "hypothese"
+      }
+    },
+    "arcozelo": {
+      "constructibility": {
+        "value": 53,
+        "conf": "hypothese"
+      }
+    },
+    "saofelixdamarinha": {
+      "constructibility": {
+        "value": 48,
+        "conf": "hypothese"
+      }
+    },
+    "gulpilharesevaladares": {
+      "constructibility": {
+        "value": 56,
+        "conf": "hypothese"
+      }
+    },
+    "vilardeandorinho": {
+      "constructibility": {
+        "value": 51,
+        "conf": "hypothese"
+      }
+    },
+    "canelas": {
+      "constructibility": {
+        "value": 46,
+        "conf": "hypothese"
+      }
+    },
+    "avintes": {
+      "constructibility": {
+        "value": 49,
+        "conf": "hypothese"
+      }
+    },
+    "sandim,olival,leverecrestuma": {
+      "constructibility": {
+        "value": 34,
+        "conf": "hypothese"
+      }
+    },
+    "grijoesermonde": {
+      "constructibility": {
+        "value": 39,
+        "conf": "hypothese"
+      }
+    },
+    "serzedoeperosinho": {
+      "constructibility": {
+        "value": 37,
+        "conf": "hypothese"
+      }
+    },
+    "pedrosoeseixezelo": {
+      "constructibility": {
+        "value": 43,
         "conf": "hypothese"
       }
     }

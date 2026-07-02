@@ -212,6 +212,33 @@ texte générique. À réutiliser sur les futures pages de mode.
 - Rendu des chiffres en or : `highlightNums()` dans la page (regex sur les tokens
   numériques), pas dans le module (qui reste pur, sans JSX).
 
+### Lot QA Vue d'ensemble #2 — **✅ Livré** (2026-07-02, 4 points)
+1. **Bandeau — meilleure opportunité** : le bloc droit montre désormais la freguesia
+   au score le plus haut du mode dominant (« Meilleure opportunité · <Mode> », nom
+   court + `VerdictBadge` + `ScoreDial`). Repli sur le **score municipal** en cas
+   dégradé (aucune freguesia au verdict haut). Le score municipal reste sur les
+   4 cartes de mode.
+2. **Constructibilité par freguesia** : 15 valeurs (34-71, gradient front de fleuve/
+   urbain 60-75 → rural sud 30-45, aucun multiple de 5) ajoutées dans
+   **`backend/data/params.json` → `zones`** (le fichier que le moteur lit ; le défaut
+   pays reste le repli). ⚠️ `barzel_data_backbone_v0.json` (racine) ne contient que
+   Lisbonne/Bruxelles, **aucune Gaia**, et n'est chargé par aucun code — il n'était
+   donc pas le bon endroit. Effet : scores **landbank étalés 19,7-73,8** (médiane
+   42,1), constructibilité médiane **51** (plus 50 pile). Effet de bord assumé : le
+   pilier `constructibilite` étant aussi un pilier promotion, Canidelo passe
+   Conditionnel → **Go** (marges inchangées : la marge ne dépend pas de la
+   constructibilité) → résidentiel a maintenant **3 freguesias Go** (Madalena,
+   Afurada, Canidelo), insight « marges de 24 à 30 % ». Captures Prix & marge
+   régénérées en conséquence.
+3. **Driver arbitrage qualitatif** (`insights.ts`) : `>=0,7` « appétit institutionnel
+   soutenu », `0,4-0,7` « modéré », `<0,4` clause supprimée (fini le « 0.70 » brut).
+4. **Cas dégradé** (`insights.ts`) : au lieu de la fourchette complète, cite le
+   meilleur : « , meilleur <kpi> <valeur> à <freguesia> » (rangePhrase au singulier,
+   sans « de »). Ex. hôtellerie : « …meilleur spread 20% à Santa Marinha. »
+
+Captures : `shots/vue_ensemble_{residentiel,bureaux,hotellerie}.png`. Vérifs : `tsc`
+OK, tests backend OK (dont garde-fous verdict), routes 200.
+
 ### Prochaines pages de mode (gabarit = Prix & marge)
 Rendement (détention), Arbitrage, Foncier (landbank). Réutiliser la structure :
 KPIs → tableau triable → décomposition/piliers → graphe, **+ `modeInsight`/`cityInsight`

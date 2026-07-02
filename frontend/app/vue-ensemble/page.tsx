@@ -8,7 +8,7 @@ import { ScoreDial, VerdictBadge } from "@/components/ui";
 import { OverviewRanking } from "@/components/OverviewRanking";
 import { useGaia, displayName, shortName } from "@/lib/useGaia";
 import { ModeScore } from "@/lib/api";
-import { Mode, MODES, MODE_LABEL, MODE_KPI, classLabel, median, pillarValue, verdictColor } from "@/lib/scoring";
+import { Mode, MODES, MODE_LABEL, MODE_KPI, classLabel, median, pillarValue, verdictColor, verdictTone } from "@/lib/scoring";
 import { OverviewByMode, bestMode, cityInsight, modeInsight } from "@/lib/insights";
 
 const MARKET_LINE =
@@ -66,6 +66,10 @@ export default function VueEnsemble() {
 
   const bmFreg = (bm && overview.freg[bm]) || [];
   const podium = useMemo(() => [...bmFreg].sort((a, b) => b.total - a.total).slice(0, 3), [bmFreg]);
+  // Banner: the dominant mode's best opportunity (top-scoring freguesia), unless no
+  // freguesia clears the top verdict — then fall back to the municipal score.
+  const hasGood = !!bm && bmFreg.some((z) => verdictTone(bm, z.verdict) === "good");
+  const topOpp = hasGood ? podium[0] : null;
   const rankRows = useMemo(
     () => bmFreg.map((z) => ({ name: displayName(z.zone_name), short: shortName(z.zone_name), total: z.total, verdict: z.verdict })),
     [bmFreg]
@@ -115,17 +119,31 @@ export default function VueEnsemble() {
                 {highlightNums(cityLine)}
               </p>
             </div>
-            {bmScore && bm && (
+            {bm && topOpp ? (
               <div className="flex shrink-0 items-center gap-4 border-l border-white/10 pl-6">
                 <div className="text-right">
-                  <div className="text-[10px] uppercase tracking-widest text-cream/50">Meilleur mode</div>
-                  <div className="font-display text-lg text-cream">{MODE_LABEL[bm]}</div>
+                  <div className="text-[10px] uppercase tracking-widest text-cream/50">Meilleure opportunité · {MODE_LABEL[bm]}</div>
+                  <div className="font-display text-lg text-cream">{shortName(topOpp.zone_name)}</div>
                   <div className="mt-1">
-                    <VerdictBadge mode={bm} verdict={bmScore.verdict} />
+                    <VerdictBadge mode={bm} verdict={topOpp.verdict} />
                   </div>
                 </div>
-                <ScoreDial score={bmScore.total} size={76} />
+                <ScoreDial score={topOpp.total} size={76} />
               </div>
+            ) : (
+              bmScore &&
+              bm && (
+                <div className="flex shrink-0 items-center gap-4 border-l border-white/10 pl-6">
+                  <div className="text-right">
+                    <div className="text-[10px] uppercase tracking-widest text-cream/50">Meilleur mode</div>
+                    <div className="font-display text-lg text-cream">{MODE_LABEL[bm]}</div>
+                    <div className="mt-1">
+                      <VerdictBadge mode={bm} verdict={bmScore.verdict} />
+                    </div>
+                  </div>
+                  <ScoreDial score={bmScore.total} size={76} />
+                </div>
+              )
             )}
           </section>
 

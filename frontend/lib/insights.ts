@@ -4,7 +4,7 @@
 
 import { ModeScore } from "./api";
 import { Mode, MODES, MODE_LABEL, MODE_KPI, classLabel, median, pillarValue, verdictTone } from "./scoring";
-import { displayName } from "./useGaia";
+import { displayName, shortName } from "./useGaia";
 
 // City-level (municipio) score + freguesia rows, per mode, for one class.
 export interface OverviewByMode {
@@ -54,12 +54,12 @@ function kpiRange(rows: ModeScore[], m: Mode): [number, number] | null {
   return [Math.min(...vals), Math.max(...vals)];
 }
 
-// "marges de 29 à 30 %" (or "marge de 30 %" when a single value).
+// "marges de 29 à 30 %" (plural range) or "spread 20 %" (single value).
 function rangePhrase(m: Mode, lo: number, hi: number): string {
   const noun = { promotion: "marge", detention: "rendement net", arbitrage: "spread", landbank: "constructibilité" }[m];
   const d = MODE_KPI[m].digits;
   const u = MODE_KPI[m].unit;
-  if (Math.abs(hi - lo) < Math.pow(10, -d) / 2) return `${noun} de ${hi.toFixed(d)}${u}`;
+  if (Math.abs(hi - lo) < Math.pow(10, -d) / 2) return `${noun} ${hi.toFixed(d)}${u}`;
   return `${noun}s de ${lo.toFixed(d)} à ${hi.toFixed(d)}${u}`;
 }
 
@@ -74,7 +74,11 @@ function driverClause(m: Mode, good: ModeScore[]): string {
   }
   if (m === "arbitrage") {
     const app = pillarValue(good[0]?.pillars ?? [], "appetit_institutionnel");
-    if (app != null) return `, appétit institutionnel ${app.toFixed(2)}`;
+    if (app != null) {
+      if (app >= 0.7) return ", appétit institutionnel soutenu";
+      if (app >= 0.4) return ", appétit institutionnel modéré";
+      // < 0.4 : pas de clause
+    }
   }
   return "";
 }
@@ -99,10 +103,13 @@ export function cityInsight(data: OverviewByMode, assetClass: string): string {
   const good = goFreg(rows, bm);
   const suffix = classSuffix(assetClass);
 
-  // Degraded: no freguesia clears the top verdict for the dominant mode.
+  // Degraded: no freguesia clears the top verdict — cite the single best, not a range.
   if (!good.length) {
-    const rng = kpiRange(rows, bm);
-    const metric = rng ? `, ${rangePhrase(bm, rng[0], rng[1])}` : "";
+    const top = rows
+      .map((r) => ({ r, v: pillarValue(r.pillars, MODE_KPI[bm].pillar) }))
+      .filter((x): x is { r: ModeScore; v: number } => x.v != null)
+      .sort((a, b) => b.v - a.v)[0];
+    const metric = top ? `, meilleur ${rangePhrase(bm, top.v, top.v)} à ${shortName(top.r.zone_name)}` : "";
     return `${city} reste sélectif${suffix} : aucune freguesia ${GOOD_WORD[bm]} en ${label} ce cycle${metric}.`;
   }
 
