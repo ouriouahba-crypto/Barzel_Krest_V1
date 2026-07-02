@@ -37,6 +37,20 @@ fur et à mesure.
   prix neuf réalisable) *sont* le sujet des pages de module : elles s'affichent.
   Ce sont les *knobs* de params.json qui restent cachés, pas leurs résultats.
 
+### À remplacer par les données client (avant mise en prod)
+- **Actifs K-REST vedettes fictifs** : `Ribeira Sul` (détention — immeuble de
+  rapport Santa Marinha, 24 lots / 1 800 m², acquis 2 300 €/m² + 340 €/m² de
+  travaux, constantes `RIBEIRA` dans `lib/scoring.ts`) et `Cais Poente`
+  (arbitrage — trophée front de fleuve Santa Marinha, constantes `CAIS`). Noms
+  vérifiés sans correspondance avec un projet réel de Gaia (2026-07) ; à
+  remplacer par les vrais actifs du portefeuille KREST. Haya Towers vient du
+  brief client (params `assets`).
+- **Appétit institutionnel par classe** (`institutional_appetite`, params.json) :
+  valeurs de calibration — à remplacer par la lecture marché de KREST.
+- **Frais et délais de cession** : aujourd'hui dérivés (frais 2-4 % et délais
+  2-9 mois pilotés par la liquidité/DOM, décote 0,8 × délai) — à remplacer par
+  les frais et délais réels constatés par KREST sur ses cessions.
+
 ---
 
 ## 2. Backend (scoring)
@@ -89,8 +103,9 @@ condense en `coût = 1,261 × (construction + foncier)` (cf. `HAYA` dans scoring
   + Export PDF + IA Analyste désactivée), `GaiaMap` (Leaflet, **exclusif page Carte**),
   `DetailPanel` + `HayaSlider` (curseur prix Haya, recalcul marge live — **NE PAS
   MODIFIER**), `OverviewRanking` (classement horizontal par verdict), `PriceMargin*`
-  (module Prix & marge), `RendementTable` + `YieldWaterfall` (module Rendement),
-  `ArbitrageTable` + `SpreadWaterfall` (module Arbitrage),
+  (module Prix & marge), `RendementTable` + `YieldWaterfall` + `RibeiraSlider`
+  (module Rendement), `ArbitrageTable` + `SpreadWaterfall` + `CaisSlider`
+  (module Arbitrage),
   **briques génériques de page de mode** : `Waterfall` (cascade base − déductions =
   résultat, état perte inclus ; `MarginWaterfall`/`YieldWaterfall` n'en sont que des
   habillages) et `MarginBars` (barres par verdict, paramétré `metric`/`title`/
@@ -534,6 +549,45 @@ combien de temps »), gabarit Prix & marge / Rendement.
    zéro régression /prix-marge, /rendement (hors micro-fix voulu), /vue-ensemble.
    HayaSlider intact, `_clean` inchangé. Captures :
    `shots/arbitrage_{residentiel,bureaux}.png` (script `shots/capture_arbitrage.js`).
+
+### Nettoyage tableau Arbitrage + actifs K-REST vedettes — **✅ Livré** (2026-07-02)
+0. **Tableau /arbitrage** : colonnes « Prix marché » (médiane ville, constante par
+   classe) et « Appétit » (constant par classe, déjà en KPI) supprimées → Freguesia,
+   Valeur réalisable, **Spread (vs médiane Gaia)**, Délai, Verdict. La médiane
+   chiffrée reste dans le sous-titre de la cascade (« Médiane Gaia 2 249 €/m² »).
+1. **Deux actifs vedettes** sur le modèle exact du bloc Haya (carte navy « ACTIF
+   K-REST · <MODE> », curseur, recalcul live, 3 tuiles, même emplacement : grille
+   à côté de la décomposition, visibles pour Santa Marinha / résidentiel — la
+   sélection par défaut des deux pages). **Fictifs, noms vérifiés par recherche
+   web sans correspondance à un projet réel de Gaia** (éviter « Cavaco » /
+   « Afurada » : Cais do Cavaco et Cais D'Afurada existent). Aucun changement
+   backend (mécanisme score_asset non nécessaire) : les curseurs lisent les
+   données de la freguesia en direct (taux, loyer marché, médiane, réalisable,
+   rotation, score, poids du pilier) — alignement par construction.
+   - **Ribeira Sul** (`RibeiraSlider`, détention) : immeuble de rapport, 24 lots,
+     1 800 m². ⚠️ Réconciliation : « valeur ~2 300 » + défaut 11,5 €/m²/mois +
+     taux freguesia donnaient net 4,1 % (hors invariant 3,3-3,8) → montage
+     **acquis 2 300 €/m² + 340 €/m² de travaux = base all-in 2 640 €/m²**, qui
+     honore les deux (brut 5,23 %, net 3,59 % au défaut, loyer 138 ≈ marché 139).
+     Curseur loyer 8-16 ; identité net = brut × (1 − charges − fiscalité) avec
+     les taux **jittérés** de la freguesia (lus du breakdown). Tuiles : yield
+     net, loyer vs marché, score (ancré sur le score zone via `yieldNetSubscore`).
+   - **Cais Poente** (`CaisSlider`, arbitrage) : trophée front de fleuve. Curseur
+     prix visé 2 100-3 400 (défaut 2 520 → spread +12 % ∈ [8-15]) ; délai =
+     rotation zone × (prix / valeur réalisable)^4 borné 2-9 (demander plus cher
+     rallonge la fenêtre) ; score ancré zone via `spreadSubscore`.
+2. **scoring.ts** : `bandSubscore` générique (margeSubscore inchangé au chiffre
+   près), `yieldNetSubscore` / `spreadSubscore` (miroirs des bandes params),
+   `detentionVerdict` / `arbitrageVerdict` (échelles 65/45), constantes `RIBEIRA`
+   / `CAIS`. HayaSlider **strictement intact**.
+3. **Test** `test_krest_featured_asset_defaults` : au défaut des curseurs, net
+   Ribeira ∈ [3,3-3,8] % et spread Cais ∈ [8-15] % — calculés contre l'économie
+   vivante de la freguesia (le test casse si une recalibration décale les taux).
+4. **Section « À remplacer par les données client »** créée en §1 (actifs fictifs,
+   appétit par classe, frais/délais de cession réels).
+5. **Vérifs** : `tsc` OK, **15 tests** backend OK, sliders absents hors
+   résidentiel / hors Santa Marinha, zéro régression /prix-marge /vue-ensemble
+   (captures re-contrôlées), captures des 4 pages régénérées.
 
 ### Prochaine page de mode (gabarit = Prix & marge / Rendement / Arbitrage)
 Foncier (landbank, constructibilité). Réutiliser la structure : KPIs → tableau

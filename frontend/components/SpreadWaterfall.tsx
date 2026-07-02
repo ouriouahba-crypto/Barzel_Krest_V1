@@ -27,7 +27,7 @@ export function SpreadWaterfall({
   return (
     <Waterfall
       title={`Décomposition de la cession — ${row.name}`}
-      subtitle={`Prix marché ${eurM2(row.prixMarche)} · spread ${pctSigned(row.spreadPct)} vs médiane · ${classLabel}`}
+      subtitle={`Médiane Gaia ${eurM2(row.prixMarche)} · spread ${pctSigned(row.spreadPct)} · ${classLabel}`}
       mode={mode}
       verdict={row.verdict}
       headline={pctSigned(row.spreadPct)}

@@ -10,17 +10,18 @@ import { VerdictBadge } from "./ui";
 // open/narrow windows above a "Fenêtre fermée" separator, best score first in
 // each group; any user sort goes global (no separator, arrow lights up).
 
-type Key = "name" | "prixMarche" | "valeurRealisable" | "spreadPct" | "delaiMois" | "appetit";
+// "Prix marché" (la médiane ville, constante) et "Appétit" (constant par classe,
+// déjà dans les KPI) ne sont pas des colonnes : la médiane reste citée dans le
+// sous-titre de la décomposition.
+type Key = "name" | "valeurRealisable" | "spreadPct" | "delaiMois";
 
 type Dir = "asc" | "desc";
 
 const COLS: { key: Key; label: string; unit?: string; num: boolean }[] = [
   { key: "name", label: "Freguesia", num: false },
-  { key: "prixMarche", label: "Prix marché", unit: "€/m²", num: true },
   { key: "valeurRealisable", label: "Valeur réalisable", unit: "€/m²", num: true },
-  { key: "spreadPct", label: "Spread", num: true },
+  { key: "spreadPct", label: "Spread", unit: "vs médiane Gaia", num: true },
   { key: "delaiMois", label: "Délai", unit: "mois", num: true },
-  { key: "appetit", label: "Appétit", num: false },
 ];
 
 export function ArbitrageTable({
@@ -69,7 +70,7 @@ export function ArbitrageTable({
     setSort((s) =>
       s.key === key
         ? { key, dir: s.dir === "asc" ? "desc" : "asc" }
-        : { key, dir: key === "name" || key === "appetit" ? "asc" : "desc" }
+        : { key, dir: key === "name" ? "asc" : "desc" }
     );
   };
 
@@ -143,7 +144,6 @@ export function ArbitrageTable({
                       <span className="text-[10px] text-muted">{Math.round(r.total)}</span>
                     </span>
                   </td>
-                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eur0(r.prixMarche)}</td>
                   <td className="px-3 py-2 text-right tabular-nums text-ink">{eur0(r.valeurRealisable)}</td>
                   <td className="px-3 py-2 text-right">
                     <span
@@ -156,7 +156,6 @@ export function ArbitrageTable({
                   <td className="px-3 py-2 text-right tabular-nums text-ink/80">
                     {r.delaiMois != null ? r.delaiMois.toFixed(1) : "—"}
                   </td>
-                  <td className="px-3 py-2 text-ink/80">{r.appetit ?? "—"}</td>
                   <td className="px-3 py-2">
                     <VerdictBadge mode={mode} verdict={r.verdict} />
                   </td>

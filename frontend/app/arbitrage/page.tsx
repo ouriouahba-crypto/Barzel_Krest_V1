@@ -5,6 +5,7 @@ import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { ArbitrageTable } from "@/components/ArbitrageTable";
 import { SpreadWaterfall } from "@/components/SpreadWaterfall";
+import { CaisSlider } from "@/components/CaisSlider";
 import { MarginBars } from "@/components/MarginBars";
 import { InsightBanner } from "@/components/InsightBanner";
 import { useGaia } from "@/lib/useGaia";
@@ -12,6 +13,7 @@ import { classLabel, verdictTone } from "@/lib/scoring";
 import { arbRows, arbSummary, ArbRow, pctSigned } from "@/lib/arbitrage";
 import { arbitrageInsight, anomalyNote } from "@/lib/insights";
 
+const SANTA = "santamarinhaesaopedrodaafurada";
 const MARKET_LINE =
   "Rive sud du Douro : le cycle a monté vite — céder se joue sur la fenêtre, le spread réalisable et la profondeur d'acheteurs.";
 
@@ -77,6 +79,17 @@ export default function ArbitragePage() {
     [g.arbitrageCity]
   );
   const note = useMemo(() => anomalyNote("arbitrage", fregScores), [fregScores]);
+
+  // K-REST featured asset (Cais Poente) — shown for Santa Marinha / résidentiel,
+  // fed by the freguesia's own médiane, realizable value, rotation and score.
+  const assetProps = useMemo(() => {
+    const row = allRows.find((r) => r.zone === SANTA);
+    const score = fregScores.find((z) => z.zone === SANTA);
+    if (!row || !score) return null;
+    const weight = score.pillars.find((p) => p.pillar === "spread")?.weight ?? 0.3;
+    return { row, baseTotal: score.total, weight };
+  }, [allRows, fregScores]);
+  const showAsset = g.focusZone === SANTA && cls === "residential" && !!assetProps;
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -170,9 +183,18 @@ export default function ArbitragePage() {
             </div>
           )}
 
-          {/* Disposal decomposition for the selected freguesia */}
-          <div className="shrink-0">
+          {/* Disposal decomposition (+ Cais Poente slider for Santa Marinha résidentiel) */}
+          <div className={`shrink-0 ${showAsset ? "grid grid-cols-1 gap-4 xl:grid-cols-[1.35fr_1fr]" : ""}`}>
             <SpreadWaterfall row={selectedRow} mode="arbitrage" classLabel={classLabel(cls)} />
+            {showAsset && assetProps && (
+              <div className="flex flex-col gap-2">
+                <CaisSlider {...assetProps} />
+                <p className="px-1 text-[11px] leading-snug text-muted">
+                  Curseur temps réel sur l'actif K-REST à Santa Marinha : ajustez le prix de
+                  cession visé pour voir le spread, le délai et le verdict se recalculer.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Spread by freguesia chart */}

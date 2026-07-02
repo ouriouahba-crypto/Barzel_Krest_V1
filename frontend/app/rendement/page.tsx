@@ -5,6 +5,7 @@ import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { RendementTable } from "@/components/RendementTable";
 import { YieldWaterfall } from "@/components/YieldWaterfall";
+import { RibeiraSlider } from "@/components/RibeiraSlider";
 import { MarginBars } from "@/components/MarginBars";
 import { InsightBanner } from "@/components/InsightBanner";
 import { useGaia } from "@/lib/useGaia";
@@ -13,6 +14,7 @@ import { eur0 } from "@/lib/priceMargin";
 import { rdRows, rdSummary, RdRow } from "@/lib/rendement";
 import { detentionInsight, anomalyNote } from "@/lib/insights";
 
+const SANTA = "santamarinhaesaopedrodaafurada";
 const MARKET_LINE =
   "Rive sud du Douro : demande locative réelle, loyers en rattrapage — conserver ne se justifie qu'au rendement net, après charges et fiscalité.";
 
@@ -75,6 +77,17 @@ export default function RendementPage() {
     [g.detentionCity]
   );
   const note = useMemo(() => anomalyNote("detention", fregScores), [fregScores]);
+
+  // K-REST featured asset (Ribeira Sul) — shown for Santa Marinha / résidentiel,
+  // fed by the freguesia's own rates, market rent and score.
+  const assetProps = useMemo(() => {
+    const row = allRows.find((r) => r.zone === SANTA);
+    const score = fregScores.find((z) => z.zone === SANTA);
+    if (!row || !score) return null;
+    const weight = score.pillars.find((p) => p.pillar === "rendement_net")?.weight ?? 0.15;
+    return { row, baseTotal: score.total, weight };
+  }, [allRows, fregScores]);
+  const showAsset = g.focusZone === SANTA && cls === "residential" && !!assetProps;
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -168,9 +181,18 @@ export default function RendementPage() {
             </div>
           )}
 
-          {/* Yield decomposition for the selected freguesia */}
-          <div className="shrink-0">
+          {/* Yield decomposition (+ Ribeira Sul slider for Santa Marinha résidentiel) */}
+          <div className={`shrink-0 ${showAsset ? "grid grid-cols-1 gap-4 xl:grid-cols-[1.35fr_1fr]" : ""}`}>
             <YieldWaterfall row={selectedRow} mode="detention" classLabel={classLabel(cls)} />
+            {showAsset && assetProps && (
+              <div className="flex flex-col gap-2">
+                <RibeiraSlider {...assetProps} />
+                <p className="px-1 text-[11px] leading-snug text-muted">
+                  Curseur temps réel sur l'actif K-REST à Santa Marinha : ajustez le loyer moyen
+                  pour voir le rendement et le verdict se recalculer.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Net yield by freguesia chart */}

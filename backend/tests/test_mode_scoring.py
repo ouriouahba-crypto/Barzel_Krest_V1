@@ -161,6 +161,24 @@ def test_arbitrage_breakdown_bounds():
                     (r["zone"], cls, b)
 
 
+def test_krest_featured_asset_defaults():
+    # The two featured assets on the mode pages recompute client-side from the
+    # freguesia's live economics. At the slider defaults:
+    #  - Ribeira Sul (détention): rent 11,5 €/m²/month on a 2 640 €/m² all-in
+    #    base, freguesia charges/fiscalité rates -> net yield in [3.3, 3.8]%.
+    #  - Cais Poente (arbitrage): asking 2 520 €/m² vs the Gaia median -> spread
+    #    in [8, 15]%.
+    det = ms.score_mode(WITNESS, "detention", "residential")
+    db = next(p for p in det["pillars"] if p["pillar"] == "rendement_net")["breakdown"]
+    brut = 11.5 * 12 / 2640 * 100
+    net = brut * (1 - (db["charges_pct_loyer"] + db["fiscalite_pct_loyer"]) / 100.0)
+    assert 3.3 <= net <= 3.8, net
+    arb = ms.score_mode(WITNESS, "arbitrage", "residential")
+    ab = next(p for p in arb["pillars"] if p["pillar"] == "spread")["breakdown"]
+    spread = (2520 / ab["prix_marche_eur_m2"] - 1) * 100
+    assert 8.0 <= spread <= 15.0, spread
+
+
 def test_unknown_zone_and_mode_raise():
     import pytest
     with pytest.raises(KeyError):

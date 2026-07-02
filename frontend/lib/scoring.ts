@@ -148,7 +148,21 @@ export function hayaPremium(salePerM2: number): number {
   return (salePerM2 / HAYA.freguesiaMedian - 1) * 100;
 }
 
-// marge_pct band -> 0-100 subscore (mirrors params bands: faible 10 / correct 18 / bon 25)
+// Piecewise-linear band -> 0-100 subscore (mirrors the backend _band()).
+function bandSubscore(pts: [number, number][], v: number): number {
+  if (v <= pts[0][0]) return pts[0][1];
+  if (v >= pts[pts.length - 1][0]) return pts[pts.length - 1][1];
+  for (let i = 0; i < pts.length - 1; i++) {
+    const [x0, s0] = pts[i];
+    const [x1, s1] = pts[i + 1];
+    if (v >= x0 && v <= x1) {
+      return s0 + ((s1 - s0) * (v - x0)) / (x1 - x0);
+    }
+  }
+  return pts[pts.length - 1][1];
+}
+
+// marge_pct band (mirrors params bands: faible 10 / correct 18 / bon 25)
 const MARGE_BAND: [number, number][] = [
   [0, 8],
   [10, 40],
@@ -156,19 +170,32 @@ const MARGE_BAND: [number, number][] = [
   [25, 82],
   [40, 95],
 ];
-
 export function margeSubscore(marginPct: number): number {
-  const pts = MARGE_BAND;
-  if (marginPct <= pts[0][0]) return pts[0][1];
-  if (marginPct >= pts[pts.length - 1][0]) return pts[pts.length - 1][1];
-  for (let i = 0; i < pts.length - 1; i++) {
-    const [x0, s0] = pts[i];
-    const [x1, s1] = pts[i + 1];
-    if (marginPct >= x0 && marginPct <= x1) {
-      return s0 + ((s1 - s0) * (marginPct - x0)) / (x1 - x0);
-    }
-  }
-  return pts[pts.length - 1][1];
+  return bandSubscore(MARGE_BAND, marginPct);
+}
+
+// yield_net_pct band (params: faible 3 / correct 4,5 / bon 6)
+const YIELD_BAND: [number, number][] = [
+  [1.0, 8],
+  [3.0, 40],
+  [4.5, 62],
+  [6.0, 82],
+  [7.5, 95],
+];
+export function yieldNetSubscore(netPct: number): number {
+  return bandSubscore(YIELD_BAND, netPct);
+}
+
+// spread_pct band (params: faible 10 / correct 25 / bon 50)
+const SPREAD_BAND: [number, number][] = [
+  [-10, 5],
+  [10, 40],
+  [25, 62],
+  [50, 82],
+  [75, 95],
+];
+export function spreadSubscore(spreadPct: number): number {
+  return bandSubscore(SPREAD_BAND, spreadPct);
 }
 
 // promotion verdict ladder (params.scoring.verdicts.promotion)
@@ -177,3 +204,40 @@ export function promotionVerdict(total: number): string {
   if (total >= 50) return "Conditionnel";
   return "Passer";
 }
+
+// detention / arbitrage verdict ladders (params.scoring.verdicts — 65 / 45)
+export function detentionVerdict(total: number): string {
+  if (total >= 65) return "Conserver";
+  if (total >= 45) return "Surveiller";
+  return "Ceder";
+}
+export function arbitrageVerdict(total: number): string {
+  if (total >= 65) return "Fenetre ouverte";
+  if (total >= 45) return "Fenetre etroite";
+  return "Fenetre fermee";
+}
+
+// ---------------------------------------------------------------------------
+// K-REST featured assets on the mode pages (client-side live recompute, like
+// HAYA above). Fictional but realistic; every market figure (rates, market
+// rent, median, realizable value, rotation) is read live from the freguesia
+// row so the asset stays aligned with the zone by construction.
+// ---------------------------------------------------------------------------
+// Ribeira Sul — immeuble de rapport, Santa Marinha (détention résidentiel).
+export const RIBEIRA = {
+  surface: 1800,       // m² locatifs
+  lots: 24,
+  acquisition: 2300,   // €/m² acquis
+  travaux: 340,        // €/m² de capex
+  base: 2640,          // base all-in du yield = acquisition + travaux
+  rentMin: 8,
+  rentMax: 16,
+  rentDefault: 11.5,   // €/m²/mois ≈ loyer de marché de la freguesia (139 €/m²/an)
+};
+// Cais Poente — actif trophée front de fleuve, Santa Marinha (arbitrage).
+export const CAIS = {
+  priceMin: 2100,
+  priceMax: 3400,
+  priceDefault: 2520,  // €/m² — spread ~+12% vs médiane Gaia
+  delayExp: 4,         // délai = rotation zone × (prix / valeur réalisable)^exp
+};
