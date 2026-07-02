@@ -25,16 +25,22 @@ const COLS: { key: Key; label: string; unit?: string; num: boolean }[] = [
 export function PriceMarginTable({
   rows,
   mode,
+  residential,
   focusZone,
   onSelect,
 }: {
   rows: PmRow[];
   mode: Mode;
+  residential: boolean;
   focusZone: string | null;
   onSelect: (zone: string) => void;
 }) {
   // Default: richest margin first (rows already arrive margin-desc).
   const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "marginPct", dir: "desc" });
+
+  // Prix ancien / Prime neuf only apply to residential new-build (existing-stock
+  // median + premium); commercial classes price at market → drop those 2 columns.
+  const cols = residential ? COLS : COLS.filter((c) => c.key !== "baseMedian" && c.key !== "premiumPct");
 
   const sorted = useMemo(() => {
     const r = [...rows];
@@ -69,7 +75,7 @@ export function PriceMarginTable({
         <table className="w-full border-collapse text-[13px]">
           <thead className="bg-cream-200">
             <tr className="border-b border-navy/10">
-              {COLS.map((c) => {
+              {cols.map((c) => {
                 const active = sort.key === c.key;
                 return (
                   <th
@@ -120,8 +126,12 @@ export function PriceMarginTable({
                       <span className="text-[10px] text-muted">{Math.round(r.total)}</span>
                     </span>
                   </td>
-                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eur0(r.baseMedian)}</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{pct0(r.premiumPct)}</td>
+                  {residential && (
+                    <>
+                      <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eur0(r.baseMedian)}</td>
+                      <td className="px-3 py-2 text-right tabular-nums text-ink/80">{pct0(r.premiumPct)}</td>
+                    </>
+                  )}
                   <td className="px-3 py-2 text-right tabular-nums text-ink">{eur0(r.realizable)}</td>
                   <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eur0(r.construction)}</td>
                   <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eur0(r.land)}</td>
@@ -142,7 +152,7 @@ export function PriceMarginTable({
             })}
             {sorted.length === 0 && (
               <tr>
-                <td colSpan={9} className="px-4 py-10 text-center text-[13px] text-muted">
+                <td colSpan={cols.length + 1} className="px-4 py-10 text-center text-[13px] text-muted">
                   Chargement des freguesias…
                 </td>
               </tr>

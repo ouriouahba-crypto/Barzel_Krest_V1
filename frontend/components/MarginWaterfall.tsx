@@ -83,22 +83,39 @@ export function MarginWaterfall({
             muted
           />
         ))}
-        {/* Margin result */}
+        {/* Margin result — or a dedicated loss state when the deal doesn't pencil */}
         <div className="mt-1 border-t border-dashed border-navy/15 pt-2">
-          <WaterRow
-            label="= Marge promoteur"
-            value={margin}
-            left={0}
-            width={(margin / base) * 100}
-            color={marginColor}
-            strong
-          />
+          {margin >= 0 ? (
+            <WaterRow
+              label="= Marge promoteur"
+              value={margin}
+              left={0}
+              width={(margin / base) * 100}
+              color={marginColor}
+              strong
+            />
+          ) : (
+            <div className="flex items-center gap-3">
+              <span className="w-[130px] shrink-0 text-[12px] font-medium" style={{ color: "#9E5B5B" }}>
+                = Perte
+              </span>
+              <div className="relative h-5 flex-1 overflow-hidden rounded-md bg-navy/[0.04]">
+                <div className="absolute inset-0 rounded-md" style={{ background: "#9E5B5B", opacity: 0.25 }} />
+              </div>
+              <span
+                className="w-[86px] shrink-0 text-right text-[12px] font-semibold tabular-nums"
+                style={{ color: "#9E5B5B" }}
+              >
+                {eur0(margin)}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
         <MiniStat label="Coût de revient" value={eurM2(row.costTotal)} />
-        <MiniStat label="Marge / m²" value={eurM2(margin)} accent={marginColor} />
+        <MiniStat label={margin >= 0 ? "Marge / m²" : "Perte / m²"} value={eurM2(margin)} accent={marginColor} />
         <MiniStat label="Score promotion" value={`${Math.round(row.total)}`} accent={scoreColor(row.total)} />
       </div>
     </div>

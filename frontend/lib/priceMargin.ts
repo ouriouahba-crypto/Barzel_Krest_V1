@@ -3,7 +3,7 @@
 // Reused by the table, the margin waterfall, the bar chart and the key figures.
 
 import { CityResponse, MargeBreakdown } from "./api";
-import { median } from "./scoring";
+import { median, verdictTone } from "./scoring";
 import { displayName, shortName } from "./useGaia";
 
 export interface PmRow {
@@ -61,17 +61,24 @@ export interface PmSummary {
   medianMargin: number | null;
   medianRealizable: number | null;
   medianCost: number | null;
-  best: PmRow | null;         // most profitable freguesia
+  best: PmRow | null;                 // most profitable freguesia (over all)
+  scope: "viables" | "toutes";        // basis of the medians
 }
 
+// Medians are computed on viable freguesias only (verdict Go/Conditionnel); if a
+// class has none viable, fall back to all freguesias (scope flagged accordingly).
 export function pmSummary(rows: PmRow[]): PmSummary {
-  if (!rows.length) return { medianMargin: null, medianRealizable: null, medianCost: null, best: null };
+  if (!rows.length)
+    return { medianMargin: null, medianRealizable: null, medianCost: null, best: null, scope: "toutes" };
   const best = rows.reduce((a, b) => (b.marginPct > a.marginPct ? b : a));
+  const viable = rows.filter((r) => verdictTone("promotion", r.verdict) !== "low");
+  const use = viable.length ? viable : rows;
   return {
-    medianMargin: median(rows.map((r) => r.marginPct)),
-    medianRealizable: median(rows.map((r) => r.realizable)),
-    medianCost: median(rows.map((r) => r.costTotal)),
+    medianMargin: median(use.map((r) => r.marginPct)),
+    medianRealizable: median(use.map((r) => r.realizable)),
+    medianCost: median(use.map((r) => r.costTotal)),
     best,
+    scope: viable.length ? "viables" : "toutes",
   };
 }
 

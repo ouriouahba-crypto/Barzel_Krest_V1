@@ -52,6 +52,7 @@ export default function PrixMargePage() {
   );
 
   const showHaya = g.focusZone === AFURADA && cls === "residential" && !!g.hayaProps;
+  const scopeLabel = summary.scope === "viables" ? "freguesias viables" : "toutes freguesias";
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -66,6 +67,7 @@ export default function PrixMargePage() {
           onMode={() => { /* module épinglé sur la promotion */ }}
           assetClass={g.assetClass}
           onClass={g.setAssetClass}
+          hideMode
         />
 
         {g.error && (
@@ -89,12 +91,12 @@ export default function PrixMargePage() {
             </p>
           </div>
 
-          {/* 4 key figures */}
+          {/* 4 key figures — medians on viable freguesias (Go/Conditionnel) */}
           <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
             <Kpi
               label="Marge médiane"
               value={summary.medianMargin != null ? `${summary.medianMargin.toFixed(1)}%` : "—"}
-              sub={`freguesias · ${classLabel(cls)}`}
+              sub={scopeLabel}
             />
             <Kpi
               label="Freguesia la plus rentable"
@@ -105,17 +107,23 @@ export default function PrixMargePage() {
             <Kpi
               label="Prix neuf réalisable médian"
               value={eurM2(summary.medianRealizable)}
-              sub="médiane freguesias"
+              sub={scopeLabel}
             />
             <Kpi
               label="Coût de revient médian"
               value={eurM2(summary.medianCost)}
-              sub="construction + foncier + annexes"
+              sub={scopeLabel}
             />
           </div>
 
           {/* Table — core of the page */}
-          <PriceMarginTable rows={rows} mode="promotion" focusZone={g.focusZone} onSelect={g.setFocusZone} />
+          <PriceMarginTable
+            rows={rows}
+            mode="promotion"
+            residential={cls === "residential"}
+            focusZone={g.focusZone}
+            onSelect={g.setFocusZone}
+          />
 
           {/* Margin decomposition (+ Haya slider for Afurada residential) */}
           <div className={`shrink-0 ${showHaya ? "grid grid-cols-1 gap-4 xl:grid-cols-[1.35fr_1fr]" : ""}`}>

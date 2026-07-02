@@ -998,6 +998,26 @@ def _verdict(st: State, mode: str, total: float) -> str:
     return ladder[-1]["label"]
 
 
+def _promotion_verdict_cap(st: State, verdict: str, marge: "Pillar | None") -> str:
+    """Guardrail on the promotion verdict by developer margin: a losing deal caps
+    at 'Passer', a thin margin (0 <= marge < 8%) caps at the middle verdict — a
+    strong location can't rescue economics that don't pencil."""
+    if marge is None or not marge.applicable or not isinstance(marge.native_value, (int, float)):
+        return verdict
+    m = marge.native_value
+    ladder = [v["label"] for v in st.params["scoring"]["verdicts"]["promotion"]]  # best -> worst
+    rank = {lab: i for i, lab in enumerate(ladder)}
+
+    def cap(v: str, max_label: str) -> str:
+        return max_label if rank.get(v, 0) < rank.get(max_label, len(ladder) - 1) else v
+
+    if m < 0:
+        return cap(verdict, ladder[-1])   # Passer
+    if m < 8:
+        return cap(verdict, ladder[1])    # Conditionnel (middle)
+    return verdict
+
+
 def _confidence_index(st: State, pillars: list[Pillar]) -> dict:
     applicable = [p for p in pillars if p.applicable]
     if not applicable:
@@ -1059,6 +1079,9 @@ def score_mode(zone_id: str, mode: str, asset_class: str | None = None,
             total += p.subscore * p.weight
 
     by_key = {p.key: p for p in pillars}
+    verdict = _verdict(st, mode, total)
+    if mode == "promotion":
+        verdict = _promotion_verdict_cap(st, verdict, by_key.get("marge"))
     return {
         "zone": zone_id, "zone_name": z["name"], "city": z["city"],
         "country": z["country"], "level": z["level"], "mode": mode,
@@ -1068,7 +1091,7 @@ def score_mode(zone_id: str, mode: str, asset_class: str | None = None,
         "yoy_pct": z["residential"].get("yoy_pct"),
         "n_transactions": z["residential"].get("n_transactions"),
         "total": round(total, 1),
-        "verdict": _verdict(st, mode, total),
+        "verdict": verdict,
         "native_indicator": _native_indicator(mode, by_key),
         "data_confidence_index": _confidence_index(st, pillars),
         "pillars": [p.to_dict() for p in pillars],

@@ -12,6 +12,7 @@ export function Header({
   onMode,
   assetClass,
   onClass,
+  hideMode = false,
 }: {
   marketLine: string;
   freguesias: { id: string; label: string }[];
@@ -21,6 +22,7 @@ export function Header({
   onMode: (m: Mode) => void;
   assetClass: string;
   onClass: (c: string) => void;
+  hideMode?: boolean;
 }) {
   return (
     <header className="relative z-[1000] border-b border-navy/10 bg-cream/80 px-6 py-4 backdrop-blur">
@@ -38,15 +40,17 @@ export function Header({
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-x-8 gap-y-3 pl-[18px]">
-        <div className="flex items-center gap-3">
-          <span className="text-[11px] font-semibold uppercase tracking-widest text-muted">Mode</span>
-          <Segmented
-            size="lg"
-            options={MODES.map((m) => ({ value: m, label: MODE_LABEL[m] }))}
-            value={mode}
-            onChange={onMode}
-          />
-        </div>
+        {!hideMode && (
+          <div className="flex items-center gap-3">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted">Mode</span>
+            <Segmented
+              size="lg"
+              options={MODES.map((m) => ({ value: m, label: MODE_LABEL[m] }))}
+              value={mode}
+              onChange={onMode}
+            />
+          </div>
+        )}
         <div className="flex items-center gap-3">
           <span className="text-[11px] font-semibold uppercase tracking-widest text-muted">Classe</span>
           <Segmented options={ASSET_CLASSES} value={assetClass} onChange={onClass} />

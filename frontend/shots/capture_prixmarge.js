@@ -47,6 +47,17 @@ async function fitAndShoot(p, path) {
   console.log("shot bureaux done");
   await p2.close();
 
+  // 3) Logistique
+  const p3 = await b.newPage({ viewport: { width: W, height: 1024 }, deviceScaleFactor: 2 });
+  await p3.goto(URL, { waitUntil: "networkidle" });
+  await ready(p3);
+  await p3.getByRole("button", { name: "Logistique", exact: true }).click();
+  await p3.waitForTimeout(1800);
+  await ready(p3);
+  await fitAndShoot(p3, "shots/prixmarge_logistique.png");
+  console.log("shot logistique done");
+  await p3.close();
+
   await b.close();
 })().catch((e) => {
   console.error(e);
