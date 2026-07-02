@@ -1,0 +1,72 @@
+[ {
+  "IndicadorCod" : "0012231",
+  "IndicadorDsg" : "Valor mediano das vendas de alojamentos familiares nos últimos 12 meses (Metodologia 2022 - €/ m²) por Localização geográfica (NUTS 2024 - Cidades com mais de 100 000 habitantes) e Domicílio fiscal do comprador; Trimestral - INE, Estatísticas de preços da habitação ao nível local (Metodologia 2022)",
+  "MetaInfUrl" : "https://www.ine.pt/bddXplorer/htdocs/minfo.jsp?var_cd=0012231&lingua=PT",
+  "DataExtracao" : "2026-07-01T13:21:09.366+01:00",
+  "DataUltimoAtualizacao" : "2026-04-24",
+  "UltimoPref" : "4.º Trimestre de 2025",
+  "Dados" : {
+    "4.º Trimestre de 2025" : [ {
+      "geocod" : "1120003",
+      "geodsg" : "Braga",
+      "dim_3" : "1",
+      "dim_3_t" : "Território nacional",
+      "ind_string" : "2 052",
+      "valor" : "2052"
+    }, {
+      "geocod" : "1920047",
+      "geodsg" : "Coimbra",
+      "dim_3" : "1",
+      "dim_3_t" : "Território nacional",
+      "ind_string" : "2 309",
+      "valor" : "2309"
+    }, {
+      "geocod" : "11A0021",
+      "geodsg" : "Vila Nova de Gaia",
+      "dim_3" : "1",
+      "dim_3_t" : "Território nacional",
+      "ind_string" : "2 595",
+      "valor" : "2595"
+    }, {
+      "geocod" : "3000117",
+      "geodsg" : "Funchal",
+      "dim_3" : "1",
+      "dim_3_t" : "Território nacional",
+      "ind_string" : "2 966",
+      "valor" : "2966"
+    }, {
+      "geocod" : "1A00067",
+      "geodsg" : "Amadora",
+      "dim_3" : "1",
+      "dim_3_t" : "Território nacional",
+      "ind_string" : "2 989",
+      "valor" : "2989"
+    }, {
+      "geocod" : "T",
+      "geodsg" : "Total",
+      "dim_3" : "1",
+      "dim_3_t" : "Território nacional",
+      "ind_string" : "3 209",
+      "valor" : "3209"
+    }, {
+      "geocod" : "11A0016",
+      "geodsg" : "Porto",
+      "dim_3" : "1",
+      "dim_3_t" : "Território nacional",
+      "ind_string" : "3 304",
+      "valor" : "3304"
+    }, {
+      "geocod" : "1A00068",
+      "geodsg" : "Lisboa",
+      "dim_3" : "1",
+      "dim_3_t" : "Território nacional",
+      "ind_string" : "4 813",
+      "valor" : "4813"
+    } ]
+  },
+  "Sucesso" : {
+    "Verdadeiro" : [ {
+      "Msg" : "OK"
+    } ]
+  }
+} ]

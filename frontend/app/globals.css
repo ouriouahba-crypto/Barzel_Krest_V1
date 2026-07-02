@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  height: 100%;
+}
+body {
+  background: #f6f2e9;
+  color: #243447;
+  font-family: var(--font-montserrat), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-playfair), Georgia, serif;
+}
+
+/* Leaflet: keep it inside the charte, no default blue focus */
+.leaflet-container {
+  background: #0a1628;
+  font-family: var(--font-montserrat), sans-serif;
+  outline: none;
+}
+.leaflet-interactive:focus {
+  outline: none;
+}
+.freg-tooltip {
+  background: #0a1628;
+  color: #f3eee3;
+  border: 1px solid rgba(201, 168, 106, 0.5);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  box-shadow: 0 6px 18px rgba(10, 22, 40, 0.35);
+}
+.freg-tooltip::before {
+  display: none;
+}
+
+/* Range slider — gold on navy */
+input[type="range"].haya-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #c9a86a var(--pct, 50%), rgba(255, 255, 255, 0.18) var(--pct, 50%));
+  outline: none;
+}
+input[type="range"].haya-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #f3eee3;
+  border: 3px solid #c9a86a;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+input[type="range"].haya-range::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #f3eee3;
+  border: 3px solid #c9a86a;
+  cursor: pointer;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.fade-up {
+  animation: fadeUp 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}

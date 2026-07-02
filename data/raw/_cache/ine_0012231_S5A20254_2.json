@@ -1,0 +1,73 @@
+[ {
+  "IndicadorCod" : "0012231",
+  "IndicadorDsg" : "Valor mediano das vendas de alojamentos familiares nos últimos 12 meses (Metodologia 2022 - €/ m²) por Localização geográfica (NUTS 2024 - Cidades com mais de 100 000 habitantes) e Domicílio fiscal do comprador; Trimestral - INE, Estatísticas de preços da habitação ao nível local (Metodologia 2022)",
+  "MetaInfUrl" : "https://www.ine.pt/bddXplorer/htdocs/minfo.jsp?var_cd=0012231&lingua=PT",
+  "DataExtracao" : "2026-07-01T13:21:09.705+01:00",
+  "DataUltimoAtualizacao" : "2026-04-24",
+  "UltimoPref" : "4.º Trimestre de 2025",
+  "Dados" : {
+    "4.º Trimestre de 2025" : [ {
+      "geocod" : "1920047",
+      "geodsg" : "Coimbra",
+      "dim_3" : "2",
+      "dim_3_t" : "Estrangeiro",
+      "ind_string" : "2 115",
+      "valor" : "2115"
+    }, {
+      "geocod" : "1120003",
+      "geodsg" : "Braga",
+      "dim_3" : "2",
+      "dim_3_t" : "Estrangeiro",
+      "ind_string" : "2 688",
+      "valor" : "2688"
+    }, {
+      "geocod" : "11A0021",
+      "geodsg" : "Vila Nova de Gaia",
+      "dim_3" : "2",
+      "dim_3_t" : "Estrangeiro",
+      "ind_string" : "3 648",
+      "valor" : "3648"
+    }, {
+      "geocod" : "11A0016",
+      "geodsg" : "Porto",
+      "dim_3" : "2",
+      "dim_3_t" : "Estrangeiro",
+      "ind_string" : "4 132",
+      "valor" : "4132"
+    }, {
+      "geocod" : "3000117",
+      "geodsg" : "Funchal",
+      "dim_3" : "2",
+      "dim_3_t" : "Estrangeiro",
+      "ind_string" : "4 375",
+      "valor" : "4375"
+    }, {
+      "geocod" : "T",
+      "geodsg" : "Total",
+      "dim_3" : "2",
+      "dim_3_t" : "Estrangeiro",
+      "ind_string" : "4 724",
+      "valor" : "4724"
+    }, {
+      "geocod" : "1A00068",
+      "geodsg" : "Lisboa",
+      "dim_3" : "2",
+      "dim_3_t" : "Estrangeiro",
+      "ind_string" : "6 026",
+      "valor" : "6026"
+    }, {
+      "geocod" : "1A00067",
+      "geodsg" : "Amadora",
+      "dim_3" : "2",
+      "dim_3_t" : "Estrangeiro",
+      "sinal_conv" : "-",
+      "sinal_conv_desc" : "Dado nulo ou não aplicável",
+      "ind_string" : "-"
+    } ]
+  },
+  "Sucesso" : {
+    "Verdadeiro" : [ {
+      "Msg" : "OK"
+    } ]
+  }
+} ]

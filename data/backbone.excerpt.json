@@ -1,0 +1,977 @@
+{
+  "meta": {
+    "version": "0.1",
+    "generated": "2026-07-01",
+    "purpose": "Socle data hybride Barzel x KREST. Colonne vertebrale = agregats officiels reels par zone fine. Texture au niveau du bien = a generer par echantillonnage dans les quantiles reels (non inclus ici). Commercial = cure depuis rapports brokers.",
+    "confidence_levels": {
+      "officiel": "Valeur publiee par un institut statistique national sur transactions enregistrees (INE, Statbel).",
+      "derive": "Calcule a partir d une donnee officielle (ex. prix total / superficie = eur/m2).",
+      "rapport": "Extrait d un rapport professionnel gratuit (CBRE, JLL, Cushman, Savills, Colliers, barometres).",
+      "a_collecter": "Zone reelle mais valeur non encore extraite. Necessite l export be.STAT / base INE ou le rapport source."
+    },
+    "note_belgique": "Statbel publie un prix median TOTAL par type de bien, pas un eur/m2 direct. CONSTAT VERIFIE : les fichiers d'actes actuels (TF_IMMO_SECTOR par secteur NIS9, vastgoed_2010_9999 par commune) ne contiennent AUCUNE colonne de superficie, pour aucun type. Le eur/m2 n'en est donc pas derivable directement ; on conserve le prix total et ses quantiles P10-P90 en 'officiel'. Le eur/m2 est DERIVE (confidence 'derive') en divisant le prix median par une superficie mediane issue de l'ancien fichier cadastral Statbel 'Ventes ... par commune' (immo_by_municipality), seul jeu officiel gratuit portant superficie + n transactions ; la superficie est cadastrale (terrain, approximation, pas surface habitable certifiee) et structurellement stable, son annee est consignee dans surface_as_of. Les APPARTEMENTS n'ont pas de superficie cadastrale : leur eur/m2 reste 'a_collecter' tandis que prix total + quantiles restent 'officiel'. IBSA / opendata.brussels.be n'expose aucun eur/m2 ni loyer ouvert (seulement la geographie des quartiers et des rapports PDF).",
+    "note_portugal": "INE publie le prix median eur/m2 par freguesia et grille 500m pour Lisboa, Porto, V.N. Gaia (villes >100k), sur transactions enregistrees, trimestriel glissant 12 mois, minimum 33 ventes par categorie.",
+    "generated_at": "2026-07-01T13:02:21+00:00",
+    "pipeline": "backend.data.collect (ine_pt + statbel_be + statbel_surface + ibsa_bxl + normalize)",
+    "_excerpt_note": "Extrait lisible (secteurs tronques a 2/commune ; Gaia limitee a 4 zones). Complet: 179 secteurs, 49 zones."
+  },
+  "sources": {
+    "ine_local": "INE - Estatisticas de Precos da Habitacao ao nivel local + plataforma Precos da Habitacao nas cidades (freguesia, grille 500m, typologie, domicile fiscal acheteur national/etranger, n transactions).",
+    "statbel_cadastre": "Statbel - Ventes de biens immobiliers selon la nature du bien (plan cadastral) par commune ET par secteur statistique NIS7/NIS9 : n transactions, prix total, superficie totale, prix moyen, quantiles P10/Q25/Q50/Q75/P90. Export be.STAT (xlsx/csv/json).",
+    "ibsa": "IBSA - Monitoring des Quartiers (Bruxelles) : prix et loyers par quartier ; Cahier n.16 geographie loyers et prix 2010-2024.",
+    "barometre_loyers_be": "Federia / CIB - Barometre des locations : loyers medians residentiels par type et region (exclut le commercial).",
+    "brokers": "CBRE, JLL, Cushman & Wakefield, Savills, Colliers - market outlooks Portugal et Belgique : yields prime, loyers prime, take-up, vacance (rapports gratuits, extraction manuelle).",
+    "overlays_officiels": "Diario da Republica (aeroport Alcochete, reforme 2026, mesures preventives), RNAL/ALEP (zones AL), regimes regionaux BE (droits, PEB, permis), OVAM (sol/PFAS).",
+    "statbel_surface": "Statbel - ancien cadastre 'Ventes ... par commune' (immo_by_municipality) : superficie totale + n transactions par commune et type -> surface mediane pour deriver un eur/m2. Surface cadastrale (terrain), approximation."
+  },
+  "cities": {
+    "lisbonne": {
+      "country": "pt",
+      "market_line": "Prime central en retournement (-4 a -7% zones saturees), stock qualite rare, tous les modes vivants.",
+      "residential_ref": {
+        "municipio_median_eur_m2": 4875,
+        "as_of": "2025 (annee)",
+        "prev": 4412,
+        "prev_as_of": "2025-Q1",
+        "confidence": "officiel",
+        "source": "ine_local"
+      },
+      "zones": [
+        {
+          "id": "arroios",
+          "name": "Arroios",
+          "level": "freguesia",
+          "krest": null,
+          "status": "real",
+          "residential": {
+            "status": "real",
+            "median_eur_m2": 4523,
+            "median_eur_m2_apartments": 4525,
+            "quantiles": {
+              "p10": null,
+              "q25": null,
+              "q50": null,
+              "q75": null,
+              "p90": null
+            },
+            "n_transactions": 673,
+            "n_transactions_confidence": "officiel",
+            "yoy_pct": 5.9,
+            "yoy_confidence": "derive",
+            "yoy_basis": "vs 2024-Q4",
+            "confidence": "officiel",
+            "source": "ine_local",
+            "as_of": "2025-Q4",
+            "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+            "n_transactions_source": "0014363"
+          }
+        },
+        {
+          "id": "parquedasnacoes",
+          "name": "Parque das Nacoes",
+          "level": "freguesia",
+          "krest": "K-Tower (cedee ~90 M eur, 2024), Moxy Lisboa Oriente",
+          "status": "real",
+          "residential": {
+            "status": "real",
+            "median_eur_m2": 6317,
+            "median_eur_m2_apartments": 6328,
+            "quantiles": {
+              "p10": null,
+              "q25": null,
+              "q50": null,
+              "q75": null,
+              "p90": null
+            },
+            "n_transactions": 410,
+            "n_transactions_confidence": "officiel",
+            "yoy_pct": 22.2,
+            "yoy_confidence": "derive",
+            "yoy_basis": "vs 2024-Q4",
+            "confidence": "officiel",
+            "source": "ine_local",
+            "as_of": "2025-Q4",
+            "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+            "n_transactions_source": "0014363",
+            "note": "Freguesia riverfront haut de gamme. A extraire via base INE. Reference marche annonces ~5000+ eur/m2."
+          },
+          "commercial": {
+            "office_prime_yield_pct": 4.9,
+            "office_prime_rent_eur_m2_month": 32,
+            "confidence": "rapport",
+            "source": "brokers"
+          }
+        },
+        {
+          "id": "lisboa",
+          "name": "Lisboa",
+          "level": "municipio",
+          "residential": {
+            "status": "real",
+            "median_eur_m2": 4875,
+            "median_eur_m2_apartments": 4875,
+            "quantiles": {
+              "p10": null,
+              "q25": null,
+              "q50": null,
+              "q75": null,
+              "p90": null
+            },
+            "n_transactions": 8235,
+            "n_transactions_confidence": "officiel",
+            "yoy_pct": 12.3,
+            "yoy_confidence": "derive",
+            "yoy_basis": "vs 2024-Q4",
+            "confidence": "officiel",
+            "source": "ine_local",
+            "as_of": "2025-Q4",
+            "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+            "n_transactions_source": "0014363",
+            "buyer_domicile_split": {
+              "national_eur_m2": 4813,
+              "foreign_eur_m2": 6026,
+              "confidence": "officiel"
+            }
+          },
+          "status": "real"
+        }
+      ],
+      "commercial_market": {
+        "office_prime_yield_pct": 4.75,
+        "office_prime_rent_eur_m2_month": 32,
+        "retail_note": "High street tres peu vacant",
+        "hotel_note": "Tourisme record",
+        "confidence": "rapport",
+        "source": "brokers"
+      },
+      "overlays": [
+        {
+          "type": "marche",
+          "label": "Retournement du prime central -4 a -7% (2026)",
+          "confidence": "rapport"
+        },
+        {
+          "type": "reglementaire",
+          "label": "Zones de contention AL : Santa Maria Maior, Misericordia, Santo Antonio (nouvelles licences interdites)",
+          "confidence": "officiel",
+          "source": "overlays_officiels"
+        }
+      ],
+      "label": "Lisboa"
+    },
+    "bruxelles": {
+      "country": "be",
+      "market_line": "Marche siege et vitrine, fuite vers l ESG (~70% des deals en neuf), living en tension, goulot des permis. Droits 12,5% + abattement 200 000 eur.",
+      "residential_ref": {
+        "region_apartment_median_total_eur": 250000,
+        "region_house_closed_median_total_eur": 510000,
+        "as_of": "2025 (annee)",
+        "confidence": "officiel",
+        "source": "statbel_cadastre",
+        "note": "Prix TOTAL median par type. eur/m2 a deriver via superficie du jeu cadastral (par commune ET secteur statistique NIS9)."
+      },
+      "zones": [
+        {
+          "id": "ixelles",
+          "name": "Ixelles",
+          "level": "commune",
+          "krest": null,
+          "status": "real",
+          "residential": {
+            "status": "real",
+            "median_eur_m2": null,
+            "eur_m2_confidence": null,
+            "eur_m2_source": null,
+            "surface_m2": null,
+            "surface_as_of": null,
+            "surface_basis": "superficie cadastrale (terrain), approximation — pas surface habitable certifiee",
+            "median_total_eur": 342000,
+            "headline_type": "Appartements",
+            "quantiles": {
+              "p10": null,
+              "q25": 249000,
+              "q50": 342000,
+              "q75": 455000,
+              "p90": null
+            },
+            "quantiles_basis": "total_price_eur",
+            "n_transactions": 1023,
+            "yoy_pct": null,
+            "by_type": {
+              "Appartements": {
+                "class": "apartment",
+                "median_total_eur": 342000,
+                "eur_m2_derived": null,
+                "eur_m2_confidence": null,
+                "surface_m2": null,
+                "surface_as_of": null,
+                "surface_source": null,
+                "n_transactions": 1023,
+                "quantiles": {
+                  "p10": null,
+                  "q25": 249000,
+                  "q50": 342000,
+                  "q75": 455000,
+                  "p90": null
+                }
+              },
+              "Maisons avec 2 ou 3 façades (type fermé + type demi-fermé)": {
+                "class": "house",
+                "median_total_eur": 785000,
+                "eur_m2_derived": 4857.7,
+                "eur_m2_confidence": "derive",
+                "surface_m2": 161.6,
+                "surface_as_of": "2017",
+                "surface_source": "statbel_surface",
+                "n_transactions": 116,
+                "quantiles": {
+                  "p10": null,
+                  "q25": 590000,
+                  "q50": 785000,
+                  "q75": 1069000,
+                  "p90": null
+                }
+              },
+              "Toutes les maisons avec 2, 3, 4 ou plus de façades (excl. appartements)": {
+                "class": "house",
+                "median_total_eur": 785000,
+                "eur_m2_derived": 4857.7,
+                "eur_m2_confidence": "derive",
+                "surface_m2": 161.6,
+                "surface_as_of": "2017",
+                "surface_source": "statbel_surface",
+                "n_transactions": 116,
+                "quantiles": {
+                  "p10": null,
+                  "q25": 590000,
+                  "q50": 785000,
+                  "q75": 1069000,
+                  "p90": null
+                }
+              }
+            },
+            "confidence": "officiel",
+            "source": "statbel_cadastre",
+            "as_of": "2025",
+            "source_url": "https://statbel.fgov.be/sites/default/files/files/opendata/immo/vastgoed_2010_9999.zip",
+            "note": "eur/m2 non derive pour le type dominant (les appartements n'ont pas de superficie cadastrale). Prix total + quantiles P10-P90 = officiel ; voir by_type pour l'eur/m2 derive des maisons.",
+            "sectors": [
+              {
+                "id": "21009A00-",
+                "nis9": "21009A00-",
+                "name": "21009A00-",
+                "level": "secteur_statistique",
+                "status": "real",
+                "residential": {
+                  "status": "real",
+                  "median_eur_m2": null,
+                  "eur_m2_confidence": null,
+                  "eur_m2_source": null,
+                  "surface_m2": null,
+                  "surface_as_of": null,
+                  "surface_basis": "superficie cadastrale (terrain), approximation — pas surface habitable certifiee",
+                  "median_total_eur": 355000,
+                  "headline_type": "Appartements",
+                  "quantiles": {
+                    "p10": 235000,
+                    "q25": 290000,
+                    "q50": 355000,
+                    "q75": 457500,
+                    "p90": 530000
+                  },
+                  "quantiles_basis": "total_price_eur",
+                  "n_transactions": 86,
+                  "yoy_pct": null,
+                  "by_type": {
+                    "Appartements": {
+                      "class": "apartment",
+                      "median_total_eur": 355000,
+                      "eur_m2_derived": null,
+                      "eur_m2_confidence": null,
+                      "surface_m2": null,
+                      "surface_as_of": null,
+                      "surface_source": null,
+                      "n_transactions": 86,
+                      "quantiles": {
+                        "p10": 235000,
+                        "q25": 290000,
+                        "q50": 355000,
+                        "q75": 457500,
+                        "p90": 530000
+                      }
+                    }
+                  },
+                  "confidence": "officiel",
+                  "source": "statbel_cadastre",
+                  "as_of": "2024",
+                  "source_url": "https://statbel.fgov.be/sites/default/files/files/opendata/Immo%20sector/TF_IMMO_SECTOR.zip",
+                  "note": "eur/m2 non derive pour le type dominant (les appartements n'ont pas de superficie cadastrale). Prix total + quantiles P10-P90 = officiel ; voir by_type pour l'eur/m2 derive des maisons."
+                }
+              },
+              {
+                "id": "21009A03-",
+                "nis9": "21009A03-",
+                "name": "21009A03-",
+                "level": "secteur_statistique",
+                "status": "real",
+                "residential": {
+                  "status": "real",
+                  "median_eur_m2": null,
+                  "eur_m2_confidence": null,
+                  "eur_m2_source": null,
+                  "surface_m2": null,
+                  "surface_as_of": null,
+                  "surface_basis": "superficie cadastrale (terrain), approximation — pas surface habitable certifiee",
+                  "median_total_eur": 287500,
+                  "headline_type": "Appartements",
+                  "quantiles": {
+                    "p10": 160000,
+                    "q25": 226500,
+                    "q50": 287500,
+                    "q75": 377000,
+                    "p90": 470000
+                  },
+                  "quantiles_basis": "total_price_eur",
+                  "n_transactions": 31,
+                  "yoy_pct": null,
+                  "by_type": {
+                    "Appartements": {
+                      "class": "apartment",
+                      "median_total_eur": 287500,
+                      "eur_m2_derived": null,
+                      "eur_m2_confidence": null,
+                      "surface_m2": null,
+                      "surface_as_of": null,
+                      "surface_source": null,
+                      "n_transactions": 31,
+                      "quantiles": {
+                        "p10": 160000,
+                        "q25": 226500,
+                        "q50": 287500,
+                        "q75": 377000,
+                        "p90": 470000
+                      }
+                    }
+                  },
+                  "confidence": "officiel",
+                  "source": "statbel_cadastre",
+                  "as_of": "2024",
+                  "source_url": "https://statbel.fgov.be/sites/default/files/files/opendata/Immo%20sector/TF_IMMO_SECTOR.zip",
+                  "note": "eur/m2 non derive pour le type dominant (les appartements n'ont pas de superficie cadastrale). Prix total + quantiles P10-P90 = officiel ; voir by_type pour l'eur/m2 derive des maisons."
+                }
+              }
+            ],
+            "n_sectors": 18
+          },
+          "nis5": "21009"
+        },
+        {
+          "id": "uccle",
+          "name": "Uccle",
+          "level": "commune",
+          "nis5": "21016",
+          "status": "real",
+          "residential": {
+            "status": "real",
+            "median_eur_m2": null,
+            "eur_m2_confidence": null,
+            "eur_m2_source": null,
+            "surface_m2": null,
+            "surface_as_of": null,
+            "surface_basis": "superficie cadastrale (terrain), approximation — pas surface habitable certifiee",
+            "median_total_eur": 336000,
+            "headline_type": "Appartements",
+            "quantiles": {
+              "p10": null,
+              "q25": 249000,
+              "q50": 336000,
+              "q75": 460000,
+              "p90": null
+            },
+            "quantiles_basis": "total_price_eur",
+            "n_transactions": 949,
+            "yoy_pct": null,
+            "by_type": {
+              "Appartements": {
+                "class": "apartment",
+                "median_total_eur": 336000,
+                "eur_m2_derived": null,
+                "eur_m2_confidence": null,
+                "surface_m2": null,
+                "surface_as_of": null,
+                "surface_source": null,
+                "n_transactions": 949,
+                "quantiles": {
+                  "p10": null,
+                  "q25": 249000,
+                  "q50": 336000,
+                  "q75": 460000,
+                  "p90": null
+                }
+              },
+              "Maisons avec 2 ou 3 façades (type fermé + type demi-fermé)": {
+                "class": "house",
+                "median_total_eur": 623000,
+                "eur_m2_derived": 1429.6,
+                "eur_m2_confidence": "derive",
+                "surface_m2": 435.8,
+                "surface_as_of": "2017",
+                "surface_source": "statbel_surface",
+                "n_transactions": 279,
+                "quantiles": {
+                  "p10": null,
+                  "q25": 470000,
+                  "q50": 623000,
+                  "q75": 850000,
+                  "p90": null
+                }
+              },
+              "Maisons avec 4 ou plus de façades (type ouvert)": {
+                "class": "house",
+                "median_total_eur": 1250000,
+                "eur_m2_derived": 2868.3,
+                "eur_m2_confidence": "derive",
+                "surface_m2": 435.8,
+                "surface_as_of": "2017",
+                "surface_source": "statbel_surface",
+                "n_transactions": 54,
+                "quantiles": {
+                  "p10": null,
+                  "q25": 1055000,
+                  "q50": 1250000,
+                  "q75": 1997500,
+                  "p90": null
+                }
+              },
+              "Toutes les maisons avec 2, 3, 4 ou plus de façades (excl. appartements)": {
+                "class": "house",
+                "median_total_eur": 700000,
+                "eur_m2_derived": 1606.2,
+                "eur_m2_confidence": "derive",
+                "surface_m2": 435.8,
+                "surface_as_of": "2017",
+                "surface_source": "statbel_surface",
+                "n_transactions": 333,
+                "quantiles": {
+                  "p10": null,
+                  "q25": 500000,
+                  "q50": 700000,
+                  "q75": 1050000,
+                  "p90": null
+                }
+              }
+            },
+            "confidence": "officiel",
+            "source": "statbel_cadastre",
+            "as_of": "2025",
+            "source_url": "https://statbel.fgov.be/sites/default/files/files/opendata/immo/vastgoed_2010_9999.zip",
+            "note": "eur/m2 non derive pour le type dominant (les appartements n'ont pas de superficie cadastrale). Prix total + quantiles P10-P90 = officiel ; voir by_type pour l'eur/m2 derive des maisons.",
+            "sectors": [
+              {
+                "id": "21016A00K",
+                "nis9": "21016A00K",
+                "name": "21016A00K",
+                "level": "secteur_statistique",
+                "status": "real",
+                "residential": {
+                  "status": "real",
+                  "median_eur_m2": null,
+                  "eur_m2_confidence": null,
+                  "eur_m2_source": null,
+                  "surface_m2": null,
+                  "surface_as_of": null,
+                  "surface_basis": "superficie cadastrale (terrain), approximation — pas surface habitable certifiee",
+                  "median_total_eur": 260000,
+                  "headline_type": "Appartements",
+                  "quantiles": {
+                    "p10": 190000,
+                    "q25": 227000,
+                    "q50": 260000,
+                    "q75": 327500,
+                    "p90": 425000
+                  },
+                  "quantiles_basis": "total_price_eur",
+                  "n_transactions": 60,
+                  "yoy_pct": null,
+                  "by_type": {
+                    "Appartements": {
+                      "class": "apartment",
+                      "median_total_eur": 260000,
+                      "eur_m2_derived": null,
+                      "eur_m2_confidence": null,
+                      "surface_m2": null,
+                      "surface_as_of": null,
+                      "surface_source": null,
+                      "n_transactions": 60,
+                      "quantiles": {
+                        "p10": 190000,
+                        "q25": 227000,
+                        "q50": 260000,
+                        "q75": 327500,
+                        "p90": 425000
+                      }
+                    }
+                  },
+                  "confidence": "officiel",
+                  "source": "statbel_cadastre",
+                  "as_of": "2024",
+                  "source_url": "https://statbel.fgov.be/sites/default/files/files/opendata/Immo%20sector/TF_IMMO_SECTOR.zip",
+                  "note": "eur/m2 non derive pour le type dominant (les appartements n'ont pas de superficie cadastrale). Prix total + quantiles P10-P90 = officiel ; voir by_type pour l'eur/m2 derive des maisons."
+                }
+              },
+              {
+                "id": "21016A01K",
+                "nis9": "21016A01K",
+                "name": "21016A01K",
+                "level": "secteur_statistique",
+                "status": "real",
+                "residential": {
+                  "status": "real",
+                  "median_eur_m2": 1358.4,
+                  "eur_m2_confidence": "derive",
+                  "eur_m2_source": "statbel_cadastre + statbel_surface",
+                  "surface_m2": 435.8,
+                  "surface_as_of": "2017",
+                  "surface_basis": "superficie cadastrale (terrain), approximation — pas surface habitable certifiee",
+                  "median_total_eur": 592000,
+                  "headline_type": "Toutes les maisons avec 2, 3, 4 ou plus de façades (excl. appartements)",
+                  "quantiles": {
+                    "p10": 330000,
+                    "q25": 428000,
+                    "q50": 592000,
+                    "q75": 765000,
+                    "p90": 900000
+                  },
+                  "quantiles_basis": "total_price_eur",
+                  "n_transactions": 31,
+                  "yoy_pct": null,
+                  "by_type": {
+                    "Appartements": {
+                      "class": "apartment",
+                      "median_total_eur": 297500,
+                      "eur_m2_derived": null,
+                      "eur_m2_confidence": null,
+                      "surface_m2": null,
+                      "surface_as_of": null,
+                      "surface_source": null,
+                      "n_transactions": 22,
+                      "quantiles": {
+                        "p10": 219000,
+                        "q25": 270000,
+                        "q50": 297500,
+                        "q75": 370000,
+                        "p90": 451000
+                      }
+                    },
+                    "Maisons avec 2 ou 3 façades (type fermé + type demi-fermé)": {
+                      "class": "house",
+                      "median_total_eur": 540000,
+                      "eur_m2_derived": 1239.1,
+                      "eur_m2_confidence": "derive",
+                      "surface_m2": 435.8,
+                      "surface_as_of": "2017",
+                      "surface_source": "statbel_surface",
+                      "n_transactions": 27,
+                      "quantiles": {
+                        "p10": 300000,
+                        "q25": 420000,
+                        "q50": 540000,
+                        "q75": 700000,
+                        "p90": 835000
+                      }
+                    },
+                    "Toutes les maisons avec 2, 3, 4 ou plus de façades (excl. appartements)": {
+                      "class": "house",
+                      "median_total_eur": 592000,
+                      "eur_m2_derived": 1358.4,
+                      "eur_m2_confidence": "derive",
+                      "surface_m2": 435.8,
+                      "surface_as_of": "2017",
+                      "surface_source": "statbel_surface",
+                      "n_transactions": 31,
+                      "quantiles": {
+                        "p10": 330000,
+                        "q25": 428000,
+                        "q50": 592000,
+                        "q75": 765000,
+                        "p90": 900000
+                      }
+                    }
+                  },
+                  "confidence": "officiel",
+                  "source": "statbel_cadastre",
+                  "as_of": "2024",
+                  "source_url": "https://statbel.fgov.be/sites/default/files/files/opendata/Immo%20sector/TF_IMMO_SECTOR.zip"
+                }
+              }
+            ],
+            "n_sectors": 18
+          }
+        }
+      ],
+      "commercial_market": {
+        "office_prime_yield_pct": 4.75,
+        "office_prime_rent_eur_m2_year": 400,
+        "living_multifamily_net_yield_pct": 4.0,
+        "confidence": "rapport",
+        "source": "brokers"
+      },
+      "rents_source": {
+        "provider": "barometre_loyers_be + ibsa",
+        "brussels_apartment_median_rent_eur_month": 1160,
+        "as_of": "2024",
+        "confidence": "rapport"
+      },
+      "overlays": [
+        {
+          "type": "fiscal",
+          "label": "Droits d enregistrement 12,5% + abattement 200 000 eur",
+          "confidence": "officiel",
+          "source": "overlays_officiels"
+        },
+        {
+          "type": "energie",
+          "label": "PEB : label E minimum d ici 2033 (Bruxelles)",
+          "confidence": "officiel",
+          "source": "overlays_officiels"
+        },
+        {
+          "type": "reglementaire",
+          "label": "Permis : goulot persistant, recours de tiers",
+          "confidence": "rapport"
+        }
+      ],
+      "label": "Bruxelles-Capitale"
+    },
+    "gaia": {
+      "country": "pt",
+      "label": "Vila Nova de Gaia",
+      "zones": [
+        {
+          "id": "arcozelo",
+          "name": "Arcozelo",
+          "level": "freguesia",
+          "residential": {
+            "status": "real",
+            "median_eur_m2": 2286,
+            "median_eur_m2_apartments": 2292,
+            "quantiles": {
+              "p10": null,
+              "q25": null,
+              "q50": null,
+              "q75": null,
+              "p90": null
+            },
+            "n_transactions": 205,
+            "n_transactions_confidence": "officiel",
+            "yoy_pct": 21.3,
+            "yoy_confidence": "derive",
+            "yoy_basis": "vs 2024-Q4",
+            "confidence": "officiel",
+            "source": "ine_local",
+            "as_of": "2025-Q4",
+            "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+            "n_transactions_source": "0014363"
+          },
+          "status": "real"
+        },
+        {
+          "id": "avintes",
+          "name": "Avintes",
+          "level": "freguesia",
+          "residential": {
+            "status": "real",
+            "median_eur_m2": 2058,
+            "median_eur_m2_apartments": 2259,
+            "quantiles": {
+              "p10": null,
+              "q25": null,
+              "q50": null,
+              "q75": null,
+              "p90": null
+            },
+            "n_transactions": 158,
+            "n_transactions_confidence": "officiel",
+            "yoy_pct": 22.4,
+            "yoy_confidence": "derive",
+            "yoy_basis": "vs 2024-Q4",
+            "confidence": "officiel",
+            "source": "ine_local",
+            "as_of": "2025-Q4",
+            "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+            "n_transactions_source": "0014363"
+          },
+          "status": "real"
+        },
+        {
+          "id": "canelas",
+          "name": "Canelas",
+          "level": "freguesia",
+          "residential": {
+            "status": "real",
+            "median_eur_m2": 2060,
+            "median_eur_m2_apartments": 2087,
+            "quantiles": {
+              "p10": null,
+              "q25": null,
+              "q50": null,
+              "q75": null,
+              "p90": null
+            },
+            "n_transactions": 191,
+            "n_transactions_confidence": "officiel",
+            "yoy_pct": 18.1,
+            "yoy_confidence": "derive",
+            "yoy_basis": "vs 2024-Q4",
+            "confidence": "officiel",
+            "source": "ine_local",
+            "as_of": "2025-Q4",
+            "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+            "n_transactions_source": "0014363"
+          },
+          "status": "real"
+        },
+        {
+          "id": "canidelo",
+          "name": "Canidelo",
+          "level": "freguesia",
+          "residential": {
+            "status": "real",
+            "median_eur_m2": 3145,
+            "median_eur_m2_apartments": 3211,
+            "quantiles": {
+              "p10": null,
+              "q25": null,
+              "q50": null,
+              "q75": null,
+              "p90": null
+            },
+            "n_transactions": 834,
+            "n_transactions_confidence": "officiel",
+            "yoy_pct": 25.8,
+            "yoy_confidence": "derive",
+            "yoy_basis": "vs 2024-Q4",
+            "confidence": "officiel",
+            "source": "ine_local",
+            "as_of": "2025-Q4",
+            "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+            "n_transactions_source": "0014363"
+          },
+          "status": "real"
+        }
+      ]
+    },
+    "loule": {
+      "country": "pt",
+      "label": "Loulé",
+      "zones": [
+        {
+          "id": "loule",
+          "name": "Loulé",
+          "level": "municipio",
+          "residential": {
+            "status": "real",
+            "median_eur_m2": 3993,
+            "median_eur_m2_apartments": 4108,
+            "quantiles": {
+              "p10": null,
+              "q25": null,
+              "q50": null,
+              "q75": null,
+              "p90": null
+            },
+            "n_transactions": 2093,
+            "n_transactions_confidence": "officiel",
+            "yoy_pct": 19.8,
+            "yoy_confidence": "derive",
+            "yoy_basis": "vs 2024-Q4",
+            "confidence": "officiel",
+            "source": "ine_local",
+            "as_of": "2025-Q4",
+            "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+            "n_transactions_source": "0014363"
+          },
+          "status": "real"
+        }
+      ]
+    },
+    "alcochete": {
+      "country": "pt",
+      "label": "Alcochete",
+      "zones": [
+        {
+          "id": "alcochete",
+          "name": "Alcochete",
+          "level": "municipio",
+          "residential": {
+            "status": "real",
+            "median_eur_m2": 2765,
+            "median_eur_m2_apartments": 2682,
+            "quantiles": {
+              "p10": null,
+              "q25": null,
+              "q50": null,
+              "q75": null,
+              "p90": null
+            },
+            "n_transactions": 262,
+            "n_transactions_confidence": "officiel",
+            "yoy_pct": 31.3,
+            "yoy_confidence": "derive",
+            "yoy_basis": "vs 2024-Q4",
+            "confidence": "officiel",
+            "source": "ine_local",
+            "as_of": "2025-Q4",
+            "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+            "n_transactions_source": "0014363"
+          },
+          "status": "real"
+        }
+      ]
+    },
+    "mont_saint_guibert": {
+      "country": "be",
+      "label": "Mont-Saint-Guibert",
+      "zones": [
+        {
+          "id": "montsaintguibert",
+          "name": "Mont-Saint-Guibert",
+          "level": "commune",
+          "nis5": "25068",
+          "status": "real",
+          "residential": {
+            "status": "real",
+            "median_eur_m2": 393.9,
+            "eur_m2_confidence": "derive",
+            "eur_m2_source": "statbel_cadastre + statbel_surface",
+            "surface_m2": 1002.8,
+            "surface_as_of": "2017",
+            "surface_basis": "superficie cadastrale (terrain), approximation — pas surface habitable certifiee",
+            "median_total_eur": 395000,
+            "headline_type": "Toutes les maisons avec 2, 3, 4 ou plus de façades (excl. appartements)",
+            "quantiles": {
+              "p10": null,
+              "q25": 285000,
+              "q50": 395000,
+              "q75": 495000,
+              "p90": null
+            },
+            "quantiles_basis": "total_price_eur",
+            "n_transactions": 61,
+            "yoy_pct": null,
+            "by_type": {
+              "Appartements": {
+                "class": "apartment",
+                "median_total_eur": 279000,
+                "eur_m2_derived": null,
+                "eur_m2_confidence": null,
+                "surface_m2": null,
+                "surface_as_of": null,
+                "surface_source": null,
+                "n_transactions": 34,
+                "quantiles": {
+                  "p10": null,
+                  "q25": 260000,
+                  "q50": 279000,
+                  "q75": 315000,
+                  "p90": null
+                }
+              },
+              "Maisons avec 2 ou 3 façades (type fermé + type demi-fermé)": {
+                "class": "house",
+                "median_total_eur": 343000,
+                "eur_m2_derived": 342.0,
+                "eur_m2_confidence": "derive",
+                "surface_m2": 1002.8,
+                "surface_as_of": "2017",
+                "surface_source": "statbel_surface",
+                "n_transactions": 26,
+                "quantiles": {
+                  "p10": null,
+                  "q25": 244500,
+                  "q50": 343000,
+                  "q75": 410444,
+                  "p90": null
+                }
+              },
+              "Maisons avec 4 ou plus de façades (type ouvert)": {
+                "class": "house",
+                "median_total_eur": 400000,
+                "eur_m2_derived": 398.9,
+                "eur_m2_confidence": "derive",
+                "surface_m2": 1002.8,
+                "surface_as_of": "2017",
+                "surface_source": "statbel_surface",
+                "n_transactions": 35,
+                "quantiles": {
+                  "p10": null,
+                  "q25": 355000,
+                  "q50": 400000,
+                  "q75": 535000,
+                  "p90": null
+                }
+              },
+              "Toutes les maisons avec 2, 3, 4 ou plus de façades (excl. appartements)": {
+                "class": "house",
+                "median_total_eur": 395000,
+                "eur_m2_derived": 393.9,
+                "eur_m2_confidence": "derive",
+                "surface_m2": 1002.8,
+                "surface_as_of": "2017",
+                "surface_source": "statbel_surface",
+                "n_transactions": 61,
+                "quantiles": {
+                  "p10": null,
+                  "q25": 285000,
+                  "q50": 395000,
+                  "q75": 495000,
+                  "p90": null
+                }
+              }
+            },
+            "confidence": "officiel",
+            "source": "statbel_cadastre",
+            "as_of": "2025",
+            "source_url": "https://statbel.fgov.be/sites/default/files/files/opendata/immo/vastgoed_2010_9999.zip"
+          }
+        }
+      ]
+    }
+  },
+  "krest_assets": [
+    {
+      "name": "K-Tower",
+      "city": "lisbonne",
+      "zone": "parquedasnacoes",
+      "class": "bureaux",
+      "mode": "arbitrage",
+      "fact": "15 000 m2, 14 etages, cede a Real I.S. ~90 M eur (non divulgue) en 2024, locataires Critical TechWorks (BMW JV) + Spaces, BREEAM Excellent.",
+      "confidence": "rapport"
+    },
+    {
+      "name": "Moxy Lisboa Oriente",
+      "city": "lisbonne",
+      "zone": "parquedasnacoes",
+      "class": "hotellerie",
+      "mode": "detention",
+      "fact": "224 chambres, premier Moxy du Portugal.",
+      "confidence": "rapport"
+    },
+    {
+      "name": "Formoso Marvila",
+      "city": "lisbonne",
+      "zone": "marvila",
+      "class": "residentiel",
+      "mode": "promotion",
+      "fact": "Entrepot a vin rehabilite, 50 logements, ~30 M eur.",
+      "confidence": "rapport"
+    }
+  ],
+  "collection_todo": [
+    "PT/INE : exporter par freguesia (Lisboa, V.N. Gaia) et municipio (Alcochete, Loule) le median eur/m2 total et appartements, n transactions, variation homologue, split acheteur national/etranger. Via Base de Dados INE, indicateur Precos habitacao nivel local, dernier trimestre.",
+    "BE/Statbel : exporter le jeu cadastral par commune ET par secteur statistique NIS9 (Bruxelles 19 communes + secteurs, Mont-Saint-Guibert) : n transactions, prix total, superficie totale, quantiles P10-P90. Via be.STAT, export csv/json.",
+    "BE/IBSA : recuperer prix de vente et loyers par quartier bruxellois (Monitoring des Quartiers, opendata.brussels.be) + Cahier n.16.",
+    "Commercial PT+BE : extraire yields prime, loyers prime, take-up, vacance par classe depuis les dernieres editions CBRE/JLL/Cushman/Savills/Colliers.",
+    "Overlays : figer les references officielles (aeroport Alcochete + mesures preventives, reforme 2026, zones AL, regimes regionaux BE, OVAM sol/PFAS) avec date."
+  ]
+}

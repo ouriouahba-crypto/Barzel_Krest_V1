@@ -1,0 +1,96 @@
+{
+  "meta": {
+    "version": "0.1",
+    "generated": "2026-07-01",
+    "purpose": "Socle data hybride Barzel x KREST. Colonne vertebrale = agregats officiels reels par zone fine. Texture au niveau du bien = a generer par echantillonnage dans les quantiles reels (non inclus ici). Commercial = cure depuis rapports brokers.",
+    "confidence_levels": {
+      "officiel": "Valeur publiee par un institut statistique national sur transactions enregistrees (INE, Statbel).",
+      "derive": "Calcule a partir d une donnee officielle (ex. prix total / superficie = eur/m2).",
+      "rapport": "Extrait d un rapport professionnel gratuit (CBRE, JLL, Cushman, Savills, Colliers, barometres).",
+      "a_collecter": "Zone reelle mais valeur non encore extraite. Necessite l export be.STAT / base INE ou le rapport source."
+    },
+    "note_belgique": "Statbel publie un prix median TOTAL par type de bien, pas un eur/m2 direct. CONSTAT VERIFIE : les fichiers d'actes actuels (TF_IMMO_SECTOR par secteur NIS9, vastgoed_2010_9999 par commune) ne contiennent AUCUNE colonne de superficie, pour aucun type. Le eur/m2 n'en est donc pas derivable directement ; on conserve le prix total et ses quantiles P10-P90 en 'officiel'. La metrique residentielle belge NATIVE = median_total_eur + quantiles P10-P90 (officiel). median_eur_m2 reste NULL pour la Belgique (aucun prix du logement au m2 reel n'est derivable). La superficie de l'ancien fichier cadastral (immo_by_municipality) est une superficie CADASTRALE de TERRAIN, pas habitable : on ne l'expose donc que comme 'land_value_eur_m2_indicatif' (confidence 'derive', prix median / superficie parcelle), indicatif et jamais presente comme un prix du logement ; pour les maisons seulement (les appartements n'ont pas de parcelle propre). Le €/m2 logement reel n'existe qu'au Portugal. IBSA / opendata.brussels.be n'expose aucun eur/m2 ni loyer ouvert (seulement la geographie des quartiers et des rapports PDF).",
+    "note_portugal": "INE publie le prix median eur/m2 par freguesia et grille 500m pour Lisboa, Porto, V.N. Gaia (villes >100k), sur transactions enregistrees, trimestriel glissant 12 mois, minimum 33 ventes par categorie."
+  },
+
+  "sources": {
+    "ine_local": "INE - Estatisticas de Precos da Habitacao ao nivel local + plataforma Precos da Habitacao nas cidades (freguesia, grille 500m, typologie, domicile fiscal acheteur national/etranger, n transactions).",
+    "statbel_cadastre": "Statbel - Ventes de biens immobiliers selon la nature du bien (plan cadastral) par commune ET par secteur statistique NIS7/NIS9 : n transactions, prix total, superficie totale, prix moyen, quantiles P10/Q25/Q50/Q75/P90. Export be.STAT (xlsx/csv/json).",
+    "ibsa": "IBSA - Monitoring des Quartiers (Bruxelles) : prix et loyers par quartier ; Cahier n.16 geographie loyers et prix 2010-2024.",
+    "barometre_loyers_be": "Federia / CIB - Barometre des locations : loyers medians residentiels par type et region (exclut le commercial).",
+    "brokers": "CBRE, JLL, Cushman & Wakefield, Savills, Colliers - market outlooks Portugal et Belgique : yields prime, loyers prime, take-up, vacance (rapports gratuits, extraction manuelle).",
+    "overlays_officiels": "Diario da Republica (aeroport Alcochete, reforme 2026, mesures preventives), RNAL/ALEP (zones AL), regimes regionaux BE (droits, PEB, permis), OVAM (sol/PFAS)."
+  },
+
+  "cities": {
+    "lisbonne": {
+      "country": "pt",
+      "market_line": "Prime central en retournement (-4 a -7% zones saturees), stock qualite rare, tous les modes vivants.",
+      "residential_ref": { "municipio_median_eur_m2": 4875, "as_of": "2025 (annee)", "prev": 4412, "prev_as_of": "2025-Q1", "confidence": "officiel", "source": "ine_local" },
+      "zones": [
+        { "id": "arroios", "name": "Arroios", "level": "freguesia", "krest": null, "status": "real",
+          "residential": { "median_eur_m2": 4189, "yoy_pct": -4.8, "as_of": "2025-Q1", "confidence": "officiel", "source": "ine_local" } },
+        { "id": "carnide", "name": "Carnide", "level": "freguesia", "krest": null, "status": "real",
+          "residential": { "median_eur_m2": 4294, "yoy_pct": 2.3, "as_of": "2025-Q1", "confidence": "officiel", "source": "ine_local" } },
+        { "id": "benfica", "name": "Benfica", "level": "freguesia", "krest": null, "status": "real",
+          "residential": { "median_eur_m2": 4016, "yoy_pct": 3.6, "as_of": "2025-Q1", "confidence": "officiel", "source": "ine_local" } },
+        { "id": "penhafranca", "name": "Penha de Franca", "level": "freguesia", "krest": null, "status": "real",
+          "residential": { "median_eur_m2": 3746, "yoy_pct": 4.3, "as_of": "2025-Q1", "confidence": "officiel", "source": "ine_local" } },
+        { "id": "olivais", "name": "Olivais", "level": "freguesia", "krest": null, "status": "real",
+          "residential": { "median_eur_m2": 3700, "yoy_pct": 4.4, "as_of": "2025-Q1", "confidence": "officiel", "source": "ine_local" } },
+        { "id": "parquedasnacoes", "name": "Parque das Nacoes", "level": "freguesia", "krest": "K-Tower (cedee ~90 M eur, 2024), Moxy Lisboa Oriente", "status": "a_collecter",
+          "residential": { "median_eur_m2": null, "note": "Freguesia riverfront haut de gamme. A extraire via base INE. Reference marche annonces ~5000+ eur/m2.", "confidence": "a_collecter", "source": "ine_local" },
+          "commercial": { "office_prime_yield_pct": 4.9, "office_prime_rent_eur_m2_month": 32, "confidence": "rapport", "source": "brokers" } },
+        { "id": "marvila", "name": "Marvila", "level": "freguesia", "krest": "Formoso Marvila (rehab, 50 logements)", "status": "a_collecter",
+          "residential": { "median_eur_m2": null, "note": "Freguesia emergente, rehab en tension. A extraire via base INE. Ordre de grandeur ~3500-4200 eur/m2.", "confidence": "a_collecter", "source": "ine_local" } }
+      ],
+      "commercial_market": { "office_prime_yield_pct": 4.75, "office_prime_rent_eur_m2_month": 32, "retail_note": "High street tres peu vacant", "hotel_note": "Tourisme record", "confidence": "rapport", "source": "brokers" },
+      "overlays": [
+        { "type": "marche", "label": "Retournement du prime central -4 a -7% (2026)", "confidence": "rapport" },
+        { "type": "reglementaire", "label": "Zones de contention AL : Santa Maria Maior, Misericordia, Santo Antonio (nouvelles licences interdites)", "confidence": "officiel", "source": "overlays_officiels" }
+      ]
+    },
+
+    "bruxelles": {
+      "country": "be",
+      "market_line": "Marche siege et vitrine, fuite vers l ESG (~70% des deals en neuf), living en tension, goulot des permis. Droits 12,5% + abattement 200 000 eur.",
+      "residential_ref": { "region_apartment_median_total_eur": 250000, "region_house_closed_median_total_eur": 510000, "as_of": "2025 (annee)", "confidence": "officiel", "source": "statbel_cadastre",
+        "note": "Prix TOTAL median par type. eur/m2 a deriver via superficie du jeu cadastral (par commune ET secteur statistique NIS9)." },
+      "zones": [
+        { "id": "ixelles", "name": "Ixelles", "level": "commune", "krest": null, "status": "real",
+          "residential": { "house_median_total_eur": 785000, "as_of": "2025", "note": "Prix median maison le plus eleve de la Region 2025.", "confidence": "officiel", "source": "statbel_cadastre" } },
+        { "id": "anderlecht", "name": "Anderlecht", "level": "commune", "krest": null, "status": "real",
+          "residential": { "house_median_total_eur": 341000, "as_of": "2025", "note": "Prix median maison le plus bas de la Region 2025.", "confidence": "officiel", "source": "statbel_cadastre" } },
+        { "id": "woluwe", "name": "Woluwe-Saint-Pierre", "level": "commune", "krest": null, "status": "real",
+          "residential": { "apartment_median_total_eur": 371250, "as_of": "2025", "note": "Prix median appartement le plus eleve de la Region 2025.", "confidence": "officiel", "source": "statbel_cadastre" } },
+        { "id": "bxlville", "name": "Bruxelles-Ville", "level": "commune", "krest": null, "status": "a_collecter",
+          "residential": { "median_total_eur": null, "note": "A extraire via be.STAT (commune ET NIS9). Loyers via IBSA Monitoring des Quartiers.", "confidence": "a_collecter", "source": "statbel_cadastre" },
+          "commercial": { "office_prime_rent_eur_m2_year": 340, "confidence": "rapport", "source": "brokers" } },
+        { "id": "etterbeek", "name": "Etterbeek (quartier europeen)", "level": "commune", "krest": null, "status": "a_collecter",
+          "residential": { "median_total_eur": null, "confidence": "a_collecter", "source": "statbel_cadastre" },
+          "commercial": { "office_prime_rent_eur_m2_year": 400, "office_prime_yield_pct": 4.75, "vacancy_pct": 7.7, "confidence": "rapport", "source": "brokers" } }
+      ],
+      "commercial_market": { "office_prime_yield_pct": 4.75, "office_prime_rent_eur_m2_year": 400, "living_multifamily_net_yield_pct": 4.0, "confidence": "rapport", "source": "brokers" },
+      "rents_source": { "provider": "barometre_loyers_be + ibsa", "brussels_apartment_median_rent_eur_month": 1160, "as_of": "2024", "confidence": "rapport" },
+      "overlays": [
+        { "type": "fiscal", "label": "Droits d enregistrement 12,5% + abattement 200 000 eur", "confidence": "officiel", "source": "overlays_officiels" },
+        { "type": "energie", "label": "PEB : label E minimum d ici 2033 (Bruxelles)", "confidence": "officiel", "source": "overlays_officiels" },
+        { "type": "reglementaire", "label": "Permis : goulot persistant, recours de tiers", "confidence": "rapport" }
+      ]
+    }
+  },
+
+  "krest_assets": [
+    { "name": "K-Tower", "city": "lisbonne", "zone": "parquedasnacoes", "class": "bureaux", "mode": "arbitrage", "fact": "15 000 m2, 14 etages, cede a Real I.S. ~90 M eur (non divulgue) en 2024, locataires Critical TechWorks (BMW JV) + Spaces, BREEAM Excellent.", "confidence": "rapport" },
+    { "name": "Moxy Lisboa Oriente", "city": "lisbonne", "zone": "parquedasnacoes", "class": "hotellerie", "mode": "detention", "fact": "224 chambres, premier Moxy du Portugal.", "confidence": "rapport" },
+    { "name": "Formoso Marvila", "city": "lisbonne", "zone": "marvila", "class": "residentiel", "mode": "promotion", "fact": "Entrepot a vin rehabilite, 50 logements, ~30 M eur.", "confidence": "rapport" }
+  ],
+
+  "collection_todo": [
+    "PT/INE : exporter par freguesia (Lisboa, V.N. Gaia) et municipio (Alcochete, Loule) le median eur/m2 total et appartements, n transactions, variation homologue, split acheteur national/etranger. Via Base de Dados INE, indicateur Precos habitacao nivel local, dernier trimestre.",
+    "BE/Statbel : exporter le jeu cadastral par commune ET par secteur statistique NIS9 (Bruxelles 19 communes + secteurs, Mont-Saint-Guibert) : n transactions, prix total, superficie totale, quantiles P10-P90. Via be.STAT, export csv/json.",
+    "BE/IBSA : recuperer prix de vente et loyers par quartier bruxellois (Monitoring des Quartiers, opendata.brussels.be) + Cahier n.16.",
+    "Commercial PT+BE : extraire yields prime, loyers prime, take-up, vacance par classe depuis les dernieres editions CBRE/JLL/Cushman/Savills/Colliers.",
+    "Overlays : figer les references officielles (aeroport Alcochete + mesures preventives, reforme 2026, zones AL, regimes regionaux BE, OVAM sol/PFAS) avec date."
+  ]
+}

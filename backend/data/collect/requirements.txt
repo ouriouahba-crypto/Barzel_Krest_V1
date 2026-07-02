@@ -1,0 +1,4 @@
+# Barzel collectors — runtime dependencies (Python 3.11+).
+# Deliberately minimal: only an HTTP client is needed; everything else is stdlib
+# (csv, json, zipfile, unicodedata, logging).
+requests>=2.28
