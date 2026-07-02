@@ -179,6 +179,27 @@ def test_krest_featured_asset_defaults():
     assert 8.0 <= spread <= 15.0, spread
 
 
+def test_landbank_breakdown_invariants():
+    # Residual land economics: uplift bounded to realism, displayed residual
+    # reconciled with foncier × (1 + uplift) (hence never negative), horizon in
+    # vocabulary — and a Prioritaire always carries a positive residual value.
+    for r in ms.score_city("gaia", "landbank", "residential"):
+        cp = next((p for p in r["pillars"] if p["pillar"] == "constructibilite"), None)
+        b = cp.get("breakdown") if cp else None
+        if not b:
+            continue
+        entries = [b] + list(b["usages"].values())
+        for e in entries:
+            assert -40.0 <= e["uplift_pct"] <= 80.0, (r["zone"], e)
+            assert e["valeur_residuelle_eur_m2"] >= 0, (r["zone"], e)
+            expect = e["foncier_marche_eur_m2"] * (1 + e["uplift_pct"] / 100.0)
+            assert abs(expect - e["valeur_residuelle_eur_m2"]) <= max(3.0, 0.005 * max(1, e["valeur_residuelle_eur_m2"])), \
+                (r["zone"], e)
+        if r["verdict"] == "Prioritaire":
+            assert b["valeur_residuelle_eur_m2"] > 0, r["zone"]
+        assert b["horizon_activation"] in ("immédiat", "2-4 ans", "au-delà"), b
+
+
 def test_unknown_zone_and_mode_raise():
     import pytest
     with pytest.raises(KeyError):

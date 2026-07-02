@@ -23,11 +23,12 @@ const KPI_NOUN: Record<Mode, string> = {
   landbank: "constructibilité",
 };
 
-// Mode pages already shipped; the rest show "Bientôt" (no dead controls).
+// Every mode now has its page — no "Bientôt" left on the overview.
 const MODE_ROUTE: Partial<Record<Mode, string>> = {
   promotion: "/prix-marge",
   detention: "/rendement",
   arbitrage: "/arbitrage",
+  landbank: "/foncier",
 };
 
 const nn = (v: number | null | undefined): v is number => v != null && !Number.isNaN(v);

@@ -40,11 +40,16 @@ fur et à mesure.
 ### À remplacer par les données client (avant mise en prod)
 - **Actifs K-REST vedettes fictifs** : `Ribeira Sul` (détention — immeuble de
   rapport Santa Marinha, 24 lots / 1 800 m², acquis 2 300 €/m² + 340 €/m² de
-  travaux, constantes `RIBEIRA` dans `lib/scoring.ts`) et `Cais Poente`
-  (arbitrage — trophée front de fleuve Santa Marinha, constantes `CAIS`). Noms
-  vérifiés sans correspondance avec un projet réel de Gaia (2026-07) ; à
-  remplacer par les vrais actifs du portefeuille KREST. Haya Towers vient du
-  brief client (params `assets`).
+  travaux, constantes `RIBEIRA` dans `lib/scoring.ts`), `Cais Poente`
+  (arbitrage — trophée front de fleuve Santa Marinha, constantes `CAIS`) et
+  `Monte Claro` (landbank — réserve foncière ~12 000 m² à Canidelo, constantes
+  `MONTE` ; **localisation, surface et statut urbanistique réels à fournir par
+  KREST**). Noms vérifiés sans correspondance avec un projet réel de Gaia
+  (2026-07) ; à remplacer par les vrais actifs du portefeuille KREST. Haya
+  Towers vient du brief client (params `assets`).
+- **Marge promoteur normative de la valeur résiduelle foncière** : 15 % est
+  notre hypothèse (`_LAND_NORMATIVE_MARGIN`) — à remplacer par la marge
+  normative interne de KREST.
 - **Appétit institutionnel par classe** (`institutional_appetite`, params.json) :
   valeurs de calibration — à remplacer par la lecture marché de KREST.
 - **Frais et délais de cession** : aujourd'hui dérivés (frais 2-4 % et délais
@@ -105,7 +110,7 @@ condense en `coût = 1,261 × (construction + foncier)` (cf. `HAYA` dans scoring
   MODIFIER**), `OverviewRanking` (classement horizontal par verdict), `PriceMargin*`
   (module Prix & marge), `RendementTable` + `YieldWaterfall` + `RibeiraSlider`
   (module Rendement), `ArbitrageTable` + `SpreadWaterfall` + `CaisSlider`
-  (module Arbitrage),
+  (module Arbitrage), `FoncierTable` + `MonteClaroSelector` (module Foncier),
   **briques génériques de page de mode** : `Waterfall` (cascade base − déductions =
   résultat, état perte inclus ; `MarginWaterfall`/`YieldWaterfall` n'en sont que des
   habillages) et `MarginBars` (barres par verdict, paramétré `metric`/`title`/
@@ -115,12 +120,12 @@ condense en `coût = 1,261 × (construction + foncier)` (cf. `HAYA` dans scoring
   plus utilisés par la Vue d'ensemble refondue (réutilisables).
 - **Pages** : `app/gaia` (Carte), `app/vue-ensemble` (Vue d'ensemble, sans carte),
   `app/prix-marge` (Prix & marge), `app/rendement` (Rendement), `app/arbitrage`
-  (Arbitrage).
+  (Arbitrage), `app/foncier` (Foncier) — **les 4 pages de mode sont livrées**.
 - **Libs** : `lib/api.ts` (client + types), `lib/scoring.ts` (couleurs, verdicts,
   médiane, config KPI par mode, formule Haya), `lib/normalize.ts` (clé de jointure
   GeoJSON ↔ zone_name), `lib/priceMargin.ts` (lignes Prix & marge), `lib/rendement.ts`
-  (lignes Rendement), `lib/arbitrage.ts` (lignes Arbitrage), `lib/insights.ts`
-  (générateur d'insights déterministe — voir §5).
+  (lignes Rendement), `lib/arbitrage.ts` (lignes Arbitrage), `lib/foncier.ts`
+  (lignes Foncier), `lib/insights.ts` (générateur d'insights déterministe — voir §5).
 
 ### Conventions
 - Client components (`"use client"`), imports via alias `@/`.
@@ -589,12 +594,60 @@ combien de temps »), gabarit Prix & marge / Rendement.
    résidentiel / hors Santa Marinha, zéro régression /prix-marge /vue-ensemble
    (captures re-contrôlées), captures des 4 pages régénérées.
 
-### Prochaine page de mode (gabarit = Prix & marge / Rendement / Arbitrage)
-Foncier (landbank, constructibilité). Réutiliser la structure : KPIs → tableau
-triable (tri par défaut : score desc par groupe de verdict, flèches inactives
-avant tri utilisateur) → décomposition/piliers → graphe. **Briques génériques
-prêtes** : `InsightBanner`, `Waterfall`, `MarginBars` paramétré, `anomalyNote(mode)`
-(ajouter la règle de qualification landbank + `PILLAR_REASON` de ses piliers),
-gabarit d'insight de page à décliner (constructibilité / meilleur usage). Exposer si
-besoin un `breakdown` structuré sur le pilier natif (déjà fait : `marge`,
-`rendement_net`, `spread`) et brancher `MODE_ROUTE.landbank`.
+### Page **Foncier** (route `/foncier`) — **✅ Livré** (2026-07-02) — les 4 modes ont leur page
+Dernière page de mode (landbank : « quelle réserve activer, pour quel usage, à
+quel horizon »), gabarit établi.
+1. **Backend** : `breakdown` sur le pilier `constructibilite` du landbank —
+   `constructibilite`, `meilleur_usage` (**argmax uplift** sur les 5 usages, prix
+   réels par classe — l'ancien `_best_use_value` à facteurs reste sur le pilier
+   `valeur_meilleur_usage`, carte Vue d'ensemble inchangée), `prix_realisable_
+   meilleur_usage_eur_m2`, `foncier_marche_eur_m2` (**celui de la promotion** du
+   meilleur usage : table zone en résidentiel, % du prix en commercial),
+   `valeur_residuelle_eur_m2` = prix réalisable / (1,15 × pile de coûts 1,261) −
+   construction (marge promoteur normative **15 %** = `_LAND_NORMATIVE_MARGIN`),
+   `uplift_pct` **borné [−40, +80] %** avec résiduel réconcilié = foncier ×
+   (1 + uplift) (jamais négatif), `usages` (table des 5 usages pour le bloc
+   interactif), `horizon_activation` (immédiat si Prioritaire et rotation ≤ 3
+   mois / 2-4 ans / au-delà — injecté dans `score_mode` car dépend du verdict).
+   Additif, `_clean` inchangé. Narrative émergente : cœur urbain → résidentiel
+   (+28 à +55 %), couronne → commerce (≈ 0 %), rural → logistique (−5 à 0 %) ;
+   les uplifts de tête tombent naturellement dans les bornes (aucun clamp
+   visible). Test `test_landbank_breakdown_invariants`.
+2. **Page** : contexte unique (le landbank est **class-indépendant** — aucun
+   pilier ne dépend de la classe, contenu stable sur les 5 classes, assumé),
+   InsightBanner `landbankInsight` gradué (résidentiel : « L'activation foncière
+   est prioritaire sur 3 freguesias, menées par Santa Marinha (+55%), Madalena
+   (+47%) et Canidelo (+28%). Le reste bute sur des valeurs de sortie trop
+   basses pour couvrir le foncier. »), bloc droit « Meilleur potentiel ·
+   Madalena +47% » (top-score Prioritaire). **Clause signature** (« Constructible
+   ne veut pas dire activable… ») implémentée mais **ne fire pas sur les données
+   actuelles** : la constructibilité max (Santa Marinha 71) est Prioritaire —
+   clause générique à la place, non forcé. KPI viables (uplift médian +16 %,
+   constructibilité 64, usage dominant Résidentiel, Prioritaires 3/15),
+   `FoncierTable` (7 colonnes + verdict, filet « En attente », tri score desc
+   par groupe, accent « À phaser » ajouté à `verdictLabel`), note d'anomalie
+   **naturelle** (« Vilar de Andorinho affiche une constructibilité de 51 mais
+   une desserte insuffisante pour porter un programme : verdict En attente. »),
+   barres uplift par verdict.
+3. **Monte Claro** (`MonteClaroSelector`, actif K-REST · Landbank) : réserve
+   foncière fictive ~12 000 m² à Canidelo (nom vérifié sans homonyme réel —
+   projets réels : Le Parc, Canidelo Houses…). **Sélecteur des 5 usages** (pas de
+   curseur) qui recalcule valeur résiduelle / uplift / verdict depuis la table
+   `usages` réelle de Canidelo, badge « optimal » sur l'argmax (résidentiel
+   +28 %) ; score ancré zone via `upliftSubscore` (bande front-side, calibration
+   widget). Habillage navy identique aux autres blocs K-REST.
+4. **Routes** : Sidebar `/foncier` + `MODE_ROUTE.landbank` — **plus aucun
+   « Bientôt » sur la Vue d'ensemble** (les 4 cartes de mode sont reliées).
+5. **Vérifs** : `tsc` OK, **16 tests** backend OK, carte Landbank municipio
+   inchangée (45 En attente, « meilleur usage hôtel à 3 018 €/m² » — legacy
+   assumé), zéro régression sur les 4 autres pages, HayaSlider et blocs K-REST
+   intacts. Captures : `shots/foncier_{residentiel,bureaux}.png`
+   (script `shots/capture_foncier.js`).
+
+### État final du gabarit de page de mode
+Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,
+`rendement_net`, `spread`, `constructibilite`), InsightBanner + insight gradué à
+clause signature, KPI viables, tableau triable (groupes de verdict, score desc,
+flèches inactives avant tri utilisateur), note d'anomalie `anomalyNote(mode)`,
+graphe `MarginBars` paramétré, et un actif K-REST interactif (Haya, Ribeira Sul,
+Cais Poente, Monte Claro).

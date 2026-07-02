@@ -70,6 +70,7 @@ const VERDICT_LABEL: Record<string, string> = {
   "Fenetre etroite": "Fenêtre étroite",
   "Fenetre fermee": "Fenêtre fermée",
   Ceder: "Céder",
+  "A phaser": "À phaser",
 };
 export function verdictLabel(verdict: string): string {
   return VERDICT_LABEL[verdict] ?? verdict;
@@ -216,6 +217,25 @@ export function arbitrageVerdict(total: number): string {
   if (total >= 45) return "Fenetre etroite";
   return "Fenetre fermee";
 }
+export function landbankVerdict(total: number): string {
+  if (total >= 65) return "Prioritaire";
+  if (total >= 45) return "A phaser";
+  return "En attente";
+}
+
+// Uplift (valeur résiduelle vs foncier marché) -> subscore, for the Monte Claro
+// usage selector. Widget calibration (no backend uplift pillar): anchored so the
+// optimal usage reproduces the zone score exactly, alternatives degrade it.
+const UPLIFT_BAND: [number, number][] = [
+  [-40, 5],
+  [0, 40],
+  [15, 62],
+  [40, 82],
+  [80, 95],
+];
+export function upliftSubscore(upliftPct: number): number {
+  return bandSubscore(UPLIFT_BAND, upliftPct);
+}
 
 // ---------------------------------------------------------------------------
 // K-REST featured assets on the mode pages (client-side live recompute, like
@@ -240,4 +260,9 @@ export const CAIS = {
   priceMax: 3400,
   priceDefault: 2520,  // €/m² — spread ~+12% vs médiane Gaia
   delayExp: 4,         // délai = rotation zone × (prix / valeur réalisable)^exp
+};
+// Monte Claro — réserve foncière, Canidelo (landbank). Le sélecteur d'usages lit
+// la table `usages` du breakdown de la freguesia (valeurs résiduelles réelles).
+export const MONTE = {
+  surface: 12000,      // m² de terrain
 };

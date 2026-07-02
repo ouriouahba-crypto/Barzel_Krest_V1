@@ -1027,9 +1027,76 @@ def _cout_opportunite(st: State, z: dict) -> Pillar:
 # LANDBANK pillars                                                            #
 # --------------------------------------------------------------------------- #
 
+_LAND_USAGES = ("residential", "office", "hotel", "logistics", "retail")
+_LAND_NORMATIVE_MARGIN = 0.15   # marge promoteur normative de la valeur résiduelle
+
+
+def _land_usage_econ(st: State, z: dict, cls: str) -> tuple[float, float, float] | None:
+    """(sale, build, land) — the promotion economics of one usage of the zone's
+    land: realizable sale price, construction cost, and the land market price
+    the promotion module uses for that usage."""
+    price = _class_price(st, z, cls)
+    build = _class_construction(st, z, cls)
+    if not price or not build:
+        return None
+    if cls == "residential":
+        sale = price * (1 + _new_build_premium(st, z) / 100.0)
+        land = _land_cost_eur_m2(st, z)
+    else:
+        sale = price
+        lp = _p(st, "commercial_gaia", "classes", cls, "land_pct", default=12.0)
+        land = sale * lp / 100.0
+    if land <= 0:
+        return None
+    return sale, build, land
+
+
 def _land_constructibilite(st: State, z: dict) -> Pillar:
-    p = _promo_constructibilite(st, z)
-    return p  # same metric, reused
+    p = _promo_constructibilite(st, z)   # same metric, reused
+    if not p.applicable:
+        return p
+    # Residual land value per usage: what a developer can pay for the plot at a
+    # normative 15% margin — sale / (1,15 × pile de coûts) − construction —
+    # compared with the promotion land market. Realism bounds: uplift clamped
+    # to [-40, +80]% and the displayed residual reconciled with it (never
+    # negative, since land floors at 40 €/m²).
+    stack = 1 + _p(st, "global", "dev_cost_stack_pct", default=18.0) / 100.0 \
+        + (_p(st, "global", "ltv_max_pct", default=60.0) / 100.0) \
+        * (_p(st, "global", "senior_debt_rate_pct", default=4.5) / 100.0) \
+        * _p(st, "global", "promotion_build_years", default=3)
+    denom = (1 + _LAND_NORMATIVE_MARGIN) * stack
+    usages: dict[str, dict] = {}
+    best: dict | None = None
+    for cls in _LAND_USAGES:
+        eco = _land_usage_econ(st, z, cls)
+        if not eco:
+            continue
+        sale, build, land = eco
+        raw = sale / denom - build
+        uplift = max(-40.0, min(80.0, (raw / land - 1) * 100.0))
+        entry = {
+            "label": _CLS_FR.get(cls, cls),
+            "prix_realisable_eur_m2": round(sale),
+            "foncier_marche_eur_m2": round(land),
+            "valeur_residuelle_eur_m2": round(land * (1 + uplift / 100.0)),
+            "uplift_pct": round(uplift, 1),
+        }
+        usages[cls] = entry
+        if best is None or entry["uplift_pct"] > best["uplift_pct"]:
+            best = entry
+    if best is None:
+        return p
+    p.breakdown = {
+        "constructibilite": p.native_value,
+        "meilleur_usage": best["label"],
+        "prix_realisable_meilleur_usage_eur_m2": best["prix_realisable_eur_m2"],
+        "foncier_marche_eur_m2": best["foncier_marche_eur_m2"],
+        "valeur_residuelle_eur_m2": best["valeur_residuelle_eur_m2"],
+        "uplift_pct": best["uplift_pct"],
+        "usages": usages,
+        # horizon_activation is injected by score_mode (it depends on the verdict)
+    }
+    return p
 
 
 # Display names for the asset class in French (labels only; keys stay canonical).
@@ -1231,6 +1298,19 @@ def score_mode(zone_id: str, mode: str, asset_class: str | None = None,
     verdict = _verdict(st, mode, total)
     if mode == "promotion":
         verdict = _promotion_verdict_cap(st, verdict, by_key.get("marge"))
+    if mode == "landbank":
+        # Activation horizon: verdict-driven, refined by demand (rotation) —
+        # a priority reserve on a fast market activates immediately.
+        cp = by_key.get("constructibilite")
+        if cp is not None and cp.breakdown is not None:
+            ladder = [v["label"] for v in st.params["scoring"]["verdicts"]["landbank"]]
+            months = _absorption_months(st, zone_id)
+            if verdict == ladder[0]:
+                cp.breakdown["horizon_activation"] = "immédiat" if months and months <= 3.0 else "2-4 ans"
+            elif verdict == ladder[1]:
+                cp.breakdown["horizon_activation"] = "2-4 ans"
+            else:
+                cp.breakdown["horizon_activation"] = "au-delà"
     return {
         "zone": zone_id, "zone_name": z["name"], "city": z["city"],
         "country": z["country"], "level": z["level"], "mode": mode,

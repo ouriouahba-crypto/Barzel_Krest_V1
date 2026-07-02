@@ -8,6 +8,7 @@ import { displayName, shortName } from "./useGaia";
 import { PmRow } from "./priceMargin";
 import { RdRow } from "./rendement";
 import { ArbRow, pctSigned } from "./arbitrage";
+import { FcRow } from "./foncier";
 
 // City-level (municipio) score + freguesia rows, per mode, for one class.
 export interface OverviewByMode {
@@ -344,6 +345,65 @@ export function arbitrageInsight(rows: ArbRow[], assetClass: string): string {
   return `${head}${trap || why}`;
 }
 
+// 1-2 sentences for the Foncier page: how many freguesias are priority land
+// activations, the 2-3 best (with uplift), and why the rest waits. Signature
+// clause: high constructibility without a market is not activatable.
+const LAND_CLAUSE: Record<string, string> = {
+  constructibilite: "des droits à bâtir trop contraints",
+  valeur_meilleur_usage: "des valeurs de sortie trop basses pour couvrir le foncier",
+  connectivite: "une desserte insuffisante pour porter un programme",
+  incitations: "des incitations locales trop faibles",
+  risque_timing: "un risque réglementaire qui repousse l'activation",
+};
+
+// "Name (+47%)" list with a French final "et".
+function upliftList(rows: FcRow[]): string {
+  const parts = rows.map((r) => `${r.name} (${pctSigned(r.upliftPct, 0)})`);
+  if (parts.length <= 1) return parts.join("");
+  return parts.slice(0, -1).join(", ") + " et " + parts[parts.length - 1];
+}
+
+export function landbankInsight(rows: FcRow[]): string {
+  const prio = rows
+    .filter((r) => verdictTone("landbank", r.verdict) === "good")
+    .sort((a, b) => b.upliftPct - a.upliftPct);
+  const n = prio.length;
+
+  // Signature message of the page: the most constructible freguesia is not the
+  // most activatable when its market cannot absorb a programme.
+  const maxC = rows.length ? rows.reduce((a, b) => (b.constructibilite > a.constructibilite ? b : a)) : null;
+  const trap =
+    maxC && verdictTone("landbank", maxC.verdict) !== "good"
+      ? ` Constructible ne veut pas dire activable : ${maxC.short} (constructibilité ${Math.round(maxC.constructibilite)}) attend encore son marché.`
+      : "";
+
+  if (n === 0) {
+    if (trap) return `Aucune freguesia n'est prioritaire à l'activation foncière ce cycle.${trap}`;
+    const best = [...rows].sort((a, b) => b.upliftPct - a.upliftPct)[0];
+    const tail = best ? ` : meilleur uplift ${pctSigned(best.upliftPct, 0)} à ${best.short}` : "";
+    return `Aucune freguesia n'est prioritaire à l'activation foncière ce cycle${tail}.`;
+  }
+  let why = "";
+  if (!trap) {
+    const rest = rows.filter((r) => verdictTone("landbank", r.verdict) !== "good");
+    if (rest.length) {
+      const counts = new Map<string, number>();
+      for (const r of rest) if (r.weakest) counts.set(r.weakest, (counts.get(r.weakest) ?? 0) + 1);
+      const top = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
+      const reason = top ? LAND_CLAUSE[top[0]] : undefined;
+      if (reason) why = ` Le reste bute sur ${reason}.`;
+    }
+  }
+  const list = upliftList(prio.slice(0, 3));
+  const head =
+    n >= 3
+      ? `L'activation foncière est prioritaire sur ${n} freguesias, menées par ${list}.`
+      : n === 2
+      ? `L'activation foncière est prioritaire sur 2 freguesias : ${list}.`
+      : `Une seule freguesia est prioritaire à l'activation foncière : ${list}.`;
+  return `${head}${trap || why}`;
+}
+
 // Why a decent-KPI freguesia still fails: the weakest pillar behind the low verdict.
 const PILLAR_REASON: Record<string, string> = {
   // promotion
@@ -362,6 +422,11 @@ const PILLAR_REASON: Record<string, string> = {
   momentum_cycle: "un cycle de prix défavorable au timing de cession",
   frictions_sortie: "des frictions de sortie trop lourdes",
   cout_opportunite: "un coût du capital qui mange l'écart",
+  // landbank
+  valeur_meilleur_usage: "des valeurs de sortie trop basses pour couvrir le foncier",
+  connectivite: "une desserte insuffisante pour porter un programme",
+  incitations: "des incitations locales trop faibles",
+  risque_timing: "un risque réglementaire qui repousse l'activation",
 };
 
 // The most striking exception, per mode: a freguesia whose native KPI looks fine
@@ -372,6 +437,8 @@ const PILLAR_REASON: Record<string, string> = {
 //    verdict Céder — it earns as much as places we keep, something else disqualifies it.
 //  - arbitrage: spread >= 10% (the "faible" band edge) but verdict Fenêtre fermée —
 //    a real premium the market cannot exit.
+//  - landbank: constructibilité >= 50 (above the country default) but verdict
+//    En attente — buildable land whose market is not there yet.
 export function anomalyNote(mode: Mode, scores: ModeScore[]): string | null {
   const kpi = MODE_KPI[mode].pillar;
   const isLow = (s: ModeScore) => verdictTone(mode, s.verdict) === "low";
@@ -389,7 +456,7 @@ export function anomalyNote(mode: Mode, scores: ModeScore[]): string | null {
   } else if (mode === "arbitrage") {
     cands = scores.filter((s) => isLow(s) && (pillarValue(s.pillars, kpi) ?? -Infinity) >= 10);
   } else {
-    return null; // landbank: à décliner avec sa page de mode
+    cands = scores.filter((s) => isLow(s) && (pillarValue(s.pillars, kpi) ?? -Infinity) >= 50);
   }
   if (!cands.length) return null;
   const s = cands.sort((a, b) => (pillarValue(b.pillars, kpi) ?? 0) - (pillarValue(a.pillars, kpi) ?? 0))[0];
@@ -401,6 +468,7 @@ export function anomalyNote(mode: Mode, scores: ModeScore[]): string | null {
   const metric =
     mode === "promotion" ? `${Math.round(v)}% de marge`
     : mode === "detention" ? `${v.toFixed(1)}% de yield net`
-    : `${pctSigned(v, 0)} de spread`;
+    : mode === "arbitrage" ? `${pctSigned(v, 0)} de spread`
+    : `une constructibilité de ${Math.round(v)}`;
   return `${displayName(s.zone_name)} affiche ${metric} mais ${reason} : verdict ${verdictLabel(s.verdict)}.`;
 }

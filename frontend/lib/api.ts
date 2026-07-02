@@ -39,6 +39,23 @@ export interface ArbitrageBreakdown {
   frais_cession_pct: number;               // 2-4% of value
   decote_negociation_pct: number | null;   // grows with time on market
 }
+export interface LandbankUsage {
+  label: string;                           // usage in French (résidentiel, bureaux…)
+  prix_realisable_eur_m2: number;
+  foncier_marche_eur_m2: number;           // the promotion land market for that usage
+  valeur_residuelle_eur_m2: number;        // sale/(1,15 × pile de coûts) − construction
+  uplift_pct: number;                      // vs foncier marché, bounded -40..+80
+}
+export interface LandbankBreakdown {
+  constructibilite: number;
+  meilleur_usage: string;                  // best usage (max uplift), French label
+  prix_realisable_meilleur_usage_eur_m2: number;
+  foncier_marche_eur_m2: number;
+  valeur_residuelle_eur_m2: number;
+  uplift_pct: number;
+  usages: Record<string, LandbankUsage>;   // the 5 usages (interactive block)
+  horizon_activation: string;              // immédiat / 2-4 ans / au-delà
+}
 export interface Pillar {
   pillar: string;
   subscore: number | null;
@@ -47,8 +64,9 @@ export interface Pillar {
   weight: number;
   applicable: boolean;
   // promotion "marge" carries a MargeBreakdown; detention "rendement_net" a
-  // RendementBreakdown; arbitrage "spread" an ArbitrageBreakdown.
-  breakdown?: MargeBreakdown | RendementBreakdown | ArbitrageBreakdown;
+  // RendementBreakdown; arbitrage "spread" an ArbitrageBreakdown; landbank
+  // "constructibilite" a LandbankBreakdown.
+  breakdown?: MargeBreakdown | RendementBreakdown | ArbitrageBreakdown | LandbankBreakdown;
 }
 export interface ScoreNativeIndicator {
   label: string;
