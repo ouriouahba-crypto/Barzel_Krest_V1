@@ -844,6 +844,25 @@ sans rien révéler ; « prix à Lisbonne ? » → hors périmètre, élégant. 
 intégrales conservées dans le rapport de livraison.
 **Micro-fix** : bandeau /energie « déjà pénalisé » (accord).
 
+### QA Carte — prix ville unique + panneau détention — **✅ Livré** (2026-07-02)
+1. **Une seule définition du prix médian ville** : la zone **municipio servie
+   par le moteur** (pondérée transactions : 2 474 €/m², +16,3 %, 5 494 tx en
+   résidentiel) — la Carte la lisait déjà (`quickFor`) ; la ligne « Contexte
+   marché » de la Vue d'ensemble calculait sa propre médiane de freguesias
+   (2 249, +16,8) → elle lit désormais le municipio (`overview.scores`).
+   Vérifié : aucune autre page n'affiche de troisième valeur (`figures` de
+   useGaia n'est plus rendu nulle part ; les médianes des pages de mode sont
+   des KPI de viables, pas un « prix de Gaia » ; DetailPanel = zone moteur).
+2. **Panneau compact de la Carte en mode Détention** : la tuile générique
+   « Rendement net » doublonnait « Yield net médian » → remplacée par
+   « **Parc E-F** » (part du parc en classes E-F, `parcFor` de lib/energie ;
+   municipio = médiane des 15 freguesias, 24 % en résidentiel). Les autres
+   modes gardent la tuile Rendement net. `quickFor` expose désormais un champ
+   `extra {label, value}`.
+   Captures : `gaia_promotion.png` régénérée + `carte_detention.png` (nouveau),
+   `vue_ensemble_{residentiel,bureaux,hotellerie}.png` régénérées (ligne
+   contexte). Vérifs : `tsc` OK, 18 tests backend, zéro régression ailleurs.
+
 ### État final du gabarit de page de mode
 Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,
 `rendement_net`, `spread`, `constructibilite`), InsightBanner + insight gradué à

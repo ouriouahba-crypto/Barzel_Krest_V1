@@ -64,16 +64,18 @@ export default function VueEnsemble() {
     [bmFreg]
   );
 
-  // Market context (class price, class-independent yoy / volume / count).
+  // Market context — the engine's municipio zone (transaction-weighted city
+  // figures), the SAME source as the Carte page. Never a recomputed median.
   const market = useMemo(() => {
+    const muni = (bm && overview.scores[bm]) || overview.scores.promotion;
     const rows = bmFreg.length ? bmFreg : overview.freg.promotion ?? [];
     return {
-      price: median(rows.map((z) => z.price_eur_m2).filter(nn)),
-      yoy: median(rows.map((z) => z.yoy_pct).filter(nn)),
-      tx: rows.reduce((s, z) => s + (z.n_transactions ?? 0), 0),
+      price: muni?.price_eur_m2 ?? null,
+      yoy: muni?.yoy_pct ?? null,
+      tx: muni?.n_transactions ?? 0,
       count: rows.length,
     };
-  }, [bmFreg, overview.freg.promotion]);
+  }, [bm, overview.scores, bmFreg, overview.freg.promotion]);
 
   return (
     <div className="flex h-screen overflow-hidden">

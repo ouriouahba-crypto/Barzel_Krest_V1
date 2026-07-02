@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { api, AssetResponse, CityResponse, ModeScore, ZoneAllModes } from "./api";
 import { Mode, MODES, MODE_KPI, MODE_LABEL, median, pillarValue } from "./scoring";
+import { PARC_SCE, parcFor } from "./energie";
 import { normFreguesia } from "./normalize";
 import type { Figure } from "@/components/KeyFigures";
 import type { ChartRow } from "@/components/CityCharts";
@@ -154,12 +155,25 @@ export function useGaia() {
   const focusName = zoneAll ? displayName(zoneAll.scores[mode].zone_name) : "…";
 
   // Quick per-zone snapshot for the map's compact panel (from prefetched data).
+  // The generic third tile is the net yield — except in détention mode, where it
+  // would duplicate the mode KPI: it becomes the E-F share of the stock instead.
   const quickFor = (zoneId: string) => {
     const r = city?.zones.find((z) => z.zone === zoneId);
     if (!r) return null;
     const d = detentionCity?.zones.find((z) => z.zone === zoneId);
     const kpi = MODE_KPI[mode];
     const kv = pillarValue(r.pillars, kpi.pillar);
+    let extra: { label: string; value: string };
+    if (mode === "detention") {
+      const ef =
+        r.level === "municipio"
+          ? median(Object.keys(PARC_SCE).map((z) => parcFor(z, assetClass)?.ef ?? NaN))
+          : parcFor(zoneId, assetClass)?.ef ?? null;
+      extra = { label: "Parc E-F", value: ef != null ? `${Math.round(ef)}%` : "—" };
+    } else {
+      const rend = d ? pillarValue(d.pillars, "rendement_net") : null;
+      extra = { label: "Rendement net", value: rend != null ? `${rend.toFixed(1)}%` : "…" };
+    }
     return {
       name: displayName(r.zone_name),
       level: r.level,
@@ -167,7 +181,7 @@ export function useGaia() {
       verdict: r.verdict,
       price: r.price_eur_m2,
       yoy: r.yoy_pct,
-      rendement: d ? pillarValue(d.pillars, "rendement_net") : null,
+      extra,
       kpiLabel: kpi.label.replace(" médiane", "").replace(" méd.", ""),
       kpiValue: kv != null ? `${kv.toFixed(kpi.digits)}${kpi.unit}` : null,
     };
