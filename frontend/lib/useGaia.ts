@@ -175,7 +175,7 @@ export function useGaia() {
     quickFor,
     mode, setMode, assetClass, setAssetClass,
     focusZone, setFocusZone, isCityView, cityZoneId: CITY_ZONE,
-    city, promoCity, citiesByMode, freguesias, scoresByNorm, scoreRange, hayaNorm, hayaZone,
+    city, promoCity, detentionCity, citiesByMode, freguesias, scoresByNorm, scoreRange, hayaNorm, hayaZone,
     figures, chartRows, cardScores, focusName,
     detailScore, hayaProps, zoneAll, error,
   };

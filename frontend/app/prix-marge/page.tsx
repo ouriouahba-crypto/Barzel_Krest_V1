@@ -11,7 +11,7 @@ import { InsightBanner } from "@/components/InsightBanner";
 import { useGaia } from "@/lib/useGaia";
 import { classLabel } from "@/lib/scoring";
 import { pmRows, pmSummary, eurM2 } from "@/lib/priceMargin";
-import { priceMarginInsight, marginAnomalyNote } from "@/lib/insights";
+import { priceMarginInsight, anomalyNote } from "@/lib/insights";
 
 const AFURADA = "santamarinhaesaopedrodaafurada";
 const MARKET_LINE =
@@ -66,7 +66,7 @@ export default function PrixMargePage() {
     () => (g.promoCity?.zones ?? []).filter((z) => z.level === "freguesia"),
     [g.promoCity]
   );
-  const note = useMemo(() => marginAnomalyNote(fregScores, cls), [fregScores, cls]);
+  const note = useMemo(() => anomalyNote("promotion", fregScores), [fregScores]);
 
   return (
     <div className="flex h-screen overflow-hidden">

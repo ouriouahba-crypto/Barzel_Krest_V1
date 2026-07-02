@@ -23,6 +23,12 @@ const KPI_NOUN: Record<Mode, string> = {
   landbank: "constructibilité",
 };
 
+// Mode pages already shipped; the rest show "Bientôt" (no dead controls).
+const MODE_ROUTE: Partial<Record<Mode, string>> = {
+  promotion: "/prix-marge",
+  detention: "/rendement",
+};
+
 const nn = (v: number | null | undefined): v is number => v != null && !Number.isNaN(v);
 const eur = (v: number | null | undefined) => (nn(v) ? `${Math.round(v).toLocaleString("fr-FR")} €/m²` : "—");
 const kpiVal = (s: ModeScore, m: Mode) => {
@@ -159,9 +165,9 @@ export default function VueEnsemble() {
                   <p className="mt-3 min-h-[32px] text-[11.5px] leading-snug text-cream/75">
                     {s ? modeInsight(s, cls) : ""}
                   </p>
-                  {m === "promotion" ? (
+                  {MODE_ROUTE[m] ? (
                     <Link
-                      href="/prix-marge"
+                      href={MODE_ROUTE[m]!}
                       className="mt-2 inline-flex items-center gap-1 self-start rounded-lg border border-gold/40 bg-gold/10 px-2.5 py-1 text-[11px] font-medium text-gold transition-colors hover:bg-gold/20"
                     >
                       Explorer →

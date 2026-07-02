@@ -20,6 +20,7 @@ const ROUTES: Record<string, string> = {
   "Vue d'ensemble": "/vue-ensemble",
   Carte: "/gaia",
   "Prix & marge": "/prix-marge",
+  Rendement: "/rendement",
 };
 const MODULES = ["Vue d'ensemble", "Carte", "Comparer", "Prix & marge", "Rendement", "Arbitrage", "Foncier", "Fiscalité", "Énergie"];
 

@@ -68,8 +68,12 @@ condense en `coût = 1,261 × (construction + foncier)` (cf. `HAYA` dans scoring
 > - **Commercial** (toutes classes non résidentielles) : TVA récupérable → neutre (0).
 > - **Belgique résidentiel** : conserve sa TVA pour l'instant (à revoir).
 
-> ⚠️ Le process `uvicorn` tourne **sans `--reload`** → après toute édition backend,
-> le relancer : `python -m uvicorn backend.main:app --port 8000 --log-level warning`.
+> ⚠️ **Lancement backend — toujours `python3`, jamais `python`** : sur cette machine
+> `python` = anaconda (`/opt/anaconda3`), qui n'a **pas** uvicorn → « No module named
+> uvicorn », le process meurt aussitôt et le proxy front répond 503 sur `/api/*`.
+> Commande : `python3 -m uvicorn backend.main:app --reload --port 8000`
+> (Python 3.13 framework, uvicorn 0.30.1). Le process tourne désormais en `--reload` ;
+> s'il ne répond plus, vérifier d'abord `lsof -iTCP:8000` (souvent il est juste mort).
 
 ---
 
@@ -78,22 +82,27 @@ condense en `coût = 1,261 × (construction + foncier)` (cf. `HAYA` dans scoring
 - **Hook** `lib/useGaia.ts` : état partagé (mode, classe, focusZone), cache par
   `mode|classe` (`cityByKey`), prefetch des 4 modes de la classe courante, refetch
   zone/classe. Expose `figures`, `chartRows`, `scoresByNorm`, `freguesias`,
-  `promoCity`, `citiesByMode` (4 modes de la classe), `detailScore`, `hayaProps`, etc.
+  `promoCity`, `detentionCity`, `citiesByMode` (4 modes de la classe), `detailScore`,
+  `hayaProps`, etc.
 - **Composants** : `Header` (titre, ligne marché, recherche multi-freguesias,
   sélecteurs MODE + CLASSE ; prop `hideMode` pour masquer MODE), `Sidebar` (modules
   + Export PDF + IA Analyste désactivée), `GaiaMap` (Leaflet, **exclusif page Carte**),
   `DetailPanel` + `HayaSlider` (curseur prix Haya, recalcul marge live — **NE PAS
   MODIFIER**), `OverviewRanking` (classement horizontal par verdict), `PriceMargin*`
-  (module Prix & marge), `ui.tsx` (`VerdictBadge`, `ScoreDial` avec prop `light` pour
-  fond clair, `PillarBar`, `Segmented`, `MultiSelect`). `KeyFigures`, `ScoreCards`,
-  `CityCharts`, `CityBits` existent encore mais ne sont plus utilisés par la Vue
-  d'ensemble refondue (réutilisables).
+  (module Prix & marge), `RendementTable` + `YieldWaterfall` (module Rendement),
+  **briques génériques de page de mode** : `Waterfall` (cascade base − déductions =
+  résultat, état perte inclus ; `MarginWaterfall`/`YieldWaterfall` n'en sont que des
+  habillages) et `MarginBars` (barres par verdict, paramétré `metric`/`title`/
+  `metricLabel`/`digits`, légende par mode), `ui.tsx` (`VerdictBadge`, `ScoreDial`
+  avec prop `light` pour fond clair, `PillarBar`, `Segmented`, `MultiSelect`).
+  `KeyFigures`, `ScoreCards`, `CityCharts`, `CityBits` existent encore mais ne sont
+  plus utilisés par la Vue d'ensemble refondue (réutilisables).
 - **Pages** : `app/gaia` (Carte), `app/vue-ensemble` (Vue d'ensemble, sans carte),
-  `app/prix-marge` (Prix & marge).
+  `app/prix-marge` (Prix & marge), `app/rendement` (Rendement).
 - **Libs** : `lib/api.ts` (client + types), `lib/scoring.ts` (couleurs, verdicts,
   médiane, config KPI par mode, formule Haya), `lib/normalize.ts` (clé de jointure
-  GeoJSON ↔ zone_name), `lib/priceMargin.ts` (lignes Prix & marge), `lib/insights.ts`
-  (générateur d'insights déterministe — voir §5).
+  GeoJSON ↔ zone_name), `lib/priceMargin.ts` (lignes Prix & marge), `lib/rendement.ts`
+  (lignes Rendement), `lib/insights.ts` (générateur d'insights déterministe — voir §5).
 
 ### Conventions
 - Client components (`"use client"`), imports via alias `@/`.
@@ -348,10 +357,80 @@ tests backend OK, 5 classes contrôlées.
 6. **Tests** : invariants ajoutés — `test_gaia_residential_land_floor` (foncier ≥ 40),
    `test_haya_margin_35_36`.
 
-### Prochaines pages de mode (gabarit = Prix & marge)
-Rendement (détention), Arbitrage, Foncier (landbank). Réutiliser la structure :
-KPIs → tableau triable → décomposition/piliers → graphe. **Briques d'insight prêtes**
-(`lib/insights.ts` + `components/InsightBanner.tsx`) : `cityInsight`/`modeInsight`
-(synthèse), `priceMarginInsight`/`marginAnomalyNote` (gabarit à décliner par mode :
-rendement, spread, constructibilité), et le bandeau `InsightBanner` partagé. Chaque
-page épingle son mode ; exposer si besoin un `breakdown` structuré sur le pilier natif.
+### Incident local — API 503 — **✅ Résolu** (2026-07-02)
+Symptôme : 503 sur tous les `/api/scoring/*` vus du navigateur, frontend OK.
+**Cause** : aucun code ni donnée en cause — dépôt strictement propre (aucun diff vs
+HEAD, y compris `backend/data/` et `data/`). Le backend était **simplement mort** :
+rien n'écoutait sur le port 8000, aucun process uvicorn résiduel ; le 503 venait du
+proxy Next.js face à un upstream absent. Origine du crash : lancement avec le mauvais
+interpréteur — `python -m uvicorn` résout vers **anaconda**, qui n'a pas uvicorn
+(« No module named uvicorn », sortie immédiate ; reproduit à l'identique). La bonne
+commande est **`python3 -m uvicorn backend.main:app --reload --port 8000`** (cf. §2,
+avertissement mis à jour — l'ancienne commande du §2 utilisait `python` : c'était le
+piège). Vérifié après relance : `/health` 200 (49 zones), scoring city 200 (hiérarchie
+Santa Marinha 86,5 > Madalena 83,2 > Canidelo Go), `/prix-marge` conforme à l'écran
+(foncier Santa Marinha 524 €/m², marge 30 %, note d'analyse São Félix, séparation
+viabilité), `/vue-ensemble` cohérente (« penche vers la promotion », 3 Go, landbank 51).
+Nuance d'affichage constatée (comportement HEAD, pas une régression) : la tuile
+HayaSlider affiche « 36% » car `margin.toFixed(0)` (HayaSlider.tsx:60) arrondit la
+valeur réelle 35,5 % ; prime +111 % et médiane 2 721 €/m² exactes. Composant NE PAS
+MODIFIER → laissé tel quel.
+
+### Page **Rendement** (route `/rendement`) — **✅ Livré** (2026-07-02)
+Deuxième page de module (mode **détention**, gabarit Prix & marge), question :
+« où conserver, où céder, et combien ça rapporte net ».
+1. **Backend** : `breakdown` structuré sur le pilier `rendement_net` (`_net_yield_pct`
+   retourne un 4-uplet) : `loyer_marche_eur_m2_an`, `yield_brut_pct`,
+   `charges_pct_loyer` (**vacance incluse** — ainsi brut × (1 − charges − fisc) = net
+   exactement), `fiscalite_pct_loyer`, `yield_net_pct`. Additif, `_clean` inchangé.
+2. **Libs** : `RendementBreakdown` (`api.ts`, `Pillar.breakdown` devient une union),
+   `lib/rendement.ts` (`rdRows` avec `weakest` = pilier applicable le plus faible,
+   `rdSummary` sur viables Conserver+Surveiller avec repli, `pct2`), `detentionCity`
+   exposé par `useGaia`.
+3. **Factorisation gabarit** (au lieu de dupliquer) : `components/Waterfall.tsx`
+   générique (base − déductions = résultat calculé en interne, état perte conservé,
+   `WaterfallEmpty`) — `MarginWaterfall` refondu en habillage (rendu identique),
+   `YieldWaterfall` nouveau (brut − charges&vacance − fiscalité = net ; la part
+   charges prend le résidu d'arrondi pour tomber exactement sur le net publié).
+   `MarginBars` paramétré (`metric`/`title`/`metricLabel`/`digits` + légende par
+   mode via le ladder de verdicts) — défauts = comportement historique.
+4. **Insights** : `detentionInsight(rows, class)` (compte les **Conserver**, cite les
+   2-3 meilleures avec yield net, clause finale = pilier faible le plus fréquent du
+   reste : « Le reste bute sur des marchés locatifs trop fragiles » — c'est ce que
+   disent les piliers, la résilience étant le vrai discriminant) ;
+   `marginAnomalyNote` **généralisée en `anomalyNote(mode, scores)`** — promotion :
+   marge ≥ 8 % mais Passer (sortie inchangée, São Félix au mot près) ; détention :
+   yield net ≥ au plancher des freguesias gardées mais Céder, expliqué par son
+   pilier le plus faible (seuil « correct » 4,5 % jamais atteint par une Céder dans
+   ces données → règle relative, honnête et non forcée). Logistique : 0 Céder →
+   aucune note affichée (conforme « ne pas forcer »). `PROMO_CLASS_FR` renommé
+   `CLASS_ADJ_FR` (partagé promotion/détention).
+5. **Page** `app/rendement/page.tsx` : chip « Détention · <classe> », `hideMode`,
+   ligne de contexte détention par classe, InsightBanner (bloc droit « Yield net
+   max · <freguesia> »), 4 KPI (yield net/brut médians, loyer marché médian
+   €/m²/an sur viables ; « À céder » N / total), `RendementTable` (séparateur
+   « À céder », tri yield net desc par groupe, tri global au clic utilisateur),
+   note d'analyse, cascade, barres. Sélection par défaut : meilleure freguesia
+   Conserver (sinon meilleur yield), une seule fois au chargement.
+   Sidebar : route `/rendement` active. Vue d'ensemble : la carte Détention gagne
+   « Explorer → /rendement » (via `MODE_ROUTE` — plus de « Bientôt » mensonger).
+6. **Vérifs** : `tsc` OK, 10 tests backend OK, 5 classes contrôlées à l'écran
+   (résidentiel 1 Conserver/7 Surveiller/7 Céder, hero Santa Marinha 3,49 % ;
+   bureaux dégradé « Aucune freguesia… meilleur yield net 4.2% à Sandim » ;
+   hôtellerie note Canidelo 4,0 % = yield de Santa Marinha conservée mais Céder ;
+   logistique 0 Céder sans filet ni note ; commerce 7/15). Cohérence croisée
+   vue-ensemble : carte Détention inchangée (municipio 3,7 %), mêmes yields par
+   freguesia (native = breakdown). Zéro régression Prix & marge (cascade refondue
+   pixel-identique, note São Félix au mot près, HayaSlider intact).
+   Captures : `shots/rendement_{residentiel,bureaux}.png`
+   (script `shots/capture_rendement.js`).
+
+### Prochaines pages de mode (gabarit = Prix & marge / Rendement)
+Arbitrage (spread), Foncier (landbank). Réutiliser la structure : KPIs → tableau
+triable → décomposition/piliers → graphe. **Briques génériques prêtes** :
+`InsightBanner`, `Waterfall` (cascade), `MarginBars` paramétré (métrique/libellés/
+légende), `anomalyNote(mode)` (ajouter la règle de qualification du mode +
+`PILLAR_REASON` de ses piliers), gabarit d'insight de page (`priceMarginInsight`/
+`detentionInsight` à décliner : spread, constructibilité). Chaque page épingle son
+mode ; exposer si besoin un `breakdown` structuré sur le pilier natif (déjà fait :
+`marge`, `rendement_net`).

@@ -2,41 +2,70 @@
 
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Mode, verdictColor, verdictLabel } from "@/lib/scoring";
-import { PmRow } from "@/lib/priceMargin";
 
-function BarsTooltip({ active, payload }: any) {
-  if (!active || !payload?.length) return null;
-  const d = payload[0].payload as PmRow;
-  return (
-    <div className="rounded-lg border border-gold/40 bg-navy px-3 py-2 text-cream shadow-card">
-      <div className="text-[12px] font-semibold">{d.name}</div>
-      <div className="text-[12px] text-gold">
-        marge {d.marginPct.toFixed(1)}% · {verdictLabel(d.verdict)}
-      </div>
-    </div>
-  );
+// Verdict-coloured bars per freguesia, parameterised by metric + labels so each
+// mode page reuses it (promotion: marge %, détention: yield net %, …). Defaults
+// keep the historical "Prix & marge" behaviour.
+
+export interface BarRowBase {
+  zone: string;
+  name: string;
+  short: string;
+  verdict: string;
 }
+
+// Verdict ladder per mode, for the legend (backend ASCII labels; display accented).
+const LEGEND: Record<Mode, string[]> = {
+  promotion: ["Go", "Conditionnel", "Passer"],
+  detention: ["Conserver", "Surveiller", "Ceder"],
+  arbitrage: ["Fenetre ouverte", "Fenetre etroite", "Fenetre fermee"],
+  landbank: ["Prioritaire", "A phaser", "En attente"],
+};
 
 const axis = { fontSize: 10, fill: "#6B7A8D" };
 
-export function MarginBars({
+export function MarginBars<T extends BarRowBase>({
   rows,
   mode,
   focusZone,
   onSelect,
   classLabel,
+  metric = (r) => (r as any).marginPct as number,
+  title = "Marge % par freguesia",
+  metricLabel = "marge",
+  digits = 1,
 }: {
-  rows: PmRow[];
+  rows: T[];
   mode: Mode;
   focusZone: string | null;
   onSelect: (zone: string) => void;
   classLabel: string;
+  metric?: (r: T) => number;
+  title?: string;
+  metricLabel?: string;
+  digits?: number;
 }) {
-  const data = [...rows].sort((a, b) => b.marginPct - a.marginPct);
+  const data = rows
+    .map((r) => ({ ...r, __value: metric(r) }))
+    .sort((a, b) => b.__value - a.__value);
+
+  function BarsTooltip({ active, payload }: any) {
+    if (!active || !payload?.length) return null;
+    const d = payload[0].payload as T & { __value: number };
+    return (
+      <div className="rounded-lg border border-gold/40 bg-navy px-3 py-2 text-cream shadow-card">
+        <div className="text-[12px] font-semibold">{d.name}</div>
+        <div className="text-[12px] text-gold">
+          {metricLabel} {d.__value.toFixed(digits)}% · {verdictLabel(d.verdict)}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-2xl border border-navy/10 bg-white p-4 shadow-card">
       <div className="mb-2 flex items-baseline justify-between">
-        <h3 className="font-display text-[15px] text-navy">Marge % par freguesia</h3>
+        <h3 className="font-display text-[15px] text-navy">{title}</h3>
         <span className="text-[11px] text-muted">barres par verdict · {classLabel}</span>
       </div>
       <div className="h-[250px]">
@@ -60,7 +89,7 @@ export function MarginBars({
             />
             <Tooltip cursor={{ fill: "rgba(10,22,40,0.05)" }} content={<BarsTooltip />} />
             <Bar
-              dataKey="marginPct"
+              dataKey="__value"
               radius={[3, 3, 0, 0]}
               maxBarSize={30}
               onClick={(d: any) => d?.payload?.zone && onSelect(d.payload.zone)}
@@ -81,9 +110,9 @@ export function MarginBars({
       </div>
       {/* verdict legend */}
       <div className="mt-1 flex items-center gap-4 pl-1 text-[11px] text-muted">
-        <LegendDot color={verdictColor(mode, "Go")} label="Go" />
-        <LegendDot color={verdictColor(mode, "Conditionnel")} label="Conditionnel" />
-        <LegendDot color={verdictColor(mode, "Passer")} label="Passer" />
+        {LEGEND[mode].map((v) => (
+          <LegendDot key={v} color={verdictColor(mode, v)} label={verdictLabel(v)} />
+        ))}
       </div>
     </div>
   );

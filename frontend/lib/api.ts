@@ -24,6 +24,13 @@ export interface MargeBreakdown {
   margin_pct: number;
   premium_over_median_pct: number | null; // named-asset only
 }
+export interface RendementBreakdown {
+  loyer_marche_eur_m2_an: number | null; // market rent €/m²/year
+  yield_brut_pct: number;                // zone-adjusted gross yield
+  charges_pct_loyer: number;             // charges + vacancy, as % of rent
+  fiscalite_pct_loyer: number;           // holding tax, as % of rent
+  yield_net_pct: number;
+}
 export interface Pillar {
   pillar: string;
   subscore: number | null;
@@ -31,7 +38,9 @@ export interface Pillar {
   why: string;
   weight: number;
   applicable: boolean;
-  breakdown?: MargeBreakdown;          // present on the promotion "marge" pillar
+  // promotion "marge" pillar carries a MargeBreakdown; detention "rendement_net"
+  // carries a RendementBreakdown.
+  breakdown?: MargeBreakdown | RendementBreakdown;
 }
 export interface ScoreNativeIndicator {
   label: string;

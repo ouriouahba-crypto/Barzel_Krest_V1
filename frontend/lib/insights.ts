@@ -2,10 +2,11 @@
 // sentences from real scoring data (templates + actual numbers, never generic
 // filler). Reused by the overview page and, later, the mode pages.
 
-import { ModeScore } from "./api";
+import { MargeBreakdown, ModeScore } from "./api";
 import { Mode, MODES, MODE_LABEL, MODE_KPI, classLabel, median, pillarValue, verdictLabel, verdictTone } from "./scoring";
 import { displayName, shortName } from "./useGaia";
 import { PmRow } from "./priceMargin";
+import { RdRow } from "./rendement";
 
 // City-level (municipio) score + freguesia rows, per mode, for one class.
 export interface OverviewByMode {
@@ -76,7 +77,7 @@ function rangePhrase(m: Mode, lo: number, hi: number): string {
 function driverClause(m: Mode, good: ModeScore[]): string {
   if (m === "promotion") {
     const prems = good
-      .map((r) => r.pillars.find((p) => p.pillar === "marge")?.breakdown?.premium_pct)
+      .map((r) => (r.pillars.find((p) => p.pillar === "marge")?.breakdown as MargeBreakdown | undefined)?.premium_pct)
       .filter((v): v is number => v != null);
     const mp = median(prems);
     if (mp != null) return `, portées par une prime neuf de ${Math.round(mp)}%`;
@@ -166,11 +167,11 @@ export function modeInsight(score: ModeScore, assetClass: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Prix & marge — page-level insight (promotion) + margin anomaly note.
+// Mode pages — page-level insights (Prix & marge, Rendement) + anomaly note.
 // ---------------------------------------------------------------------------
 
-// "la promotion <X>" with gender/agreement per class.
-const PROMO_CLASS_FR: Record<string, string> = {
+// "la promotion <X>" / "la détention <X>" with gender/agreement per class.
+const CLASS_ADJ_FR: Record<string, string> = {
   residential: "résidentielle",
   office: "de bureaux",
   hotel: "hôtelière",
@@ -188,7 +189,7 @@ function marginList(rows: PmRow[]): string {
 // 1-2 sentences: how many freguesias carry promotion, the 2-3 best (with margin),
 // and why the rest doesn't pencil. Verb graded by the count of viable freguesias.
 export function priceMarginInsight(rows: PmRow[], assetClass: string): string {
-  const adj = PROMO_CLASS_FR[assetClass] ?? classLabel(assetClass).toLowerCase();
+  const adj = CLASS_ADJ_FR[assetClass] ?? classLabel(assetClass).toLowerCase();
   const viable = rows
     .filter((r) => verdictTone("promotion", r.verdict) !== "low")
     .sort((a, b) => b.marginPct - a.marginPct);
@@ -218,28 +219,101 @@ export function priceMarginInsight(rows: PmRow[], assetClass: string): string {
   return `${head}${why}`;
 }
 
-// Why a decent-margin freguesia still fails: the weakest pillar behind a Passer.
+// 1-2 sentences for the Rendement page: how many freguesias justify holding, the
+// 2-3 best (with net yield), and why the rest doesn't hold — computed from the
+// most common weakest pillar of the non-Conserver set. Same graded spirit as
+// priceMarginInsight.
+const DET_CLAUSE: Record<string, string> = {
+  rendement_net: "des loyers trop bas face aux prix",
+  resilience: "des marchés locatifs trop fragiles",
+  fiscalite: "une fiscalité qui érode le loyer",
+  risque_energie: "un risque énergétique qui pèse sur le parc",
+  portage: "un coût de portage supérieur au rendement",
+};
+
+// "Name (3.5%)" list with a French final "et".
+function yieldList(rows: RdRow[]): string {
+  const parts = rows.map((r) => `${r.name} (${r.yieldNet.toFixed(1)}%)`);
+  if (parts.length <= 1) return parts.join("");
+  return parts.slice(0, -1).join(", ") + " et " + parts[parts.length - 1];
+}
+
+export function detentionInsight(rows: RdRow[], assetClass: string): string {
+  const adj = CLASS_ADJ_FR[assetClass] ?? classLabel(assetClass).toLowerCase();
+  const keep = rows
+    .filter((r) => verdictTone("detention", r.verdict) === "good")
+    .sort((a, b) => b.yieldNet - a.yieldNet);
+  const n = keep.length;
+
+  if (n === 0) {
+    const best = [...rows].sort((a, b) => b.yieldNet - a.yieldNet)[0];
+    const tail = best ? ` : meilleur yield net ${best.yieldNet.toFixed(1)}% à ${best.short}` : "";
+    return `Aucune freguesia ne justifie de conserver${classSuffix(assetClass)} ce cycle${tail}.`;
+  }
+  // Closing clause: the most common weakest pillar across the non-Conserver set.
+  const rest = rows.filter((r) => verdictTone("detention", r.verdict) !== "good");
+  let why = "";
+  if (rest.length) {
+    const counts = new Map<string, number>();
+    for (const r of rest) if (r.weakest) counts.set(r.weakest, (counts.get(r.weakest) ?? 0) + 1);
+    const top = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
+    const reason = top ? DET_CLAUSE[top[0]] : undefined;
+    if (reason) why = ` Le reste bute sur ${reason}.`;
+  }
+  const list = yieldList(keep.slice(0, 3));
+  const head =
+    n >= 3
+      ? `La détention ${adj} tient sur ${n} freguesias, menées par ${list}.`
+      : n === 2
+      ? `La détention ${adj} tient sur 2 freguesias : ${list}.`
+      : `La détention ${adj} ne tient que sur une freguesia : ${list}.`;
+  return `${head}${why}`;
+}
+
+// Why a decent-KPI freguesia still fails: the weakest pillar behind the low verdict.
 const PILLAR_REASON: Record<string, string> = {
+  // promotion
   absorption: "un marché trop étroit pour absorber du neuf",
   momentum_prix: "une dynamique de prix trop faible",
   constructibilite: "une constructibilité insuffisante",
   risque_sortie: "un risque de sortie trop élevé",
+  // détention
+  resilience: "un marché locatif trop fragile pour tenir la vacance",
+  risque_energie: "un risque énergétique (MEPS) trop lourd",
+  fiscalite: "une fiscalité de détention pénalisante",
+  portage: "un coût de portage qui absorbe le loyer",
 };
 
-// The most striking exception (marge >= 8% but verdict Passer) named by its weakest
-// pillar — or null if there is none. Takes the freguesia-level promotion scores.
-export function marginAnomalyNote(scores: ModeScore[], _assetClass: string): string | null {
-  const cands = scores.filter((s) => {
-    if (s.verdict !== "Passer") return false;
-    const m = pillarValue(s.pillars, "marge");
-    return m != null && m >= 8;
-  });
+// The most striking exception, per mode: a freguesia whose native KPI looks fine
+// but whose verdict is the low one — named by its weakest other pillar, or null
+// when no freguesia qualifies (nothing is displayed then; never forced).
+//  - promotion: marge >= 8% (the verdict-cap threshold) but verdict Passer.
+//  - detention: yield net >= the lowest yield among kept/watched freguesias, but
+//    verdict Céder — it earns as much as places we keep, something else disqualifies it.
+export function anomalyNote(mode: Mode, scores: ModeScore[]): string | null {
+  const kpi = MODE_KPI[mode].pillar;
+  const isLow = (s: ModeScore) => verdictTone(mode, s.verdict) === "low";
+  let cands: ModeScore[];
+  if (mode === "promotion") {
+    cands = scores.filter((s) => isLow(s) && (pillarValue(s.pillars, kpi) ?? -Infinity) >= 8);
+  } else if (mode === "detention") {
+    const viable = scores
+      .filter((s) => !isLow(s))
+      .map((s) => pillarValue(s.pillars, kpi))
+      .filter((v): v is number => v != null);
+    if (!viable.length) return null;
+    const floor = Math.min(...viable);
+    cands = scores.filter((s) => isLow(s) && (pillarValue(s.pillars, kpi) ?? -Infinity) >= floor);
+  } else {
+    return null; // arbitrage / landbank: à décliner avec leur page de mode
+  }
   if (!cands.length) return null;
-  const s = cands.sort((a, b) => (pillarValue(b.pillars, "marge") ?? 0) - (pillarValue(a.pillars, "marge") ?? 0))[0];
-  const margin = pillarValue(s.pillars, "marge")!;
+  const s = cands.sort((a, b) => (pillarValue(b.pillars, kpi) ?? 0) - (pillarValue(a.pillars, kpi) ?? 0))[0];
+  const v = pillarValue(s.pillars, kpi)!;
   const weak = s.pillars
-    .filter((p) => p.applicable && p.pillar !== "marge" && p.subscore != null && PILLAR_REASON[p.pillar])
+    .filter((p) => p.applicable && p.pillar !== kpi && p.subscore != null && PILLAR_REASON[p.pillar])
     .sort((a, b) => (a.subscore ?? 100) - (b.subscore ?? 100))[0];
   const reason = weak ? PILLAR_REASON[weak.pillar] : "des fondamentaux trop faibles";
-  return `${displayName(s.zone_name)} affiche ${Math.round(margin)}% de marge mais ${reason} : verdict Passer.`;
+  const metric = mode === "promotion" ? `${Math.round(v)}% de marge` : `${v.toFixed(1)}% de yield net`;
+  return `${displayName(s.zone_name)} affiche ${metric} mais ${reason} : verdict ${verdictLabel(s.verdict)}.`;
 }

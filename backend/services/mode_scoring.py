@@ -748,7 +748,7 @@ def _risque_sortie(st: State, z: dict) -> Pillar:
 # DETENTION pillars                                                           #
 # --------------------------------------------------------------------------- #
 
-def _net_yield_pct(st: State, z: dict, cls: str) -> tuple[float | None, str]:
+def _net_yield_pct(st: State, z: dict, cls: str) -> tuple[float | None, str, str, dict | None]:
     country = _country(z)
     if cls != "residential":
         c = _commercial(st, z, cls)
@@ -756,7 +756,7 @@ def _net_yield_pct(st: State, z: dict, cls: str) -> tuple[float | None, str]:
     else:
         gross = _p(st, "city_yields", z["city"], "residential") or _p(st, "yields_prime_pct", country, "residential")
     if gross is None:
-        return None, "", RAPPORT
+        return None, "", RAPPORT, None
     # Zone-variable gross yield: rents compress relative to price, so a pricier
     # freguesia yields less and a cheaper one more. gross_zone = gross × (ref/price)^0.4.
     ref = _city_price_median(st, z["city"], cls)
@@ -770,16 +770,29 @@ def _net_yield_pct(st: State, z: dict, cls: str) -> tuple[float | None, str]:
     # Inherit lowest confidence of the params consumed: gross yield + detention tax.
     conf = _derived_conf(_p(st, "_yields_conf", default=RAPPORT),
                          _p(st, "fiscalite", country, "det_conf", default=OFFICIEL))
-    return net, f"brut {gross:.2f}% − fisc {det_tax:.2f} − charges {charges:.2f} − vacance {vac:.0f}%", conf
+    # Structured yield stack for the "Rendement" module (derived economics only).
+    # charges_pct_loyer folds the vacancy loss in, so that
+    # brut × (1 − charges_pct_loyer − fiscalite_pct_loyer) = net exactly.
+    rent = price * gross / 100.0 if price else None
+    charges_total = charges + gross * vac / 100.0
+    breakdown = {
+        "loyer_marche_eur_m2_an": round(rent) if rent is not None else None,
+        "yield_brut_pct": round(gross, 2),
+        "charges_pct_loyer": round(charges_total / gross * 100.0, 1),
+        "fiscalite_pct_loyer": round(det_tax / gross * 100.0, 1),
+        "yield_net_pct": round(net, 2),
+    }
+    return net, f"brut {gross:.2f}% − fisc {det_tax:.2f} − charges {charges:.2f} − vacance {vac:.0f}%", conf, breakdown
 
 
 def _det_rendement(st: State, z: dict, cls: str) -> Pillar:
-    net, detail, conf = _net_yield_pct(st, z, cls)
+    net, detail, conf, breakdown = _net_yield_pct(st, z, cls)
     if net is None:
         return _np("rendement_net", "pas de yield paramétré pour la classe/pays")
     sub = _band(st, "yield_net_pct", net)
     return Pillar("rendement_net", sub, round(net, 2), "%",
-                  f"yield net {net:.1f}%", f"rendement net {net:.2f}% ({detail})", conf)
+                  f"yield net {net:.1f}%", f"rendement net {net:.2f}% ({detail})", conf,
+                  breakdown=breakdown)
 
 
 def _det_resilience(st: State, z: dict) -> Pillar:

@@ -26,7 +26,7 @@ export interface PmRow {
 
 function toRow(z: CityResponse["zones"][number]): PmRow | null {
   const marge = z.pillars.find((p) => p.pillar === "marge");
-  const b: MargeBreakdown | undefined = marge?.breakdown;
+  const b = marge?.breakdown as MargeBreakdown | undefined;
   if (!b) return null;
   return {
     zone: z.zone,
