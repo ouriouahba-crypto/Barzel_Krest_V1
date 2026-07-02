@@ -7,9 +7,11 @@ import { PriceMarginTable } from "@/components/PriceMarginTable";
 import { MarginWaterfall } from "@/components/MarginWaterfall";
 import { MarginBars } from "@/components/MarginBars";
 import { HayaSlider } from "@/components/HayaSlider";
+import { InsightBanner } from "@/components/InsightBanner";
 import { useGaia } from "@/lib/useGaia";
 import { classLabel } from "@/lib/scoring";
 import { pmRows, pmSummary, eurM2 } from "@/lib/priceMargin";
+import { priceMarginInsight, marginAnomalyNote } from "@/lib/insights";
 
 const AFURADA = "santamarinhaesaopedrodaafurada";
 const MARKET_LINE =
@@ -54,6 +56,18 @@ export default function PrixMargePage() {
   const showHaya = g.focusZone === AFURADA && cls === "residential" && !!g.hayaProps;
   const scopeLabel = summary.scope === "viables" ? "freguesias viables" : "toutes freguesias";
 
+  // Conclusion layer: page insight + banner right block + margin anomaly note.
+  const pmLine = useMemo(() => priceMarginInsight(allRows, cls), [allRows, cls]);
+  const maxRow = useMemo(
+    () => (allRows.length ? allRows.reduce((a, b) => (b.marginPct > a.marginPct ? b : a)) : null),
+    [allRows]
+  );
+  const fregScores = useMemo(
+    () => (g.promoCity?.zones ?? []).filter((z) => z.level === "freguesia"),
+    [g.promoCity]
+  );
+  const note = useMemo(() => marginAnomalyNote(fregScores, cls), [fregScores, cls]);
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
@@ -91,6 +105,20 @@ export default function PrixMargePage() {
             </p>
           </div>
 
+          {/* Conclusion banner (shared InsightBanner) */}
+          <InsightBanner
+            eyebrow={`Verdict promotion · ${classLabel(cls)}`}
+            sentence={pmLine}
+            right={
+              maxRow ? (
+                <div className="text-right">
+                  <div className="text-[10px] uppercase tracking-widest text-cream/50">Marge max · {maxRow.short}</div>
+                  <div className="font-display text-[40px] leading-none text-gold">{Math.round(maxRow.marginPct)}%</div>
+                </div>
+              ) : undefined
+            }
+          />
+
           {/* 4 key figures — medians on viable freguesias (Go/Conditionnel) */}
           <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
             <Kpi
@@ -124,6 +152,15 @@ export default function PrixMargePage() {
             focusZone={g.focusZone}
             onSelect={g.setFocusZone}
           />
+
+          {/* Analysis note — the most telling exception (if any) */}
+          {note && (
+            <div className="-mt-2 shrink-0 pl-1 text-[12px] leading-snug text-muted">
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-gold-600">Note d’analyse</span>
+              <span className="mx-2 text-navy/20">·</span>
+              {note}
+            </div>
+          )}
 
           {/* Margin decomposition (+ Haya slider for Afurada residential) */}
           <div className={`shrink-0 ${showHaya ? "grid grid-cols-1 gap-4 xl:grid-cols-[1.35fr_1fr]" : ""}`}>

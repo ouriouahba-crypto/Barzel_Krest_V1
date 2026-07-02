@@ -5,6 +5,7 @@
 import { ModeScore } from "./api";
 import { Mode, MODES, MODE_LABEL, MODE_KPI, classLabel, median, pillarValue, verdictLabel, verdictTone } from "./scoring";
 import { displayName, shortName } from "./useGaia";
+import { PmRow } from "./priceMargin";
 
 // City-level (municipio) score + freguesia rows, per mode, for one class.
 export interface OverviewByMode {
@@ -162,4 +163,75 @@ export function modeInsight(score: ModeScore, assetClass: string): string {
     default:
       return `${score.verdict} — ${v}.`;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Prix & marge — page-level insight (promotion) + margin anomaly note.
+// ---------------------------------------------------------------------------
+
+// "la promotion <X>" with gender/agreement per class.
+const PROMO_CLASS_FR: Record<string, string> = {
+  residential: "résidentielle",
+  office: "de bureaux",
+  hotel: "hôtelière",
+  logistics: "logistique",
+  retail: "commerciale",
+};
+
+// "Name (30%)" list with a French final "et".
+function marginList(rows: PmRow[]): string {
+  const parts = rows.map((r) => `${r.name} (${Math.round(r.marginPct)}%)`);
+  if (parts.length <= 1) return parts.join("");
+  return parts.slice(0, -1).join(", ") + " et " + parts[parts.length - 1];
+}
+
+// 1-2 sentences: how many freguesias carry promotion, the 2-3 best (with margin),
+// and why the rest doesn't pencil. Verb graded by the count of viable freguesias.
+export function priceMarginInsight(rows: PmRow[], assetClass: string): string {
+  const adj = PROMO_CLASS_FR[assetClass] ?? classLabel(assetClass).toLowerCase();
+  const viable = rows
+    .filter((r) => verdictTone("promotion", r.verdict) !== "low")
+    .sort((a, b) => b.marginPct - a.marginPct);
+  const n = viable.length;
+
+  if (n === 0) {
+    const best = [...rows].sort((a, b) => b.marginPct - a.marginPct)[0];
+    const tail = best ? ` : meilleure marge ${Math.round(best.marginPct)}% à ${best.short}` : "";
+    return `Aucune freguesia ne porte la promotion ${adj} ce cycle${tail}.`;
+  }
+  const why = "Au-delà, le prix neuf réalisable ne couvre plus le coût de revient.";
+  const list = marginList(viable.slice(0, 3));
+  const head =
+    n === 1
+      ? `Une seule freguesia porte la promotion ${adj}`
+      : n === 2
+      ? `Seules 2 freguesias portent la promotion ${adj}`
+      : `${n} freguesias portent la promotion ${adj}`;
+  return `${head} : ${list}. ${why}`;
+}
+
+// Why a decent-margin freguesia still fails: the weakest pillar behind a Passer.
+const PILLAR_REASON: Record<string, string> = {
+  absorption: "un marché trop étroit pour absorber du neuf",
+  momentum_prix: "une dynamique de prix trop faible",
+  constructibilite: "une constructibilité insuffisante",
+  risque_sortie: "un risque de sortie trop élevé",
+};
+
+// The most striking exception (marge >= 8% but verdict Passer) named by its weakest
+// pillar — or null if there is none. Takes the freguesia-level promotion scores.
+export function marginAnomalyNote(scores: ModeScore[], _assetClass: string): string | null {
+  const cands = scores.filter((s) => {
+    if (s.verdict !== "Passer") return false;
+    const m = pillarValue(s.pillars, "marge");
+    return m != null && m >= 8;
+  });
+  if (!cands.length) return null;
+  const s = cands.sort((a, b) => (pillarValue(b.pillars, "marge") ?? 0) - (pillarValue(a.pillars, "marge") ?? 0))[0];
+  const margin = pillarValue(s.pillars, "marge")!;
+  const weak = s.pillars
+    .filter((p) => p.applicable && p.pillar !== "marge" && p.subscore != null && PILLAR_REASON[p.pillar])
+    .sort((a, b) => (a.subscore ?? 100) - (b.subscore ?? 100))[0];
+  const reason = weak ? PILLAR_REASON[weak.pillar] : "des fondamentaux trop faibles";
+  return `${displayName(s.zone_name)} affiche ${Math.round(margin)}% de marge mais ${reason} : verdict Passer.`;
 }

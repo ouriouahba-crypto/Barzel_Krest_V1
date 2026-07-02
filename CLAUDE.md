@@ -290,8 +290,31 @@ souhaité.
 HayaSlider intact, `_clean` inchangé, aucun paramètre brut exposé. Vérifs : `tsc` OK,
 tests backend OK, 5 classes contrôlées.
 
+### Lot QA Prix & marge #2 — couche insight — **✅ Livré** (2026-07-02, 4 points)
+1. **`components/InsightBanner.tsx`** — bandeau verdict extrait de la Vue d'ensemble
+   (fond navy, phrase Playfair cream, chiffres en or via `highlightNums`, bloc droit
+   optionnel). Props `{ eyebrow, sentence, right? }`. Utilisé par **Vue d'ensemble**
+   (aucun changement visuel) **et Prix & marge**.
+2. **`priceMarginInsight(rows, class)`** (`insights.ts`, promotion) : compte les
+   freguesias viables (Go+Conditionnel), cite les 2-3 meilleures avec leur marge,
+   explique pourquoi le reste ne porte pas. Verbe gradué (1/2/≥3 viables ; 0 →
+   dégradé). Ex. « 7 freguesias portent la promotion résidentielle : Santa Marinha
+   (30%), Madalena (29%) et Canidelo (24%). Au-delà, le prix neuf réalisable ne couvre
+   plus le coût de revient. » Bloc droit du bandeau : « Marge max · <freguesia> ».
+3. **`marginAnomalyNote(scores, class)`** : cherche une freguesia marge ≥ 8% mais
+   verdict Passer, nomme son pilier le plus faible comme raison ; sinon `null` (rien
+   affiché). Rendu discret « Note d'analyse · … » sous le tableau. Ex. « São Félix da
+   Marinha affiche 11% de marge mais un marché trop étroit pour absorber du neuf :
+   verdict Passer. » (São Félix DOM 76→92 dans `listings_sim.csv` pour matérialiser
+   l'anomalie ; sa marge 11% inchangée, hiérarchie résidentielle préservée.)
+4. **Séparation du tableau** (`PriceMarginTable`) : par défaut, viables (marge desc)
+   au-dessus, filet « Sous le seuil de viabilité », puis Passer (marge desc). Dès que
+   l'utilisateur trie une colonne (`userSorted`), la séparation disparaît → tri global.
+
 ### Prochaines pages de mode (gabarit = Prix & marge)
 Rendement (détention), Arbitrage, Foncier (landbank). Réutiliser la structure :
-KPIs → tableau triable → décomposition/piliers → graphe, **+ `modeInsight`/`cityInsight`
-de `lib/insights.ts`** pour les phrases de synthèse. Chaque page épingle son mode ;
-exposer si besoin un `breakdown` structuré sur le pilier natif du mode.
+KPIs → tableau triable → décomposition/piliers → graphe. **Briques d'insight prêtes**
+(`lib/insights.ts` + `components/InsightBanner.tsx`) : `cityInsight`/`modeInsight`
+(synthèse), `priceMarginInsight`/`marginAnomalyNote` (gabarit à décliner par mode :
+rendement, spread, constructibilité), et le bandeau `InsightBanner` partagé. Chaque
+page épingle son mode ; exposer si besoin un `breakdown` structuré sur le pilier natif.

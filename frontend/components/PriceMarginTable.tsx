@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Mode, scoreColor, verdictColor } from "@/lib/scoring";
+import { Mode, scoreColor, verdictColor, verdictTone } from "@/lib/scoring";
 import { PmRow, eur0, pct0, pct1 } from "@/lib/priceMargin";
 import { VerdictBadge } from "./ui";
 
@@ -37,15 +37,24 @@ export function PriceMarginTable({
 }) {
   // Default: richest margin first (rows already arrive margin-desc).
   const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "marginPct", dir: "desc" });
+  // Until the user sorts, group viable (Go/Conditionnel) above the rest with a
+  // separator. Any sort click switches to a plain global sort (no grouping).
+  const [userSorted, setUserSorted] = useState(false);
 
   // Prix ancien / Prime neuf only apply to residential new-build (existing-stock
   // median + premium); commercial classes price at market → drop those 2 columns.
   const cols = residential ? COLS : COLS.filter((c) => c.key !== "baseMedian" && c.key !== "premiumPct");
 
-  const sorted = useMemo(() => {
-    const r = [...rows];
+  const SEP = "sep" as const;
+  const items = useMemo<(PmRow | typeof SEP)[]>(() => {
+    const byMargin = (a: PmRow, b: PmRow) => b.marginPct - a.marginPct;
+    if (!userSorted) {
+      const viable = rows.filter((r) => verdictTone(mode, r.verdict) !== "low").sort(byMargin);
+      const passer = rows.filter((r) => verdictTone(mode, r.verdict) === "low").sort(byMargin);
+      return viable.length && passer.length ? [...viable, SEP, ...passer] : [...viable, ...passer];
+    }
     const { key, dir } = sort;
-    r.sort((a, b) => {
+    const r = [...rows].sort((a, b) => {
       const av = a[key];
       const bv = b[key];
       let cmp: number;
@@ -60,14 +69,16 @@ export function PriceMarginTable({
       return dir === "asc" ? cmp : -cmp;
     });
     return r;
-  }, [rows, sort]);
+  }, [rows, sort, userSorted, mode]);
 
-  const toggle = (key: Key) =>
+  const toggle = (key: Key) => {
+    setUserSorted(true);
     setSort((s) =>
       s.key === key
         ? { key, dir: s.dir === "asc" ? "desc" : "asc" }
         : { key, dir: key === "name" ? "asc" : "desc" }
     );
+  };
 
   return (
     <div className="shrink-0 overflow-hidden rounded-2xl border border-navy/10 bg-white shadow-card">
@@ -105,7 +116,20 @@ export function PriceMarginTable({
             </tr>
           </thead>
           <tbody>
-            {sorted.map((r) => {
+            {items.map((item) => {
+              if (item === SEP) {
+                return (
+                  <tr key="sep">
+                    <td
+                      colSpan={cols.length + 1}
+                      className="border-y border-navy/10 bg-cream-200/60 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted"
+                    >
+                      Sous le seuil de viabilité
+                    </td>
+                  </tr>
+                );
+              }
+              const r = item;
               const on = r.zone === focusZone;
               return (
                 <tr
@@ -150,7 +174,7 @@ export function PriceMarginTable({
                 </tr>
               );
             })}
-            {sorted.length === 0 && (
+            {items.length === 0 && (
               <tr>
                 <td colSpan={cols.length + 1} className="px-4 py-10 text-center text-[13px] text-muted">
                   Chargement des freguesias…

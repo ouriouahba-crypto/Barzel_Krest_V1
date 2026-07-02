@@ -6,6 +6,7 @@ import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { ScoreDial, VerdictBadge } from "@/components/ui";
 import { OverviewRanking } from "@/components/OverviewRanking";
+import { InsightBanner } from "@/components/InsightBanner";
 import { useGaia, displayName, shortName } from "@/lib/useGaia";
 import { ModeScore } from "@/lib/api";
 import { Mode, MODES, MODE_LABEL, MODE_KPI, classLabel, median, pillarValue, verdictColor, verdictTone } from "@/lib/scoring";
@@ -28,20 +29,6 @@ const kpiVal = (s: ModeScore, m: Mode) => {
   const v = pillarValue(s.pillars, MODE_KPI[m].pillar);
   return v != null ? `${v.toFixed(MODE_KPI[m].digits)}${MODE_KPI[m].unit}` : "—";
 };
-
-// Wrap numeric tokens (with optional unit) in gold, for the verdict banner.
-function highlightNums(text: string) {
-  const parts = text.split(/(\d[\d.,  ]*\s?(?:%|€\/m²|€|\/100)?)/g);
-  return parts.map((p, i) =>
-    /^\d/.test(p) ? (
-      <span key={i} className="text-gold">
-        {p}
-      </span>
-    ) : (
-      <span key={i}>{p}</span>
-    )
-  );
-}
 
 export default function VueEnsemble() {
   const g = useGaia();
@@ -109,31 +96,24 @@ export default function VueEnsemble() {
         )}
 
         <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-6">
-          {/* a) Verdict banner */}
-          <section className="flex shrink-0 items-center justify-between gap-6 rounded-2xl bg-navy px-7 py-6 shadow-card">
-            <div className="min-w-0">
-              <div className="text-[11px] font-semibold uppercase tracking-widest text-gold/90">
-                Verdict marché · {classLabel(cls)}
-              </div>
-              <p className="mt-2 max-w-4xl font-display text-[26px] leading-snug text-cream">
-                {highlightNums(cityLine)}
-              </p>
-            </div>
-            {bm && topOpp ? (
-              <div className="flex shrink-0 items-center gap-4 border-l border-white/10 pl-6">
-                <div className="text-right">
-                  <div className="text-[10px] uppercase tracking-widest text-cream/50">Meilleure opportunité · {MODE_LABEL[bm]}</div>
-                  <div className="font-display text-lg text-cream">{shortName(topOpp.zone_name)}</div>
-                  <div className="mt-1">
-                    <VerdictBadge mode={bm} verdict={topOpp.verdict} />
+          {/* a) Verdict banner (shared InsightBanner) */}
+          <InsightBanner
+            eyebrow={`Verdict marché · ${classLabel(cls)}`}
+            sentence={cityLine}
+            right={
+              bm && topOpp ? (
+                <>
+                  <div className="text-right">
+                    <div className="text-[10px] uppercase tracking-widest text-cream/50">Meilleure opportunité · {MODE_LABEL[bm]}</div>
+                    <div className="font-display text-lg text-cream">{shortName(topOpp.zone_name)}</div>
+                    <div className="mt-1">
+                      <VerdictBadge mode={bm} verdict={topOpp.verdict} />
+                    </div>
                   </div>
-                </div>
-                <ScoreDial score={topOpp.total} size={76} />
-              </div>
-            ) : (
-              bmScore &&
-              bm && (
-                <div className="flex shrink-0 items-center gap-4 border-l border-white/10 pl-6">
+                  <ScoreDial score={topOpp.total} size={76} />
+                </>
+              ) : bmScore && bm ? (
+                <>
                   <div className="text-right">
                     <div className="text-[10px] uppercase tracking-widest text-cream/50">Meilleur mode</div>
                     <div className="font-display text-lg text-cream">{MODE_LABEL[bm]}</div>
@@ -142,10 +122,10 @@ export default function VueEnsemble() {
                     </div>
                   </div>
                   <ScoreDial score={bmScore.total} size={76} />
-                </div>
-              )
-            )}
-          </section>
+                </>
+              ) : undefined
+            }
+          />
 
           {/* b) Four mode cards */}
           <div className="grid shrink-0 grid-cols-2 gap-3 xl:grid-cols-4">
