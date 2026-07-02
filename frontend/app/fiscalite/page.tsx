@@ -95,12 +95,17 @@ export default function FiscalitePage() {
               <Row
                 label="IMT — habitation (investisseur)"
                 value="1% → 8%"
-                sub={`barème progressif ; taux uniques 6% puis 7,5% au-delà de ${(660_982).toLocaleString("fr-FR")} €`}
+                sub={`barème progressif ; taux uniques 6% (${(660_982).toLocaleString("fr-FR")} – ${(1_150_853).toLocaleString("fr-FR")} €) et 7,5% au-delà`}
               />
               <Row
                 label="IMT — commercial & terrains à bâtir"
                 value={pct(IMT_COMMERCIAL_PCT)}
                 sub="prédios não habitacionais : taux unique"
+              />
+              <Row
+                label="Non-résidents — résidentiel (dès 01/09/2026)"
+                value={pct(7.5)}
+                sub="taux fixe (DL 97/2026) ; remboursable si résidence fiscale sous 2 ans ou location à loyer modéré (≤ 2 300 €/mois)"
               />
               <Row label="Imposto do Selo" value={pct(SELO_PCT)} sub="sur le prix d'acquisition (verba 1.1)" />
               <Platform to="/prix-marge" label="intégré au coût du foncier de la cascade Prix & marge" />
@@ -202,7 +207,7 @@ export default function FiscalitePage() {
           {/* Discreet source line */}
           <p className="shrink-0 pl-1 text-[11px] text-muted/80">
             Barèmes officiels PT 2026 — IMT (CIMT art. 17, tables du 06-01-2026), Imposto do Selo,
-            IMI/AIMI, IRC (OE 2026).
+            IMI/AIMI, IRC (OE 2026), non-résidents (DL 97/2026, du 20 mai).
           </p>
         </main>
       </div>

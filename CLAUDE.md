@@ -55,6 +55,10 @@ fur et à mesure.
 - **Frais et délais de cession** : aujourd'hui dérivés (frais 2-4 % et délais
   2-9 mois pilotés par la liquidité/DOM, décote 0,8 × délai) — à remplacer par
   les frais et délais réels constatés par KREST sur ses cessions.
+- **Parc énergétique par freguesia** (`PARC_SCE` dans `lib/energie.ts` +
+  décalage par classe) : répartition SCE simulée réaliste (gradient âge du
+  bâti) — à remplacer par les certificats énergétiques réels des actifs KREST
+  et les données ADENE/INE du parc.
 
 ---
 
@@ -121,8 +125,8 @@ condense en `coût = 1,261 × (construction + foncier)` (cf. `HAYA` dans scoring
 - **Pages** : `app/gaia` (Carte), `app/vue-ensemble` (Vue d'ensemble, sans carte),
   `app/comparer` (Comparer, transverse), `app/prix-marge` (Prix & marge),
   `app/rendement` (Rendement), `app/arbitrage` (Arbitrage), `app/foncier`
-  (Foncier), `app/fiscalite` (Fiscalité, transverse de contexte) — **4 pages de
-  mode + Comparer + Fiscalité livrées** (reste : Énergie).
+  (Foncier), `app/fiscalite` (Fiscalité), `app/energie` (Énergie) — **la
+  Sidebar est complète** (reste : IA Analyste, désactivée).
 - **Libs** : `lib/api.ts` (client + types), `lib/scoring.ts` (couleurs, verdicts,
   médiane, config KPI par mode, formule Haya), `lib/normalize.ts` (clé de jointure
   GeoJSON ↔ zone_name), `lib/priceMargin.ts` (lignes Prix & marge), `lib/rendement.ts`
@@ -755,6 +759,49 @@ lus des mêmes piliers/breakdowns). Aucune carte Leaflet.
 2. **Vérifs** : `tsc` OK, 18 tests backend inchangés, 2 classes contrôlées à
    l'écran + simulateur aux 3 valeurs, zéro régression sur les 7 pages.
    Capture : `shots/fiscalite.png` (script `shots/capture_fiscalite.js`).
+
+### Retouches Fiscalité + page **Énergie** (route `/energie`) — **✅ Livré** (2026-07-02) — Sidebar complète
+0. **Fiscalité** : sous-libellé IMT corrigé (« taux uniques 6% (660 982 –
+   1 150 853 €) et 7,5% au-delà » — le 7,5 % ne démarre pas à 660 982) ;
+   nouvelle ligne Acquérir « **Non-résidents — résidentiel (dès 01/09/2026) :
+   7,5 %** » vérifiée par recherche web : **DL 97/2026 du 20 mai**, taux fixe,
+   remboursable si résidence fiscale sous 2 ans OU location à loyer modéré
+   (≤ 2 300 €/mois, contrat sous 6 mois, tenu ≥ 36 mois sur 5 ans). Source du
+   pied de page complétée.
+1. **Page Énergie** (transverse) : « ce que la réglementation énergétique va
+   coûter au parc, où, et comment c'est déjà compté dans nos verdicts ».
+   ⚠️ **Adaptation d'exactitude signalée** : l'échelle SCE portugaise est
+   **A+ → F (8 classes, pas de G** — DL 101-D/2020) ; les seaux demandés
+   « F-G » deviennent **E-F**, le simulateur « G→D » devient **F/E/D → D/C/B**,
+   les trajets de contrôle « G→C, E→C » deviennent **F→C et E→C**. La note
+   moteur « MEPS F/G » est un raccourci UE (inchangée, interne).
+   - **Faits vérifiés** (frise) : EPBD (UE) 2024/1275 en vigueur 28/05/2024 ;
+     transposition 29/05/2026 ; ZEB public 2028 / tout le neuf 2030 ;
+     non-résidentiel : pires **16 % rénovés d'ici 2030, 26 % d'ici 2033** ;
+     résidentiel : énergie primaire moyenne **−16 % (2030), −20/22 % (2035)**
+     dont ≥ 55 % via les 43 % les plus énergivores ; chaudières fossiles 2040.
+     Ligne « Dans la plateforme : pilier énergie de la cascade Rendement → ».
+   - **Parc simulé** (`PARC_SCE`, gradient âge du bâti : Santa Marinha centre
+     historique 38 % E-F → Canidelo neuf littoral 14 % ; décalage par classe
+     ×0,7-1,0) ; **risque MEPS dérivé du pilier moteur** (natif 35 modulé par
+     l'exposition → 24-35) ; verdict énergie qualitatif Exposé / À surveiller /
+     Contenu. Tableau trié par exposition.
+   - **`energieInsight`** par classe : résidentiel « ~24 % du parc sous la
+     classe D… » ; commercial « ~20 % en classes E-F : les seuils MEPS imposent
+     la rénovation des 16 % les moins performants d'ici 2030 (26 % en 2033)… ».
+     Bloc droit « Parc le plus exposé · Santa Marinha 38 % » (32 % en bureaux).
+   - **`RetrofitSimulator`** (navy, neutre) : classes actuelle F/E/D → cible
+     D/C/B, CAPEX €/m² par saut (F→E 70, E→D 80, D→C 120, C→B 180 — ordres de
+     grandeur ADENE/marché : ETICS 30-80 €/m² façade, toiture 20-60, PAC
+     6-7,5 k€, menuiseries ~2 k€/logement), impact sur l'actif type Santa
+     Marinha lu de la ligne détention (valeur = loyer/brut = 2 725 €/m², CAPEX
+     ajouté à la base, loyer inchangé) : **F→C ~270 €/m² → −0,31 pt ;
+     E→C ~200 €/m² → −0,23 pt** (contrôlés à l'écran).
+   - Sources discrètes en pied de page ; parc simulé ajouté à la liste
+     « à remplacer par les données client ». Route Sidebar `/energie`.
+2. **Vérifs** : `tsc` OK, 18 tests backend inchangés, 2 classes contrôlées,
+   zéro régression sur les 8 pages. Capture : `shots/energie.png`
+   (script `shots/capture_energie.js`).
 
 ### État final du gabarit de page de mode
 Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,
