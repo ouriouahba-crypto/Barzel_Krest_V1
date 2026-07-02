@@ -263,6 +263,33 @@ Effet de bord (constructibilité → totaux promotion) : **logistique** bascule 
 arbitrage → **promotion**. HayaSlider intact, `_clean` inchangé, aucun paramètre brut
 exposé. Vérifs : `tsc` OK, tests backend OK, 5 classes contrôlées sur /vue-ensemble.
 
+### Lot QA Vue d'ensemble #4 — **✅ Livré** (2026-07-02, 2 points)
+1. **Insight gradué** (`cityInsight`) : le verbe d'ouverture dépend du score municipal
+   du mode dominant — ≥60 « <Ville> est un marché de <mode> », 50-60 « <Ville> penche
+   vers la/l'<mode> » (élision), <50 « <Ville> n'offre pas de lecture dominante ce
+   cycle : la/l'<mode> ressort en tête avec … ». Le reste (freguesias, fourchette,
+   driver) inchangé. Bonus : accord de genre `meilleur/meilleure` dans le cas dégradé
+   (« meilleure marge », « meilleur spread »). Rendus : résidentiel (58,5) & logistique
+   (52,8) → « penche vers la promotion » ; bureaux (60,9) & commerce (62,7) → « est un
+   marché de/d' » ; hôtellerie reste dégradé.
+2. **Hiérarchie résidentielle** (`data/listings_sim.csv`, absorption seule, marges
+   intactes) : Santa Marinha DOM 74→61 (plus rapide), Madalena 70→73 → **Santa Marinha
+   86,5 > Madalena 83,2 > Canidelo 71,0** (marges 30/29/24 inchangées). Le héros du
+   bandeau est désormais « Meilleure opportunité : Santa Marinha ».
+
+⚠️ **Interaction P1×P2 à signaler** : l'absorption est **class-indépendante** (DOM
+partagé). Baisser Madalena pour la hiérarchie résidentielle l'a fait passer sous 70 en
+**promotion logistique** — c'était son **seul Go**. Résultat : logistique bascule en
+**dégradé** (« Gaia reste sélectif en logistique : aucune freguesia Go en promotion ce
+cycle, meilleure marge 15% à Sandim »), pas « penche vers ». Impossible d'avoir à la
+fois une hiérarchie résidentielle nette ET un Go logistique (Santa Marinha logistique
+est plafonnée Conditionnel par sa marge 6,7% < 8%). Choix retenu : P2 (cible explicite)
+prioritaire ; l'insight logistique dégradé reste exact. Réversible si arbitrage inverse
+souhaité.
+
+HayaSlider intact, `_clean` inchangé, aucun paramètre brut exposé. Vérifs : `tsc` OK,
+tests backend OK, 5 classes contrôlées.
+
 ### Prochaines pages de mode (gabarit = Prix & marge)
 Rendement (détention), Arbitrage, Foncier (landbank). Réutiliser la structure :
 KPIs → tableau triable → décomposition/piliers → graphe, **+ `modeInsight`/`cityInsight`

@@ -54,6 +54,14 @@ function kpiRange(rows: ModeScore[], m: Mode): [number, number] | null {
   return [Math.min(...vals), Math.max(...vals)];
 }
 
+// "meilleur/meilleure" agreeing with the metric noun's gender.
+const MEILLEUR: Record<Mode, string> = {
+  promotion: "meilleure", // marge (f)
+  detention: "meilleur", // rendement net (m)
+  arbitrage: "meilleur", // spread (m)
+  landbank: "meilleure", // constructibilité (f)
+};
+
 // "marges de 29 à 30 %" (plural range) or "spread 20 %" (single value).
 function rangePhrase(m: Mode, lo: number, hi: number): string {
   const noun = { promotion: "marge", detention: "rendement net", arbitrage: "spread", landbank: "constructibilité" }[m];
@@ -109,7 +117,7 @@ export function cityInsight(data: OverviewByMode, assetClass: string): string {
       .map((r) => ({ r, v: pillarValue(r.pillars, MODE_KPI[bm].pillar) }))
       .filter((x): x is { r: ModeScore; v: number } => x.v != null)
       .sort((a, b) => b.v - a.v)[0];
-    const metric = top ? `, meilleur ${rangePhrase(bm, top.v, top.v)} à ${shortName(top.r.zone_name)}` : "";
+    const metric = top ? `, ${MEILLEUR[bm]} ${rangePhrase(bm, top.v, top.v)} à ${shortName(top.r.zone_name)}` : "";
     return `${city} reste sélectif${suffix} : aucune freguesia ${GOOD_WORD[bm]} en ${label} ce cycle${metric}.`;
   }
 
@@ -118,7 +126,14 @@ export function cityInsight(data: OverviewByMode, assetClass: string): string {
   const metric = rng ? `, ${rangePhrase(bm, rng[0], rng[1])}` : "";
   const driver = rng ? driverClause(bm, good) : "";
   const plural = good.length > 1 ? "s" : "";
-  return `${city} est un ${marketOf(label)}${suffix} : ${good.length} freguesia${plural} ${GOOD_WORD[bm]}${names}${metric}${driver}.`;
+  const tail = `${good.length} freguesia${plural} ${GOOD_WORD[bm]}${names}${metric}${driver}`;
+
+  // Opening verb graded by the dominant mode's city (municipio) score.
+  const muni = data.scores[bm]!.total;
+  const la = /^[aeiouyéèêh]/i.test(label) ? "l'" : "la ";
+  if (muni >= 60) return `${city} est un ${marketOf(label)}${suffix} : ${tail}.`;
+  if (muni >= 50) return `${city} penche vers ${la}${label}${suffix} : ${tail}.`;
+  return `${city} n'offre pas de lecture dominante ce cycle : ${la}${label}${suffix} ressort en tête avec ${tail}.`;
 }
 
 // 1 short sentence per mode, citing at least one real number from its KPI.
