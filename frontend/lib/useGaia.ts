@@ -59,6 +59,12 @@ export function useGaia() {
   // Promotion city for the current class, independent of the header mode — used by
   // the promotion-pinned "Prix & marge" module so it stays promotion-centric.
   const promoCity = cityByKey[keyOf("promotion", assetClass)];
+  // All four modes for the current class — the overview shows them side by side.
+  const citiesByMode = useMemo(() => {
+    const out: Partial<Record<Mode, CityResponse>> = {};
+    for (const m of MODES) out[m] = cityByKey[keyOf(m, assetClass)];
+    return out;
+  }, [cityByKey, assetClass]);
 
   const hayaZone = haya?.zone;
   const hayaNorm = useMemo(
@@ -169,7 +175,7 @@ export function useGaia() {
     quickFor,
     mode, setMode, assetClass, setAssetClass,
     focusZone, setFocusZone, isCityView, cityZoneId: CITY_ZONE,
-    city, promoCity, freguesias, scoresByNorm, scoreRange, hayaNorm, hayaZone,
+    city, promoCity, citiesByMode, freguesias, scoresByNorm, scoreRange, hayaNorm, hayaZone,
     figures, chartRows, cardScores, focusName,
     detailScore, hayaProps, zoneAll, error,
   };

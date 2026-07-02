@@ -70,17 +70,22 @@ condense en `coût = 1,261 × (construction + foncier)` (cf. `HAYA` dans scoring
 - **Hook** `lib/useGaia.ts` : état partagé (mode, classe, focusZone), cache par
   `mode|classe` (`cityByKey`), prefetch des 4 modes de la classe courante, refetch
   zone/classe. Expose `figures`, `chartRows`, `scoresByNorm`, `freguesias`,
-  `detailScore`, `hayaProps`, etc.
+  `promoCity`, `citiesByMode` (4 modes de la classe), `detailScore`, `hayaProps`, etc.
 - **Composants** : `Header` (titre, ligne marché, recherche multi-freguesias,
-  sélecteurs MODE + CLASSE), `Sidebar` (modules + Export PDF + IA Analyste
-  désactivée), `GaiaMap` (Leaflet), `DetailPanel` + `HayaSlider` (curseur prix Haya,
-  recalcul marge live — **NE PAS MODIFIER**), `KeyFigures`, `ScoreCards`,
-  `CityCharts`, `CityBits` (`MapLegendBar`, `RankingList`), `ui.tsx`
-  (`VerdictBadge`, `ScoreDial`, `PillarBar`, `Segmented`, `MultiSelect`).
-- **Pages** : `app/gaia` (Carte), `app/vue-ensemble` (Vue d'ensemble).
+  sélecteurs MODE + CLASSE ; prop `hideMode` pour masquer MODE), `Sidebar` (modules
+  + Export PDF + IA Analyste désactivée), `GaiaMap` (Leaflet, **exclusif page Carte**),
+  `DetailPanel` + `HayaSlider` (curseur prix Haya, recalcul marge live — **NE PAS
+  MODIFIER**), `OverviewRanking` (classement horizontal par verdict), `PriceMargin*`
+  (module Prix & marge), `ui.tsx` (`VerdictBadge`, `ScoreDial` avec prop `light` pour
+  fond clair, `PillarBar`, `Segmented`, `MultiSelect`). `KeyFigures`, `ScoreCards`,
+  `CityCharts`, `CityBits` existent encore mais ne sont plus utilisés par la Vue
+  d'ensemble refondue (réutilisables).
+- **Pages** : `app/gaia` (Carte), `app/vue-ensemble` (Vue d'ensemble, sans carte),
+  `app/prix-marge` (Prix & marge).
 - **Libs** : `lib/api.ts` (client + types), `lib/scoring.ts` (couleurs, verdicts,
   médiane, config KPI par mode, formule Haya), `lib/normalize.ts` (clé de jointure
-  GeoJSON ↔ zone_name).
+  GeoJSON ↔ zone_name), `lib/priceMargin.ts` (lignes Prix & marge), `lib/insights.ts`
+  (générateur d'insights déterministe — voir §5).
 
 ### Conventions
 - Client components (`"use client"`), imports via alias `@/`.
@@ -172,7 +177,43 @@ brut ni indice de confiance exposé, `_clean` inchangé.
 Actif Haya (hors classement zone) : marge 35,5 % — intouchable.
 Captures : `shots/prixmarge_{residentiel_afurada,bureaux,logistique}.png`.
 
+### Refonte Vue d'ensemble — **✅ Livré** (2026-07-02)
+Objectif : « cette ville vaut-elle notre attention, par quel mode, et où » en un
+écran 1440px. **Aucune carte** (exclusivité page Carte).
+Structure (`app/vue-ensemble/page.tsx`) :
+a) Bandeau verdict navy pleine largeur : `cityInsight` en Playfair cream, chiffres
+   en or (`highlightNums`) ; à droite score du meilleur mode + `VerdictBadge`.
+b) 4 cartes de mode (`ScoreDial`, `VerdictBadge`, indicateur natif, `modeInsight`) ;
+   seule Promotion porte un lien « Explorer » → /prix-marge, les autres « Bientôt »
+   (aucun contrôle mort).
+c) « Où » 2 colonnes : podium top 3 freguesias (score/verdict/métrique native du
+   mode dominant) + `OverviewRanking` (barres horizontales par verdict).
+d) Ligne contexte marché discrète (prix médian, yoy, transactions, nb freguesias) —
+   remplace les 5 grosses cartes KPI.
+Supprimés de cette page : carte Leaflet, `KeyFigures`, `ScoreCards`, `CityCharts`,
+`DetailPanel`. `hideMode` sur le Header (les 4 modes sont montrés d'un coup).
+Correctifs QA : élision « marché **d'**arbitrage » ; `ScoreDial` prop `light`
+(texte navy) pour les fonds clairs (podium). Captures :
+`shots/vue_ensemble_{residentiel,bureaux}.png`. Meilleur mode par classe :
+résidentiel/commerce → promotion, bureaux/hôtel/logistique → arbitrage.
+
+### `lib/insights.ts` — générateur d'insights déterministe (réutilisable)
+Fonctions **pures**, sans IA : templates FR + chiffres réels du scoring, jamais de
+texte générique. À réutiliser sur les futures pages de mode.
+- `bestMode(scores)` → mode au score municipio max (ou `null`).
+- `cityInsight(data, assetClass)` → 1 phrase verdict ville : meilleur mode, nombre
+  de freguesias au verdict haut, fourchette de la métrique native dominante, driver
+  (prime neuf en promotion, appétit en arbitrage). Cas dégradé si aucune freguesia
+  au verdict haut. Élision `de`/`d'`.
+- `modeInsight(score, assetClass)` → 1 phrase courte par mode citant sa métrique
+  native (marge / rendement / spread / constructibilité) ; repli sur le verdict.
+- Entrée `OverviewByMode { scores: municipio par mode ; freg: freguesias par mode }`
+  — se construit depuis `useGaia().citiesByMode` (municipio = niveau `municipio`).
+- Rendu des chiffres en or : `highlightNums()` dans la page (regex sur les tokens
+  numériques), pas dans le module (qui reste pur, sans JSX).
+
 ### Prochaines pages de mode (gabarit = Prix & marge)
 Rendement (détention), Arbitrage, Foncier (landbank). Réutiliser la structure :
-KPIs → tableau triable → décomposition/piliers → graphe. Chaque page épingle son
-mode ; exposer si besoin un `breakdown` structuré sur le pilier natif du mode.
+KPIs → tableau triable → décomposition/piliers → graphe, **+ `modeInsight`/`cityInsight`
+de `lib/insights.ts`** pour les phrases de synthèse. Chaque page épingle son mode ;
+exposer si besoin un `breakdown` structuré sur le pilier natif du mode.

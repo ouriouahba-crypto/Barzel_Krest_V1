@@ -1,44 +1,86 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
-import { ScoreCards } from "@/components/ScoreCards";
-import { DetailPanel, KeyFigure } from "@/components/DetailPanel";
-import { KeyFigures } from "@/components/KeyFigures";
-import { CityCharts } from "@/components/CityCharts";
-import { MapLegendBar, RankingList } from "@/components/CityBits";
-import { useGaia } from "@/lib/useGaia";
-import { Mode, MODE_KPI, classLabel } from "@/lib/scoring";
+import { ScoreDial, VerdictBadge } from "@/components/ui";
+import { OverviewRanking } from "@/components/OverviewRanking";
+import { useGaia, displayName, shortName } from "@/lib/useGaia";
 import { ModeScore } from "@/lib/api";
-
-const GaiaMap = dynamic(() => import("@/components/GaiaMap"), {
-  ssr: false,
-  loading: () => <div className="flex h-full items-center justify-center bg-navy text-cream/50">Carte…</div>,
-});
+import { Mode, MODES, MODE_LABEL, MODE_KPI, classLabel, median, pillarValue, verdictColor } from "@/lib/scoring";
+import { OverviewByMode, bestMode, cityInsight, modeInsight } from "@/lib/insights";
 
 const MARKET_LINE =
-  "Rive sud du Douro en forte progression, demande soutenue et offre neuve rare côté fleuve. Afurada et Canidelo tirent le marché.";
+  "Rive sud du Douro : demande soutenue, offre neuve rare côté fleuve. Quatre lectures d'un même marché.";
 
-function detailFigures(score: ModeScore, mode: Mode): KeyFigure[] {
-  const figs: KeyFigure[] = [];
-  if (score.price_eur_m2 != null) figs.push({ label: "Prix médian", value: `${Math.round(score.price_eur_m2).toLocaleString("fr-FR")} €/m²` });
-  const p = score.pillars.find((x) => x.pillar === MODE_KPI[mode].pillar && x.applicable);
-  if (p) figs.push({ label: p.pillar.replace(/_/g, " "), value: p.native.label });
-  return figs;
+// Short native-metric noun per mode for the podium.
+const KPI_NOUN: Record<Mode, string> = {
+  promotion: "marge",
+  detention: "yield net",
+  arbitrage: "spread",
+  landbank: "constructibilité",
+};
+
+const nn = (v: number | null | undefined): v is number => v != null && !Number.isNaN(v);
+const eur = (v: number | null | undefined) => (nn(v) ? `${Math.round(v).toLocaleString("fr-FR")} €/m²` : "—");
+const kpiVal = (s: ModeScore, m: Mode) => {
+  const v = pillarValue(s.pillars, MODE_KPI[m].pillar);
+  return v != null ? `${v.toFixed(MODE_KPI[m].digits)}${MODE_KPI[m].unit}` : "—";
+};
+
+// Wrap numeric tokens (with optional unit) in gold, for the verdict banner.
+function highlightNums(text: string) {
+  const parts = text.split(/(\d[\d.,  ]*\s?(?:%|€\/m²|€|\/100)?)/g);
+  return parts.map((p, i) =>
+    /^\d/.test(p) ? (
+      <span key={i} className="text-gold">
+        {p}
+      </span>
+    ) : (
+      <span key={i}>{p}</span>
+    )
+  );
 }
 
 export default function VueEnsemble() {
   const g = useGaia();
   const [selected, setSelected] = useState<string[]>([]);
-  const [detailOpen, setDetailOpen] = useState(false);
+  const cls = g.assetClass;
 
-  const onSelectZone = (zoneId?: string) => {
-    if (!zoneId) return;
-    g.setFocusZone(zoneId);
-    setDetailOpen(true);
-  };
+  const overview = useMemo<OverviewByMode>(() => {
+    const scores: Partial<Record<Mode, ModeScore>> = {};
+    const freg: Partial<Record<Mode, ModeScore[]>> = {};
+    for (const m of MODES) {
+      const c = g.citiesByMode[m];
+      if (!c) continue;
+      scores[m] = c.zones.find((z) => z.level === "municipio");
+      freg[m] = c.zones.filter((z) => z.level === "freguesia");
+    }
+    return { scores, freg };
+  }, [g.citiesByMode]);
+
+  const bm = bestMode(overview.scores);
+  const bmScore = bm ? overview.scores[bm] : undefined;
+  const cityLine = cityInsight(overview, cls);
+
+  const bmFreg = (bm && overview.freg[bm]) || [];
+  const podium = useMemo(() => [...bmFreg].sort((a, b) => b.total - a.total).slice(0, 3), [bmFreg]);
+  const rankRows = useMemo(
+    () => bmFreg.map((z) => ({ name: displayName(z.zone_name), short: shortName(z.zone_name), total: z.total, verdict: z.verdict })),
+    [bmFreg]
+  );
+
+  // Market context (class price, class-independent yoy / volume / count).
+  const market = useMemo(() => {
+    const rows = bmFreg.length ? bmFreg : overview.freg.promotion ?? [];
+    return {
+      price: median(rows.map((z) => z.price_eur_m2).filter(nn)),
+      yoy: median(rows.map((z) => z.yoy_pct).filter(nn)),
+      tx: rows.reduce((s, z) => s + (z.n_transactions ?? 0), 0),
+      count: rows.length,
+    };
+  }, [bmFreg, overview.freg.promotion]);
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -49,10 +91,11 @@ export default function VueEnsemble() {
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}
-          mode={g.mode}
-          onMode={g.setMode}
+          mode="promotion"
+          onMode={() => {}}
           assetClass={g.assetClass}
           onClass={g.setAssetClass}
+          hideMode
         />
 
         {g.error && (
@@ -61,52 +104,129 @@ export default function VueEnsemble() {
           </div>
         )}
 
-        <main className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-6">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted">
-              {g.isCityView ? "Vue ville — Vila Nova de Gaia" : `Zone — ${g.focusName}`}
-              <span className="ml-2 text-gold-600">· {classLabel(g.assetClass)}</span>
-            </span>
-            {!g.isCityView && (
-              <button
-                onClick={() => g.setFocusZone(g.cityZoneId)}
-                className="rounded-full border border-navy/15 bg-white px-3 py-1 text-[12px] text-navy/70 hover:border-gold/50"
-              >
-                ← Revenir à la ville
-              </button>
+        <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-6">
+          {/* a) Verdict banner */}
+          <section className="flex shrink-0 items-center justify-between gap-6 rounded-2xl bg-navy px-7 py-6 shadow-card">
+            <div className="min-w-0">
+              <div className="text-[11px] font-semibold uppercase tracking-widest text-gold/90">
+                Verdict marché · {classLabel(cls)}
+              </div>
+              <p className="mt-2 max-w-4xl font-display text-[26px] leading-snug text-cream">
+                {highlightNums(cityLine)}
+              </p>
+            </div>
+            {bmScore && bm && (
+              <div className="flex shrink-0 items-center gap-4 border-l border-white/10 pl-6">
+                <div className="text-right">
+                  <div className="text-[10px] uppercase tracking-widest text-cream/50">Meilleur mode</div>
+                  <div className="font-display text-lg text-cream">{MODE_LABEL[bm]}</div>
+                  <div className="mt-1">
+                    <VerdictBadge mode={bm} verdict={bmScore.verdict} />
+                  </div>
+                </div>
+                <ScoreDial score={bmScore.total} size={76} />
+              </div>
             )}
+          </section>
+
+          {/* b) Four mode cards */}
+          <div className="grid shrink-0 grid-cols-2 gap-3 xl:grid-cols-4">
+            {MODES.map((m) => {
+              const s = overview.scores[m];
+              const isBest = m === bm;
+              return (
+                <div
+                  key={m}
+                  className={`flex flex-col rounded-2xl border p-4 ${
+                    isBest ? "border-gold/70 bg-navy shadow-card ring-1 ring-gold/40" : "border-navy/10 bg-navy/95"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[12px] font-semibold uppercase tracking-widest text-gold/90">{MODE_LABEL[m]}</span>
+                    {isBest && <span className="rounded-full bg-gold/20 px-2 py-0.5 text-[9px] uppercase tracking-wide text-gold">Dominant</span>}
+                  </div>
+                  <div className="mt-2 flex items-center gap-3">
+                    {s ? <ScoreDial score={s.total} size={54} /> : <div className="h-[54px] w-[54px] animate-pulse rounded-full bg-white/10" />}
+                    <div className="min-w-0">
+                      {s ? (
+                        <>
+                          <VerdictBadge mode={m} verdict={s.verdict} />
+                          <div className="mt-1 truncate text-[11px] text-cream/55">{s.native_indicator?.label}</div>
+                        </>
+                      ) : (
+                        <div className="h-4 w-24 animate-pulse rounded bg-white/10" />
+                      )}
+                    </div>
+                  </div>
+                  <p className="mt-3 min-h-[32px] text-[11.5px] leading-snug text-cream/75">
+                    {s ? modeInsight(s, cls) : ""}
+                  </p>
+                  {m === "promotion" ? (
+                    <Link
+                      href="/prix-marge"
+                      className="mt-2 inline-flex items-center gap-1 self-start rounded-lg border border-gold/40 bg-gold/10 px-2.5 py-1 text-[11px] font-medium text-gold transition-colors hover:bg-gold/20"
+                    >
+                      Explorer →
+                    </Link>
+                  ) : (
+                    <span className="mt-2 inline-flex self-start text-[10px] uppercase tracking-wide text-cream/30">Bientôt</span>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
-          <KeyFigures figures={g.figures} />
-
-          <ScoreCards scores={g.cardScores} activeMode={g.mode} onMode={g.setMode} zoneName={g.focusName} classLabel={classLabel(g.assetClass)} />
-
-          <div className="grid grid-cols-1 gap-4 xl:h-[620px] xl:grid-cols-[1.78fr_1fr]">
-            <div className="flex min-h-0 flex-col gap-2.5">
-              <div className="h-[560px] shrink-0 overflow-hidden rounded-2xl border border-navy/10 shadow-card">
-                <GaiaMap scoresByNorm={g.scoresByNorm} selected={selected} onSelectZone={onSelectZone} hayaNorm={g.hayaNorm} mode={g.mode} focusZoneId={g.focusZone} />
+          {/* c) "Où" — podium + ranking */}
+          <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 xl:grid-cols-[1fr_1.4fr]">
+            <section className="flex flex-col rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
+              <div className="mb-3 flex items-baseline justify-between">
+                <h3 className="font-display text-[15px] text-navy">Où — top 3 freguesias</h3>
+                <span className="text-[11px] text-muted">{bm ? MODE_LABEL[bm] : ""}</span>
               </div>
-              <MapLegendBar min={g.scoreRange.min} max={g.scoreRange.max} />
-            </div>
-            <section className="hidden xl:block">
-              <div className="flex h-full flex-col rounded-2xl border border-navy/10 bg-cream-200 p-5 shadow-card">
-                <RankingList city={g.city} selected={selected} focus={g.focusZone} onSelect={onSelectZone} />
+              <div className="flex flex-col gap-2.5">
+                {podium.map((z, i) => (
+                  <div key={z.zone} className="flex items-center gap-3 rounded-xl border border-navy/10 bg-cream-200 px-3 py-2.5">
+                    <span className="font-display text-[18px] text-gold-600">{i + 1}</span>
+                    <span className="h-9 w-1 rounded-full" style={{ background: verdictColor(bm as Mode, z.verdict) }} />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-[13px] font-medium text-ink">{displayName(z.zone_name)}</div>
+                      <div className="mt-0.5 flex items-center gap-2">
+                        <VerdictBadge mode={bm as Mode} verdict={z.verdict} />
+                        <span className="text-[11px] text-muted">
+                          {bm ? `${KPI_NOUN[bm]} ${kpiVal(z, bm)}` : ""}
+                        </span>
+                      </div>
+                    </div>
+                    <ScoreDial score={z.total} size={44} light />
+                  </div>
+                ))}
+                {!podium.length && <div className="text-[13px] text-muted">Chargement…</div>}
               </div>
+            </section>
+
+            <section className="flex min-h-0 flex-col rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
+              <div className="mb-2 flex items-baseline justify-between">
+                <h3 className="font-display text-[15px] text-navy">Classement des freguesias</h3>
+                <span className="text-[11px] text-muted">score {bm ? MODE_LABEL[bm].toLowerCase() : ""} · par verdict</span>
+              </div>
+              <div className="min-h-0 flex-1">{bm && rankRows.length ? <OverviewRanking rows={rankRows} mode={bm} /> : null}</div>
             </section>
           </div>
 
-          <CityCharts rows={g.chartRows} mode={g.mode} classLabel={classLabel(g.assetClass)} />
+          {/* d) Market context — one discrete line */}
+          <div className="shrink-0 rounded-xl border border-navy/10 bg-cream-200 px-4 py-2 text-[12px] text-muted">
+            <span className="font-medium text-ink">Contexte marché</span>
+            <span className="mx-2 text-navy/20">·</span>
+            Prix médian {eur(market.price)}
+            <span className="mx-2 text-navy/20">·</span>
+            évolution {nn(market.yoy) ? `${market.yoy >= 0 ? "+" : ""}${market.yoy.toFixed(1)}%` : "—"} sur 12 mois
+            <span className="mx-2 text-navy/20">·</span>
+            {market.tx.toLocaleString("fr-FR")} transactions / an
+            <span className="mx-2 text-navy/20">·</span>
+            {market.count} freguesias suivies
+          </div>
         </main>
       </div>
-
-      <DetailPanel
-        open={detailOpen}
-        onClose={() => setDetailOpen(false)}
-        score={g.detailScore}
-        mode={g.mode}
-        keyFigures={g.detailScore ? detailFigures(g.detailScore, g.mode) : []}
-        haya={g.hayaProps}
-      />
     </div>
   );
 }

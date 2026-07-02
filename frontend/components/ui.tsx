@@ -17,14 +17,14 @@ export function VerdictBadge({ mode, verdict }: { mode: Mode; verdict: string })
   );
 }
 
-export function ScoreDial({ score, size = 64 }: { score: number; size?: number }) {
+export function ScoreDial({ score, size = 64, light = false }: { score: number; size?: number; light?: boolean }) {
   const r = size / 2 - 5;
   const c = 2 * Math.PI * r;
   const pct = Math.max(0, Math.min(100, score)) / 100;
   const color = scoreColor(score);
   return (
     <svg width={size} height={size} className="shrink-0">
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth={5} />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={light ? "rgba(10,22,40,0.10)" : "rgba(255,255,255,0.12)"} strokeWidth={5} />
       <circle
         cx={size / 2}
         cy={size / 2}
@@ -37,7 +37,7 @@ export function ScoreDial({ score, size = 64 }: { score: number; size?: number }
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
         style={{ transition: "stroke-dasharray 0.5s cubic-bezier(0.22,1,0.36,1), stroke 0.4s" }}
       />
-      <text x="50%" y="52%" dominantBaseline="middle" textAnchor="middle" className="fill-cream font-display" fontSize={size * 0.3}>
+      <text x="50%" y="52%" dominantBaseline="middle" textAnchor="middle" className={`${light ? "fill-navy" : "fill-cream"} font-display`} fontSize={size * 0.3}>
         {Math.round(score)}
       </text>
     </svg>
