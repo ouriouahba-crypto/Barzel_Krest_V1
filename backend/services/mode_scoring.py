@@ -394,6 +394,14 @@ def _zone_attr(st: State, z: dict, key: str) -> tuple[Any, str]:
     zp = _zone_param(st, z["id"])
     if key in zp and zp[key] is not None:
         return zp[key], zp.get(f"{key}_conf") or zp.get("confidence", RAPPORT)
+    # A municipio inherits the MEDIAN constructibility of its city's freguesias
+    # (rather than the blunt country default), so the city view reflects the mix.
+    if key == "constructibilite" and z.get("level") == "municipio":
+        vals = [float(v) for zz in st.zones.values()
+                if zz["city"] == z["city"] and zz["level"] == "freguesia"
+                for v in [_zone_param(st, zz["id"]).get("constructibilite")] if v is not None]
+        if vals:
+            return round(statistics.median(vals)), DERIVE
     default = st.params.get("zone_defaults", {}).get(z["country"], {})
     if key in default:
         return default[key], HYPOTHESE
@@ -902,6 +910,11 @@ def _land_constructibilite(st: State, z: dict) -> Pillar:
     return p  # same metric, reused
 
 
+# Display names for the asset class in French (labels only; keys stay canonical).
+_CLS_FR = {"residential": "résidentiel", "office": "bureaux", "hotel": "hôtel",
+           "logistics": "logistique", "retail": "commerce", "living": "résidentiel"}
+
+
 def _land_best_use(st: State, z: dict) -> Pillar:
     val, cls = _best_use_value(st, z)
     if val is None:
@@ -911,9 +924,10 @@ def _land_best_use(st: State, z: dict) -> Pillar:
     base_conf = zp.get("comparables_eur_m2_conf") if zp.get("comparables_eur_m2") \
         else z["residential"].get("confidence", DERIVE)
     conf = _derived_conf(base_conf)
+    cls_fr = _CLS_FR.get(cls, cls)
     return Pillar("valeur_meilleur_usage", sub, val, "€/m²",
-                  f"meilleur usage {cls} {val} €/m²",
-                  f"valeur meilleur usage: {cls} ~{val} €/m² (max multi-usages)", conf)
+                  f"meilleur usage {cls_fr} {val} €/m²",
+                  f"valeur meilleur usage: {cls_fr} ~{val} €/m² (max multi-usages)", conf)
 
 
 def _land_connectivite(st: State, z: dict) -> Pillar:
@@ -1035,17 +1049,30 @@ def _confidence_index(st: State, pillars: list[Pillar]) -> dict:
             "detail": f"{len(supported)}/{len(applicable)} piliers en donnée officielle/rapport/dérivée"}
 
 
+def _appetit_qual(value) -> str | None:
+    """Institutional appetite as a graded word (mirrors the front's insight)."""
+    if not isinstance(value, (int, float)):
+        return None
+    v = float(value)
+    return "appétit soutenu" if v >= 0.7 else ("appétit modéré" if v >= 0.4 else "appétit faible")
+
+
 def _native_indicator(mode: str, pillars: dict) -> dict:
     def lab(k):
         p = pillars.get(k)
-        return p.native_label if p and p.applicable else "n/a"
-    if mode == "promotion":
-        return {"label": f"{lab('marge')} · {lab('absorption')}"}
-    if mode == "detention":
-        return {"label": f"{lab('rendement_net')} · {lab('risque_energie')}"}
-    if mode == "arbitrage":
-        return {"label": f"{lab('spread')} · {lab('appetit_institutionnel')}"}
-    return {"label": f"{lab('constructibilite')} · {lab('valeur_meilleur_usage')}"}
+        return p.native_label if p and p.applicable else None
+
+    ap = pillars.get("appetit_institutionnel")
+    appetit = _appetit_qual(ap.native_value) if ap and ap.applicable else None
+    parts = {
+        "promotion": [lab("marge"), lab("absorption")],
+        "detention": [lab("rendement_net"), lab("risque_energie")],
+        "arbitrage": [lab("spread"), appetit],
+        "landbank": [lab("constructibilite"), lab("valeur_meilleur_usage")],
+    }[mode]
+    # Never surface an empty / "n/a" segment.
+    kept = [p for p in parts if p and p != "n/a"]
+    return {"label": " · ".join(kept) if kept else "—"}
 
 
 def score_mode(zone_id: str, mode: str, asset_class: str | None = None,

@@ -3,7 +3,7 @@
 // filler). Reused by the overview page and, later, the mode pages.
 
 import { ModeScore } from "./api";
-import { Mode, MODES, MODE_LABEL, MODE_KPI, classLabel, median, pillarValue, verdictTone } from "./scoring";
+import { Mode, MODES, MODE_LABEL, MODE_KPI, classLabel, median, pillarValue, verdictLabel, verdictTone } from "./scoring";
 import { displayName, shortName } from "./useGaia";
 
 // City-level (municipio) score + freguesia rows, per mode, for one class.
@@ -135,8 +135,14 @@ export function modeInsight(score: ModeScore, assetClass: string): string {
     case "arbitrage":
       return `Spread de ${v} face à la médiane de marché.`;
     case "landbank": {
-      const bu = score.pillars.find((p) => p.pillar === "valeur_meilleur_usage" && p.applicable)?.native.label;
-      return `Constructibilité ${v}${bu ? ` · ${bu}` : ""}.`;
+      // Don't repeat the native indicator (constructibilité). Frame the reserve
+      // by its best use + achievable value instead.
+      const bu = score.pillars.find((p) => p.pillar === "valeur_meilleur_usage" && p.applicable);
+      if (bu && typeof bu.native.value === "number") {
+        const usage = /meilleur usage (\S+)/.exec(bu.native.label)?.[1] ?? "mixte";
+        return `Réserve foncière à activer : meilleur usage ${usage} à ${Math.round(bu.native.value).toLocaleString("fr-FR")} €/m².`;
+      }
+      return `Réserve foncière à activer : ${verdictLabel(score.verdict)}.`;
     }
     default:
       return `${score.verdict} — ${v}.`;

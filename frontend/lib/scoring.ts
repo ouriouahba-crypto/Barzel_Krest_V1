@@ -62,6 +62,19 @@ export function verdictTone(mode: Mode, verdict: string): "good" | "mid" | "low"
   return "low";
 }
 
+// Display-only accent mapping. Backend verdict strings stay ASCII (unchanged) and
+// remain the keys for verdictTone / verdictColor / comparisons; only the rendered
+// text is accented.
+const VERDICT_LABEL: Record<string, string> = {
+  "Fenetre ouverte": "Fenêtre ouverte",
+  "Fenetre etroite": "Fenêtre étroite",
+  "Fenetre fermee": "Fenêtre fermée",
+  Ceder: "Céder",
+};
+export function verdictLabel(verdict: string): string {
+  return VERDICT_LABEL[verdict] ?? verdict;
+}
+
 // Solid charte colour for a verdict (chart bars, accents) — matches the score ramp.
 const VERDICT_COLOR: Record<"good" | "mid" | "low", string> = {
   good: "#2F6B3D", // deep green

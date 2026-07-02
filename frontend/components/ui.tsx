@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Mode, scoreColor, verdictTone } from "@/lib/scoring";
+import { Mode, scoreColor, verdictLabel, verdictTone } from "@/lib/scoring";
 
 export function VerdictBadge({ mode, verdict }: { mode: Mode; verdict: string }) {
   const tone = verdictTone(mode, verdict);
@@ -12,7 +12,7 @@ export function VerdictBadge({ mode, verdict }: { mode: Mode; verdict: string })
   }[tone];
   return (
     <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium tracking-wide ${cls}`}>
-      {verdict}
+      {verdictLabel(verdict)}
     </span>
   );
 }

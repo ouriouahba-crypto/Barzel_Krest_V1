@@ -194,8 +194,9 @@ Supprimés de cette page : carte Leaflet, `KeyFigures`, `ScoreCards`, `CityChart
 `DetailPanel`. `hideMode` sur le Header (les 4 modes sont montrés d'un coup).
 Correctifs QA : élision « marché **d'**arbitrage » ; `ScoreDial` prop `light`
 (texte navy) pour les fonds clairs (podium). Captures :
-`shots/vue_ensemble_{residentiel,bureaux}.png`. Meilleur mode par classe :
-résidentiel/commerce → promotion, bureaux/hôtel/logistique → arbitrage.
+`shots/vue_ensemble_{residentiel,bureaux,hotellerie}.png`. Meilleur mode par classe
+(après enrichissement constructibilité, lot #3) : résidentiel/logistique/commerce →
+promotion, bureaux/hôtel → arbitrage.
 
 ### `lib/insights.ts` — générateur d'insights déterministe (réutilisable)
 Fonctions **pures**, sans IA : templates FR + chiffres réels du scoring, jamais de
@@ -238,6 +239,29 @@ texte générique. À réutiliser sur les futures pages de mode.
 
 Captures : `shots/vue_ensemble_{residentiel,bureaux,hotellerie}.png`. Vérifs : `tsc`
 OK, tests backend OK (dont garde-fous verdict), routes 200.
+
+### Lot QA Vue d'ensemble #3 — **✅ Livré** (2026-07-02, 4 points)
+1. **Constructibilité municipio = médiane des freguesias** (`mode_scoring.py`
+   `_zone_attr`) : un zone `municipio` hérite de la médiane de constructibilité de
+   ses freguesias au lieu du défaut pays. La carte Landbank affiche « constructibilité
+   **51** » (plus 50). Repli défaut pays pour les villes non enrichies.
+2. **Label natif arbitrage qualitatif** (backend `_native_indicator` + `_appetit_qual`) :
+   `native_indicator` remplace « appétit 0.55 » par « appétit soutenu » (≥0,7) /
+   « modéré » (0,4-0,7) / « faible » (<0,4) — même seuillage que l'insight.
+3. **Accents d'affichage** : `verdictLabel()` dans `lib/scoring.ts` (mapping pur
+   d'affichage : Fenetre ouverte→Fenêtre ouverte, etroite→étroite, fermee→fermée,
+   Ceder→Céder). Utilisé dans `VerdictBadge` + tooltips `OverviewRanking`/`MarginBars`.
+   **Les chaînes backend et les comparaisons restent brutes** (verdictTone,
+   verdictColor, GOOD_WORD). Backend : « meilleur usage hotel » → « hôtel »
+   (`_CLS_FR`, labels seulement, clés canoniques inchangées).
+4. **Scories de label** : `_native_indicator` ne joint plus que les segments non
+   vides (fini « marge 14% · n/a » → « marge 14% »). `modeInsight` landbank reformulé
+   pour ne plus dupliquer la constructibilité : « Réserve foncière à activer :
+   meilleur usage <usage> à <prix> €/m². »
+
+Effet de bord (constructibilité → totaux promotion) : **logistique** bascule dominant
+arbitrage → **promotion**. HayaSlider intact, `_clean` inchangé, aucun paramètre brut
+exposé. Vérifs : `tsc` OK, tests backend OK, 5 classes contrôlées sur /vue-ensemble.
 
 ### Prochaines pages de mode (gabarit = Prix & marge)
 Rendement (détention), Arbitrage, Foncier (landbank). Réutiliser la structure :

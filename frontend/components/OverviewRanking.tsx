@@ -1,7 +1,7 @@
 "use client";
 
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Mode, verdictColor } from "@/lib/scoring";
+import { Mode, verdictColor, verdictLabel } from "@/lib/scoring";
 
 export interface RankRow {
   name: string;
@@ -17,7 +17,7 @@ function RankTooltip({ active, payload, mode }: any) {
     <div className="rounded-lg border border-gold/40 bg-navy px-3 py-2 text-cream shadow-card">
       <div className="text-[12px] font-semibold">{d.name}</div>
       <div className="text-[12px] text-gold">
-        {Math.round(d.total)} / 100 · {d.verdict}
+        {Math.round(d.total)} / 100 · {verdictLabel(d.verdict)}
       </div>
     </div>
   );
