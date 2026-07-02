@@ -112,7 +112,7 @@ export function energieInsight(cls: string, zones: string[]): string {
   const x = median(efs);
   if (x == null) return "Chargement du parc…";
   if (cls === "residential") {
-    return `~${Math.round(x)}% du parc résidentiel de Gaia sous la classe D : la pression MEPS se concentre sur le centre historique, déjà pénalisée dans les verdicts de détention.`;
+    return `~${Math.round(x)}% du parc résidentiel de Gaia sous la classe D : la pression MEPS se concentre sur le centre historique, déjà pénalisé dans les verdicts de détention.`;
   }
   return `~${Math.round(x)}% du parc ${classLabel(cls).toLowerCase()} de Gaia en classes E-F : les seuils MEPS imposent la rénovation des 16% les moins performants d'ici 2030 (26% en 2033) — déjà compté dans les verdicts de détention.`;
 }

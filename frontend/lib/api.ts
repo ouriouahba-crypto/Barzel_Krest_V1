@@ -135,4 +135,13 @@ export const api = {
         (assetClass ? `&class=${assetClass}` : "")
     ),
   asset: (asset: string) => get<AssetResponse>(`/api/scoring/asset?asset=${asset}`),
+  analystAsk: async (question: string, assetClass: string): Promise<{ answer: string }> => {
+    const res = await fetch(`${BASE}/api/analyst/ask`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question, asset_class: assetClass }),
+    });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    return res.json();
+  },
 };

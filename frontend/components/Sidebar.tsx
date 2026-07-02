@@ -63,11 +63,15 @@ export function Sidebar() {
         })}
 
         <div className="mt-3 border-t border-white/10 pt-3">
-          <div title="Bientôt disponible" className="flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2 text-[13px] text-cream/30">
-            <span className="w-4 text-center text-gold/50">✦</span>
+          <Link
+            href="/ia-analyste"
+            className={`flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] transition-colors ${
+              pathname === "/ia-analyste" ? "bg-white/10 text-cream" : "text-cream/60 hover:bg-white/5 hover:text-cream/90"
+            }`}
+          >
+            <span className={`w-4 text-center ${pathname === "/ia-analyste" ? "text-gold" : "text-gold/60"}`}>✦</span>
             IA Analyste
-            <span className="ml-auto rounded-full border border-cream/15 px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-cream/30">bientôt</span>
-          </div>
+          </Link>
         </div>
       </nav>
 

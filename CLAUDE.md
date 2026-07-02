@@ -125,8 +125,8 @@ condense en `coût = 1,261 × (construction + foncier)` (cf. `HAYA` dans scoring
 - **Pages** : `app/gaia` (Carte), `app/vue-ensemble` (Vue d'ensemble, sans carte),
   `app/comparer` (Comparer, transverse), `app/prix-marge` (Prix & marge),
   `app/rendement` (Rendement), `app/arbitrage` (Arbitrage), `app/foncier`
-  (Foncier), `app/fiscalite` (Fiscalité), `app/energie` (Énergie) — **la
-  Sidebar est complète** (reste : IA Analyste, désactivée).
+  (Foncier), `app/fiscalite` (Fiscalité), `app/energie` (Énergie),
+  `app/ia-analyste` (IA Analyste) — **la Sidebar est complète, démo terminée**.
 - **Libs** : `lib/api.ts` (client + types), `lib/scoring.ts` (couleurs, verdicts,
   médiane, config KPI par mode, formule Haya), `lib/normalize.ts` (clé de jointure
   GeoJSON ↔ zone_name), `lib/priceMargin.ts` (lignes Prix & marge), `lib/rendement.ts`
@@ -802,6 +802,47 @@ lus des mêmes piliers/breakdowns). Aucune carte Leaflet.
 2. **Vérifs** : `tsc` OK, 18 tests backend inchangés, 2 classes contrôlées,
    zéro régression sur les 8 pages. Capture : `shots/energie.png`
    (script `shots/capture_energie.js`).
+
+### **IA Analyste** (route `/ia-analyste`) — **✅ Livré** (2026-07-02) — dernière brique
+**Architecture du contexte (garde-fous de sécurité)** :
+- Endpoint `POST /api/analyst/ask {question, asset_class}`
+  (`backend/routers/analyst.py`). Le contexte est construit **exclusivement**
+  à partir des payloads passés par le **même `_clean()`** que les endpoints
+  publics (`score_city` × 4 modes, ville + 15 freguesias : scores, verdicts,
+  breakdowns compactés en lignes texte) + les **faits statiques déjà publiés**
+  par les pages Fiscalité/Énergie (barèmes officiels, échéances EPBD, parc SCE
+  par freguesia, coûts de mise à niveau). Jamais params.json, jamais confiance/
+  source, jamais la notion de simulation. Contexte mis en cache par classe
+  (`lru_cache`).
+- Appel Anthropic (SDK python, **mis à jour 0.29 → 0.116** : le 0.29 crashait
+  en TypeError avec httpx récent), modèle `claude-sonnet-4-6`, max_tokens 800.
+  Clé lue de `backend/.env` (`ANTHROPIC_API_KEY=`) — **fichier reformaté**
+  (était `API_KEY : …`, format invalide) **et ajouté au .gitignore** (il n'y
+  était PAS : seuls `.env.local`/`.env*.local` étaient couverts — repo public,
+  un `git add -A` l'aurait exposé). Vérifié non tracké avant commit.
+- **System prompt** : persona analyste Barzel, français, données fournies
+  uniquement, chiffres exacts, jamais confiance/source/simulation (« la
+  plateforme agrège des données de marché et son modèle propriétaire Barzel »),
+  hors périmètre → « hors du périmètre couvert par la plateforme sur Gaia »,
+  5-10 lignes texte simple sans markdown, verdict actionnable. Ajouts après
+  tests : « 15 freguesias, jamais “friches”/“quartiers” » (le modèle avait dit
+  « friches » et « seize freguesias »), « pas de markdown » (1ʳᵉ réponse en ##/**). 
+- Erreurs : 503 sobre « analyste momentanément indisponible » (type d'exception
+  loggé côté serveur uniquement).
+**Frontend** : `app/ia-analyste/page.tsx` — conversation sobre (bulle user navy,
+réponses « Analyste Barzel » au filet or, `whitespace-pre-line`), 5 questions
+suggérées en chips, classe active alimentant `asset_class`, chargement 3 points
+animés, erreur en note discrète. Sidebar : lien actif, **badge BIENTÔT retiré**.
+`api.analystAsk()` dans `lib/api.ts`.
+**Tests de réponse (7 questions)** : les 5 suggérées citent des chiffres
+**strictement identiques aux pages** (86,5/30,0 %/3 646/primes 34-31-18/fonciers
+524-594-673 ; Madalena 66,4/5,00/24,7/7,3/3,40/143 ; Canidelo 859/673/+27,7 %/
+constructibilité 69 ; énergie 38 %/2 725/270/−0,31 pt/3,49→3,18 ; bureaux
+79,3-70,1/19,8-12,1 %/4 663-4 080/3,09-3,34/33,3 %/55,4-47,1) ; les 2 pièges se
+comportent : « quelles données sont simulées ? » → formule modèle propriétaire
+sans rien révéler ; « prix à Lisbonne ? » → hors périmètre, élégant. Réponses
+intégrales conservées dans le rapport de livraison.
+**Micro-fix** : bandeau /energie « déjà pénalisé » (accord).
 
 ### État final du gabarit de page de mode
 Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,

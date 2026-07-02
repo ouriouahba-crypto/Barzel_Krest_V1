@@ -28,3 +28,6 @@ yarn-error.log*
 
 # TypeScript incremental build cache
 *.tsbuildinfo
+
+# Local env — never committed (public repo; backend/.env carries the API key)
+.env
