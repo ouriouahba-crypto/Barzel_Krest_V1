@@ -908,20 +908,47 @@ def _portage(st: State, z: dict) -> Pillar:
 # ARBITRAGE pillars                                                           #
 # --------------------------------------------------------------------------- #
 
+def _arb_breakdown(st: State, z: dict, market: float | None, realizable: float | None,
+                   spread: float) -> dict:
+    """Structured disposal economics for the "Arbitrage" module (derived only).
+    Realism bounds: selling costs 2-4% of value, disposal time 2-9 months —
+    both driven by market liquidity (deep park sells faster and cheaper), the
+    negotiation discount grows with the expected time on market."""
+    months = _absorption_months(st, z["id"])
+    n = z["residential"].get("n_transactions")
+    liq = _percentile(st, "liquidite", float(n)) if n else 50.0
+    delai = min(9.0, max(2.0, months * (3.0 - 2.0 * liq / 100.0))) if months else None
+    frais = min(4.0, max(2.0, 4.0 - 2.0 * liq / 100.0 + 0.2 * _split_jitter_pct(z["id"])))
+    decote = min(6.0, max(1.5, 0.8 * delai)) if delai is not None else None
+    return {
+        "prix_marche_eur_m2": round(market) if market is not None else None,
+        "valeur_realisable_eur_m2": round(realizable) if realizable is not None else None,
+        "spread_pct": round(spread, 1),
+        "delai_cession_mois": round(delai, 1) if delai is not None else None,
+        "frais_cession_pct": round(frais, 1),
+        "decote_negociation_pct": round(decote, 1) if decote is not None else None,
+    }
+
+
 def _arb_spread(st: State, z: dict, cls: str, asset: dict | None) -> Pillar:
+    med = z["residential"].get("median_eur_m2")
+    market: float | None = None      # reference price the spread is measured against
+    realizable: float | None = None  # value a disposal can fetch (market × (1+spread))
     if asset and asset.get("spread_pct") is not None:
         spread = float(asset["spread_pct"])
         why = f"spread actif {spread:.0f}% (paramètre KREST)"
         conf = _derived_conf(asset.get("confidence", RAPPORT))
+        if med:
+            market, realizable = float(med), float(med) * (1 + spread / 100.0)
     else:
         zp = _zone_param(st, z["id"])
         comp = zp.get("comparables_eur_m2")
-        med = z["residential"].get("median_eur_m2")
         if comp and med:
             spread = (comp / med - 1) * 100
             why = f"spread zone {spread:.0f}% (médiane {med:.0f} vs comparable {comp:.0f} €/m²)"
             conf = _derived_conf(zp.get("comparables_eur_m2_conf", RAPPORT),
                                  z["residential"].get("confidence", DERIVE))
+            market, realizable = float(med), float(comp)
         else:
             q = (z["residential"].get("_internal") or {}).get("total_price_quantiles", {})
             q50, q75 = q.get("q50"), q.get("q75")
@@ -929,6 +956,8 @@ def _arb_spread(st: State, z: dict, cls: str, asset: dict | None) -> Pillar:
                 spread = (q75 / q50 - 1) * 100
                 why = f"spread {spread:.0f}% (potentiel haut de gamme, dispersion Q75/Q50)"
                 conf = _derived_conf(z["residential"].get("confidence", DERIVE))
+                if med:
+                    market, realizable = float(med), float(med) * (1 + spread / 100.0)
             else:
                 # Positioning spread: zone class price vs the city median price.
                 price = _class_price(st, z, cls)
@@ -938,8 +967,10 @@ def _arb_spread(st: State, z: dict, cls: str, asset: dict | None) -> Pillar:
                 spread = (price / ref - 1) * 100
                 why = f"spread {spread:+.0f}% (positionnement vs médiane ville)"
                 conf = DERIVE
+                market, realizable = float(ref), float(price)
     sub = _band(st, "spread_pct", spread)
-    return Pillar("spread", sub, round(spread, 1), "%", f"spread {spread:.0f}%", why, conf)
+    return Pillar("spread", sub, round(spread, 1), "%", f"spread {spread:.0f}%", why, conf,
+                  breakdown=_arb_breakdown(st, z, market, realizable, spread))
 
 
 def _arb_appetit(st: State, cls: str) -> Pillar:

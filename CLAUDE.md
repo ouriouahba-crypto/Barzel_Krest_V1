@@ -90,6 +90,7 @@ condense en `coût = 1,261 × (construction + foncier)` (cf. `HAYA` dans scoring
   `DetailPanel` + `HayaSlider` (curseur prix Haya, recalcul marge live — **NE PAS
   MODIFIER**), `OverviewRanking` (classement horizontal par verdict), `PriceMargin*`
   (module Prix & marge), `RendementTable` + `YieldWaterfall` (module Rendement),
+  `ArbitrageTable` + `SpreadWaterfall` (module Arbitrage),
   **briques génériques de page de mode** : `Waterfall` (cascade base − déductions =
   résultat, état perte inclus ; `MarginWaterfall`/`YieldWaterfall` n'en sont que des
   habillages) et `MarginBars` (barres par verdict, paramétré `metric`/`title`/
@@ -98,11 +99,13 @@ condense en `coût = 1,261 × (construction + foncier)` (cf. `HAYA` dans scoring
   `KeyFigures`, `ScoreCards`, `CityCharts`, `CityBits` existent encore mais ne sont
   plus utilisés par la Vue d'ensemble refondue (réutilisables).
 - **Pages** : `app/gaia` (Carte), `app/vue-ensemble` (Vue d'ensemble, sans carte),
-  `app/prix-marge` (Prix & marge), `app/rendement` (Rendement).
+  `app/prix-marge` (Prix & marge), `app/rendement` (Rendement), `app/arbitrage`
+  (Arbitrage).
 - **Libs** : `lib/api.ts` (client + types), `lib/scoring.ts` (couleurs, verdicts,
   médiane, config KPI par mode, formule Haya), `lib/normalize.ts` (clé de jointure
   GeoJSON ↔ zone_name), `lib/priceMargin.ts` (lignes Prix & marge), `lib/rendement.ts`
-  (lignes Rendement), `lib/insights.ts` (générateur d'insights déterministe — voir §5).
+  (lignes Rendement), `lib/arbitrage.ts` (lignes Arbitrage), `lib/insights.ts`
+  (générateur d'insights déterministe — voir §5).
 
 ### Conventions
 - Client components (`"use client"`), imports via alias `@/`.
@@ -485,12 +488,59 @@ où le yield facial est haut. **Yields et loyers strictement inchangés** (sous-
    voulu) ; HayaSlider intact ; `_clean` inchangé. Captures régénérées :
    `shots/rendement_{residentiel,bureaux}.png`.
 
-### Prochaines pages de mode (gabarit = Prix & marge / Rendement)
-Arbitrage (spread), Foncier (landbank). Réutiliser la structure : KPIs → tableau
-triable → décomposition/piliers → graphe. **Briques génériques prêtes** :
-`InsightBanner`, `Waterfall` (cascade), `MarginBars` paramétré (métrique/libellés/
-légende), `anomalyNote(mode)` (ajouter la règle de qualification du mode +
-`PILLAR_REASON` de ses piliers), gabarit d'insight de page (`priceMarginInsight`/
-`detentionInsight` à décliner : spread, constructibilité). Chaque page épingle son
-mode ; exposer si besoin un `breakdown` structuré sur le pilier natif (déjà fait :
-`marge`, `rendement_net`).
+### Page **Arbitrage** (route `/arbitrage`) + micro-fix tri Rendement — **✅ Livré** (2026-07-02)
+Troisième page de mode (« où la fenêtre de cession est ouverte, à quel prix, en
+combien de temps »), gabarit Prix & marge / Rendement.
+0. **Micro-fix /rendement** : tri par défaut du tableau = **score décroissant par
+   groupe** (Conserver puis Surveiller au-dessus du filet, Céder dessous) — Santa
+   Marinha (70) et Madalena (66) ouvrent le tableau. Tant que l'utilisateur n'a pas
+   trié, **aucune flèche de colonne n'est active** (aucune colonne ne porte l'ordre) ;
+   le tri utilisateur reste global et sans filet. Même règle appliquée au nouveau
+   tableau Arbitrage.
+1. **Backend** : `breakdown` sur le pilier `spread` (`_arb_breakdown`) —
+   `prix_marche_eur_m2` (référence de la mesure du spread), `valeur_realisable_
+   eur_m2` (= marché × (1+spread), cohérent sur les 4 chemins de calcul du spread :
+   actif KREST / comparable / quantiles / positionnement vs médiane ville — Gaia
+   passe par le positionnement, d'où un prix marché constant par classe),
+   `spread_pct`, `delai_cession_mois` (DOM × facteur de liquidité, **borné 2-9
+   mois** ; Gaia 3,0-8,1 — Santa Marinha la plus rapide, São Félix la plus lente),
+   `frais_cession_pct` (**2-4 %**, liquidité + jitter zone réutilisé),
+   `decote_negociation_pct` (0,8 × délai, borné 1,5-6 — ajouté pour la cascade).
+   Additif, `_clean` inchangé. Test `test_arbitrage_breakdown_bounds` (bornes +
+   réconciliation réalisable/marché/spread).
+2. **Page** : chip « Arbitrage · <classe> », contexte par classe, KPI viables
+   (spread médian, délai médian, **appétit dominant qualitatif**, fenêtres
+   ouvertes N / 15), `ArbitrageTable` (prix marché, valeur réalisable, spread
+   signé coloré, délai, appétit, verdict ; filet « Fenêtre fermée »),
+   `SpreadWaterfall` via le Waterfall générique (valeur réalisable − frais −
+   décote = produit net, spread en synthèse), barres spread par verdict
+   (MarginBars paramétré), sélection par défaut = meilleure fenêtre.
+3. **Insights** : `arbitrageInsight` gradué (0/1/2/≥3 ouvertes) ; **clause
+   signature** symétrique au piège du yield — si la freguesia au spread max n'est
+   pas Fenêtre ouverte : « Les spreads les plus larges (<freguesia> <val>) sont
+   théoriques : sans acheteur institutionnel, la fenêtre reste fermée. » Rendu
+   résidentiel : dégradé + piège Canidelo +40 % (0 ouverte) ; bureaux : « Une
+   seule fenêtre… Santa Marinha (+33%) » + clause générique (le spread max EST
+   l'ouverte — pas de piège, exact). Bloc droit « **Meilleure fenêtre ·
+   <freguesia>** » (top-score ouverte, repli top viable). `anomalyNote` branche
+   arbitrage (spread ≥ 10 % mais Fenêtre fermée) : **aucune freguesia ne qualifie
+   sur les données actuelles** (max fermée = Arcozelo +1,6 %) → rien d'affiché
+   dans les 5 classes, donnée non forcée (assumé).
+4. **Routes** : Sidebar `/arbitrage` + carte Arbitrage de /vue-ensemble reliée via
+   `MODE_ROUTE` (plus de « Bientôt » ; seul Landbank en garde un).
+5. **Vérifs** : `tsc` OK, **14 tests** backend OK, 5 classes contrôlées (résidentiel
+   0/7 étroites/8 fermées ; bureaux 1 ouverte ; appétits soutenu/modéré par classe),
+   cohérence carte Arbitrage municipio (52 Fenêtre étroite, spread 10 %, inchangée),
+   zéro régression /prix-marge, /rendement (hors micro-fix voulu), /vue-ensemble.
+   HayaSlider intact, `_clean` inchangé. Captures :
+   `shots/arbitrage_{residentiel,bureaux}.png` (script `shots/capture_arbitrage.js`).
+
+### Prochaine page de mode (gabarit = Prix & marge / Rendement / Arbitrage)
+Foncier (landbank, constructibilité). Réutiliser la structure : KPIs → tableau
+triable (tri par défaut : score desc par groupe de verdict, flèches inactives
+avant tri utilisateur) → décomposition/piliers → graphe. **Briques génériques
+prêtes** : `InsightBanner`, `Waterfall`, `MarginBars` paramétré, `anomalyNote(mode)`
+(ajouter la règle de qualification landbank + `PILLAR_REASON` de ses piliers),
+gabarit d'insight de page à décliner (constructibilité / meilleur usage). Exposer si
+besoin un `breakdown` structuré sur le pilier natif (déjà fait : `marge`,
+`rendement_net`, `spread`) et brancher `MODE_ROUTE.landbank`.

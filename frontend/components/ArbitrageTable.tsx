@@ -3,50 +3,49 @@
 import { useMemo, useState } from "react";
 import { Mode, scoreColor, verdictColor, verdictTone } from "@/lib/scoring";
 import { eur0 } from "@/lib/priceMargin";
-import { RdRow, pct2 } from "@/lib/rendement";
+import { ArbRow, pctSigned } from "@/lib/arbitrage";
 import { VerdictBadge } from "./ui";
 
-// Détention table — same visual codes as PriceMarginTable (score liseré, verdict
-// badge, sortable columns). Default grouping: Conserver/Surveiller above an
-// "À céder" separator, net yield desc in each group; any user sort goes global.
+// Arbitrage table — same visual codes as the other mode tables. Default:
+// open/narrow windows above a "Fenêtre fermée" separator, best score first in
+// each group; any user sort goes global (no separator, arrow lights up).
 
-type Key = "name" | "loyer" | "yieldBrut" | "chargesPctLoyer" | "fiscPctLoyer" | "yieldNet";
+type Key = "name" | "prixMarche" | "valeurRealisable" | "spreadPct" | "delaiMois" | "appetit";
 
 type Dir = "asc" | "desc";
 
 const COLS: { key: Key; label: string; unit?: string; num: boolean }[] = [
   { key: "name", label: "Freguesia", num: false },
-  { key: "loyer", label: "Loyer marché", unit: "€/m²/an", num: true },
-  { key: "yieldBrut", label: "Yield brut", num: true },
-  { key: "chargesPctLoyer", label: "Charges", unit: "% du loyer", num: true },
-  { key: "fiscPctLoyer", label: "Fiscalité", unit: "% du loyer", num: true },
-  { key: "yieldNet", label: "Yield net", num: true },
+  { key: "prixMarche", label: "Prix marché", unit: "€/m²", num: true },
+  { key: "valeurRealisable", label: "Valeur réalisable", unit: "€/m²", num: true },
+  { key: "spreadPct", label: "Spread", num: true },
+  { key: "delaiMois", label: "Délai", unit: "mois", num: true },
+  { key: "appetit", label: "Appétit", num: false },
 ];
 
-export function RendementTable({
+export function ArbitrageTable({
   rows,
   mode,
   focusZone,
   onSelect,
 }: {
-  rows: RdRow[];
+  rows: ArbRow[];
   mode: Mode;
   focusZone: string | null;
   onSelect: (zone: string) => void;
 }) {
-  const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "yieldNet", dir: "desc" });
-  // Until the user sorts, group Conserver/Surveiller above Céder with a separator,
-  // best detention score first inside each group (the held places open the table,
-  // not the yield traps). Any sort click switches to a plain global sort.
+  const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "spreadPct", dir: "desc" });
+  // Until the user sorts: verdict groups, best arbitrage score first in each —
+  // no column carries the ordering, so no arrow lights up.
   const [userSorted, setUserSorted] = useState(false);
 
   const SEP = "sep" as const;
-  const items = useMemo<(RdRow | typeof SEP)[]>(() => {
-    const byScore = (a: RdRow, b: RdRow) => b.total - a.total;
+  const items = useMemo<(ArbRow | typeof SEP)[]>(() => {
+    const byScore = (a: ArbRow, b: ArbRow) => b.total - a.total;
     if (!userSorted) {
-      const keep = rows.filter((r) => verdictTone(mode, r.verdict) !== "low").sort(byScore);
-      const ceder = rows.filter((r) => verdictTone(mode, r.verdict) === "low").sort(byScore);
-      return keep.length && ceder.length ? [...keep, SEP, ...ceder] : [...keep, ...ceder];
+      const openish = rows.filter((r) => verdictTone(mode, r.verdict) !== "low").sort(byScore);
+      const closed = rows.filter((r) => verdictTone(mode, r.verdict) === "low").sort(byScore);
+      return openish.length && closed.length ? [...openish, SEP, ...closed] : [...openish, ...closed];
     }
     const { key, dir } = sort;
     const r = [...rows].sort((a, b) => {
@@ -54,7 +53,7 @@ export function RendementTable({
       const bv = b[key];
       let cmp: number;
       if (typeof av === "string" || typeof bv === "string") {
-        cmp = String(av).localeCompare(String(bv), "fr");
+        cmp = String(av ?? "").localeCompare(String(bv ?? ""), "fr");
       } else {
         const an = av == null ? -Infinity : (av as number);
         const bn = bv == null ? -Infinity : (bv as number);
@@ -70,7 +69,7 @@ export function RendementTable({
     setSort((s) =>
       s.key === key
         ? { key, dir: s.dir === "asc" ? "desc" : "asc" }
-        : { key, dir: key === "name" ? "asc" : "desc" }
+        : { key, dir: key === "name" || key === "appetit" ? "asc" : "desc" }
     );
   };
 
@@ -81,8 +80,6 @@ export function RendementTable({
           <thead className="bg-cream-200">
             <tr className="border-b border-navy/10">
               {COLS.map((c) => {
-                // Before any user sort the table is grouped by verdict (score
-                // desc) — no column carries the ordering, so no arrow lights up.
                 const active = userSorted && sort.key === c.key;
                 return (
                   <th
@@ -120,7 +117,7 @@ export function RendementTable({
                       colSpan={COLS.length + 1}
                       className="border-y border-navy/10 bg-cream-200/60 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted"
                     >
-                      À céder
+                      Fenêtre fermée
                     </td>
                   </tr>
                 );
@@ -146,18 +143,20 @@ export function RendementTable({
                       <span className="text-[10px] text-muted">{Math.round(r.total)}</span>
                     </span>
                   </td>
-                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eur0(r.loyer)}</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-ink">{pct2(r.yieldBrut)}</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{r.chargesPctLoyer.toFixed(1)}%</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{r.fiscPctLoyer.toFixed(1)}%</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eur0(r.prixMarche)}</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-ink">{eur0(r.valeurRealisable)}</td>
                   <td className="px-3 py-2 text-right">
                     <span
                       className="font-display text-[15px] font-medium tabular-nums"
                       style={{ color: verdictColor(mode, r.verdict) }}
                     >
-                      {pct2(r.yieldNet)}
+                      {pctSigned(r.spreadPct)}
                     </span>
                   </td>
+                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">
+                    {r.delaiMois != null ? r.delaiMois.toFixed(1) : "—"}
+                  </td>
+                  <td className="px-3 py-2 text-ink/80">{r.appetit ?? "—"}</td>
                   <td className="px-3 py-2">
                     <VerdictBadge mode={mode} verdict={r.verdict} />
                   </td>

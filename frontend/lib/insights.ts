@@ -7,6 +7,7 @@ import { Mode, MODES, MODE_LABEL, MODE_KPI, classLabel, median, pillarValue, ver
 import { displayName, shortName } from "./useGaia";
 import { PmRow } from "./priceMargin";
 import { RdRow } from "./rendement";
+import { ArbRow, pctSigned } from "./arbitrage";
 
 // City-level (municipio) score + freguesia rows, per mode, for one class.
 export interface OverviewByMode {
@@ -283,6 +284,66 @@ export function detentionInsight(rows: RdRow[], assetClass: string): string {
   return `${head}${trap || why}`;
 }
 
+// 1-2 sentences for the Arbitrage page: how many disposal windows are open, the
+// 2-3 best (with spread), and why the rest stays shut. Same graded spirit as the
+// other mode insights; the signature clause mirrors the détention yield trap.
+const ARB_CLAUSE: Record<string, string> = {
+  spread: "des spreads trop minces face à la médiane",
+  appetit_institutionnel: "un appétit institutionnel insuffisant",
+  momentum_cycle: "un cycle de prix défavorable au timing de cession",
+  frictions_sortie: "des frictions de sortie trop lourdes",
+  cout_opportunite: "un coût du capital qui mange l'écart",
+};
+
+// "Name (+21%)" list with a French final "et".
+function spreadList(rows: ArbRow[]): string {
+  const parts = rows.map((r) => `${r.name} (${pctSigned(r.spreadPct, 0)})`);
+  if (parts.length <= 1) return parts.join("");
+  return parts.slice(0, -1).join(", ") + " et " + parts[parts.length - 1];
+}
+
+export function arbitrageInsight(rows: ArbRow[], assetClass: string): string {
+  const suffix = classSuffix(assetClass);
+  const open = rows
+    .filter((r) => verdictTone("arbitrage", r.verdict) === "good")
+    .sort((a, b) => b.spreadPct - a.spreadPct);
+  const n = open.length;
+
+  // Signature message of the page: when the widest spread sits outside the open
+  // windows, it is a paper spread — no institutional buyer, no window.
+  const maxS = rows.length ? rows.reduce((a, b) => (b.spreadPct > a.spreadPct ? b : a)) : null;
+  const trap =
+    maxS && verdictTone("arbitrage", maxS.verdict) !== "good"
+      ? ` Les spreads les plus larges (${maxS.short} ${pctSigned(maxS.spreadPct, 0)}) sont théoriques : sans acheteur institutionnel, la fenêtre reste fermée.`
+      : "";
+
+  if (n === 0) {
+    if (trap) return `Aucune fenêtre de cession n'est ouverte${suffix} ce cycle.${trap}`;
+    const best = [...rows].sort((a, b) => b.spreadPct - a.spreadPct)[0];
+    const tail = best ? ` : meilleur spread ${pctSigned(best.spreadPct, 0)} à ${best.short}` : "";
+    return `Aucune fenêtre de cession n'est ouverte${suffix} ce cycle${tail}.`;
+  }
+  let why = "";
+  if (!trap) {
+    const rest = rows.filter((r) => verdictTone("arbitrage", r.verdict) !== "good");
+    if (rest.length) {
+      const counts = new Map<string, number>();
+      for (const r of rest) if (r.weakest) counts.set(r.weakest, (counts.get(r.weakest) ?? 0) + 1);
+      const top = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
+      const reason = top ? ARB_CLAUSE[top[0]] : undefined;
+      if (reason) why = ` Le reste bute sur ${reason}.`;
+    }
+  }
+  const list = spreadList(open.slice(0, 3));
+  const head =
+    n >= 3
+      ? `La fenêtre de cession est ouverte sur ${n} freguesias${suffix}, menées par ${list}.`
+      : n === 2
+      ? `La fenêtre de cession est ouverte sur 2 freguesias${suffix} : ${list}.`
+      : `Une seule fenêtre de cession est ouverte${suffix} : ${list}.`;
+  return `${head}${trap || why}`;
+}
+
 // Why a decent-KPI freguesia still fails: the weakest pillar behind the low verdict.
 const PILLAR_REASON: Record<string, string> = {
   // promotion
@@ -296,6 +357,11 @@ const PILLAR_REASON: Record<string, string> = {
   risque_energie: "un risque énergétique (MEPS) trop lourd",
   fiscalite: "une fiscalité de détention pénalisante",
   portage: "un coût de portage qui absorbe le loyer",
+  // arbitrage
+  appetit_institutionnel: "un appétit institutionnel insuffisant",
+  momentum_cycle: "un cycle de prix défavorable au timing de cession",
+  frictions_sortie: "des frictions de sortie trop lourdes",
+  cout_opportunite: "un coût du capital qui mange l'écart",
 };
 
 // The most striking exception, per mode: a freguesia whose native KPI looks fine
@@ -304,6 +370,8 @@ const PILLAR_REASON: Record<string, string> = {
 //  - promotion: marge >= 8% (the verdict-cap threshold) but verdict Passer.
 //  - detention: yield net >= the lowest yield among kept/watched freguesias, but
 //    verdict Céder — it earns as much as places we keep, something else disqualifies it.
+//  - arbitrage: spread >= 10% (the "faible" band edge) but verdict Fenêtre fermée —
+//    a real premium the market cannot exit.
 export function anomalyNote(mode: Mode, scores: ModeScore[]): string | null {
   const kpi = MODE_KPI[mode].pillar;
   const isLow = (s: ModeScore) => verdictTone(mode, s.verdict) === "low";
@@ -318,8 +386,10 @@ export function anomalyNote(mode: Mode, scores: ModeScore[]): string | null {
     if (!viable.length) return null;
     const floor = Math.min(...viable);
     cands = scores.filter((s) => isLow(s) && (pillarValue(s.pillars, kpi) ?? -Infinity) >= floor);
+  } else if (mode === "arbitrage") {
+    cands = scores.filter((s) => isLow(s) && (pillarValue(s.pillars, kpi) ?? -Infinity) >= 10);
   } else {
-    return null; // arbitrage / landbank: à décliner avec leur page de mode
+    return null; // landbank: à décliner avec sa page de mode
   }
   if (!cands.length) return null;
   const s = cands.sort((a, b) => (pillarValue(b.pillars, kpi) ?? 0) - (pillarValue(a.pillars, kpi) ?? 0))[0];
@@ -328,6 +398,9 @@ export function anomalyNote(mode: Mode, scores: ModeScore[]): string | null {
     .filter((p) => p.applicable && p.pillar !== kpi && p.subscore != null && PILLAR_REASON[p.pillar])
     .sort((a, b) => (a.subscore ?? 100) - (b.subscore ?? 100))[0];
   const reason = weak ? PILLAR_REASON[weak.pillar] : "des fondamentaux trop faibles";
-  const metric = mode === "promotion" ? `${Math.round(v)}% de marge` : `${v.toFixed(1)}% de yield net`;
+  const metric =
+    mode === "promotion" ? `${Math.round(v)}% de marge`
+    : mode === "detention" ? `${v.toFixed(1)}% de yield net`
+    : `${pctSigned(v, 0)} de spread`;
   return `${displayName(s.zone_name)} affiche ${metric} mais ${reason} : verdict ${verdictLabel(s.verdict)}.`;
 }

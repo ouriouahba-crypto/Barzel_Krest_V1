@@ -27,6 +27,7 @@ const KPI_NOUN: Record<Mode, string> = {
 const MODE_ROUTE: Partial<Record<Mode, string>> = {
   promotion: "/prix-marge",
   detention: "/rendement",
+  arbitrage: "/arbitrage",
 };
 
 const nn = (v: number | null | undefined): v is number => v != null && !Number.isNaN(v);

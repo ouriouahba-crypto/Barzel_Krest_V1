@@ -56,6 +56,7 @@ export function useGaia() {
 
   const city = cityByKey[keyOf(mode, assetClass)];
   const detentionCity = cityByKey[keyOf("detention", assetClass)];
+  const arbitrageCity = cityByKey[keyOf("arbitrage", assetClass)];
   // Promotion city for the current class, independent of the header mode — used by
   // the promotion-pinned "Prix & marge" module so it stays promotion-centric.
   const promoCity = cityByKey[keyOf("promotion", assetClass)];
@@ -175,7 +176,7 @@ export function useGaia() {
     quickFor,
     mode, setMode, assetClass, setAssetClass,
     focusZone, setFocusZone, isCityView, cityZoneId: CITY_ZONE,
-    city, promoCity, detentionCity, citiesByMode, freguesias, scoresByNorm, scoreRange, hayaNorm, hayaZone,
+    city, promoCity, detentionCity, arbitrageCity, citiesByMode, freguesias, scoresByNorm, scoreRange, hayaNorm, hayaZone,
     figures, chartRows, cardScores, focusName,
     detailScore, hayaProps, zoneAll, error,
   };

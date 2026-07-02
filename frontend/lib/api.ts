@@ -31,6 +31,14 @@ export interface RendementBreakdown {
   fiscalite_pct_loyer: number;           // holding tax, as % of rent
   yield_net_pct: number;
 }
+export interface ArbitrageBreakdown {
+  prix_marche_eur_m2: number | null;       // reference (median) price
+  valeur_realisable_eur_m2: number | null; // disposal value = marché × (1+spread)
+  spread_pct: number;
+  delai_cession_mois: number | null;       // 2-9 months, liquidity-driven
+  frais_cession_pct: number;               // 2-4% of value
+  decote_negociation_pct: number | null;   // grows with time on market
+}
 export interface Pillar {
   pillar: string;
   subscore: number | null;
@@ -38,9 +46,9 @@ export interface Pillar {
   why: string;
   weight: number;
   applicable: boolean;
-  // promotion "marge" pillar carries a MargeBreakdown; detention "rendement_net"
-  // carries a RendementBreakdown.
-  breakdown?: MargeBreakdown | RendementBreakdown;
+  // promotion "marge" carries a MargeBreakdown; detention "rendement_net" a
+  // RendementBreakdown; arbitrage "spread" an ArbitrageBreakdown.
+  breakdown?: MargeBreakdown | RendementBreakdown | ArbitrageBreakdown;
 }
 export interface ScoreNativeIndicator {
   label: string;

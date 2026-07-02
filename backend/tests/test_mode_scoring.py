@@ -143,6 +143,24 @@ def test_detention_breakdown_identity():
             assert abs(ident - b["yield_net_pct"]) < 0.02, (r["zone"], cls, b)
 
 
+def test_arbitrage_breakdown_bounds():
+    # Realism bounds on the disposal economics: selling costs 2-4% of value,
+    # disposal time 2-9 months; realizable value reconciles with the spread.
+    for cls in ("residential", "office", "hotel", "logistics", "retail"):
+        for r in ms.score_city("gaia", "arbitrage", cls):
+            sp = next((p for p in r["pillars"] if p["pillar"] == "spread"), None)
+            b = sp.get("breakdown") if sp else None
+            if not b:
+                continue
+            assert 2.0 <= b["frais_cession_pct"] <= 4.0, (r["zone"], cls, b)
+            if b["delai_cession_mois"] is not None:
+                assert 2.0 <= b["delai_cession_mois"] <= 9.0, (r["zone"], cls, b)
+            if b["prix_marche_eur_m2"] and b["valeur_realisable_eur_m2"]:
+                expect = b["prix_marche_eur_m2"] * (1 + b["spread_pct"] / 100.0)
+                assert abs(expect - b["valeur_realisable_eur_m2"]) <= max(3.0, 0.005 * b["valeur_realisable_eur_m2"]), \
+                    (r["zone"], cls, b)
+
+
 def test_unknown_zone_and_mode_raise():
     import pytest
     with pytest.raises(KeyError):
