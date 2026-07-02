@@ -42,7 +42,9 @@ export function RendementTable({
 
   const SEP = "sep" as const;
   const items = useMemo<(RdRow | typeof SEP)[]>(() => {
-    const byScore = (a: RdRow, b: RdRow) => b.total - a.total;
+    // Displayed scores are rounded: break rounded-score ties by net yield desc.
+    const byScore = (a: RdRow, b: RdRow) =>
+      Math.round(b.total) - Math.round(a.total) || b.yieldNet - a.yieldNet;
     if (!userSorted) {
       const keep = rows.filter((r) => verdictTone(mode, r.verdict) !== "low").sort(byScore);
       const ceder = rows.filter((r) => verdictTone(mode, r.verdict) === "low").sort(byScore);

@@ -53,13 +53,14 @@ export default function FoncierPage() {
 
   // Conclusion layer: page insight + banner right block + anomaly note.
   const fcLine = useMemo(() => landbankInsight(allRows), [allRows]);
-  // Banner right block: the best potential (top-score Prioritaire, else top
-  // viable) — never a global max that would contradict the sentence.
+  // Banner right block: the best potential = the max uplift AMONG the
+  // Prioritaires (the sentence leads with it), falling back to the max uplift
+  // among viables when no Prioritaire exists.
   const bestPotential: FcRow | null = useMemo(() => {
     const prio = allRows.filter((r) => verdictTone("landbank", r.verdict) === "good");
     const pool = prio.length ? prio : allRows.filter((r) => verdictTone("landbank", r.verdict) !== "low");
     if (!pool.length) return null;
-    return pool.reduce((a, b) => (b.total > a.total ? b : a));
+    return pool.reduce((a, b) => (b.upliftPct > a.upliftPct ? b : a));
   }, [allRows]);
   const fregScores = useMemo(
     () => (g.landbankCity?.zones ?? []).filter((z) => z.level === "freguesia"),

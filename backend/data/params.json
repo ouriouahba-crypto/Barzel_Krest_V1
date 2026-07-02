@@ -411,9 +411,9 @@
       },
       "retail": {
         "yield_pct": 5.5,
-        "rent_eur_m2_month": 30,
-        "construction_eur_m2": 1400,
-        "land_pct": 48
+        "rent_eur_m2_month": 15,
+        "construction_eur_m2": 1200,
+        "land_pct": 30
       }
     },
     "cost_note": "construction €/m² par classe (hors TVA) ; foncier commercial = land_pct % du prix de la classe. land_pct calibre comme part realiste du foncier dans la valeur commerciale prime (34/21/48% bureaux/hotel/commerce, 12% logistique) pour des marges de promotion 15-25%. TVA commerciale recuperable (neutre pour le promoteur). Logistique construction ajustee 650->500 (cout entrepot realiste, sinon non rentable au prix marche).",
@@ -428,97 +428,97 @@
         "office": 1.1,
         "hotel": 1.1,
         "logistics": 0.97,
-        "retail": 1.1
+        "retail": 0.86
       },
       "santamarinhaesaopedrodaafurada": {
         "office": 1.2,
         "hotel": 1.2,
         "logistics": 0.94,
-        "retail": 1.2
+        "retail": 1.05
       },
       "mafamudeevilardoparaiso": {
         "office": 1.15,
         "hotel": 1.1,
         "logistics": 0.955,
-        "retail": 1.15
+        "retail": 0.87
       },
       "canidelo": {
         "office": 1.1,
         "hotel": 1.2,
         "logistics": 0.94,
-        "retail": 1.1
+        "retail": 0.88
       },
       "madalena": {
         "office": 1.05,
         "hotel": 1.05,
         "logistics": 0.97,
-        "retail": 1.05
+        "retail": 1.0
       },
       "oliveiradodouro": {
         "office": 1.0,
         "hotel": 1.0,
         "logistics": 0.985,
-        "retail": 1.0
+        "retail": 0.88
       },
       "arcozelo": {
         "office": 0.95,
         "hotel": 1.05,
         "logistics": 1.0,
-        "retail": 0.95
+        "retail": 0.78
       },
       "saofelixdamarinha": {
         "office": 0.9,
         "hotel": 1.0,
         "logistics": 1.015,
-        "retail": 0.9
+        "retail": 0.74
       },
       "gulpilharesevaladares": {
         "office": 0.95,
         "hotel": 1.1,
         "logistics": 0.985,
-        "retail": 0.95
+        "retail": 0.78
       },
       "serzedoeperosinho": {
         "office": 0.8,
         "hotel": 0.85,
         "logistics": 1.045,
-        "retail": 0.8
+        "retail": 0.51
       },
       "grijoesermonde": {
         "office": 0.75,
         "hotel": 0.8,
         "logistics": 1.06,
-        "retail": 0.75
+        "retail": 0.5
       },
       "pedrosoeseixezelo": {
         "office": 0.8,
         "hotel": 0.8,
         "logistics": 1.045,
-        "retail": 0.8
+        "retail": 0.52
       },
       "sandim,olival,leverecrestuma": {
         "office": 0.7,
         "hotel": 0.75,
         "logistics": 1.06,
-        "retail": 0.7
+        "retail": 0.47
       },
       "avintes": {
         "office": 0.85,
         "hotel": 0.85,
         "logistics": 1.03,
-        "retail": 0.85
+        "retail": 0.53
       },
       "vilardeandorinho": {
         "office": 0.85,
         "hotel": 0.85,
         "logistics": 1.03,
-        "retail": 0.85
+        "retail": 0.54
       },
       "canelas": {
         "office": 0.85,
         "hotel": 0.9,
         "logistics": 1.03,
-        "retail": 0.85
+        "retail": 0.53
       }
     }
   },

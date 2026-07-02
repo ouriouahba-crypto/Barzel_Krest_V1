@@ -200,6 +200,42 @@ def test_landbank_breakdown_invariants():
         assert b["horizon_activation"] in ("immédiat", "2-4 ans", "au-delà"), b
 
 
+GAIA_PRIME = ("santamarinhaesaopedrodaafurada", "madalena")
+
+
+def test_gaia_retail_levels():
+    # Recalibrated retail absolute levels: commercial shell construction
+    # 900-1200 €/m²; prime realizable 3200-4200 with land 600-1100 and margins
+    # 15-25%; everything else below prime, rurals under 1800 €/m².
+    rows = {r["zone"]: r for r in ms.score_city("gaia", "promotion", "retail")
+            if r["level"] == "freguesia"}
+    for zid, r in rows.items():
+        marge = next(p for p in r["pillars"] if p["pillar"] == "marge")
+        b = marge["breakdown"]
+        assert 900 <= b["construction"] <= 1200, (zid, b["construction"])
+        assert b["realizable_sale"] <= 4200, (zid, b["realizable_sale"])
+        if zid in GAIA_PRIME:
+            assert b["realizable_sale"] >= 3200, (zid, b["realizable_sale"])
+            assert 600 <= b["land"] <= 1100, (zid, b["land"])
+            assert 15.0 <= b["margin_pct"] <= 25.0, (zid, b["margin_pct"])
+        else:
+            assert b["realizable_sale"] < 3200, (zid, b["realizable_sale"])
+        if zid in GAIA_RURAL:
+            assert b["realizable_sale"] < 1800, (zid, b["realizable_sale"])
+
+
+def test_landbank_best_use_land_cap():
+    # Cross-check with the Foncier page: outside the prime freguesias, the best
+    # usage's market land never exceeds 1 200 €/m².
+    for r in ms.score_city("gaia", "landbank", "residential"):
+        if r["level"] != "freguesia" or r["zone"] in GAIA_PRIME:
+            continue
+        cp = next(p for p in r["pillars"] if p["pillar"] == "constructibilite")
+        b = cp.get("breakdown")
+        if b:
+            assert b["foncier_marche_eur_m2"] <= 1200, (r["zone"], b["foncier_marche_eur_m2"])
+
+
 def test_unknown_zone_and_mode_raise():
     import pytest
     with pytest.raises(KeyError):

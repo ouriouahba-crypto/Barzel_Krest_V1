@@ -42,7 +42,9 @@ export function ArbitrageTable({
 
   const SEP = "sep" as const;
   const items = useMemo<(ArbRow | typeof SEP)[]>(() => {
-    const byScore = (a: ArbRow, b: ArbRow) => b.total - a.total;
+    // Displayed scores are rounded: break rounded-score ties by spread desc.
+    const byScore = (a: ArbRow, b: ArbRow) =>
+      Math.round(b.total) - Math.round(a.total) || b.spreadPct - a.spreadPct;
     if (!userSorted) {
       const openish = rows.filter((r) => verdictTone(mode, r.verdict) !== "low").sort(byScore);
       const closed = rows.filter((r) => verdictTone(mode, r.verdict) === "low").sort(byScore);

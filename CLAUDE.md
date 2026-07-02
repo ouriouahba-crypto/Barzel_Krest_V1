@@ -212,7 +212,7 @@ brut ni indice de confiance exposé, `_clean` inchangé.
 | Bureaux      | -11,0 %| 19,8 % | 3,1 %   | inchangé |
 | Hôtellerie   | -15,9 %| 18,7 % | 4,3 %   | inchangé |
 | Logistique   |  6,7 % | 15,1 % | 12,0 %  | recalibré |
-| Commerce     |  1,0 % | 20,5 % | 10,5 %  | inchangé |
+| Commerce     | -26,6 %| 22,1 % | -0,3 %  | **recalibré niveaux absolus (lot QA commerce)** |
 
 Actif Haya : marge **35,5 %** à 5750 €/m² (prime +111%) — cf. lot #6.
 Captures : `shots/prixmarge_{residentiel_afurada,bureaux,logistique}.png`.
@@ -643,6 +643,49 @@ quel horizon »), gabarit établi.
    assumé), zéro régression sur les 4 autres pages, HayaSlider et blocs K-REST
    intacts. Captures : `shots/foncier_{residentiel,bureaux}.png`
    (script `shots/capture_foncier.js`).
+
+### QA Foncier + recalibrage niveaux absolus commerce — **✅ Livré** (2026-07-02)
+1. **Bloc droit /foncier** : « Meilleur potentiel » = l'**uplift max des
+   Prioritaires** (Santa Marinha +55 %), plus le top-score (Madalena) ; repli
+   uplift max des viables si aucun Prioritaire.
+2. **Tie-break de tri** (Rendement / Arbitrage / Foncier) : les scores affichés
+   étant arrondis, égalité de score arrondi → métrique native décroissante
+   (Santa Marinha 74 / +55,4 passe devant Madalena 74 / +47,1). Prix & marge
+   n'est pas concerné (son tri par défaut est la marge, pas le score).
+3. **Recalibrage commerce** (`commercial_gaia.retail` : loyer 30→**15 €/m²/mois**,
+   construction 1 400→**1 200** (coque), land_pct 48→**30 %** ; facteurs retail
+   resserrés : SM 1,05, Madalena 1,0, couronne 0,74-0,88, rural 0,47-0,54,
+   municipio 0,86). Résultat : **prime 3 436/3 273 €/m², marges 22,1/19,0 %,
+   fonciers 1 031/982** (cibles ✓) ; couronne 2 422-2 880, fonciers 727-864 ;
+   rural 1 538-1 767 (< 1 800 ✓), fonciers 461-530, marges −19 à −27 (le rural
+   commerce meurt, « non pertinent » assumé).
+   **Écarts signalés (non forcés)** : (a) marges couronne **3,0-10,7 %** — la
+   cible « 15-25 % partout » est mathématiquement incompatible avec le modèle de
+   coûts (construction fixe + foncier en % du prix : la marge croît avec le
+   niveau de prix ; pour tenir prime ≤ 25 % il faut couronne ≈ 3-11 %) ;
+   (b) fonciers couronne 727-864 au-dessus des 250-600 attendus (c'est le rural
+   qui tombe dans cette fourchette) — foncier ≤ 600 en couronne à 2 500-2 900
+   €/m² de prix donnerait des marges > 30 %.
+4. **Carte des usages landbank** : cœur urbain résidentiel ✓, **Oliveira garde
+   le commerce** (−9,0 vs bureaux −10,7 — facteur retail Oliveira 0,88, niveau
+   Canidelo, sinon bureaux gagnait avec un foncier 1 321 > borne 1 200) ;
+   **Gulpilhares → hôtel** (−9,7, Valadares balnéaire, foncier 924),
+   **Arcozelo/São Félix → logistique** — le commerce perd une partie de la
+   couronne au profit de l'hôtel/logistique (pas du résidentiel), chiffres :
+   commerce y tombe à −27/−35 d'uplift. Bornes : **aucun foncier de meilleur
+   usage > 1 200 hors prime** (`test_landbank_best_use_land_cap`).
+5. **Effets contrôlés** : /prix-marge commerce 2 Go / 4 Conditionnel / 9 Passer
+   (insight « tient sur 6 freguesias, menées par SM (22%), Madalena (19%) et
+   Canidelo (11%) »), aucune colonne aberrante, cascade exacte ; détention
+   commerce 2/6/7 inchangé ; arbitrage commerce 7 étroites/8 fermées (structure
+   identique, spreads recalculés : SM +42 %) ; loyers commerce ~120-165 €/m²/an
+   (défendables). **Vue d'ensemble commerce : promotion municipio 62,7→53,3**,
+   égalité parfaite avec l'arbitrage (53,3) — la promotion garde la dominance
+   (ordre des modes dans `bestMode`), le bandeau passe de « est un marché de
+   commerce » à « **penche vers la promotion en commerce : 2 freguesias Go,
+   marges de 19 à 22%** » (le commerce surchauffait à cause des prix gonflés —
+   changement assumé). Monte Claro : optimal résidentiel +27,7 intact, commerce
+   +3→−9. Tests : **18/18** dont `test_gaia_retail_levels`.
 
 ### État final du gabarit de page de mode
 Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,

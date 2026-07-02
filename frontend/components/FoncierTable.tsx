@@ -44,7 +44,9 @@ export function FoncierTable({
 
   const SEP = "sep" as const;
   const items = useMemo<(FcRow | typeof SEP)[]>(() => {
-    const byScore = (a: FcRow, b: FcRow) => b.total - a.total;
+    // Displayed scores are rounded: break rounded-score ties by uplift desc.
+    const byScore = (a: FcRow, b: FcRow) =>
+      Math.round(b.total) - Math.round(a.total) || b.upliftPct - a.upliftPct;
     if (!userSorted) {
       const active = rows.filter((r) => verdictTone(mode, r.verdict) !== "low").sort(byScore);
       const waiting = rows.filter((r) => verdictTone(mode, r.verdict) === "low").sort(byScore);
