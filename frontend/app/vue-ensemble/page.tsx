@@ -9,7 +9,7 @@ import { OverviewRanking } from "@/components/OverviewRanking";
 import { InsightBanner } from "@/components/InsightBanner";
 import { useGaia, displayName, shortName } from "@/lib/useGaia";
 import { ModeScore } from "@/lib/api";
-import { Mode, MODES, MODE_LABEL, MODE_KPI, classLabel, median, pillarValue, verdictColor, verdictTone } from "@/lib/scoring";
+import { Mode, MODES, MODE_LABEL, MODE_KPI, MODE_ROUTE, classLabel, median, pillarValue, verdictColor, verdictTone } from "@/lib/scoring";
 import { OverviewByMode, bestMode, cityInsight, modeInsight } from "@/lib/insights";
 
 const MARKET_LINE =
@@ -23,13 +23,7 @@ const KPI_NOUN: Record<Mode, string> = {
   landbank: "constructibilité",
 };
 
-// Every mode now has its page — no "Bientôt" left on the overview.
-const MODE_ROUTE: Partial<Record<Mode, string>> = {
-  promotion: "/prix-marge",
-  detention: "/rendement",
-  arbitrage: "/arbitrage",
-  landbank: "/foncier",
-};
+// Every mode now has its page (MODE_ROUTE) — no "Bientôt" left on the overview.
 
 const nn = (v: number | null | undefined): v is number => v != null && !Number.isNaN(v);
 const eur = (v: number | null | undefined) => (nn(v) ? `${Math.round(v).toLocaleString("fr-FR")} €/m²` : "—");

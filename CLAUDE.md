@@ -119,8 +119,9 @@ condense en `coût = 1,261 × (construction + foncier)` (cf. `HAYA` dans scoring
   `KeyFigures`, `ScoreCards`, `CityCharts`, `CityBits` existent encore mais ne sont
   plus utilisés par la Vue d'ensemble refondue (réutilisables).
 - **Pages** : `app/gaia` (Carte), `app/vue-ensemble` (Vue d'ensemble, sans carte),
-  `app/prix-marge` (Prix & marge), `app/rendement` (Rendement), `app/arbitrage`
-  (Arbitrage), `app/foncier` (Foncier) — **les 4 pages de mode sont livrées**.
+  `app/comparer` (Comparer, transverse), `app/prix-marge` (Prix & marge),
+  `app/rendement` (Rendement), `app/arbitrage` (Arbitrage), `app/foncier`
+  (Foncier) — **les 4 pages de mode + la couche de décision sont livrées**.
 - **Libs** : `lib/api.ts` (client + types), `lib/scoring.ts` (couleurs, verdicts,
   médiane, config KPI par mode, formule Haya), `lib/normalize.ts` (clé de jointure
   GeoJSON ↔ zone_name), `lib/priceMargin.ts` (lignes Prix & marge), `lib/rendement.ts`
@@ -686,6 +687,34 @@ quel horizon »), gabarit établi.
    marges de 19 à 22%** » (le commerce surchauffait à cause des prix gonflés —
    changement assumé). Monte Claro : optimal résidentiel +27,7 intact, commerce
    +3→−9. Tests : **18/18** dont `test_gaia_retail_levels`.
+
+### Page **Comparer** (route `/comparer`) — **✅ Livré** (2026-07-02) — couche de décision
+Page **transverse** (pas une page de mode) : 2-3 freguesias côte à côte à travers
+les 4 modes. **Aucun nouveau calcul métier** : recomposition de `citiesByMode`
+(les 4 modes de la classe courante, déjà préchargés par `useGaia`), mêmes valeurs
+que les pages de mode (marge / yield net / spread / uplift + résiduelle landbank
+lus des mêmes piliers/breakdowns). Aucune carte Leaflet.
+1. **Structure** : Header `hideMode` + classe active ; 3 sélecteurs en tête
+   (Santa Marinha et Madalena préremplis, 3ᵉ « + Ajouter une freguesia » en
+   pointillé or, option « — Retirer — », doublons filtrés) ; une colonne par
+   freguesia : identité (prix médian, yoy, transactions/an), 4 modes empilés
+   (`ScoreDial light`, badge `verdictLabel`, métrique native, lien « Voir en
+   détail → » vers `MODE_ROUTE[mode]`), ligne « Signal dominant ».
+2. **Insights** (`insights.ts`) : `compareInsight(cells)` — « Profil promotion :
+   marge 30%, le foncier et la détention suivent. » (meilleur mode + 2 suivants
+   en prose) ; `compareSynthesis(cols)` — gagnant par mode (au score), phrase
+   « qui gagne sur quoi » avec le chiffre sur le mode de tête de chaque gagnant,
+   le landbank comparé en **valeur résiduelle €/m²** : « Santa Marinha domine en
+   promotion (30% vs 29%), en détention et en arbitrage ; Madalena prend
+   l'avantage en valeur résiduelle foncière (874 vs 814 €/m²). » Bloc droit
+   « Avantage · <freguesia> N / 4 modes en tête ».
+3. **`MODE_ROUTE` déplacé dans `lib/scoring.ts`** (partagé Vue d'ensemble /
+   Comparer) — vue-ensemble vérifiée inchangée au pixel.
+4. **Vérifs** : `tsc` OK, 18 tests backend inchangés, contrôles écran 2 puis 3
+   freguesias × résidentiel/bureaux (bureaux : les signaux dominants divergent —
+   Madalena/Canidelo « Profil landbank », SM arbitrage Fenêtre ouverte +33 % —
+   mêmes valeurs que les pages de mode), zéro régression sur les 6 pages.
+   Capture : `shots/comparer_residentiel.png` (script `shots/capture_comparer.js`).
 
 ### État final du gabarit de page de mode
 Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,

@@ -19,6 +19,7 @@ const ICONS: Record<string, string> = {
 const ROUTES: Record<string, string> = {
   "Vue d'ensemble": "/vue-ensemble",
   Carte: "/gaia",
+  Comparer: "/comparer",
   "Prix & marge": "/prix-marge",
   Rendement: "/rendement",
   Arbitrage: "/arbitrage",

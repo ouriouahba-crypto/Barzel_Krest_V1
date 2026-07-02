@@ -100,6 +100,14 @@ export function pillarValue(pillars: { pillar: string; native: { value: number |
   return typeof v === "number" ? v : null;
 }
 
+// Routes of the shipped mode pages (Sidebar, overview cards, compare links).
+export const MODE_ROUTE: Record<Mode, string> = {
+  promotion: "/prix-marge",
+  detention: "/rendement",
+  arbitrage: "/arbitrage",
+  landbank: "/foncier",
+};
+
 // The mode-specific key figure: which pillar + label/unit
 export const MODE_KPI: Record<Mode, { pillar: string; label: string; unit: string; digits: number }> = {
   promotion: { pillar: "marge", label: "Marge médiane", unit: "%", digits: 0 },

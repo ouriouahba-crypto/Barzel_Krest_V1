@@ -404,6 +404,109 @@ export function landbankInsight(rows: FcRow[]): string {
   return `${head}${trap || why}`;
 }
 
+// ---------------------------------------------------------------------------
+// Comparer — per-freguesia dominant signal + cross-freguesia synthesis.
+// Pure recomposition of the mode scores; no new business computation.
+// ---------------------------------------------------------------------------
+
+export interface CompareModeCell {
+  mode: Mode;
+  total: number;
+  verdict: string;
+  metric: number | null;    // marge % / yield net % / spread % / uplift %
+  residual?: number | null; // landbank: valeur résiduelle €/m² (synthesis)
+}
+export interface CompareColumn {
+  name: string;
+  short: string;
+  cells: CompareModeCell[];
+}
+
+// Follower prose: "la détention et l'arbitrage suivent".
+const MODE_PROSE: Record<Mode, string> = {
+  promotion: "la promotion",
+  detention: "la détention",
+  arbitrage: "l'arbitrage",
+  landbank: "le foncier",
+};
+
+function cellMetricPhrase(c: CompareModeCell): string {
+  if (c.metric == null) return verdictLabel(c.verdict);
+  switch (c.mode) {
+    case "promotion": return `marge ${Math.round(c.metric)}%`;
+    case "detention": return `yield net ${c.metric.toFixed(1)}%`;
+    case "arbitrage": return `spread ${pctSigned(c.metric, 0)}`;
+    default: return `uplift ${pctSigned(c.metric, 0)}`;
+  }
+}
+
+// One-line dominant signal for a freguesia: its best mode with the native
+// number, the two runners-up as prose. Ex: "Profil promotion : marge 30%,
+// le foncier et la détention suivent."
+export function compareInsight(cells: CompareModeCell[]): string {
+  if (!cells.length) return "";
+  const ranked = [...cells].sort((a, b) => b.total - a.total);
+  const best = ranked[0];
+  const followers = ranked.slice(1, 3).map((c) => MODE_PROSE[c.mode]);
+  const tail = followers.length ? `, ${followers.join(" et ")} suivent` : "";
+  return `Profil ${MODE_LABEL[best.mode].toLowerCase()} : ${cellMetricPhrase(best)}${tail}.`;
+}
+
+// Winner-vs-runner value pair per mode, for the synthesis parenthetical. The
+// landbank compares residual land value (874 vs 814 €/m²), the money figure.
+function vsPhrase(mode: Mode, win: CompareModeCell, run: CompareModeCell): string {
+  if (mode === "landbank") {
+    if (win.residual == null || run.residual == null) return "";
+    return ` (${Math.round(win.residual).toLocaleString("fr-FR")} vs ${Math.round(run.residual).toLocaleString("fr-FR")} €/m²)`;
+  }
+  if (win.metric == null || run.metric == null) return "";
+  switch (mode) {
+    case "promotion": return ` (${Math.round(win.metric)}% vs ${Math.round(run.metric)}%)`;
+    case "detention": return ` (${win.metric.toFixed(1)}% vs ${run.metric.toFixed(1)}%)`;
+    default: return ` (${pctSigned(win.metric, 0)} vs ${pctSigned(run.metric, 0)})`;
+  }
+}
+
+// Mode names in the synthesis ("en promotion", "en valeur résiduelle foncière").
+const MODE_VS: Record<Mode, string> = {
+  promotion: "promotion",
+  detention: "détention",
+  arbitrage: "arbitrage",
+  landbank: "valeur résiduelle foncière",
+};
+
+// One sentence: who wins which mode, with the numbers on each winner's leading
+// mode. Ex: "Santa Marinha domine en promotion (30% vs 29%), en détention et en
+// arbitrage ; Madalena prend l'avantage en valeur résiduelle foncière (874 vs
+// 814 €/m²)."
+export function compareSynthesis(cols: CompareColumn[]): string {
+  if (cols.length < 2) return "";
+  // Winner per mode (by score), with the best runner-up for the value pair.
+  const wins = new Map<number, { mode: Mode; win: CompareModeCell; run: CompareModeCell }[]>();
+  for (const m of MODES) {
+    const entries = cols
+      .map((c, i) => ({ i, cell: c.cells.find((x) => x.mode === m) }))
+      .filter((e): e is { i: number; cell: CompareModeCell } => !!e.cell);
+    if (entries.length < 2) continue;
+    const ranked = [...entries].sort((a, b) => b.cell.total - a.cell.total);
+    const list = wins.get(ranked[0].i) ?? [];
+    list.push({ mode: m, win: ranked[0].cell, run: ranked[1].cell });
+    wins.set(ranked[0].i, list);
+  }
+  const verbs = ["domine en", "prend l'avantage en", "se distingue en"];
+  const parts: string[] = [];
+  const order = [...wins.entries()].sort((a, b) => b[1].length - a[1].length);
+  order.forEach(([colIdx, modes], k) => {
+    const names = modes.map((w, j) =>
+      `${MODE_VS[w.mode]}${j === 0 ? vsPhrase(w.mode, w.win, w.run) : ""}`
+    );
+    const list =
+      names.length > 1 ? names.slice(0, -1).join(", en ") + " et en " + names[names.length - 1] : names[0];
+    parts.push(`${cols[colIdx].short} ${verbs[Math.min(k, verbs.length - 1)]} ${list}`);
+  });
+  return parts.length ? parts.join(" ; ") + "." : "";
+}
+
 // Why a decent-KPI freguesia still fails: the weakest pillar behind the low verdict.
 const PILLAR_REASON: Record<string, string> = {
   // promotion
