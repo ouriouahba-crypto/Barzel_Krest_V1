@@ -744,11 +744,19 @@
       "constructibility": {
         "value": 67,
         "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 74,
+        "conf": "hypothese"
       }
     },
     "mafamudeevilardoparaiso": {
       "constructibility": {
         "value": 63,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 62,
         "conf": "hypothese"
       }
     },
@@ -756,11 +764,19 @@
       "constructibility": {
         "value": 64,
         "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 61,
+        "conf": "hypothese"
       }
     },
     "canidelo": {
       "constructibility": {
         "value": 69,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 63,
         "conf": "hypothese"
       }
     },
@@ -768,17 +784,29 @@
       "constructibility": {
         "value": 53,
         "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 58,
+        "conf": "hypothese"
       }
     },
     "saofelixdamarinha": {
       "constructibility": {
         "value": 48,
         "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 56,
+        "conf": "hypothese"
       }
     },
     "gulpilharesevaladares": {
       "constructibility": {
         "value": 56,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 57,
         "conf": "hypothese"
       }
     },
@@ -929,11 +957,12 @@
         "risque_sortie": 0.1
       },
       "detention": {
-        "rendement_net": 0.3,
-        "resilience": 0.25,
+        "rendement_net": 0.15,
+        "profondeur_locative": 0.3,
+        "resilience": 0.2,
         "risque_energie": 0.2,
-        "fiscalite": 0.15,
-        "portage": 0.1
+        "fiscalite": 0.1,
+        "portage": 0.05
       },
       "arbitrage": {
         "spread": 0.3,

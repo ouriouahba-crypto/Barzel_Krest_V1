@@ -104,6 +104,45 @@ def test_promotion_city_verdicts_respect_margin():
     assert seen_neg and seen_thin  # current Gaia calibration exercises both branches
 
 
+GAIA_RURAL = ["sandim,olival,leverecrestuma", "serzedoeperosinho", "grijoesermonde",
+              "pedrosoeseixezelo", "avintes", "canelas", "vilardeandorinho"]
+
+
+def test_detention_residential_recalibrated_groups():
+    # Depth-weighted detention: the urban/littoral core holds, the rural belt is
+    # let go despite higher facial yields (inverted-yield trap).
+    rows = {r["zone"]: r for r in ms.score_city("gaia", "detention", "residential")
+            if r["level"] == "freguesia"}
+    assert rows[WITNESS]["verdict"] == "Conserver"
+    assert rows["madalena"]["verdict"] == "Conserver"
+    for z in ["mafamudeevilardoparaiso", "canidelo", "oliveiradodouro", "arcozelo",
+              "gulpilharesevaladares", "saofelixdamarinha"]:
+        assert rows[z]["verdict"] == "Surveiller", (z, rows[z]["verdict"])
+    for z in GAIA_RURAL:
+        assert rows[z]["verdict"] == "Ceder", (z, rows[z]["verdict"])
+
+
+def test_detention_no_rural_conserver_residential():
+    # Invariant: a thin rural rental market never rates Conserver, whatever its yield.
+    rows = {r["zone"]: r for r in ms.score_city("gaia", "detention", "residential")
+            if r["level"] == "freguesia"}
+    for z in GAIA_RURAL:
+        assert rows[z]["verdict"] != "Conserver", z
+
+
+def test_detention_breakdown_identity():
+    # The displayed yield stack must reconcile exactly (display rounding aside):
+    # brut × (1 − charges%loyer − fiscalité%loyer) = net, for every zone and class.
+    for cls in ("residential", "office", "hotel", "logistics", "retail"):
+        for r in ms.score_city("gaia", "detention", cls):
+            rend = next((p for p in r["pillars"] if p["pillar"] == "rendement_net"), None)
+            b = rend.get("breakdown") if rend else None
+            if not b:
+                continue
+            ident = b["yield_brut_pct"] * (1 - (b["charges_pct_loyer"] + b["fiscalite_pct_loyer"]) / 100.0)
+            assert abs(ident - b["yield_net_pct"]) < 0.02, (r["zone"], cls, b)
+
+
 def test_unknown_zone_and_mode_raise():
     import pytest
     with pytest.raises(KeyError):

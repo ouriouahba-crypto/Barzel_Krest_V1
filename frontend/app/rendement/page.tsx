@@ -62,7 +62,14 @@ export default function RendementPage() {
 
   // Conclusion layer: page insight + banner right block + anomaly note.
   const rdLine = useMemo(() => detentionInsight(allRows, cls), [allRows, cls]);
-  const maxRow: RdRow | null = summary.best;
+  // Banner right block: the best-held freguesia (top-score Conserver, else top
+  // viable) — never a global yield max that would contradict the sentence.
+  const bestHold: RdRow | null = useMemo(() => {
+    const keep = allRows.filter((r) => verdictTone("detention", r.verdict) === "good");
+    const pool = keep.length ? keep : allRows.filter((r) => verdictTone("detention", r.verdict) !== "low");
+    if (!pool.length) return null;
+    return pool.reduce((a, b) => (b.total > a.total ? b : a));
+  }, [allRows]);
   const fregScores = useMemo(
     () => (g.detentionCity?.zones ?? []).filter((z) => z.level === "freguesia"),
     [g.detentionCity]
@@ -111,10 +118,10 @@ export default function RendementPage() {
             eyebrow={`Verdict détention · ${classLabel(cls)}`}
             sentence={rdLine}
             right={
-              maxRow ? (
+              bestHold ? (
                 <div className="text-right">
-                  <div className="text-[10px] uppercase tracking-widest text-cream/50">Yield net max · {maxRow.short}</div>
-                  <div className="font-display text-[40px] leading-none text-gold">{maxRow.yieldNet.toFixed(1)}%</div>
+                  <div className="text-[10px] uppercase tracking-widest text-cream/50">Meilleure détention · {bestHold.short}</div>
+                  <div className="font-display text-[40px] leading-none text-gold">{bestHold.yieldNet.toFixed(1)}%</div>
                 </div>
               ) : undefined
             }

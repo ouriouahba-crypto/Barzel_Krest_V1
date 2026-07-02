@@ -20,6 +20,7 @@ Contract honoured:
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import statistics
@@ -435,9 +436,24 @@ def _best_use_value(st: State, z: dict) -> tuple[float | None, str | None]:
     return round(best_val), best_cls
 
 
+def _res_market_rent(st: State, z: dict) -> float | None:
+    """Residential market rent €/m²/year (price × zone-adjusted gross yield) —
+    the depth proxy for rental demand, whatever the asset class studied."""
+    gross = _p(st, "city_yields", z["city"], "residential") \
+        or _p(st, "yields_prime_pct", z["country"], "residential")
+    price = _class_price(st, z, "residential")
+    if gross is None or not price:
+        return None
+    ref = _city_price_median(st, z["city"], "residential")
+    if ref:
+        gross = gross * (ref / price) ** 0.4
+    return price * gross / 100.0
+
+
 def _build_socle(st: State) -> dict[str, list]:
     metrics = {"constructibilite": [], "connectivite": [], "momentum": [],
-               "absorption_speed": [], "resilience": [], "best_use_value": []}
+               "absorption_speed": [], "resilience": [], "best_use_value": [],
+               "demande_locative": [], "liquidite": []}
     for zid, z in st.zones.items():
         c, _ = _zone_attr(st, z, "constructibilite")
         if c is not None:
@@ -457,6 +473,12 @@ def _build_socle(st: State) -> dict[str, list]:
         bv, _ = _best_use_value(st, z)
         if bv:
             metrics["best_use_value"].append(float(bv))
+        rent = _res_market_rent(st, z)
+        if rent:
+            metrics["demande_locative"].append(rent)
+        n = z["residential"].get("n_transactions")
+        if n:
+            metrics["liquidite"].append(float(n))
     return {k: sorted(v) for k, v in metrics.items() if v}
 
 
@@ -748,6 +770,43 @@ def _risque_sortie(st: State, z: dict) -> Pillar:
 # DETENTION pillars                                                           #
 # --------------------------------------------------------------------------- #
 
+def _split_jitter_pct(zone_id: str) -> float:
+    """Deterministic per-zone redistribution (±1.5 pts of rent) between the
+    charges and fiscalité shares of the yield stack — older condominiums carry
+    heavier charges, effective IMI varies with taxable value vs market rent.
+    The SUM charges+fiscalité is untouched, so gross and net yields never move."""
+    h = int(hashlib.md5(zone_id.encode("utf-8")).hexdigest(), 16)
+    return ((h % 3001) - 1500) / 1000.0
+
+
+def _det_profondeur(st: State, z: dict) -> Pillar:
+    """Depth of the rental market: rental demand (market rent level), park size /
+    liquidity (transactions), rotation (DOM). An institution holds where the
+    letting market is deep — not where the facial yield is highest."""
+    rent = _res_market_rent(st, z)
+    n = z["residential"].get("n_transactions")
+    months = _absorption_months(st, z["id"])
+    parts: list[tuple[float, float]] = []
+    why = []
+    if rent is not None:
+        parts.append((0.50, _percentile(st, "demande_locative", rent)))
+        why.append(f"loyer de marché ~{rent:.0f} €/m²/an")
+    if n:
+        parts.append((0.30, _percentile(st, "liquidite", float(n))))
+        why.append(f"parc {int(n)} ventes/an")
+    if months:
+        parts.append((0.20, _percentile(st, "absorption_speed", 1.0 / months)))
+        why.append(f"rotation ~{months:.1f} mois")
+    if not parts:
+        return _np("profondeur_locative", "ni loyer, ni parc, ni rotation pour estimer la profondeur")
+    wsum = sum(w for w, _ in parts)
+    sub = sum(w * v for w, v in parts) / wsum
+    return Pillar("profondeur_locative", sub, round(sub), "/100",
+                  f"profondeur {sub:.0f}",
+                  "profondeur du marché locatif: " + ", ".join(why) + " (percentile socle)",
+                  DERIVE)
+
+
 def _net_yield_pct(st: State, z: dict, cls: str) -> tuple[float | None, str, str, dict | None]:
     country = _country(z)
     if cls != "residential":
@@ -767,6 +826,12 @@ def _net_yield_pct(st: State, z: dict, cls: str) -> tuple[float | None, str, str
     charges = _p(st, "charges_pct", country, "detention", default=1.0)
     vac = _p(st, "charges_pct", country, "vacance", default=5.0)
     net = gross - det_tax - charges - gross * vac / 100.0
+    # Per-freguesia split of the stack between charges and fiscalité (±1.5 pts of
+    # rent, deterministic): effective IMI and condo charges vary locally, their
+    # sum does not — gross and net are strictly unchanged.
+    delta = _split_jitter_pct(z["id"])
+    det_tax_eff = det_tax + delta * gross / 100.0
+    charges_eff = charges - delta * gross / 100.0
     # Inherit lowest confidence of the params consumed: gross yield + detention tax.
     conf = _derived_conf(_p(st, "_yields_conf", default=RAPPORT),
                          _p(st, "fiscalite", country, "det_conf", default=OFFICIEL))
@@ -774,15 +839,15 @@ def _net_yield_pct(st: State, z: dict, cls: str) -> tuple[float | None, str, str
     # charges_pct_loyer folds the vacancy loss in, so that
     # brut × (1 − charges_pct_loyer − fiscalite_pct_loyer) = net exactly.
     rent = price * gross / 100.0 if price else None
-    charges_total = charges + gross * vac / 100.0
+    charges_total = charges_eff + gross * vac / 100.0
     breakdown = {
         "loyer_marche_eur_m2_an": round(rent) if rent is not None else None,
         "yield_brut_pct": round(gross, 2),
         "charges_pct_loyer": round(charges_total / gross * 100.0, 1),
-        "fiscalite_pct_loyer": round(det_tax / gross * 100.0, 1),
+        "fiscalite_pct_loyer": round(det_tax_eff / gross * 100.0, 1),
         "yield_net_pct": round(net, 2),
     }
-    return net, f"brut {gross:.2f}% − fisc {det_tax:.2f} − charges {charges:.2f} − vacance {vac:.0f}%", conf, breakdown
+    return net, f"brut {gross:.2f}% − fisc {det_tax_eff:.2f} − charges {charges_eff:.2f} − vacance {vac:.0f}%", conf, breakdown
 
 
 def _det_rendement(st: State, z: dict, cls: str) -> Pillar:
@@ -993,8 +1058,8 @@ _PILLAR_FUNCS = {
         _promo_marge(st, z, cls, a), _promo_absorption(st, z), _promo_momentum(st, z),
         _promo_constructibilite(st, z), _risque_sortie(st, z)],
     "detention": lambda st, z, cls, a: [
-        _det_rendement(st, z, cls), _det_resilience(st, z), _det_energie(st, z),
-        _det_fiscalite(st, z), _portage(st, z)],
+        _det_rendement(st, z, cls), _det_profondeur(st, z), _det_resilience(st, z),
+        _det_energie(st, z), _det_fiscalite(st, z), _portage(st, z)],
     "arbitrage": lambda st, z, cls, a: [
         _arb_spread(st, z, cls, a), _arb_appetit(st, cls), _arb_momentum_cycle(st, z),
         _arb_frictions(st, z), _cout_opportunite(st, z)],

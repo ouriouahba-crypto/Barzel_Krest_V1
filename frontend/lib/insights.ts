@@ -225,6 +225,7 @@ export function priceMarginInsight(rows: PmRow[], assetClass: string): string {
 // priceMarginInsight.
 const DET_CLAUSE: Record<string, string> = {
   rendement_net: "des loyers trop bas face aux prix",
+  profondeur_locative: "des marchés locatifs trop étroits",
   resilience: "des marchés locatifs trop fragiles",
   fiscalite: "une fiscalité qui érode le loyer",
   risque_energie: "un risque énergétique qui pèse sur le parc",
@@ -245,20 +246,32 @@ export function detentionInsight(rows: RdRow[], assetClass: string): string {
     .sort((a, b) => b.yieldNet - a.yieldNet);
   const n = keep.length;
 
+  // Signature message of the page: when the highest facial yield sits on a Céder
+  // freguesia, name the inverted-yield trap explicitly.
+  const maxY = rows.length ? rows.reduce((a, b) => (b.yieldNet > a.yieldNet ? b : a)) : null;
+  const trap =
+    maxY && verdictTone("detention", maxY.verdict) === "low"
+      ? ` Les yields les plus élevés (${maxY.short} ${maxY.yieldNet.toFixed(1)}%) sont des pièges de fragilité : marchés étroits, vacance longue.`
+      : "";
+
   if (n === 0) {
+    if (trap) return `Aucune freguesia ne justifie de conserver${classSuffix(assetClass)} ce cycle.${trap}`;
     const best = [...rows].sort((a, b) => b.yieldNet - a.yieldNet)[0];
     const tail = best ? ` : meilleur yield net ${best.yieldNet.toFixed(1)}% à ${best.short}` : "";
     return `Aucune freguesia ne justifie de conserver${classSuffix(assetClass)} ce cycle${tail}.`;
   }
-  // Closing clause: the most common weakest pillar across the non-Conserver set.
-  const rest = rows.filter((r) => verdictTone("detention", r.verdict) !== "good");
+  // Closing clause: the yield trap when it applies, else the most common weakest
+  // pillar across the non-Conserver set.
   let why = "";
-  if (rest.length) {
-    const counts = new Map<string, number>();
-    for (const r of rest) if (r.weakest) counts.set(r.weakest, (counts.get(r.weakest) ?? 0) + 1);
-    const top = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
-    const reason = top ? DET_CLAUSE[top[0]] : undefined;
-    if (reason) why = ` Le reste bute sur ${reason}.`;
+  if (!trap) {
+    const rest = rows.filter((r) => verdictTone("detention", r.verdict) !== "good");
+    if (rest.length) {
+      const counts = new Map<string, number>();
+      for (const r of rest) if (r.weakest) counts.set(r.weakest, (counts.get(r.weakest) ?? 0) + 1);
+      const top = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
+      const reason = top ? DET_CLAUSE[top[0]] : undefined;
+      if (reason) why = ` Le reste bute sur ${reason}.`;
+    }
   }
   const list = yieldList(keep.slice(0, 3));
   const head =
@@ -267,7 +280,7 @@ export function detentionInsight(rows: RdRow[], assetClass: string): string {
       : n === 2
       ? `La détention ${adj} tient sur 2 freguesias : ${list}.`
       : `La détention ${adj} ne tient que sur une freguesia : ${list}.`;
-  return `${head}${why}`;
+  return `${head}${trap || why}`;
 }
 
 // Why a decent-KPI freguesia still fails: the weakest pillar behind the low verdict.
@@ -278,6 +291,7 @@ const PILLAR_REASON: Record<string, string> = {
   constructibilite: "une constructibilité insuffisante",
   risque_sortie: "un risque de sortie trop élevé",
   // détention
+  profondeur_locative: "un marché locatif trop étroit (parc réduit, rotation lente)",
   resilience: "un marché locatif trop fragile pour tenir la vacance",
   risque_energie: "un risque énergétique (MEPS) trop lourd",
   fiscalite: "une fiscalité de détention pénalisante",

@@ -425,6 +425,66 @@ Deuxième page de module (mode **détention**, gabarit Prix & marge), question :
    Captures : `shots/rendement_{residentiel,bureaux}.png`
    (script `shots/capture_rendement.js`).
 
+### Recalibrage Détention — piège du yield inversé — **✅ Livré** (2026-07-02)
+Problème : les verdicts suivaient le niveau de yield → le rural battait l'urbain.
+Cible : un institutionnel détient là où le marché locatif est **profond**, pas là
+où le yield facial est haut. **Yields et loyers strictement inchangés** (sous-scores
+`rendement_net` identiques avant/après).
+1. **Nouveau pilier `profondeur_locative`** (`_det_profondeur`) : 0,50 × demande
+   locative (loyer de marché résidentiel `_res_market_rent`, percentile socle
+   `demande_locative`) + 0,30 × parc/liquidité (`n_transactions`, socle `liquidite`)
+   + 0,20 × rotation (1/DOM, socle `absorption_speed` existant). Poids détention :
+   rendement_net 0,30→**0,15**, profondeur **0,30**, résilience 0,25→0,20, énergie
+   0,20, fiscalité 0,15→0,10, portage 0,10→0,05. **Seuils de verdict inchangés**
+   (65/45).
+2. **Connectivité curée — ceinture urbaine/littorale UNIQUEMENT** (params.json
+   zones, conf hypothese) : Madalena 74, Canidelo 63, Mafamude 62, Oliveira 61,
+   Arcozelo 58, Gulpilhares 57, São Félix 56 (+ Santa Marinha 75 existant). Les
+   7 rurales restent au défaut pays (55). ⚠️ Piège évité : une 1re version curait
+   les rurales *sous* le défaut (36-48) → le socle connectivité glissait → landbank
+   municipio 45→47,5 (badge « En attente »→« À phaser » sur /vue-ensemble) **et**
+   détention logistique municipio (54,7) dépassait la promotion (52,8) = bascule de
+   mode dominant. En ne curant qu'au-dessus du défaut, le socle sous 55 ne bouge
+   pas : landbank municipio **44,7 « En attente »** (affiché 45, identique),
+   dominants intacts (logistique : promotion 52,8 > détention 51,8 — serré).
+3. **État cible résidentiel atteint exactement** : Conserver = Santa Marinha 70,0 +
+   Madalena 66,4 ; Surveiller = Canidelo 59,6, Mafamude 57,7, Oliveira 55,1,
+   Arcozelo 52,3, Gulpilhares 49,6, São Félix 47,5 ; **Céder = les 7 rurales
+   37,1-39,2 malgré leurs yields 4,05-4,38 %** (vs 3,22-3,49 % côté Conserver).
+   Marges aux seuils : 6,8 pts (Conserver) et 8,3 pts (Céder). Madalena vs Canidelo
+   se joue sur connectivité 74 vs 63 (rn quasi à égalité).
+4. **Split charges/fiscalité par freguesia** (`_split_jitter_pct`, md5 du zone_id,
+   ±1,5 pt du loyer) : l'IMI effectif et les charges de copro varient localement,
+   leur **somme** est fixe → brut et net strictement inchangés, colonnes non
+   monotones (fini le 20,6→24,8 % linéaire), identité brut × (1 − charges − fisc)
+   = net exacte (écart max 0,013 = arrondi d'affichage, testé < 0,02).
+5. **Frontend** : bloc droit du bandeau → « **Meilleure détention · <freguesia>** »
+   (yield net du Conserver au meilleur score ; repli top viable ; plus jamais un
+   max global contredisant la phrase). `detentionInsight` : **clause piège du
+   yield** — si la freguesia au yield net max n'est pas Conserver : « Les yields
+   les plus élevés (<freguesia> <val>%) sont des pièges de fragilité : marchés
+   étroits, vacance longue. » (remplace la clause générique ; en logistique le
+   yield max est Santa Marinha elle-même → clause générique conservée, c'est
+   exact). `profondeur_locative` ajouté à DET_CLAUSE + PILLAR_REASON.
+6. **Bascules assumées (5 classes, structure 2 Conserver / 6 Surveiller / 7 Céder
+   partout** — profondeur et résilience sont class-indépendantes, seul le niveau
+   rn varie) : municipio **Céder→Surveiller** (~49-52) → carte Détention de
+   /vue-ensemble à **50 Surveiller** (avant 44 Céder) ; bureaux 0→2 Conserver (le
+   cas dégradé disparaît) ; hôtellerie 1→7 Céder ; logistique 0→7 Céder ;
+   Madalena 73,9 / Canidelo 67,3 en landbank → « Prioritaire » (visible sur la
+   Carte seulement). Lisbonne : Parque das Nações détention 69,6 Conserver
+   (cohérent profondeur) ; Bruxelles ixelles/uccle ~42-44 Céder.
+7. **Vérifs** : note d'anomalie cite naturellement **Sandim 4,4 % … verdict Céder**
+   (résidentiel ; bureaux 4,2 %, hôtel 5,1 %) ; tri par défaut = 8 tenues au-dessus
+   du filet « À céder », 7 rurales dessous ; KPI viables recalculés (résidentiel :
+   net 3,7 %, brut 5,3 %, loyer 129 €/m²/an) ; `tsc` OK ; **13 tests** backend OK
+   dont 3 nouveaux (`test_detention_residential_recalibrated_groups`,
+   `test_detention_no_rural_conserver_residential` = invariant demandé,
+   `test_detention_breakdown_identity`) ; zéro régression /prix-marge (7 freguesias
+   30/29/24, KPIs identiques) et /vue-ensemble (seule la carte Détention change,
+   voulu) ; HayaSlider intact ; `_clean` inchangé. Captures régénérées :
+   `shots/rendement_{residentiel,bureaux}.png`.
+
 ### Prochaines pages de mode (gabarit = Prix & marge / Rendement)
 Arbitrage (spread), Foncier (landbank). Réutiliser la structure : KPIs → tableau
 triable → décomposition/piliers → graphe. **Briques génériques prêtes** :
