@@ -126,11 +126,15 @@ export default function PrixMargePage() {
               value={summary.medianMargin != null ? `${summary.medianMargin.toFixed(1)}%` : "—"}
               sub={scopeLabel}
             />
-            <Kpi
-              label="Prime neuf médiane"
-              value={summary.medianPremium != null ? `${Math.round(summary.medianPremium)}%` : "—"}
-              sub={scopeLabel}
-            />
+            {cls === "residential" ? (
+              <Kpi
+                label="Prime neuf médiane"
+                value={summary.medianPremium != null ? `${Math.round(summary.medianPremium)}%` : "—"}
+                sub={scopeLabel}
+              />
+            ) : (
+              <Kpi label="Foncier médian" value={eurM2(summary.medianLand)} sub={scopeLabel} />
+            )}
             <Kpi
               label="Prix neuf réalisable médian"
               value={eurM2(summary.medianRealizable)}

@@ -183,7 +183,7 @@ export default function ComparerPage() {
                 <div className="mt-3 grid grid-cols-3 gap-2">
                   <Ident label="Prix médian" value={col.price != null ? `${Math.round(col.price).toLocaleString("fr-FR")} €/m²` : "—"} />
                   <Ident label="Sur 12 mois" value={col.yoy != null ? `${col.yoy >= 0 ? "+" : ""}${col.yoy.toFixed(1)}%` : "—"} />
-                  <Ident label="Transactions" value={col.tx != null ? `${col.tx.toLocaleString("fr-FR")} / an` : "—"} />
+                  <Ident label="Transactions" value={col.tx != null ? `${col.tx.toLocaleString("fr-FR")} / an` : "—"} sub="tous segments" />
                 </div>
 
                 {/* b) les 4 modes empilés */}
@@ -246,11 +246,12 @@ export default function ComparerPage() {
   );
 }
 
-function Ident({ label, value }: { label: string; value: string }) {
+function Ident({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div className="rounded-xl border border-navy/10 bg-cream-200 px-3 py-2">
       <div className="text-[9.5px] uppercase tracking-wide text-muted">{label}</div>
       <div className="font-display text-[15px] leading-tight text-navy">{value}</div>
+      {sub && <div className="text-[9.5px] text-muted">{sub}</div>}
     </div>
   );
 }

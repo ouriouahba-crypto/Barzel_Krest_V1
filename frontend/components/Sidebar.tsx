@@ -24,6 +24,7 @@ const ROUTES: Record<string, string> = {
   Rendement: "/rendement",
   Arbitrage: "/arbitrage",
   Foncier: "/foncier",
+  Fiscalité: "/fiscalite",
 };
 const MODULES = ["Vue d'ensemble", "Carte", "Comparer", "Prix & marge", "Rendement", "Arbitrage", "Foncier", "Fiscalité", "Énergie"];
 

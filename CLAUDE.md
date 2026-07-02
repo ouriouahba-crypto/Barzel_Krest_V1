@@ -121,7 +121,8 @@ condense en `coût = 1,261 × (construction + foncier)` (cf. `HAYA` dans scoring
 - **Pages** : `app/gaia` (Carte), `app/vue-ensemble` (Vue d'ensemble, sans carte),
   `app/comparer` (Comparer, transverse), `app/prix-marge` (Prix & marge),
   `app/rendement` (Rendement), `app/arbitrage` (Arbitrage), `app/foncier`
-  (Foncier) — **les 4 pages de mode + la couche de décision sont livrées**.
+  (Foncier), `app/fiscalite` (Fiscalité, transverse de contexte) — **4 pages de
+  mode + Comparer + Fiscalité livrées** (reste : Énergie).
 - **Libs** : `lib/api.ts` (client + types), `lib/scoring.ts` (couleurs, verdicts,
   médiane, config KPI par mode, formule Haya), `lib/normalize.ts` (clé de jointure
   GeoJSON ↔ zone_name), `lib/priceMargin.ts` (lignes Prix & marge), `lib/rendement.ts`
@@ -715,6 +716,45 @@ lus des mêmes piliers/breakdowns). Aucune carte Leaflet.
    Madalena/Canidelo « Profil landbank », SM arbitrage Fenêtre ouverte +33 % —
    mêmes valeurs que les pages de mode), zéro régression sur les 6 pages.
    Capture : `shots/comparer_residentiel.png` (script `shots/capture_comparer.js`).
+
+### Retouches Comparer + page **Fiscalité** (route `/fiscalite`) — **✅ Livré** (2026-07-02)
+0. **Comparer** : `compareSynthesis` compare désormais le gagnant au **meilleur
+   des autres colonnes sur la valeur comparée** (métrique native ; résiduelle
+   pour le landbank), plus la 2ᵉ au score — bureaux 3 colonnes : « domine en
+   promotion (20% vs 15%) » (Canidelo) et « 874 vs 859 €/m² » (Canidelo) ✓.
+   Tuile Transactions : sous-libellé « tous segments » (marché global, le prix
+   médian est par classe). **Prix & marge commercial** : le KPI « Prime neuf
+   médiane — » devient « **Foncier médian** » des viables (`pmSummary.medianLand`).
+1. **Page Fiscalité** (transverse de contexte, PT/Gaia) : « ce que le fisc prend
+   à chaque étape, et comment c'est déjà intégré dans nos verdicts ».
+   - **`lib/fiscal.ts`** : barème IMT 2026 **habitação secundária** (continent),
+     limites officielles (tables AT 06-01-2026, +2 % vs 2025 : 106 346 / 145 470 /
+     198 347 / 330 539 / 660 982 / 1 150 853 €), parcelas a abater reconstituées
+     par continuité exacte du barème (1 063,46 / 5 427,57 / 9 394,52 / 12 699,91),
+     taux uniques 6 % et 7,5 % ; commercial & terrains à bâtir 6,5 % ; selo 0,8 % ;
+     IMI 0,30-0,45 % ; AIMI société 0,4 % ; **IRC 2026 = 19 %** (OE 2026) +
+     derramas → effectif ~21 % (= l'`exit_cgt` du moteur, « IRC + derramas » —
+     cohérence moteur/officiel vérifiée, aucune dérive).
+   - **3 volets** Acquérir / Détenir / Céder avec les taux ci-dessus, chacun
+     terminé par « Dans la plateforme : intégré à … » → lien vers la cascade
+     concernée (/prix-marge, /rendement, /arbitrage).
+   - **`fiscalInsight(cls, pmRows, rdRows)`** : résidentiel « ~4 % du prix de
+     sortie » (médiane viables : 7,3 % du foncier à l'entrée + 21 % de la marge
+     à la sortie) ; commercial « ~22 % du loyer annuel (IMI puis IRC), après
+     ~7,3 % à l'entrée ». Bloc droit « Frais d'entrée max » 8,3 % / 7,3 % selon
+     la classe.
+   - **Simulateur d'acquisition** (`AcquisitionSimulator`, navy, libellé neutre
+     « SIMULATEUR D'ACQUISITION · PORTUGAL ») : curseur 200 k-5 M€, IMT marginal
+     résidentiel / 6,5 % commercial + selo, total € et %. **Points de contrôle
+     rendus des mêmes formules** (vérifiés) : 400 k → 19 300 + 3 200 = 22 500
+     (5,6 %) ; 1,5 M → 112 500 + 12 000 = 124 500 (8,3 %) ; 4 M → 332 000
+     (8,3 %) ; 1 M (défaut) → 68 000 (6,8 %). Source discrète en pied de page
+     (« Barèmes officiels PT 2026 »).
+   - Route Sidebar `/fiscalite`, aucune carte Leaflet, aucun paramètre brut du
+     moteur exposé (les taux affichés sont les barèmes publics).
+2. **Vérifs** : `tsc` OK, 18 tests backend inchangés, 2 classes contrôlées à
+   l'écran + simulateur aux 3 valeurs, zéro régression sur les 7 pages.
+   Capture : `shots/fiscalite.png` (script `shots/capture_fiscalite.js`).
 
 ### État final du gabarit de page de mode
 Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,

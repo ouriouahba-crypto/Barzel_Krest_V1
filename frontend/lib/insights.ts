@@ -481,7 +481,9 @@ const MODE_VS: Record<Mode, string> = {
 // 814 €/m²)."
 export function compareSynthesis(cols: CompareColumn[]): string {
   if (cols.length < 2) return "";
-  // Winner per mode (by score), with the best runner-up for the value pair.
+  // Winner per mode (by score); the value pair compares the winner with the
+  // BEST of the other selected freguesias on the compared value itself
+  // (residual for landbank, native metric otherwise) — not the 2nd by score.
   const wins = new Map<number, { mode: Mode; win: CompareModeCell; run: CompareModeCell }[]>();
   for (const m of MODES) {
     const entries = cols
@@ -489,8 +491,13 @@ export function compareSynthesis(cols: CompareColumn[]): string {
       .filter((e): e is { i: number; cell: CompareModeCell } => !!e.cell);
     if (entries.length < 2) continue;
     const ranked = [...entries].sort((a, b) => b.cell.total - a.cell.total);
+    const cmp = (c: CompareModeCell) =>
+      m === "landbank" ? (c.residual ?? -Infinity) : (c.metric ?? -Infinity);
+    const run = entries
+      .filter((e) => e.i !== ranked[0].i)
+      .sort((a, b) => cmp(b.cell) - cmp(a.cell))[0].cell;
     const list = wins.get(ranked[0].i) ?? [];
-    list.push({ mode: m, win: ranked[0].cell, run: ranked[1].cell });
+    list.push({ mode: m, win: ranked[0].cell, run });
     wins.set(ranked[0].i, list);
   }
   const verbs = ["domine en", "prend l'avantage en", "se distingue en"];

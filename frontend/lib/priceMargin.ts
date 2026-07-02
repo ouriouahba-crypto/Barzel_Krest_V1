@@ -62,6 +62,7 @@ export interface PmSummary {
   medianRealizable: number | null;
   medianCost: number | null;
   medianPremium: number | null;       // prime neuf médiane (viables ; null en commercial)
+  medianLand: number | null;          // foncier médian (viables) — KPI commercial
   best: PmRow | null;                 // most profitable freguesia (over all)
   scope: "viables" | "toutes";        // basis of the medians
 }
@@ -70,7 +71,7 @@ export interface PmSummary {
 // class has none viable, fall back to all freguesias (scope flagged accordingly).
 export function pmSummary(rows: PmRow[]): PmSummary {
   if (!rows.length)
-    return { medianMargin: null, medianRealizable: null, medianCost: null, medianPremium: null, best: null, scope: "toutes" };
+    return { medianMargin: null, medianRealizable: null, medianCost: null, medianPremium: null, medianLand: null, best: null, scope: "toutes" };
   const best = rows.reduce((a, b) => (b.marginPct > a.marginPct ? b : a));
   const viable = rows.filter((r) => verdictTone("promotion", r.verdict) !== "low");
   const use = viable.length ? viable : rows;
@@ -79,6 +80,7 @@ export function pmSummary(rows: PmRow[]): PmSummary {
     medianRealizable: median(use.map((r) => r.realizable)),
     medianCost: median(use.map((r) => r.costTotal)),
     medianPremium: median(use.map((r) => r.premiumPct).filter((v): v is number => v != null)),
+    medianLand: median(use.map((r) => r.land)),
     best,
     scope: viable.length ? "viables" : "toutes",
   };
