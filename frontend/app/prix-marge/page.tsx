@@ -127,10 +127,9 @@ export default function PrixMargePage() {
               sub={scopeLabel}
             />
             <Kpi
-              label="Freguesia la plus rentable"
-              value={summary.best?.name ?? "—"}
-              sub={summary.best ? `marge ${summary.best.marginPct.toFixed(1)}%` : "—"}
-              small
+              label="Prime neuf médiane"
+              value={summary.medianPremium != null ? `${Math.round(summary.medianPremium)}%` : "—"}
+              sub={scopeLabel}
             />
             <Kpi
               label="Prix neuf réalisable médian"

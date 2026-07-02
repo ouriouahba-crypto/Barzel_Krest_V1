@@ -57,8 +57,16 @@ Chaque réponse : `total` /100, `verdict`, `pillars[]` (chacun `subscore`,
 
 Économie promotion (pilier `marge`) : `coût = construction + foncier + frais annexes
 (dev_cost_stack 18%) + financement (LTV 60% × dette 4,5% × 3 ans)`, puis
-`marge = (prix net TVA − coût) / coût`. Pour l'actif Haya la formule client se
+`marge = (prix de vente − coût) / coût`. Pour l'actif Haya la formule client se
 condense en `coût = 1,261 × (construction + foncier)` (cf. `HAYA` dans scoring.ts).
+
+> **Convention fiscale — vente de logements neufs (résidentiel) :**
+> - **Portugal : PAS de TVA sur la vente** (l'IMT est côté acquéreur ; la TVA amont
+>   sur la construction est un coût du promoteur, réputé inclus dans la construction).
+>   Le prix de vente = prix réalisable brut. → `_promo_marge` met `vat = 0` pour
+>   `class == residential and country == "pt"`.
+> - **Commercial** (toutes classes non résidentielles) : TVA récupérable → neutre (0).
+> - **Belgique résidentiel** : conserve sa TVA pour l'instant (à revoir).
 
 > ⚠️ Le process `uvicorn` tourne **sans `--reload`** → après toute édition backend,
 > le relancer : `python -m uvicorn backend.main:app --port 8000 --log-level warning`.
@@ -168,13 +176,13 @@ brut ni indice de confiance exposé, `_clean` inchangé.
 
 | Classe       | min    | max    | médiane | statut |
 |--------------|--------|--------|---------|--------|
-| Résidentiel  | -16,0 %| 30,0 % | 5,0 %   | recalibré (P1/P3) |
+| Résidentiel  |  -8,0 %| 30,0 % | 6,0 %   | **recalibré sans TVA (lot #6)** |
 | Bureaux      | -11,0 %| 19,8 % | 3,1 %   | inchangé |
 | Hôtellerie   | -15,9 %| 18,7 % | 4,3 %   | inchangé |
-| Logistique   |  6,7 % | 15,1 % | 12,0 %  | recalibré (P2) |
+| Logistique   |  6,7 % | 15,1 % | 12,0 %  | recalibré |
 | Commerce     |  1,0 % | 20,5 % | 10,5 %  | inchangé |
 
-Actif Haya (hors classement zone) : marge 35,5 % — intouchable.
+Actif Haya : marge **35,5 %** à 5750 €/m² (prime +111%) — cf. lot #6.
 Captures : `shots/prixmarge_{residentiel_afurada,bureaux,logistique}.png`.
 
 ### Refonte Vue d'ensemble — **✅ Livré** (2026-07-02)
@@ -310,6 +318,35 @@ tests backend OK, 5 classes contrôlées.
 4. **Séparation du tableau** (`PriceMarginTable`) : par défaut, viables (marge desc)
    au-dessus, filet « Sous le seuil de viabilité », puis Passer (marge desc). Dès que
    l'utilisateur trie une colonne (`userSorted`), la séparation disparaît → tri global.
+
+### Lot #6 — Refonte TVA/foncier résidentiel PT + cohérence Prix & marge — **✅ Livré** (2026-07-02)
+1. **Moteur** : plus de déduction TVA du prix de sortie pour le **résidentiel PT**
+   (`_promo_marge`, cf. convention fiscale §2). Commercial et Belgique inchangés.
+   Ajout d'un override `construction_eur_m2` pour l'actif nommé (Haya).
+2. **Recalibrage foncier + prime résidentiel Gaia** (marges cibles inchangées côté
+   viables : Santa Marinha 30 %, Madalena 29 %, Canidelo 24 %, Mafamude 19 %,
+   couronne 5-7 %, São Félix 11 % anomalie ; rural **-8…+2 %** = à l'équilibre).
+   Foncier réaliste : Santa Marinha 524, Madalena 594, Canidelo 673, rural 128-295 ;
+   **aucun foncier < 40**, foncier des viables 14-18 % du prix, prime **18-34 %**.
+   `gaia_default` porté à foncier 470 / prime 26 → la zone *municipio* (vue ville)
+   garde une marge réaliste (~14 %) et l'insight « penche vers la promotion » reste
+   stable. Hiérarchie Santa Marinha > Madalena > Canidelo, **3 Go**, garde-fous OK.
+   ⚠️ Déviations aux hints doux : Canidelo ~673 et rural 128-295 (forcés par le
+   plancher de prime 18 % + marges rurales à l'équilibre).
+3. **Haya** : constantes `HAYA` = construction 2065 (NZEB) + foncier 1300 (front de
+   fleuve), sans TVA → **35,5 % à 5750** (+111 %). Backend aligné via l'override
+   (`assets.haya_towers.construction_eur_m2=2065`, `land_cost_eur_m2=1300`). Texte de
+   formule : « marge = (prix de vente − coût) / coût ». Design/curseur intacts.
+4. **Cascade** : 1re barre « Prix de vente » (plus « net de TVA ») ; décomposition
+   vérifiée exacte (Santa Marinha 30 %, Sandim −8 %).
+5. **Cohérence Prix & marge** : `priceMarginInsight` — tête « La promotion <classe>
+   tient sur N freguesias, menées par X (30%)… » ; clause finale **calculée** (tous
+   non-viables < 0 → « le prix neuf réalisable ne couvre plus le coût de revient » ;
+   sinon « marges trop minces ou marchés trop étroits pour absorber le neuf »). KPI
+   « Freguesia la plus rentable » → **« Prime neuf médiane »** (viables ; « — » en
+   commercial).
+6. **Tests** : invariants ajoutés — `test_gaia_residential_land_floor` (foncier ≥ 40),
+   `test_haya_margin_35_36`.
 
 ### Prochaines pages de mode (gabarit = Prix & marge)
 Rendement (détention), Arbitrage, Foncier (landbank). Réutiliser la structure :

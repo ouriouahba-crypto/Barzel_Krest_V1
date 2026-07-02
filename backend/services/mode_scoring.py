@@ -263,6 +263,8 @@ def _adapt_params(raw: dict) -> dict:
                          "zone": a.get("zone", "santamarinhaesaopedrodaafurada"),
                          "class": a.get("class", "residential"), "primary_mode": "promotion",
                          "achievable_sale_eur_m2": _pv(a.get("target_price_eur_m2")),
+                         "construction_eur_m2": _pv(a.get("construction_eur_m2"), 2065),
+                         "land_cost_eur_m2": _pv(a.get("land_cost_eur_m2"), 1300),
                          "premium_pct": _pv(a.get("premium_vs_freguesia_pct")), "confidence": RAPPORT}
         krest["haya_towers"] = krest["haya"]
     if "alcochete_landbank" in A:
@@ -605,6 +607,8 @@ def _promo_marge(st: State, z: dict, cls: str, asset: dict | None) -> Pillar:
         sale_conf = HYPOTHESE
     country = _country(z)
     build = _class_construction(st, z, cls) or _p(st, "construction_costs_eur_m2", country, "residential")
+    if is_asset and (asset or {}).get("construction_eur_m2"):
+        build = float(asset["construction_eur_m2"])   # trophy asset: its own build cost
     zp = _zone_param(st, z["id"])
     comm = _commercial(st, z, cls) if (not is_asset and cls != "residential") else None
     land_note = ""
@@ -623,8 +627,13 @@ def _promo_marge(st: State, z: dict, cls: str, asset: dict | None) -> Pillar:
         land = _land_cost_eur_m2(st, z)
         land_conf = HYPOTHESE
         land_note = f"foncier {land:.0f} €/m² (paramètre zone) · "
-    # Commercial VAT is recoverable (neutral for the developer); residential bears it.
-    vat = 0.0 if comm else _p(st, "fiscalite", country, "vat_new_pct", default=0.0)
+    # VAT on the sale price:
+    #  - commercial: recoverable (neutral for the developer) -> 0.
+    #  - Portugal residential new-build: NOT VAT-charged on the sale (IMT is on the
+    #    buyer; upstream construction VAT is a developer cost, already in construction) -> 0.
+    #  - Belgium residential keeps its VAT for now (documented in CLAUDE.md).
+    vat = 0.0 if (comm or (cls == "residential" and country == "pt")) \
+        else _p(st, "fiscalite", country, "vat_new_pct", default=0.0)
     dev_stack = _p(st, "global", "dev_cost_stack_pct", default=18.0)
     soft = (dev_stack / 100.0) * (build + land)
     # Promotion financing carry: financed share (LTV) × senior debt rate × build years.
@@ -648,8 +657,12 @@ def _promo_marge(st: State, z: dict, cls: str, asset: dict | None) -> Pillar:
     price_note = ""
     if premium is not None:
         price_note = f"prix neuf réalisable {sale:.0f} €/m² = médiane ancien {base_median:.0f} +{premium:.0f}% · "
-    sale_txt = (f"vente {sale:.0f} €/m² (TVA récupérable)" if vat == 0
-                else f"vente {sale:.0f} €/m² nette TVA {net_sale:.0f}")
+    if vat > 0:
+        sale_txt = f"vente {sale:.0f} €/m² nette TVA {net_sale:.0f}"
+    elif comm:
+        sale_txt = f"vente {sale:.0f} €/m² (TVA récupérable)"
+    else:
+        sale_txt = f"vente {sale:.0f} €/m² (hors TVA sur la vente)"
     why = (f"marge développeur {margin_pct:.0f}% ({price_note}{land_note}{sale_txt}, "
            f"coût {cost_total:.0f} €/m² dont financement {finance:.0f} "
            f"€/m² à {debt_rate*100:.1f}% × {years} ans × LTV {ltv*100:.0f}%)"

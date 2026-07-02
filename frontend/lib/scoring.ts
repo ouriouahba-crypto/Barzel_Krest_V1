@@ -119,14 +119,14 @@ export function nativeHint(mode: Mode): string {
 
 // ---------------------------------------------------------------------------
 // Haya — client-side margin recompute (formula identical to the backend).
-// cost = 1.261 × (construction + foncier); marge = (prix net TVA − cost)/cost.
-// The base economics match the backend (construction 1700, foncier 1035 = 18%
-// of the 5750 base sale, VAT 23%). Only the sale price moves with the slider.
+// Portugal residential: no VAT on the sale. cost = 1.261 × (construction +
+// foncier); marge = (prix de vente − coût) / coût. Trophy front-de-fleuve
+// economics (construction 2065 NZEB, foncier 1300) → ~35.5% at the 5750 base.
+// Only the sale price moves with the slider.
 // ---------------------------------------------------------------------------
 export const HAYA = {
-  construction: 1700,
-  foncier: 1035,
-  vatPct: 23,
+  construction: 2065,
+  foncier: 1300,
   freguesiaMedian: 2721,
   baseSale: 5750,
   saleMin: 3500,
@@ -140,9 +140,8 @@ export function hayaCost() {
 }
 
 export function hayaMargin(salePerM2: number): number {
-  const netSale = salePerM2 / (1 + HAYA.vatPct / 100);
   const cost = hayaCost();
-  return ((netSale - cost) / cost) * 100;
+  return ((salePerM2 - cost) / cost) * 100;
 }
 
 export function hayaPremium(salePerM2: number): number {

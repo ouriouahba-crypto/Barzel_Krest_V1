@@ -46,6 +46,27 @@ def test_city_ranking_sorted():
     assert totals == sorted(totals, reverse=True)
 
 
+def test_gaia_residential_land_floor():
+    # No Gaia residential freguesia may carry a land cost below 40 €/m².
+    rows = ms.score_city("gaia", "promotion", "residential")
+    for r in rows:
+        if r["level"] != "freguesia":
+            continue
+        marge = next((p for p in r["pillars"] if p["pillar"] == "marge"), None)
+        b = marge.get("breakdown") if marge else None
+        if b and b.get("land") is not None:
+            assert b["land"] >= 40, (r["zone"], b["land"])
+
+
+def test_haya_margin_35_36():
+    # Portugal residential is not VAT-charged on the sale; the trophy asset lands
+    # a 35-36% developer margin at its 5750 €/m² achievable price.
+    a = ms.score_asset("haya")
+    marge = next(p for p in a["primary"]["pillars"] if p["pillar"] == "marge")
+    m = marge["native"]["value"]
+    assert 35.0 <= m <= 36.0, m
+
+
 def test_promotion_verdict_cap_rule():
     # The cap function directly: negative margin -> worst verdict, thin margin
     # (0<=m<8%) -> at best the middle verdict, healthy margin untouched.
@@ -98,6 +119,8 @@ if __name__ == "__main__":  # dependency-free smoke run
     test_belgium_is_symmetric_to_portugal()
     test_confidence_index_levels()
     test_city_ranking_sorted()
+    test_gaia_residential_land_floor()
+    test_haya_margin_35_36()
     test_promotion_verdict_cap_rule()
     test_promotion_city_verdicts_respect_margin()
     print("OK — all smoke checks passed")

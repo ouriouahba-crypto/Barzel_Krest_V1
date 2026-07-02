@@ -68,7 +68,7 @@ export function HayaSlider({ baseTotal, margeWeight }: { baseTotal: number; marg
 
       <p className="mt-4 text-[11px] leading-relaxed text-cream/45">
         Prix neuf réalisable vs médiane réelle de la freguesia. Marge et verdict recalculés en direct
-        (coût = 1,261 × (construction + foncier), marge = (prix net TVA − coût) / coût).
+        (coût = 1,261 × (construction + foncier), marge = (prix de vente − coût) / coût).
       </p>
     </div>
   );

@@ -65,7 +65,7 @@ export function MarginWaterfall({
       <div className="mt-4 space-y-2">
         {/* Revenue base */}
         <WaterRow
-          label="Prix neuf net de TVA"
+          label="Prix de vente"
           value={row.netSale}
           left={0}
           width={100}

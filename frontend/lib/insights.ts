@@ -199,15 +199,23 @@ export function priceMarginInsight(rows: PmRow[], assetClass: string): string {
     const tail = best ? ` : meilleure marge ${Math.round(best.marginPct)}% à ${best.short}` : "";
     return `Aucune freguesia ne porte la promotion ${adj} ce cycle${tail}.`;
   }
-  const why = "Au-delà, le prix neuf réalisable ne couvre plus le coût de revient.";
+  // Closing clause computed on the non-viable set: pure loss vs thin/absorption.
+  const nonViable = rows.filter((r) => verdictTone("promotion", r.verdict) === "low");
+  const allNeg = nonViable.length > 0 && nonViable.every((r) => r.marginPct < 0);
+  const why =
+    nonViable.length === 0
+      ? ""
+      : allNeg
+      ? " Au-delà, le prix neuf réalisable ne couvre plus le coût de revient."
+      : " Au-delà, marges trop minces ou marchés trop étroits pour absorber le neuf.";
   const list = marginList(viable.slice(0, 3));
   const head =
-    n === 1
-      ? `Une seule freguesia porte la promotion ${adj}`
+    n >= 3
+      ? `La promotion ${adj} tient sur ${n} freguesias, menées par ${list}.`
       : n === 2
-      ? `Seules 2 freguesias portent la promotion ${adj}`
-      : `${n} freguesias portent la promotion ${adj}`;
-  return `${head} : ${list}. ${why}`;
+      ? `La promotion ${adj} tient sur 2 freguesias : ${list}.`
+      : `La promotion ${adj} ne tient que sur une freguesia : ${list}.`;
+  return `${head}${why}`;
 }
 
 // Why a decent-margin freguesia still fails: the weakest pillar behind a Passer.
