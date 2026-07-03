@@ -6,8 +6,8 @@ import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { InsightBanner } from "@/components/InsightBanner";
 import { AcquisitionSimulator } from "@/components/AcquisitionSimulator";
+import { Segmented } from "@/components/ui";
 import { useGaia } from "@/lib/useGaia";
-import { classLabel } from "@/lib/scoring";
 import { pmRows } from "@/lib/priceMargin";
 import { rdRows } from "@/lib/rendement";
 import {
@@ -32,16 +32,31 @@ const pct = (v: number, d = 1) => `${v.toLocaleString("fr-FR", { minimumFraction
 // Fixed, verifiable checkpoints rendered from the same functions as the simulator.
 const CHECKPOINTS = [400_000, 1_500_000, 4_000_000];
 
+// PT taxation only distinguishes résidentiel / commercial : the 5-class selector
+// is replaced by a page-local two-way toggle (bureaux stands in for the
+// commercial engine data feeding the detention-cycle insight).
+const REGIMES = [
+  { value: "residential", label: "Résidentiel" },
+  { value: "commercial", label: "Commercial" },
+] as const;
+type Regime = (typeof REGIMES)[number]["value"];
+
 export default function FiscalitePage() {
   const g = useGaia();
   const [selected, setSelected] = useState<string[]>([]);
-  const cls = g.assetClass;
-  const residential = cls === "residential";
+  const [regime, setRegime] = useState<Regime>("residential");
+  const residential = regime === "residential";
+  const regimeLabel = residential ? "Résidentiel" : "Commercial";
+
+  const onRegime = (r: Regime) => {
+    setRegime(r);
+    g.setAssetClass(r === "residential" ? "residential" : "office");
+  };
 
   // Banner sentence computed from the same engine-served rows as the mode pages.
   const pm = useMemo(() => pmRows(g.promoCity), [g.promoCity]);
   const rd = useMemo(() => rdRows(g.detentionCity), [g.detentionCity]);
-  const sentence = useMemo(() => fiscalInsight(cls, pm, rd), [cls, pm, rd]);
+  const sentence = useMemo(() => fiscalInsight(residential ? "residential" : "commercial", pm, rd), [residential, pm, rd]);
   const entryMax = residential ? 7.5 + SELO_PCT : IMT_COMMERCIAL_PCT + SELO_PCT;
 
   return (
@@ -59,17 +74,23 @@ export default function FiscalitePage() {
           onClass={g.setAssetClass}
           hideMode
           hideSearch
+          hideClass
         />
 
         <main className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-6">
-          {/* Module header */}
+          {/* Module header — page-local fiscal regime toggle (PT law only splits
+              résidentiel / commercial ; a 5-class selector changed nothing here) */}
           <div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <span className="inline-block h-5 w-1.5 rounded-full bg-gold" />
               <h2 className="font-display text-[22px] leading-none text-navy">Fiscalité</h2>
               <span className="rounded-full border border-gold/40 bg-gold/10 px-2.5 py-0.5 text-[11px] font-medium text-gold-600">
-                Portugal · {classLabel(cls)}
+                Portugal · {regimeLabel}
               </span>
+              <div className="ml-2 flex items-center gap-3">
+                <span className="text-[11px] font-semibold uppercase tracking-widest text-muted">Régime</span>
+                <Segmented options={[...REGIMES]} value={regime} onChange={onRegime} />
+              </div>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-[13px] leading-relaxed text-muted">
               Acquérir, détenir, céder : les prélèvements portugais aux taux officiels 2026,
@@ -79,7 +100,7 @@ export default function FiscalitePage() {
 
           {/* Fiscal weight of the cycle */}
           <InsightBanner
-            eyebrow={`Poids fiscal du cycle · ${classLabel(cls)}`}
+            eyebrow={`Poids fiscal du cycle · ${regimeLabel}`}
             sentence={sentence}
             right={
               <div className="text-right">

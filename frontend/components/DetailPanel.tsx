@@ -34,8 +34,11 @@ export function DetailPanel({
           open ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       />
+      {/* will-change promotes the panel to its own compositing layer: Safari can
+          otherwise paint Leaflet's translate3d panes OVER a fixed element despite
+          its higher z-index (panel slides in but stays invisible under the map). */}
       <aside
-        className={`fixed right-0 top-0 z-[1100] h-full w-[400px] max-w-[92vw] overflow-y-auto border-l border-navy/10 bg-cream-200 shadow-panel transition-transform duration-500 ease-soft ${
+        className={`fixed right-0 top-0 z-[1100] h-full w-[400px] max-w-[92vw] overflow-y-auto border-l border-navy/10 bg-cream-200 shadow-panel transition-transform duration-500 ease-soft will-change-transform ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >

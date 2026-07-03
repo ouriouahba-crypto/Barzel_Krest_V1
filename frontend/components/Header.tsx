@@ -14,6 +14,7 @@ export function Header({
   onClass,
   hideMode = false,
   hideSearch = false,
+  hideClass = false,
 }: {
   marketLine: string;
   freguesias: { id: string; label: string }[];
@@ -25,6 +26,7 @@ export function Header({
   onClass: (c: string) => void;
   hideMode?: boolean;
   hideSearch?: boolean;
+  hideClass?: boolean;
 }) {
   return (
     <header className="relative z-[1000] border-b border-navy/10 bg-cream/80 px-6 py-4 backdrop-blur">
@@ -55,10 +57,12 @@ export function Header({
             />
           </div>
         )}
-        <div className="flex items-center gap-3">
-          <span className="text-[11px] font-semibold uppercase tracking-widest text-muted">Classe</span>
-          <Segmented options={ASSET_CLASSES} value={assetClass} onChange={onClass} />
-        </div>
+        {!hideClass && (
+          <div className="flex items-center gap-3">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted">Classe</span>
+            <Segmented options={ASSET_CLASSES} value={assetClass} onChange={onClass} />
+          </div>
+        )}
       </div>
     </header>
   );

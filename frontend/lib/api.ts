@@ -153,6 +153,24 @@ export const api = {
     if (!res.ok) throw new Error(`API ${res.status}`);
     return res.json();
   },
+  memoTables: async (body: object): Promise<{ tables: MemoTables; meta: MemoDraft["meta"] }> => {
+    const res = await fetch(`${BASE}/api/memo/tables`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    return res.json();
+  },
+  memoDraftSection: async (body: object): Promise<{ texte: string }> => {
+    const res = await fetch(`${BASE}/api/memo/draft_section`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    return res.json();
+  },
   memoRevise: async (body: object): Promise<{ texte: string }> => {
     const res = await fetch(`${BASE}/api/memo/revise`, {
       method: "POST",

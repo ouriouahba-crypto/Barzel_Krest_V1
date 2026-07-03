@@ -1,10 +1,13 @@
-"""Mémo d'investissement — POST /api/memo/{draft,render,revise}.
+"""Mémo d'investissement — POST /api/memo/{draft,tables,draft_section,render,revise}.
 
 Architecture (mêmes garde-fous que l'IA analyste) :
 - /draft : contexte construit EXCLUSIVEMENT des payloads passés par _clean()
   (celui de l'analyste), claude-sonnet-4-6 (temperature 0.2) rédige les
-  sections narratives en JSON strict. Aucun chiffre inventé, jamais
-  confiance/simulation.
+  sections narratives EN PARALLÈLE (asyncio.gather, un appel court par
+  section — temps total ≈ la plus longue section). Aucun chiffre inventé,
+  jamais confiance/simulation ; garde-fous comptages/arrondi PAR section.
+- /tables + /draft_section : mêmes briques exposées séparément pour la
+  progression réelle de la modal (une coche par section terminée).
 - /render : les CHIFFRES sont injectés DÉTERMINISTIQUEMENT (KPI, tableaux,
   verdicts lus du moteur via _clean — jamais du texte IA) dans un template
   HTML de marque (polices embarquées en base64), rendu PDF via Playwright
@@ -15,9 +18,9 @@ Architecture (mêmes garde-fous que l'IA analyste) :
 
 from __future__ import annotations
 
+import asyncio
 import base64
 import io
-import json
 import logging
 import re
 from datetime import date
@@ -200,6 +203,14 @@ def _client():
     return anthropic.Anthropic(api_key=key)
 
 
+def _async_client():
+    key = _api_key()
+    if not key:
+        raise HTTPException(status_code=503, detail="rédacteur momentanément indisponible")
+    import anthropic
+    return anthropic.AsyncAnthropic(api_key=key)
+
+
 def _llm_text(system: str, user: str, max_tokens: int) -> str:
     try:
         message = _client().messages.create(
@@ -214,12 +225,16 @@ def _llm_text(system: str, user: str, max_tokens: int) -> str:
         raise HTTPException(status_code=503, detail="rédacteur momentanément indisponible")
 
 
-def _parse_json(text: str) -> dict:
-    t = re.sub(r"^```(?:json)?|```$", "", text.strip(), flags=re.M).strip()
-    start, end = t.find("{"), t.rfind("}")
-    if start < 0 or end <= start:
-        raise ValueError("no json object")
-    return json.loads(t[start:end + 1])
+async def _llm_text_async(client, user: str, max_tokens: int) -> str:
+    try:
+        message = await client.messages.create(
+            model=_MODEL, max_tokens=max_tokens, temperature=0.2,
+            system=_SYSTEM_MEMO, messages=[{"role": "user", "content": user}],
+        )
+        return "".join(b.text for b in message.content if getattr(b, "type", "") == "text").strip()
+    except Exception as exc:  # noqa: BLE001
+        log.warning("memo LLM call failed: %s", type(exc).__name__)
+        raise HTTPException(status_code=503, detail="rédacteur momentanément indisponible")
 
 
 class DraftPayload(BaseModel):
@@ -261,16 +276,52 @@ def _mission(scope: str, asset_class: str, modes: list[str], angle: str,
         "# MISSION",
         f"Angle du mémo : {_ANGLES.get(angle, _ANGLES['synthese'])}.",
         f"Périmètre : {scope_txt}. Classe d'actif : {_CLS_FR[asset_class]}.",
-        f"Modes à couvrir : {', '.join(_MODE_FR[m] for m in modes)}.",
+        f"Modes couverts par le mémo : {', '.join(_MODE_FR[m] for m in modes)}.",
     ]
     if instructions:
         lines.append(f"Instructions du client (à respecter sans enfreindre les règles) : {instructions.strip()[:400]}")
-    keys = ", ".join(f'"{m}": "texte"' for m in modes)
-    lines.append(
-        "Réponds UNIQUEMENT avec un objet JSON valide, sans balise de code : "
-        f'{{"executive_summary": "texte", "lecture_par_mode": {{{keys}}}, "risques": "texte", "recommandation": "texte"}}'
-    )
     return "\n".join(lines)
+
+
+# Per-section briefs — each section is drafted by its own short parallel call.
+_SECTION_BRIEF = {
+    "executive_summary": ("Synthèse exécutive", "la synthèse exécutive du mémo (120-170 mots), qui pose le "
+                          "verdict d'ensemble en couvrant les modes du mémo", 650),
+    "risques": ("Risques", "la section Risques (80-120 mots) : fiscalité et énergie d'abord, "
+                "puis les fragilités de marché propres au périmètre", 550),
+    "recommandation": ("Recommandation", "la Recommandation (50-90 mots), conclue par un verdict actionnable", 450),
+}
+
+
+def _section_brief(section: str) -> tuple[str, str, int]:
+    if section in _SECTION_BRIEF:
+        return _SECTION_BRIEF[section]
+    label = f"Lecture {_MODE_FR[section]}"
+    return (label, f"la lecture du mode {_MODE_FR[section]} (70-110 mots), appuyée sur ses chiffres "
+                   "de freguesias et son verdict de vue ville", 500)
+
+
+async def _draft_section(client, base_prompt: str, section: str,
+                         counts: dict, modes: list[str]) -> str:
+    """One narrative section, with the count guardrail applied per section
+    (2 attempts, corrective note on retry)."""
+    label, brief, max_tokens = _section_brief(section)
+    user = (f"{base_prompt}\n\n# SECTION À RÉDIGER\n"
+            f"Rédige UNIQUEMENT {brief}. N'écris pas de titre : le gabarit du mémo "
+            f"l'affiche déjà (« {label} »). Réponds avec le texte seul, sans JSON ni markdown.")
+    msg = user
+    for attempt in (1, 2):
+        texte = await _llm_text_async(client, msg, max_tokens)
+        bad = _bad_counts({"t": texte}, counts, modes)
+        if not bad:
+            return texte
+        if attempt == 1:
+            log.warning("memo section %s: comptage hors DÉNOMBREMENTS %s, retry", section, bad)
+            msg = (f"{user}\n\nATTENTION : une rédaction précédente citait un comptage de freguesias erroné "
+                   f"({', '.join(bad)}). Utilise UNIQUEMENT les comptages de la section DÉNOMBREMENTS, sans recompter.")
+        else:
+            log.warning("memo section %s: comptage hors DÉNOMBREMENTS conservé %s", section, bad)
+    return texte
 
 
 # Post-generation count check, two nets:
@@ -341,30 +392,50 @@ def _bad_counts(sections: dict, counts: dict, modes: list[str]) -> list[str]:
     return bad
 
 
+@router.post("/tables")
+def tables_only(payload: DraftPayload) -> dict:
+    """Deterministic figures + meta, instantly — first step of the modal's
+    progressive draft ("Analyse des N modes")."""
+    asset_class, modes, scope = _validate(payload)
+    return {"tables": _tables(scope, asset_class, modes),
+            "meta": {"scope": scope, "asset_class": asset_class, "modes": modes, "angle": payload.angle}}
+
+
+class DraftSectionPayload(DraftPayload):
+    section: str = "executive_summary"   # "executive_summary" | mode | "risques" | "recommandation"
+
+
+@router.post("/draft_section")
+async def draft_section(payload: DraftSectionPayload) -> dict:
+    """One narrative section — the modal fires these in parallel and checks a
+    progress step off as each one lands."""
+    asset_class, modes, scope = _validate(payload)
+    section = payload.section if payload.section in {"executive_summary", "risques", "recommandation"} \
+        or payload.section in ms.MODES else "executive_summary"
+    tables = _tables(scope, asset_class, modes)
+    base = f"{_build_context(asset_class)}\n\n{_mission(scope, asset_class, modes, payload.angle, payload.instructions, tables)}"
+    texte = await _draft_section(_async_client(), base, section, verdict_counts(asset_class), modes)
+    return {"texte": texte}
+
+
 @router.post("/draft")
-def draft(payload: DraftPayload) -> dict:
+async def draft(payload: DraftPayload) -> dict:
+    """Full draft — all sections written in parallel (asyncio.gather) : wall
+    time ≈ the longest single section instead of the sum of seven."""
     asset_class, modes, scope = _validate(payload)
     tables = _tables(scope, asset_class, modes)
     counts = verdict_counts(asset_class)
-    user = f"{_build_context(asset_class)}\n\n{_mission(scope, asset_class, modes, payload.angle, payload.instructions, tables)}"
-    msg, sections = user, None
-    for attempt in (1, 2, 3):
-        text = _llm_text(_SYSTEM_MEMO, msg, max_tokens=2000)
-        try:
-            candidate = _parse_json(text)
-        except Exception:  # noqa: BLE001 — JSON invalide, on retente tel quel
-            continue
-        sections = candidate
-        bad = _bad_counts(sections, counts, modes)
-        if not bad:
-            break
-        log.warning("memo draft: comptage de freguesias hors DÉNOMBREMENTS %s (tentative %d)", bad, attempt)
-        msg = (f"{user}\n\nATTENTION : une rédaction précédente citait un comptage de freguesias erroné "
-               f"({', '.join(bad)}). Utilise UNIQUEMENT les comptages de la section DÉNOMBREMENTS, sans recompter.")
-    if sections is None:
-        log.warning("memo draft: JSON invalide après 3 tentatives")
-        raise HTTPException(status_code=503, detail="rédacteur momentanément indisponible")
-    sections.setdefault("lecture_par_mode", {})
+    base = f"{_build_context(asset_class)}\n\n{_mission(scope, asset_class, modes, payload.angle, payload.instructions, tables)}"
+    client = _async_client()
+    section_ids = ["executive_summary", *modes, "risques", "recommandation"]
+    texts = await asyncio.gather(*[_draft_section(client, base, s, counts, modes) for s in section_ids])
+    by_id = dict(zip(section_ids, texts))
+    sections = {
+        "executive_summary": by_id["executive_summary"],
+        "lecture_par_mode": {m: by_id[m] for m in modes},
+        "risques": by_id["risques"],
+        "recommandation": by_id["recommandation"],
+    }
     return {"sections": sections, "tables": tables,
             "meta": {"scope": scope, "asset_class": asset_class, "modes": modes, "angle": payload.angle}}
 

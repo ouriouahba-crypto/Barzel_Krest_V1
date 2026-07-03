@@ -582,3 +582,37 @@ export function anomalyNote(mode: Mode, scores: ModeScore[]): string | null {
     : `une constructibilité de ${Math.round(v)}`;
   return `${displayName(s.zone_name)} affiche ${metric} mais ${reason} : verdict ${verdictLabel(s.verdict)}.`;
 }
+
+/* ------------------------------------------------------------------ */
+/* Trajectoire des prix (Vue d'ensemble) — insight déterministe        */
+/* ------------------------------------------------------------------ */
+
+// "Le prix <classe> de Gaia…" — noun-complement per class (masculine "prix").
+const PRICE_OF: Record<string, string> = {
+  residential: "résidentiel",
+  office: "des bureaux",
+  hotel: "hôtelier",
+  logistics: "logistique",
+  retail: "du commerce",
+};
+
+// One sentence under the trajectory title: 12-month move + shape of the recent
+// year (second-half acceleration / steady / easing), computed from the series
+// itself — no free text. Pure, no JSX.
+export function trendInsight(
+  points: { t: string; price: number }[],
+  yoyPct: number | null,
+  assetClass: string
+): string {
+  if (points.length < 8 || yoyPct == null) return "Chargement de la trajectoire…";
+  const of = PRICE_OF[assetClass] ?? assetClass;
+  const move = `${yoyPct >= 0 ? "progresse de +" : "recule de "}${Math.abs(yoyPct).toFixed(1).replace(".", ",")}% sur 12 mois`;
+  // Last 12 months split in halves: t3→t5 vs t5→t7 (growth in %).
+  const h1 = (points[5].price / points[3].price - 1) * 100;
+  const h2 = (points[7].price / points[5].price - 1) * 100;
+  const shape =
+    h2 > h1 + 1 ? "accélération au second semestre"
+    : h2 < h1 - 1 ? "le rythme se tasse en fin de période"
+    : "à un rythme régulier sur l'année";
+  return `Le prix ${of} de Gaia ${move}, ${shape}.`;
+}

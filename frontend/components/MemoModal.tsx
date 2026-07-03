@@ -32,6 +32,8 @@ export function MemoModal({ open, onClose }: { open: boolean; onClose: () => voi
   const [busy, setBusy] = useState<string | null>(null); // "draft" | "render" | section id
   const [error, setError] = useState<string | null>(null);
   const [consignes, setConsignes] = useState<Record<string, string>>({});
+  // Real per-step progress while drafting (sections are written in parallel).
+  const [steps, setSteps] = useState<{ id: string; label: string; done: boolean }[]>([]);
 
   // Prefill from the page's current state each time the modal opens. The
   // freguesia list must not depend on the page: if the bridge hasn't published
@@ -69,17 +71,51 @@ export function MemoModal({ open, onClose }: { open: boolean; onClose: () => voi
   const toggleMode = (m: Mode) =>
     setModes((cur) => (cur.includes(m) ? (cur.length > 1 ? cur.filter((x) => x !== m) : cur) : [...MODES].filter((x) => cur.includes(x) || x === m)));
 
+  // Progressive draft: deterministic tables first, then every narrative section
+  // in parallel — each step is checked off when its response actually lands.
   const doDraft = async () => {
     setBusy("draft");
     setError(null);
+    const sectionIds = ["executive_summary", ...modes, "risques", "recommandation"];
+    const labelOf = (id: string) =>
+      id === "executive_summary" ? "Synthèse exécutive"
+      : id === "risques" ? "Risques"
+      : id === "recommandation" ? "Recommandation"
+      : `Lecture ${MODE_LABEL[id as Mode]}`;
+    setSteps([
+      { id: "tables", label: `Analyse des ${modes.length} modes`, done: false },
+      ...sectionIds.map((id) => ({ id, label: labelOf(id), done: false })),
+    ]);
+    const markDone = (id: string) => setSteps((s) => s.map((x) => (x.id === id ? { ...x, done: true } : x)));
     try {
-      const d = await api.memoDraft({ scope, asset_class: assetClass, modes, angle, instructions: instructions || undefined });
-      setDraft(d);
+      const body = { scope, asset_class: assetClass, modes, angle, instructions: instructions || undefined };
+      const t = await api.memoTables(body);
+      markDone("tables");
+      const texts: Record<string, string> = {};
+      await Promise.all(
+        sectionIds.map((id) =>
+          api.memoDraftSection({ ...body, section: id }).then((r) => {
+            texts[id] = r.texte;
+            markDone(id);
+          })
+        )
+      );
+      setDraft({
+        sections: {
+          executive_summary: texts.executive_summary,
+          lecture_par_mode: Object.fromEntries(modes.map((m) => [m, texts[m]])),
+          risques: texts.risques,
+          recommandation: texts.recommandation,
+        },
+        tables: t.tables,
+        meta: t.meta,
+      });
       setStep("review");
     } catch {
       setError("Le rédacteur est momentanément indisponible.");
     } finally {
       setBusy(null);
+      setSteps([]);
     }
   };
 
@@ -207,6 +243,26 @@ export function MemoModal({ open, onClose }: { open: boolean; onClose: () => voi
                   className="h-20 w-full rounded-xl border border-navy/15 bg-white px-3 py-2.5 text-[13px] text-ink outline-none placeholder:text-muted/60 focus:border-gold/60"
                 />
               </Field>
+
+              {busy === "draft" && steps.length > 0 && (
+                <div className="rounded-2xl border border-gold/30 bg-white p-4 shadow-card">
+                  <div className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-gold-600">
+                    Rédaction — {steps.filter((s) => s.done).length} / {steps.length}
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">
+                    {steps.map((s) => (
+                      <div key={s.id} className="flex items-center gap-2 text-[12.5px]">
+                        {s.done ? (
+                          <span className="text-gold-600">✓</span>
+                        ) : (
+                          <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-navy/25" />
+                        )}
+                        <span className={s.done ? "text-ink" : "text-muted"}>{s.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

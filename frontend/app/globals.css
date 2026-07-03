@@ -4,6 +4,9 @@
 
 :root {
   color-scheme: light;
+  /* Cream de fond — source unique (Tailwind `cream` la consomme en RGB).
+     Éclairci #F3EEE3 → #F8F5EE (validation client) ; ajuster ici seulement. */
+  --cream: 248 245 238;
 }
 
 html,
@@ -11,7 +14,7 @@ body {
   height: 100%;
 }
 body {
-  background: #f6f2e9;
+  background: rgb(var(--cream));
   color: #243447;
   font-family: var(--font-montserrat), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;

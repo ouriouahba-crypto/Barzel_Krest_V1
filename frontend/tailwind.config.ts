@@ -7,7 +7,8 @@ const config: Config = {
       colors: {
         navy: { DEFAULT: "#0A1628", 800: "#0F1E36", 700: "#16294A", 600: "#1E3559" },
         gold: { DEFAULT: "#C9A86A", 600: "#B8965A", 300: "#E0CBA0" },
-        cream: { DEFAULT: "#F3EEE3", 200: "#FBF9F4" },
+        // DEFAULT reads the global CSS variable (app/globals.css) — one source.
+        cream: { DEFAULT: "rgb(var(--cream) / <alpha-value>)", 200: "#FBF9F4" },
         ink: "#243447",
         muted: "#6B7A8D",
       },

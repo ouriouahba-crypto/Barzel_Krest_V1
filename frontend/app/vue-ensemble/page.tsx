@@ -7,10 +7,12 @@ import { Sidebar } from "@/components/Sidebar";
 import { ScoreDial, VerdictBadge } from "@/components/ui";
 import { OverviewRanking } from "@/components/OverviewRanking";
 import { InsightBanner } from "@/components/InsightBanner";
+import { PriceTrend } from "@/components/PriceTrend";
 import { useGaia, displayName, shortName } from "@/lib/useGaia";
 import { ModeScore } from "@/lib/api";
 import { Mode, MODES, MODE_LABEL, MODE_KPI, MODE_ROUTE, classLabel, median, pillarValue, verdictColor, verdictTone } from "@/lib/scoring";
-import { OverviewByMode, bestMode, cityInsight, modeInsight } from "@/lib/insights";
+import { OverviewByMode, bestMode, cityInsight, modeInsight, trendInsight } from "@/lib/insights";
+import { priceTrajectory, PricePoint } from "@/lib/priceHistory";
 
 const MARKET_LINE =
   "Rive sud du Douro : demande soutenue, offre neuve rare côté fleuve. Quatre lectures d'un même marché.";
@@ -76,6 +78,14 @@ export default function VueEnsemble() {
       count: rows.length,
     };
   }, [bm, overview.scores, bmFreg, overview.freg.promotion]);
+
+  // Price trajectory (8 quarters) — generated from the same city price + yoy,
+  // so the line lands exactly on the figures shown in the context bar.
+  const trajectory = useMemo<PricePoint[]>(
+    () => (nn(market.price) && nn(market.yoy) ? priceTrajectory(market.price, market.yoy, cls) : []),
+    [market.price, market.yoy, cls]
+  );
+  const trendLine = trendInsight(trajectory, market.yoy, cls);
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -179,8 +189,10 @@ export default function VueEnsemble() {
             })}
           </div>
 
-          {/* c) "Où" — podium + ranking */}
-          <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 xl:grid-cols-[1fr_1.4fr]">
+          {/* c) "Où" — podium + ranking + price trajectory. Natural heights, in
+              normal flow: the page scrolls in <main> when the viewport is short
+              (a compressed flex row let the chart overflow onto the context bar). */}
+          <div className="grid shrink-0 grid-cols-1 gap-3 xl:grid-cols-[1fr_1.35fr_1fr]">
             <section className="flex flex-col rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
               <div className="mb-3 flex items-baseline justify-between">
                 <h3 className="font-display text-[15px] text-navy">Où — top 3 freguesias</h3>
@@ -207,12 +219,23 @@ export default function VueEnsemble() {
               </div>
             </section>
 
-            <section className="flex min-h-0 flex-col rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
+            <section className="flex flex-col rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
               <div className="mb-2 flex items-baseline justify-between">
                 <h3 className="font-display text-[15px] text-navy">Classement des freguesias</h3>
                 <span className="text-[11px] text-muted">score {bm ? MODE_LABEL[bm].toLowerCase() : ""} · par verdict</span>
               </div>
-              <div className="min-h-0 flex-1">{bm && rankRows.length ? <OverviewRanking rows={rankRows} mode={bm} /> : null}</div>
+              <div className="h-[330px]">{bm && rankRows.length ? <OverviewRanking rows={rankRows} mode={bm} /> : null}</div>
+            </section>
+
+            <section className="flex flex-col rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
+              <div className="mb-1 flex items-baseline justify-between">
+                <h3 className="font-display text-[15px] text-navy">Trajectoire des prix</h3>
+                <span className="text-[11px] text-muted">médiane ville · 8 trimestres</span>
+              </div>
+              <p className="mb-2 text-[11.5px] leading-snug text-muted">{trendLine}</p>
+              <div className="h-[280px]">
+                <PriceTrend points={trajectory} />
+              </div>
             </section>
           </div>
 

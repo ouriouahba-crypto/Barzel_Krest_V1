@@ -20,7 +20,7 @@ fur et à mesure.
 |------|--------|
 | Navy | `#0A1628` (+ `navy.800/700/600`) |
 | Or | `#C9A86A` (+ `gold.600 #B8965A`, `gold.300 #E0CBA0`) |
-| Cream | `#F3EEE3` (+ `cream.200 #FBF9F4`) |
+| Cream | `#F8F5EE` — **variable CSS `--cream`** dans `globals.css`, consommée par Tailwind (`cream` = `rgb(var(--cream))`) et le fond `body` ; éclairci depuis `#F3EEE3` (validation client). `cream.200 #FBF9F4` inchangé. ⚠️ Le template PDF du mémo garde ses hex codés en dur (`#FBF9F4`/`#F3EEE3`) — indépendant, non touché. |
 | Ink / Muted | `#243447` / `#6B7A8D` |
 | Titres | Playfair Display (`font-display`) |
 | Corps | Montserrat (`font-sans`) |
@@ -59,6 +59,12 @@ fur et à mesure.
   décalage par classe) : répartition SCE simulée réaliste (gradient âge du
   bâti) — à remplacer par les certificats énergétiques réels des actifs KREST
   et les données ADENE/INE du parc.
+- **Historique de prix par classe** (`lib/priceHistory.ts`, trajectoire 8
+  trimestres de la Vue d'ensemble) : série générée déterministiquement depuis
+  le (prix médian, yoy) du moteur — ancrée sur les valeurs de la plateforme
+  (résidentiel 2 474 €/m², +16,3 %), forme « année précédente calme, second
+  semestre accéléré » + micro-variation par classe. À remplacer par les
+  séries trimestrielles réelles (INE par classe / historiques client).
 
 ---
 
@@ -139,6 +145,16 @@ condense en `coût = 1,261 × (construction + foncier)` (cf. `HAYA` dans scoring
 - Chiffres FR : `toLocaleString("fr-FR")`, unités `€/m²`, `%`.
 - Captures : `playwright-core` (channel `chrome`, headless), scripts dans
   `frontend/shots/`. Frontend sur `:3000`.
+- **Contrôle navigateurs : Chrome ET WebKit** sur les 10 pages avant toute
+  livraison (`webkit` Playwright installé, build v2311 ; un WebKit 18.0 «
+  Safari 18 » est dispo via `playwright@1.48` en scratch si besoin d'une
+  version d'époque). Bruit connu en dev : WebKit logue des erreurs de
+  prefetch RSC Next (`?_rsc=… access control checks`) sans effet sur le
+  rendu. Pièges Safari du projet : les panes Leaflet (translate3d) peuvent
+  peindre au-dessus d'un élément `fixed` malgré son z-index → `isolate` sur
+  le conteneur carte + `will-change-transform` sur le DetailPanel ; et tout
+  marqueur doit vivre dans `pane="markerPane"` sinon le GeoJSON remonté
+  (key) repasse au-dessus.
 
 ---
 
@@ -996,6 +1012,75 @@ Issue du contrôle du premier PDF réel (ville · résidentiel · synthèse).
    attente », « 87/100 »). **21 tests** backend (+2 :
    `test_memo_scores_half_up_and_sorted_like_pages`, `test_memo_count_guard`),
    `tsc` OK, 10 routes 200, HayaSlider/blocs K-REST/`_clean` intacts.
+
+### Lot validation utilisateur finale — 7 volets — **✅ Livré** (2026-07-03)
+1. **Overlap Vue d'ensemble corrigé** : la rangée « Où » était en `flex-1
+   min-h-0` → le classement Recharts débordait sur la barre Contexte marché en
+   plein écran. Passée en hauteurs naturelles (`shrink-0`, chart 330px), la
+   page scrolle dans `<main>` si besoin (le piège documenté de Prix & marge).
+   Vérifié géométriquement à 1280/1440/1920 : zéro chevauchement, scroll
+   seulement quand nécessaire (tout tient à 1920×1080).
+2. **Carte / Safari — NON REPRODUIT malgré une repro exhaustive** : WebKit
+   Playwright 26.5 ET 18.0 (playwright@1.48 = époque Safari 18, en scratch),
+   headless/headed/Retina, clics Canidelo + Santa Marinha (HayaSlider) — le
+   panneau s'ouvre partout, zéro pageerror ; le vrai Safari 18.1 local est
+   inaccessible (« Allow remote automation » exige le mdp). La classe de
+   divergence restante vrai-Safari vs harnais = **compositing** : panes
+   Leaflet `translate3d` peintes au-dessus d'un `fixed` z-1100 (bug Safari
+   notoire, colle au symptôme « le panneau glisse mais reste invisible »).
+   Blindage structurel appliqué : `isolate` sur le conteneur carte +
+   `will-change-transform` sur le DetailPanel (zéro changement visuel
+   Chrome/WebKit). Contrôle WebKit des 10 pages ajouté à la checklist §3.
+3. **Marqueur Haya renforcé** (`GaiaMap`) : il passait SOUS les polygones à
+   chaque remontage du GeoJSON (key) → rendu olive. Désormais
+   `pane="markerPane"` (z 600 > overlayPane 400), or plein `#C9A86A`,
+   bordure `#A8854B`, rayon 9→11, halo or 22 % rayon 17. Se voit en un coup
+   d'œil sans écraser la carte. (Composant HayaSlider non touché.)
+4. **Sélecteurs de classe morts** : prop `hideClass` sur `Header` (même
+   mécanisme que hideMode/hideSearch). **/foncier** : sélecteur masqué, chip
+   « Landbank · Tous usages », ligne de contexte complétée (« Le foncier est
+   analysé tous usages confondus — la colonne meilleur usage arbitre entre
+   les cinq classes. ») ; Monte Claro intact et actif. **/fiscalite** :
+   toggle local « Régime : Résidentiel / Commercial » (le commercial pilote
+   les données via la classe bureaux) → bandeau, volets, points de contrôle
+   (IMT 6,5 %) et simulateur basculent ; chip « Portugal · Commercial ».
+5. **Mémo parallélisé — 96,4 s → 18,5 s** (mémo ville 4 modes ; 18,6 s de
+   bout en bout via la modal). `/draft` rédige les 7 sections en
+   `asyncio.gather` (AsyncAnthropic, un appel court par section, garde-fous
+   comptages/arrondi PAR section avec retry correctif). Nouveaux endpoints
+   `/api/memo/tables` (chiffres instantanés) et `/api/memo/draft_section`
+   (une section) : la modal les orchestre en parallèle et affiche une
+   **progression réelle** (« Rédaction — n/8 », coche par étape : Analyse
+   des 4 modes, Synthèse exécutive, Lecture par mode, Risques,
+   Recommandation). Capture `shots/memo_progress.png`. `/revise` inchangé.
+6. **Trajectoire des prix (Vue d'ensemble)** : 3e panneau de la rangée « Où »
+   (podium | classement | trajectoire). `lib/priceHistory.ts` :
+   8 trimestres T3 24 → T2 26 générés depuis le (prix, yoy) municipio servi
+   par le moteur — anchors exacts (résidentiel 1 988 → 2 474 €/m², +16,3 %
+   pile), année précédente à 45 % du rythme, second semestre porteur (~58 %
+   du mouvement), micro-wiggle déterministe par classe (± 0,4 %, jamais sur
+   les anchors). `trendInsight()` (insights.ts, pur) : « Le prix résidentiel
+   de Gaia progresse de +16,3% sur 12 mois, accélération au second
+   semestre. » (branches : accélération / rythme régulier / tassement,
+   calculées de la série). `PriceTrend.tsx` : ligne navy 2 px, point final
+   or bordé `#A8854B` + étiquettes directes premier/dernier points, grille
+   discrète, tooltip navy. Réactif à la classe.
+7. **Fond éclairci `#F3EEE3` → `#F8F5EE`** via **variable CSS `--cream`**
+   (globals.css, format RGB) consommée par Tailwind (`bg-cream/…` et
+   opacités OK) et le `body` (ex-`#f6f2e9`). Cartes blanches toujours
+   différenciées (bordures/ombres inchangées, contrôlé à l'écran) ; tuiles
+   et textes cream sur navy plus lumineux (contraste amélioré). **Le
+   template PDF du mémo ne partage PAS cette variable** (hex en dur) — non
+   touché, signalé en charte.
+8. **Vérifs** : `tsc` OK, 20 tests backend OK, uvicorn `python3 --reload`
+   sain, **10 pages contrôlées sous Chrome (10/10 sans erreur JS) ET WebKit**
+   (10/10 rendues ; seules des erreurs de prefetch RSC du dev server —
+   bruit connu documenté). Captures régénérées :
+   `vue_ensemble_{residentiel,bureaux,hotellerie}.png`, `gaia_promotion.png`,
+   `carte_detention.png`, `prixmarge_*` (lot précédent) + QA
+   `qa_vue_ensemble_1440.png`, `qa_carte_haya.png`,
+   `qa_fiscalite_commercial.png`, `memo_progress.png`. HayaSlider et blocs
+   K-REST intacts, `_clean` inchangé, .env non commité.
 
 ### État final du gabarit de page de mode
 Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,

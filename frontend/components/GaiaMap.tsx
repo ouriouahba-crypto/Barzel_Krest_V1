@@ -15,9 +15,12 @@ export interface ZoneScore {
   verdict: string;
 }
 
-// Stable reference so react-leaflet never re-applies setStyle to the marker
+// Stable references so react-leaflet never re-applies setStyle to the markers
 // (a fresh pathOptions object each render crashes _updateBounds pre-projection).
-const HAYA_MARKER_OPTS = { color: "#0A1628", weight: 2, fillColor: "#C9A86A", fillOpacity: 1 };
+// Full gold + darker gold ring, over a subtle halo; both live in markerPane
+// (z 600) so the GeoJSON remounts (overlayPane, z 400) can never paint over them.
+const HAYA_HALO_OPTS = { stroke: false, fillColor: "#C9A86A", fillOpacity: 0.22 };
+const HAYA_MARKER_OPTS = { color: "#A8854B", weight: 2, fillColor: "#C9A86A", fillOpacity: 1 };
 
 function FitBounds({ data }: { data: FeatureCollection }) {
   const map = useMap();
@@ -157,17 +160,21 @@ export default function GaiaMap({
       {/* key forces restyle on mode / selection / focus change */}
       <GeoJSON key={`${mode}-${selected.join(",")}-${focusZoneId ?? ""}`} data={geo} style={style} onEachFeature={onEach} />
       {hayaFeature && (
-        <CircleMarker
-          center={centroid(hayaFeature)}
-          radius={9}
-          pathOptions={HAYA_MARKER_OPTS}
-          eventHandlers={{ click: () => onSelectZone(scoresByNorm[hayaNorm]?.zoneId) }}
-        >
-          <Tooltip direction="top" offset={[0, -6]} className="freg-tooltip" opacity={1}>
-            <div style={{ fontWeight: 600 }}>Haya Towers</div>
-            <div style={{ color: "#C9A86A" }}>Actif K-REST · Promotion</div>
-          </Tooltip>
-        </CircleMarker>
+        <>
+          <CircleMarker center={centroid(hayaFeature)} radius={17} pane="markerPane" pathOptions={HAYA_HALO_OPTS} />
+          <CircleMarker
+            center={centroid(hayaFeature)}
+            radius={11}
+            pane="markerPane"
+            pathOptions={HAYA_MARKER_OPTS}
+            eventHandlers={{ click: () => onSelectZone(scoresByNorm[hayaNorm]?.zoneId) }}
+          >
+            <Tooltip direction="top" offset={[0, -8]} className="freg-tooltip" opacity={1}>
+              <div style={{ fontWeight: 600 }}>Haya Towers</div>
+              <div style={{ color: "#C9A86A" }}>Actif K-REST · Promotion</div>
+            </Tooltip>
+          </CircleMarker>
+        </>
       )}
     </MapContainer>
   );

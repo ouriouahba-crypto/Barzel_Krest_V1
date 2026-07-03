@@ -8,7 +8,7 @@ import { MonteClaroSelector } from "@/components/MonteClaroSelector";
 import { MarginBars } from "@/components/MarginBars";
 import { InsightBanner } from "@/components/InsightBanner";
 import { useGaia } from "@/lib/useGaia";
-import { classLabel, verdictTone } from "@/lib/scoring";
+import { verdictTone } from "@/lib/scoring";
 import { pctSigned } from "@/lib/arbitrage";
 import { fcRows, fcSummary, FcRow } from "@/lib/foncier";
 import { landbankInsight, anomalyNote } from "@/lib/insights";
@@ -18,15 +18,16 @@ const MARKET_LINE =
   "Rive sud du Douro : le foncier bien desservi se raréfie — la réserve se juge à sa valeur résiduelle par usage et à son horizon d'activation.";
 
 // Landbank reads the land itself, not an asset class: the residual value per
-// usage answers the class question — one context line for all five classes.
+// usage answers the class question — the class selector is hidden (hideClass)
+// and the context line says why. Monte Claro's usage selector stays fully live.
 const CONTEXT =
-  "Le foncier ne vaut que par ce qu'on peut y construire : valeur résiduelle par usage (marge promoteur normative 15 %), uplift face au foncier de marché, horizon d'activation.";
+  "Le foncier ne vaut que par ce qu'on peut y construire : valeur résiduelle par usage (marge promoteur normative 15 %), uplift face au foncier de marché, horizon d'activation. " +
+  "Le foncier est analysé tous usages confondus — la colonne meilleur usage arbitre entre les cinq classes.";
 
 export default function FoncierPage() {
   const g = useGaia();
   const [selected, setSelected] = useState<string[]>([]);
 
-  const cls = g.assetClass;
   const allRows = useMemo(() => fcRows(g.landbankCity), [g.landbankCity]);
   const rows = useMemo(
     () => (selected.length ? allRows.filter((r) => selected.includes(r.zone)) : allRows),
@@ -92,6 +93,7 @@ export default function FoncierPage() {
           assetClass={g.assetClass}
           onClass={g.setAssetClass}
           hideMode
+          hideClass
         />
 
         {g.error && (
@@ -107,7 +109,7 @@ export default function FoncierPage() {
               <span className="inline-block h-5 w-1.5 rounded-full bg-gold" />
               <h2 className="font-display text-[22px] leading-none text-navy">Foncier</h2>
               <span className="rounded-full border border-gold/40 bg-gold/10 px-2.5 py-0.5 text-[11px] font-medium text-gold-600">
-                Landbank · {classLabel(cls)}
+                Landbank · Tous usages
               </span>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-[13px] leading-relaxed text-muted">{CONTEXT}</p>
@@ -115,7 +117,7 @@ export default function FoncierPage() {
 
           {/* Conclusion banner (shared InsightBanner) */}
           <InsightBanner
-            eyebrow={`Verdict landbank · ${classLabel(cls)}`}
+            eyebrow="Verdict landbank · Tous usages"
             sentence={fcLine}
             right={
               bestPotential ? (
@@ -175,7 +177,7 @@ export default function FoncierPage() {
               mode="landbank"
               focusZone={g.focusZone}
               onSelect={g.setFocusZone}
-              classLabel={classLabel(cls)}
+              classLabel="tous usages"
               metric={(r) => r.upliftPct}
               title="Uplift % par freguesia"
               metricLabel="uplift"

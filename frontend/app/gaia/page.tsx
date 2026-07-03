@@ -57,7 +57,9 @@ export default function CartePage() {
         />
 
         <main className="relative min-h-0 flex-1 p-3">
-          <div className="absolute inset-3 overflow-hidden rounded-2xl border border-navy/10 shadow-card">
+          {/* isolate: contains Leaflet's composited (translate3d) panes in their own
+              stacking context so Safari can never paint them above the fixed panels. */}
+          <div className="absolute inset-3 isolate overflow-hidden rounded-2xl border border-navy/10 shadow-card">
             <GaiaMap
               scoresByNorm={g.scoresByNorm}
               selected={selected}
