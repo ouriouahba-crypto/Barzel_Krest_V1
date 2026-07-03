@@ -29,7 +29,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from ..services import mode_scoring as ms
-from .analyst import _api_key, _build_context
+from .analyst import _api_key, _build_context, _ri, verdict_counts
 from .scoring import _clean
 
 log = logging.getLogger("routers.memo")
@@ -119,14 +119,28 @@ def _short(name: str) -> str:
     return name.replace("União das freguesias de ", "")
 
 
+_NATIVE_KEY = {"promotion": ("marge", "margin_pct"),
+               "detention": ("rendement_net", "yield_net_pct"),
+               "arbitrage": ("spread", "spread_pct"),
+               "landbank": ("constructibilite", "uplift_pct")}
+
+
+def _native_metric(mode: str, z: dict) -> float:
+    pillar, key = _NATIVE_KEY[mode]
+    v = _pillar_bd(z, pillar).get(key)
+    return v if v is not None else float("-inf")
+
+
 def _tables(scope: str, asset_class: str, modes: list[str]) -> dict:
-    """All deterministic figures for the memo, from cleaned engine payloads."""
+    """All deterministic figures for the memo, from cleaned engine payloads.
+    Scores are half-up integers (the platform convention) ; rows follow the mode
+    pages' order — rounded score desc, native metric desc on rounded ties."""
     out: dict = {"modes": {}}
     muni_seen = None
     for mode in modes:
         zones = _clean(ms.score_city("gaia", mode, asset_class))
         fregs = sorted([z for z in zones if z["level"] == "freguesia"],
-                       key=lambda z: z["total"], reverse=True)
+                       key=lambda z: (-_ri(z["total"]), -_native_metric(mode, z)))
         muni = next((z for z in zones if z["level"] == "municipio"), None)
         muni_seen = muni_seen or muni
         rows = fregs[:3]
@@ -137,9 +151,9 @@ def _tables(scope: str, asset_class: str, modes: list[str]) -> dict:
                 rows = rows + [scope_row]
         out["modes"][mode] = {
             "headers": _MODE_HEADERS[mode],
-            "municipio": {"score": muni["total"], "verdict": muni["verdict"],
+            "municipio": {"score": _ri(muni["total"]), "verdict": muni["verdict"],
                           "native": muni.get("native_indicator", {}).get("label", "")} if muni else None,
-            "rows": [{"name": _short(z["zone_name"]), "score": z["total"], "verdict": z["verdict"],
+            "rows": [{"name": _short(z["zone_name"]), "score": _ri(z["total"]), "verdict": z["verdict"],
                       "cols": _mode_cols(mode, z), "is_scope": scope != "ville" and z["zone"] == scope}
                      for z in rows],
         }
@@ -172,7 +186,8 @@ RÈGLES ABSOLUES :
 - Tu ne mentionnes JAMAIS de niveau de confiance, de source de donnée, de méthodologie interne ni l'idée qu'une donnée serait simulée ou estimée.
 - Vila Nova de Gaia compte 15 freguesias — ces territoires s'appellent des freguesias, jamais « friches », « quartiers » ou « communes ».
 - Cohérence interne : n'affirme jamais qu'un territoire domine sur tous les axes si un seul axe s'inverse ; nomme l'exception d'emblée.
-- Ne cite un rang (« premier », « deuxième ») ou un compte (« N freguesias ») que si tu l'as vérifié en recomptant dans les données ; au moindre doute, formule sans rang ni compte.
+- Pour tout comptage de freguesias (« N freguesias »), utilise UNIQUEMENT les comptages pré-calculés de la section DÉNOMBREMENTS — ne recompte JAMAIS toi-même à partir des listes ; au moindre doute, formule sans compte. Ne cite un rang (« premier », « deuxième ») que s'il se lit directement dans l'ordre des données.
+- Tu cites les scores en entiers (« 87/100 »), jamais avec décimale.
 - Français sobre et professionnel, phrases complètes, aucun markdown dans les textes.
 - Longueurs : executive_summary 120-170 mots ; chaque lecture de mode 70-110 mots ; risques 80-120 mots ; recommandation 50-90 mots, conclue par un verdict actionnable."""
 
@@ -258,20 +273,97 @@ def _mission(scope: str, asset_class: str, modes: list[str], angle: str,
     return "\n".join(lines)
 
 
+# Post-generation count check, two nets:
+# 1. "N freguesias" — N must be an injected count, a within-mode sum of them
+#    (e.g. "7 viables" = Go + Conditionnel), or the total 15. Within-mode sums
+#    never exceed 15, so a phantom "16 freguesias" can never pass.
+# 2. "N <verdict>" (e.g. "9 En attente" — the exact shape of the observed
+#    error) — N must equal that verdict's injected count for its own mode.
+_FR_NUM = {"un": 1, "une": 1, "deux": 2, "trois": 3, "quatre": 4, "cinq": 5,
+           "six": 6, "sept": 7, "huit": 8, "neuf": 9, "dix": 10, "onze": 11,
+           "douze": 12, "treize": 13, "quatorze": 14, "quinze": 15, "seize": 16,
+           "dix-sept": 17, "dix-huit": 18}
+_NUM_ALT = r"(\d+|" + "|".join(sorted(_FR_NUM, key=len, reverse=True)) + r")"
+_COUNT_RE = re.compile(_NUM_ALT + r"\s+freguesias?\b", re.IGNORECASE)
+# (mode, verdict brut) -> motif d'affichage du verdict dans la prose.
+_VERDICT_PAT = {
+    ("promotion", "Go"): r"Go\b", ("promotion", "Conditionnel"): r"Conditionnels?\b",
+    ("promotion", "Passer"): r"Passer\b",
+    ("detention", "Conserver"): r"Conserver\b", ("detention", "Surveiller"): r"Surveiller\b",
+    ("detention", "Ceder"): r"Céder\b",
+    ("arbitrage", "Fenetre ouverte"): r"fenêtres?\s+ouvertes?\b",
+    ("arbitrage", "Fenetre etroite"): r"fenêtres?\s+étroites?\b",
+    ("arbitrage", "Fenetre fermee"): r"fenêtres?\s+fermées?\b",
+    ("landbank", "Prioritaire"): r"Prioritaires?\b", ("landbank", "A phaser"): r"à\s+phaser\b",
+    ("landbank", "En attente"): r"en\s+attente\b",
+}
+_VERDICT_COUNT_RES = {
+    key: re.compile(_NUM_ALT + r"\s+(?:freguesias?\s+)?(?:au\s+verdict\s+|en\s+|«\s*)?" + pat,
+                    re.IGNORECASE)
+    for key, pat in _VERDICT_PAT.items()
+}
+
+
+def _to_int(tok: str) -> int:
+    tok = tok.lower()
+    return int(tok) if tok.isdigit() else _FR_NUM[tok]
+
+
+def _allowed_counts(counts: dict, modes: list[str]) -> set[int]:
+    allowed = {15}
+    for mode in modes:
+        vals = list(counts.get(mode, {}).values())
+        allowed.update(vals)
+        allowed.update(a + b for i, a in enumerate(vals) for b in vals[i + 1:])
+    return allowed
+
+
+def _walk_texts(sections) -> list[str]:
+    if isinstance(sections, dict):
+        return [t for v in sections.values() for t in _walk_texts(v)]
+    return [sections] if isinstance(sections, str) else []
+
+
+def _bad_counts(sections: dict, counts: dict, modes: list[str]) -> list[str]:
+    allowed = _allowed_counts(counts, modes)
+    bad = []
+    for text in _walk_texts(sections):
+        for m in _COUNT_RE.finditer(text):
+            if _to_int(m.group(1)) not in allowed:
+                bad.append(m.group(0))
+        for (mode, verdict), rx in _VERDICT_COUNT_RES.items():
+            expected = counts.get(mode, {}).get(verdict)
+            if expected is None:
+                continue
+            for m in rx.finditer(text):
+                if _to_int(m.group(1)) != expected:
+                    bad.append(m.group(0))
+    return bad
+
+
 @router.post("/draft")
 def draft(payload: DraftPayload) -> dict:
     asset_class, modes, scope = _validate(payload)
     tables = _tables(scope, asset_class, modes)
+    counts = verdict_counts(asset_class)
     user = f"{_build_context(asset_class)}\n\n{_mission(scope, asset_class, modes, payload.angle, payload.instructions, tables)}"
-    for attempt in (1, 2):
-        text = _llm_text(_SYSTEM_MEMO, user, max_tokens=2000)
+    msg, sections = user, None
+    for attempt in (1, 2, 3):
+        text = _llm_text(_SYSTEM_MEMO, msg, max_tokens=2000)
         try:
-            sections = _parse_json(text)
+            candidate = _parse_json(text)
+        except Exception:  # noqa: BLE001 — JSON invalide, on retente tel quel
+            continue
+        sections = candidate
+        bad = _bad_counts(sections, counts, modes)
+        if not bad:
             break
-        except Exception:  # noqa: BLE001
-            if attempt == 2:
-                log.warning("memo draft: JSON invalide après 2 tentatives")
-                raise HTTPException(status_code=503, detail="rédacteur momentanément indisponible")
+        log.warning("memo draft: comptage de freguesias hors DÉNOMBREMENTS %s (tentative %d)", bad, attempt)
+        msg = (f"{user}\n\nATTENTION : une rédaction précédente citait un comptage de freguesias erroné "
+               f"({', '.join(bad)}). Utilise UNIQUEMENT les comptages de la section DÉNOMBREMENTS, sans recompter.")
+    if sections is None:
+        log.warning("memo draft: JSON invalide après 3 tentatives")
+        raise HTTPException(status_code=503, detail="rédacteur momentanément indisponible")
     sections.setdefault("lecture_par_mode", {})
     return {"sections": sections, "tables": tables,
             "meta": {"scope": scope, "asset_class": asset_class, "modes": modes, "angle": payload.angle}}
@@ -279,7 +371,8 @@ def draft(payload: DraftPayload) -> dict:
 
 @router.post("/revise")
 def revise(payload: RevisePayload) -> dict:
-    asset_class, _, scope = _validate(DraftPayload(scope=payload.scope, asset_class=payload.asset_class))
+    asset_class, modes, scope = _validate(DraftPayload(scope=payload.scope, asset_class=payload.asset_class))
+    counts = verdict_counts(asset_class)
     user = (
         f"{_build_context(asset_class)}\n\n# RÉVISION DE SECTION\n"
         f"Section : {payload.section_id}\n"
@@ -288,7 +381,17 @@ def revise(payload: RevisePayload) -> dict:
         "Réécris cette seule section en respectant toutes les règles, et applique la consigne de façon marquée "
         "(si on te demande de raccourcir, vise au moins un tiers de moins). Réponds avec le texte seul, sans JSON ni markdown."
     )
-    return {"texte": _llm_text(_SYSTEM_MEMO, user, max_tokens=700)}
+    msg = user
+    for attempt in (1, 2):
+        texte = _llm_text(_SYSTEM_MEMO, msg, max_tokens=700)
+        bad = _bad_counts({"texte": texte}, counts, modes)
+        if not bad or attempt == 2:
+            if bad:
+                log.warning("memo revise: comptage hors DÉNOMBREMENTS conservé %s", bad)
+            return {"texte": texte}
+        log.warning("memo revise: comptage de freguesias hors DÉNOMBREMENTS %s, retry", bad)
+        msg = (f"{user}\n\nATTENTION : une rédaction précédente citait un comptage de freguesias erroné "
+               f"({', '.join(bad)}). Utilise UNIQUEMENT les comptages de la section DÉNOMBREMENTS, sans recompter.")
 
 
 # --------------------------------------------------------------------------- #
@@ -314,8 +417,16 @@ def _esc(t: str) -> str:
     return (t or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
+# Justified text may break "non-résidents" at its hyphen — keep the word whole.
+_NOWRAP_WORD = re.compile(r"(?i)\bnon-résidents?\b")
+
+
+def _rich(t: str) -> str:
+    return _NOWRAP_WORD.sub(lambda m: f'<span style="white-space:nowrap">{m.group(0)}</span>', _esc(t))
+
+
 def _paras(t: str) -> str:
-    return "".join(f"<p>{_esc(p.strip())}</p>" for p in (t or "").split("\n") if p.strip())
+    return "".join(f"<p>{_rich(p.strip())}</p>" for p in (t or "").split("\n") if p.strip())
 
 
 _FISCAL_FACTS = [
@@ -343,12 +454,12 @@ def _html(sections: dict, tables: dict, scope: str, asset_class: str,
         rows_html = "".join(
             f"<tr{' class=scope' if r['is_scope'] else ''}><td>{_esc(r['name'])}"
             f"{' <span class=mark>◆</span>' if r['is_scope'] else ''}</td>"
-            f"<td>{round(r['score'])}</td><td>{_badge(r['verdict'])}</td>"
-            + "".join(f"<td>{_esc(c)}</td>" for c in r["cols"]) + "</tr>"
+            f"<td class=val>{r['score']}</td><td>{_badge(r['verdict'])}</td>"
+            + "".join(f"<td class=val>{_esc(c)}</td>" for c in r["cols"]) + "</tr>"
             for r in t["rows"]
         )
         muni = t["municipio"]
-        muni_line = (f"Vue ville : score {round(muni['score'])}/100, {_VERDICT_FR.get(muni['verdict'], muni['verdict'])}"
+        muni_line = (f"Vue ville : score {muni['score']}/100, {_VERDICT_FR.get(muni['verdict'], muni['verdict'])}"
                      + (f" — {_esc(muni['native'])}" if muni.get("native") else "")) if muni else ""
         mode_blocks.append(f"""
   <div class="modeblock">
@@ -372,7 +483,7 @@ def _html(sections: dict, tables: dict, scope: str, asset_class: str,
 </section>""")
 
     facts_html = "".join(
-        f'<div class="fact"><div class="fact-t">{k}</div><div class="fact-b">{_esc(t)}</div></div>'
+        f'<div class="fact"><div class="fact-t">{k}</div><div class="fact-b">{_rich(t)}</div></div>'
         for k, t in _FISCAL_FACTS + _ENERGY_FACTS
     )
 
@@ -392,6 +503,7 @@ h2 {{ font-size:21px; margin:2px 0 10px; }}
 table {{ width:100%; border-collapse:collapse; margin:6px 0 14px; }}
 th {{ text-align:left; font-size:8px; letter-spacing:1px; text-transform:uppercase; color:#6B7A8D; padding:6px 8px; border-bottom:1.5px solid #0A1628; }}
 td {{ padding:7px 8px; border-bottom:1px solid rgba(10,22,40,.08); font-size:10px; }}
+td.val {{ white-space:nowrap; }}
 tr.scope td {{ background:rgba(201,168,106,.12); }}
 .mark {{ color:#B8965A; }}
 .narrative p {{ margin-bottom:8px; text-align:justify; }}
@@ -437,7 +549,7 @@ tr.scope td {{ background:rgba(201,168,106,.12); }}
   <table>
     <thead><tr><th>Mode</th><th>Score ville</th><th>Verdict</th><th>Indicateur</th></tr></thead>
     <tbody>{"".join(
-        f"<tr><td>{_MODE_FR[m]}</td><td>{round(tables['modes'][m]['municipio']['score']) if tables['modes'][m]['municipio'] else '—'}</td>"
+        f"<tr><td>{_MODE_FR[m]}</td><td class=val>{tables['modes'][m]['municipio']['score'] if tables['modes'][m]['municipio'] else '—'}</td>"
         f"<td>{_badge(tables['modes'][m]['municipio']['verdict']) if tables['modes'][m]['municipio'] else '—'}</td>"
         f"<td>{_esc(tables['modes'][m]['municipio'].get('native', '')) if tables['modes'][m]['municipio'] else ''}</td></tr>"
         for m in modes)}</tbody>

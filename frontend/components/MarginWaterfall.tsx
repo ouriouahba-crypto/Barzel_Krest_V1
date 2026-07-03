@@ -19,6 +19,10 @@ export function MarginWaterfall({
 
   const margin = row.netSale - row.costTotal;
   const marginColor = verdictColor(mode, row.verdict);
+  // The backend rounds each cost component separately, so their sum can drift
+  // from costTotal by ±1-2 € : the soft-cost slice takes the residual so the
+  // cascade lands exactly on netSale − costTotal — the "Marge / m²" tile value.
+  const soft = row.costTotal - row.construction - row.land - row.finance;
 
   return (
     <Waterfall
@@ -36,7 +40,7 @@ export function MarginWaterfall({
       deductions={[
         { label: "Construction", value: row.construction },
         { label: "Foncier", value: row.land },
-        { label: "Frais annexes", value: row.soft },
+        { label: "Frais annexes", value: soft },
         { label: "Financement", value: row.finance },
       ]}
       resultLabel="= Marge promoteur"

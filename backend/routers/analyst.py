@@ -10,6 +10,7 @@ simulation — plus les faits statiques déjà publiés par les pages Fiscalité
 from __future__ import annotations
 
 import logging
+import math
 import os
 from functools import lru_cache
 from pathlib import Path
@@ -52,6 +53,50 @@ def _pillar(z: dict, key: str) -> dict:
     return next((p for p in z["pillars"] if p["pillar"] == key), {})
 
 
+def _ri(v) -> int:
+    """Half-up integer rounding — the platform's score convention (Math.round).
+    Python's round() half-to-even would turn 86.5 into 86 while every page
+    shows 87 ; scores are quoted as integers everywhere, this is the one way."""
+    return int(math.floor(float(v) + 0.5))
+
+
+# Verdict ladders per mode (raw engine strings) + display accents for the LLM.
+_VERDICT_LADDER = {
+    "promotion": ["Go", "Conditionnel", "Passer"],
+    "detention": ["Conserver", "Surveiller", "Ceder"],
+    "arbitrage": ["Fenetre ouverte", "Fenetre etroite", "Fenetre fermee"],
+    "landbank": ["Prioritaire", "A phaser", "En attente"],
+}
+_VERDICT_ACCENT = {"Ceder": "Céder", "Fenetre ouverte": "Fenêtre ouverte",
+                   "Fenetre etroite": "Fenêtre étroite", "Fenetre fermee": "Fenêtre fermée",
+                   "A phaser": "À phaser"}
+_MODE_FR_CTX = {"promotion": "promotion", "detention": "détention",
+                "arbitrage": "arbitrage", "landbank": "landbank"}
+
+
+@lru_cache(maxsize=8)
+def verdict_counts(asset_class: str) -> dict:
+    """Pre-computed freguesia counts per mode and verdict, from cleaned payloads.
+    Injected into the LLM context (analyst + memo) so the model never counts by
+    itself, and reused by the memo's post-generation count check."""
+    out: dict = {}
+    for mode in ms.MODES:
+        zones = _clean(ms.score_city("gaia", mode, asset_class))
+        fregs = [z for z in zones if z["level"] == "freguesia"]
+        out[mode] = {v: sum(1 for z in fregs if z["verdict"] == v)
+                     for v in _VERDICT_LADDER[mode]}
+    return out
+
+
+def _counts_block(asset_class: str) -> list[str]:
+    lines = ["## DÉNOMBREMENTS (comptages exacts sur les 15 freguesias — utilise UNIQUEMENT "
+             "ces comptages, ne recompte JAMAIS toi-même à partir des listes)"]
+    for mode, counts in verdict_counts(asset_class).items():
+        parts = ", ".join(f"{_VERDICT_ACCENT.get(v, v)} {n}" for v, n in counts.items())
+        lines.append(f"- {_MODE_FR_CTX[mode]} : {parts} — total 15 freguesias")
+    return lines
+
+
 def _fmt(v, digits=1):
     if v is None:
         return "—"
@@ -66,7 +111,7 @@ def _mode_block(mode: str, zones: list[dict]) -> list[str]:
     for z in zones:
         name = z["zone_name"].replace("União das freguesias de ", "")
         lvl = "ville" if z["level"] == "municipio" else "freguesia"
-        head = f"- {name} ({lvl}) : score {z['total']}/100, verdict {z['verdict']}"
+        head = f"- {name} ({lvl}) : score {_ri(z['total'])}/100, verdict {z['verdict']}"
         if mode == "promotion":
             b = _pillar(z, "marge").get("breakdown") or {}
             out.append(head + f", marge {_fmt(b.get('margin_pct'))}%, prix neuf réalisable "
@@ -118,6 +163,7 @@ def _build_context(asset_class: str) -> str:
         zones = _clean(ms.score_city("gaia", mode, asset_class))
         zones.sort(key=lambda z: z["total"], reverse=True)
         lines += _mode_block(mode, zones)
+    lines += _counts_block(asset_class)
     if asset_class == "residential":
         lines.append(_haya_block())
     lines.append(_FACTS)
@@ -135,7 +181,7 @@ def _haya_block() -> str:
                 f"- Prix de vente réalisable {b.get('realizable_sale')} €/m² "
                 f"(prime +{round(b.get('premium_over_median_pct') or 0)}% sur la médiane réelle de la freguesia), "
                 f"construction {b.get('construction')} €/m², foncier {b.get('land')} €/m², "
-                f"marge promoteur {b.get('margin_pct')}%, score promotion {promo['total']}/100, verdict {promo['verdict']}.")
+                f"marge promoteur {b.get('margin_pct')}%, score promotion {_ri(promo['total'])}/100, verdict {promo['verdict']}.")
     except Exception:  # noqa: BLE001 — l'actif est optionnel dans le contexte
         return ""
 
@@ -144,13 +190,13 @@ _SYSTEM = """Tu es l'analyste de Barzel Analytics, plateforme d'intelligence imm
 
 RÈGLES ABSOLUES :
 - Tu réponds UNIQUEMENT à partir des données fournies dans le message (scores, verdicts, métriques, faits fiscaux et énergétiques). Tu n'inventes JAMAIS un chiffre : chaque nombre cité doit figurer tel quel dans les données.
-- Tu cites les freguesias par leur nom et les chiffres exacts (mêmes décimales que les données quand c'est utile).
+- Tu cites les freguesias par leur nom et les chiffres exacts (mêmes décimales que les données quand c'est utile). Exception : les scores se citent toujours en entiers (« 87/100 »), jamais avec décimale.
 - Vila Nova de Gaia compte 15 freguesias (la ligne « ville » est l'agrégat municipal, pas une 16e). Ces territoires s'appellent des freguesias — n'emploie jamais d'autre terme (jamais « friches », « quartiers » ou « communes »).
 - Tu ne mentionnes JAMAIS de niveau de confiance, de source de donnée, de méthodologie interne ni l'idée qu'une donnée serait simulée ou estimée. Si l'on t'interroge sur l'origine ou la nature des données : « la plateforme agrège des données de marché et son modèle propriétaire Barzel », sans autre détail.
 - Si la question sort de Vila Nova de Gaia ou du périmètre immobilier de la plateforme, réponds avec élégance que c'est hors du périmètre couvert par la plateforme sur Gaia, et propose ce que tu peux couvrir.
 - Ton sobre et professionnel, en français. Réponses courtes : 5 à 10 lignes, en texte simple — JAMAIS de markdown (pas de titres, pas de gras, pas de puces), des phrases.
 - Avant de conclure, vérifie la cohérence interne de ta réponse : n'affirme jamais qu'un territoire domine sur tous les axes si un seul axe s'inverse ; dans ce cas, nomme l'exception d'emblée.
-- Ne cite un rang (« premier », « deuxième ») ou un compte (« N freguesias ») que si tu l'as vérifié en recomptant dans les données ; au moindre doute, formule sans rang ni compte.
+- Pour tout comptage de freguesias (« N freguesias »), utilise UNIQUEMENT les comptages pré-calculés de la section DÉNOMBREMENTS — ne recompte JAMAIS toi-même à partir des listes ; au moindre doute, formule sans compte. Ne cite un rang (« premier », « deuxième ») que s'il se lit directement dans l'ordre des données.
 - Quand la question s'y prête, conclus par un verdict actionnable en une phrase (celui des données : Go/Conditionnel/Passer, Conserver/Surveiller/Céder, Fenêtre ouverte/étroite/fermée, Prioritaire/À phaser/En attente)."""
 
 

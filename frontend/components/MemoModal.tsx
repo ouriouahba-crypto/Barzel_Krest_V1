@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { api, MemoDraft } from "@/lib/api";
 import { getMemoDefaults } from "@/lib/session";
+import { displayName } from "@/lib/useGaia";
 import { ASSET_CLASSES, MODES, MODE_LABEL, Mode, classLabel, verdictLabel } from "@/lib/scoring";
 
 const ANGLES = [
@@ -26,22 +27,34 @@ export function MemoModal({ open, onClose }: { open: boolean; onClose: () => voi
   const [modes, setModes] = useState<Mode[]>([...MODES]);
   const [angle, setAngle] = useState("synthese");
   const [instructions, setInstructions] = useState("");
-  const [fregLabel, setFregLabel] = useState<string | null>(null);
-  const [fregZone, setFregZone] = useState<string | null>(null);
+  const [fregs, setFregs] = useState<{ id: string; label: string }[]>([]);
   const [draft, setDraft] = useState<MemoDraft | null>(null);
   const [busy, setBusy] = useState<string | null>(null); // "draft" | "render" | section id
   const [error, setError] = useState<string | null>(null);
   const [consignes, setConsignes] = useState<Record<string, string>>({});
 
-  // Prefill from the page's current state each time the modal opens.
+  // Prefill from the page's current state each time the modal opens. The
+  // freguesia list must not depend on the page: if the bridge hasn't published
+  // one yet, fetch it from the engine so the dropdown always works.
   useEffect(() => {
     if (!open) return;
     const d = getMemoDefaults();
     setAssetClass(d.assetClass);
-    const freg = d.focusZone !== d.cityZoneId ? d.freguesias.find((f) => f.id === d.focusZone) : null;
-    setFregZone(freg?.id ?? null);
-    setFregLabel(freg?.label ?? null);
-    setScope("ville");
+    if (d.freguesias.length) setFregs(d.freguesias);
+    else
+      api
+        .city("gaia", "promotion", d.assetClass)
+        .then((c) =>
+          setFregs(
+            c.zones
+              .filter((z) => z.level === "freguesia")
+              .map((z) => ({ id: z.zone, label: displayName(z.zone_name) }))
+              .sort((a, b) => a.label.localeCompare(b.label))
+          )
+        )
+        .catch(() => setFregs([]));
+    // A freguesia focused on the page prefills the dropdown as the scope.
+    setScope(d.focusZone !== d.cityZoneId ? d.focusZone : "ville");
     setModes([...MODES]);
     setAngle("synthese");
     setInstructions("");
@@ -146,14 +159,20 @@ export function MemoModal({ open, onClose }: { open: boolean; onClose: () => voi
           {step === "form" && (
             <div className="flex flex-col gap-5">
               <Field label="Périmètre">
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Choice on={scope === "ville"} onClick={() => setScope("ville")} label="Ville entière — Vila Nova de Gaia" />
-                  <Choice
-                    on={scope !== "ville"}
-                    disabled={!fregZone}
-                    onClick={() => fregZone && setScope(fregZone)}
-                    label={fregLabel ? `Freguesia sélectionnée — ${fregLabel}` : "Freguesia sélectionnée (aucune)"}
-                  />
+                  <select
+                    value={scope === "ville" ? "" : scope}
+                    onChange={(e) => setScope(e.target.value || "ville")}
+                    className={`rounded-xl border px-3 py-2 text-[13px] outline-none transition-colors ${
+                      scope !== "ville" ? "border-gold/60 bg-gold/10 font-medium text-navy" : "border-navy/15 bg-white text-ink hover:border-gold/40"
+                    }`}
+                  >
+                    <option value="">Une freguesia…</option>
+                    {fregs.map((f) => (
+                      <option key={f.id} value={f.id}>{f.label}</option>
+                    ))}
+                  </select>
                 </div>
               </Field>
               <Field label="Classe d'actif">

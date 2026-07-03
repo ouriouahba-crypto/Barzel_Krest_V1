@@ -259,6 +259,47 @@ def test_unknown_zone_and_mode_raise():
         ms.score_mode(WITNESS, "not-a-mode")
 
 
+def test_memo_scores_half_up_and_sorted_like_pages():
+    # One score rounding everywhere: half-up integers (the platform's
+    # Math.round), never Python's half-to-even ; memo tables follow the mode
+    # pages' order — rounded score desc, native metric desc on rounded ties.
+    from backend.routers.analyst import _ri
+    from backend.routers.memo import _tables
+
+    assert _ri(86.5) == 87 and _ri(44.7) == 45 and _ri(86.4) == 86
+    t = _tables("ville", "residential", ["promotion", "landbank"])
+    for mode, table in t["modes"].items():
+        for r in table["rows"]:
+            assert isinstance(r["score"], int), (mode, r)
+        scores = [r["score"] for r in table["rows"]]
+        assert scores == sorted(scores, reverse=True), (mode, scores)
+        assert isinstance(table["municipio"]["score"], int)
+    lb = t["modes"]["landbank"]["rows"]
+    ties = [r for r in lb if r["score"] == lb[0]["score"]]
+    if len(ties) > 1:  # rounded tie: the higher uplift must lead (Santa Marinha)
+        uplifts = [float(r["cols"][0].replace("+", "").replace(",", ".").replace(" %", "")) for r in ties]
+        assert uplifts == sorted(uplifts, reverse=True), uplifts
+
+
+def test_memo_count_guard():
+    # The count net must catch the observed error shapes ("16 freguesias",
+    # "9 En attente", counts in words) and let injected counts, within-mode
+    # sums and the total 15 through.
+    from backend.routers.analyst import verdict_counts
+    from backend.routers.memo import _allowed_counts, _bad_counts
+
+    counts = verdict_counts("residential")
+    modes = list(ms.MODES)
+    for mode, per_verdict in counts.items():
+        assert sum(per_verdict.values()) == 15, (mode, per_verdict)
+    assert 16 not in _allowed_counts(counts, modes)
+    ok = {"t": "3 Prioritaires, 4 freguesias à phaser et 8 en attente sur les 15 freguesias ; "
+               "7 freguesias au verdict Céder"}
+    assert _bad_counts(ok, counts, modes) == []
+    bad = _bad_counts({"t": "16 freguesias dont 9 En attente et seize freguesias"}, counts, modes)
+    assert "16 freguesias" in bad and "9 En attente" in bad and "seize freguesias" in bad
+
+
 if __name__ == "__main__":  # dependency-free smoke run
     ms.load()
     test_four_distinct_modes()
@@ -270,4 +311,6 @@ if __name__ == "__main__":  # dependency-free smoke run
     test_haya_margin_35_36()
     test_promotion_verdict_cap_rule()
     test_promotion_city_verdicts_respect_margin()
+    test_memo_scores_half_up_and_sorted_like_pages()
+    test_memo_count_guard()
     print("OK — all smoke checks passed")

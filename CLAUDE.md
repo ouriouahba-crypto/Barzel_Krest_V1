@@ -943,6 +943,60 @@ Modal contrôlée à l'écran (formulaire + relecture).
 6. Vérifs : `tsc` OK, **19 tests** backend, 5 classes contrôlées, capture
    **`shots/prixmarge_hotellerie.png`** (nouvelle) + vue_ensemble régénérées.
 
+### QA finale Mémo PDF — périmètre, comptages, arrondi unique — **✅ Livré** (2026-07-03)
+Issue du contrôle du premier PDF réel (ville · résidentiel · synthèse).
+1. **Sélecteur de périmètre de la modal** : « Ville entière » + **menu déroulant
+   des 15 freguesias** (fin du choix binaire dépendant de la page). Autonome :
+   si le bridge `lib/session.ts` n'a pas encore publié de liste à l'ouverture,
+   la modal fetch elle-même `api.city(gaia, promotion, classe)`. Une freguesia
+   en focus sur la page préremplit le menu **et devient le périmètre** ; sinon
+   défaut « Ville entière », menu utilisable tel quel.
+2. **Comptages mécaniques retirés au modèle** (le mémo avait écrit « 3 Prioritaire
+   + 4 À phaser + 9 En attente » = 16/15 ; le vrai : Prioritaire 3, À phaser 4,
+   **En attente 8**). Section `## DÉNOMBREMENTS` (par mode × verdict, total 15)
+   injectée dans le contexte **analyste ET mémo** via `verdict_counts()`
+   (analyst.py, lru_cache, réutilisée par le contrôle) ; consignes système :
+   « utilise UNIQUEMENT ces comptages, ne recompte JAMAIS ». **Contrôle
+   post-génération** `_bad_counts` (memo.py) sur /draft (3 tentatives, message
+   correctif citant le comptage fautif) et /revise (2) — deux filets :
+   (a) « N freguesias » (chiffres **et toutes lettres** un→dix-huit) validé
+   contre comptages ∪ sommes intra-mode ∪ {15} — les sommes intra-mode ne
+   dépassant jamais 15, un « 16 freguesias » ne peut jamais passer ;
+   (b) « N ‹verdict› » (la forme exacte de l'erreur observée, « 9 En attente »)
+   validé contre le comptage exact de ce verdict. Sans faux positif sur les
+   formulations légitimes (« 9 mois en attente de validation » passe).
+3. **Arrondi unique des scores** : helper `_ri()` half-up (= `Math.round` de la
+   plateforme). **Cause du 86/86,5/87 : `round(86.5)` Python = 86 (half-to-even)
+   vs `Math.round` = 87.** Appliqué au contexte analyste (scores entiers, ligne
+   Haya incluse), aux tables mémo (`score` devient int, servi tel quel au client
+   et au template), et consigne « cite les scores en entiers » (analyste + mémo).
+   Audit front : les 10 pages passent déjà par Math.round/ScoreDial — aucune
+   décimale de score côté client. **Santa Marinha = 87 partout.**
+4. **Tri des tableaux du mémo = pages de mode** : `(-score arrondi, -métrique
+   native)` (`_NATIVE_KEY` : marge / yield net / spread / uplift). Santa Marinha
+   (74, +55,4 %) ouvre le landbank devant Madalena (74, +47,1 %), comme /foncier.
+5. **Layout PDF** : `td.val { white-space:nowrap }` sur score + colonnes de
+   valeurs (le « +55,4 % » tient sur une ligne ; seuls les noms longs se
+   replient) ; « non-résidents » enveloppé d'un span nowrap via `_rich()`
+   (narratives + faits) — vérifié au pypdf sur le PDF réel.
+6. **Micro-fix /prix-marge** : le backend arrondissant chaque composante de coût
+   séparément, leur somme dérive de `cost_total` de ±1 € → la part « Frais
+   annexes » de la cascade absorbe le résidu (même convention que
+   YieldWaterfall) et la cascade retombe exactement sur `netSale − costTotal`,
+   la valeur de la tuile. Hôtellerie Santa Marinha : **743 = 743** (avant
+   742/743). Drift ailleurs : Oliveira +1, Vilar −1 (résidentiel), captures
+   prixmarge_{residentiel_afurada,bureaux,logistique,hotellerie}.png régénérées.
+7. **Tests** : mémo ville·résidentiel·synthèse régénéré — narrative landbank aux
+   comptages exacts (« Trois … Prioritaires … Quatre … À phaser … Les huit En
+   attente »), scores entiers (87/83/72, 74/74/67), PDF 5 pages ; mémo Note
+   d'acquisition **Canidelo choisi au menu de la modal réelle depuis
+   /vue-ensemble sans sélection préalable** (Playwright, captures
+   `shots/memo_modal_canidelo_{form,review}.png`, script
+   `shots/test_memo_canidelo.js`) ; analyste contrôlé (« 8 freguesias En
+   attente », « 87/100 »). **21 tests** backend (+2 :
+   `test_memo_scores_half_up_and_sorted_like_pages`, `test_memo_count_guard`),
+   `tsc` OK, 10 routes 200, HayaSlider/blocs K-REST/`_clean` intacts.
+
 ### État final du gabarit de page de mode
 Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,
 `rendement_net`, `spread`, `constructibilite`), InsightBanner + insight gradué à
