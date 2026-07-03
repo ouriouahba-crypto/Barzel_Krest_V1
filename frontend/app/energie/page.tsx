@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
@@ -35,6 +35,19 @@ export default function EnergiePage() {
 
   const detRows = useMemo(() => rdRows(g.detentionCity), [g.detentionCity]);
   const santaRow = useMemo(() => detRows.find((r) => r.zone === SANTA) ?? null, [detRows]);
+
+  // Header selection drives the simulator (first selected freguesia) and
+  // highlights its rows in the stock table; empty selection = Santa Marinha.
+  const simZone = selected[0] ?? SANTA;
+  const simRow = useMemo(
+    () => detRows.find((r) => r.zone === simZone) ?? santaRow,
+    [detRows, simZone, santaRow]
+  );
+  const simParc = useMemo(() => parcFor(simRow?.zone ?? SANTA, cls), [simRow, cls]);
+  const rowRefs = useRef<Record<string, HTMLTableRowElement | null>>({});
+  useEffect(() => {
+    if (selected[0]) rowRefs.current[selected[0]]?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [selected]);
 
   // Table: simulated SCE stock joined with the engine's energy pillar risk.
   const rows = useMemo(() => {
@@ -140,16 +153,21 @@ export default function EnergiePage() {
             </section>
 
             <div className="flex flex-col gap-2">
-              {santaRow ? (
-                <RetrofitSimulator row={santaRow} />
+              {simRow ? (
+                <RetrofitSimulator
+                  row={simRow}
+                  placeLabel={simRow.short}
+                  efShare={simParc?.ef ?? null}
+                />
               ) : (
                 <div className="flex min-h-[280px] items-center justify-center rounded-2xl bg-navy text-[13px] text-cream/60 shadow-card">
                   Chargement…
                 </div>
               )}
               <p className="px-1 text-[11px] leading-snug text-muted">
-                Simulateur temps réel : choisissez la classe actuelle et la cible pour voir le
-                CAPEX estimé et la compression du yield net se recalculer.
+                Simulateur temps réel : sélectionnez une freguesia dans le champ de recherche,
+                puis la classe actuelle et la cible pour voir le CAPEX et la compression du
+                yield net se recalculer.
               </p>
             </div>
           </div>
@@ -170,7 +188,11 @@ export default function EnergiePage() {
                 </thead>
                 <tbody>
                   {rows.map((r) => (
-                    <tr key={r.zone} className="border-b border-navy/[0.06]">
+                    <tr
+                      key={r.zone}
+                      ref={(el) => { rowRefs.current[r.zone] = el; }}
+                      className={`border-b border-navy/[0.06] ${selected.includes(r.zone) ? "bg-gold/10" : ""}`}
+                    >
                       <td className="whitespace-nowrap px-3 py-2 font-medium text-ink">{r.name}</td>
                       <td className="px-3 py-2 text-right tabular-nums text-ink/80">{r.parc.ab}%</td>
                       <td className="px-3 py-2 text-right tabular-nums text-ink/80">{r.parc.cd}%</td>

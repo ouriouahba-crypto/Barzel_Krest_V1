@@ -119,6 +119,7 @@ export default function ComparerPage() {
           assetClass={g.assetClass}
           onClass={g.setAssetClass}
           hideMode
+          hideSearch
         />
 
         {g.error && (

@@ -13,6 +13,7 @@ export function Header({
   assetClass,
   onClass,
   hideMode = false,
+  hideSearch = false,
 }: {
   marketLine: string;
   freguesias: { id: string; label: string }[];
@@ -23,6 +24,7 @@ export function Header({
   assetClass: string;
   onClass: (c: string) => void;
   hideMode?: boolean;
+  hideSearch?: boolean;
 }) {
   return (
     <header className="relative z-[1000] border-b border-navy/10 bg-cream/80 px-6 py-4 backdrop-blur">
@@ -34,9 +36,11 @@ export function Header({
           </div>
           <p className="mt-1.5 max-w-2xl pl-[18px] text-[13px] text-muted">{marketLine}</p>
         </div>
-        <div className="w-72">
-          <MultiSelect options={freguesias} selected={selected} onChange={onSelected} />
-        </div>
+        {!hideSearch && (
+          <div className="w-72">
+            <MultiSelect options={freguesias} selected={selected} onChange={onSelected} />
+          </div>
+        )}
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-x-8 gap-y-3 pl-[18px]">

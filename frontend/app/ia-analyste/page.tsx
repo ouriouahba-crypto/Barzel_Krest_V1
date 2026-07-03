@@ -64,6 +64,7 @@ export default function IaAnalystePage() {
           assetClass={g.assetClass}
           onClass={g.setAssetClass}
           hideMode
+          hideSearch
         />
 
         <main className="flex min-h-0 flex-1 flex-col gap-4 p-6">

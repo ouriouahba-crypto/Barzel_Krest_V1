@@ -58,6 +58,7 @@ export default function FiscalitePage() {
           assetClass={g.assetClass}
           onClass={g.setAssetClass}
           hideMode
+          hideSearch
         />
 
         <main className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-6">

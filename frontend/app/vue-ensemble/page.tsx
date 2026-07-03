@@ -91,6 +91,7 @@ export default function VueEnsemble() {
           assetClass={g.assetClass}
           onClass={g.setAssetClass}
           hideMode
+          hideSearch
         />
 
         {g.error && (

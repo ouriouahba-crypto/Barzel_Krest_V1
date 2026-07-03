@@ -905,6 +905,44 @@ détention) — 5 pages chacun, chiffres des textes IA vérifiés contre les
 tableaux ; révision « raccourcis la recommandation » : −21 % et resserrée.
 Modal contrôlée à l'écran (formulaire + relecture).
 
+### Dé-uniformisation Hôtellerie + audit du sélecteur de freguesias — **✅ Livré** (2026-07-03)
+1. **Prix hôteliers continus** (facteurs de zone en pas fins, plus de paliers
+   0,05×4 000 = 200 €) : fourchette 2 920-4 880 €/m², front de fleuve en tête,
+   hiérarchie conservée, **aucune paire de valeurs identiques**.
+2. **Part foncière hôtelière jitterée ±3 pts** autour de 21 % (même jitter
+   déterministe que charges/fiscalité détention, clé zone). Marges cibles :
+   **Santa Marinha 18,0 % Go, seule tête** ; Canidelo 15,4 % Conditionnel ;
+   couronne 7,4-14,1 (⚠️ Mafamude 14,1 dépasse la bande « 6-12 » énoncée —
+   verdict Conditionnel conforme, signalé) ; rural −2,5 à −20,1 ; São Félix
+   2,5 % Passer. Cap verdict marge < 8 % naturel (Oliveira 7,7 / Arcozelo 7,4).
+3. **Anti-jumeaux toutes classes** (`test_no_twin_price_land_pairs`) : pour les
+   autres classes commerciales, seul un offset **+0/+1/+2 €** est appliqué aux
+   zones PARTAGEANT le même facteur de prix (rang dans le groupe de jumelles) —
+   garanti sans collision d'arrondi, ≤ 0,06 pt de marge, zones sans jumelle
+   bit-identiques. ⚠️ Piège documenté : les variantes « jitter par classe » et
+   « offset en points » basculaient des verdicts limites (bureaux 2→1 Go,
+   logistique 15 Cond → 1 Go, commerce 2/4/9 → 2/5/8) — les distributions de
+   référence sont exactement conservées (bureaux 2/5/8, logistique 15
+   Conditionnel, commerce 2/4/9).
+4. **Effets croisés contrôlés** : détention hôtel 2/6/7 et arbitrage 13
+   étroites/2 fermées inchangés (spreads recalculés, max +24,5 % à Santa
+   Marinha) ; vue-ensemble hôtellerie : dominant arbitrage 56,9 et **insight
+   dégradé conservé** ; insight Prix & marge sans marges jumelles (« menées par
+   Santa Marinha (18%), Canidelo (15%) et Mafamude (14%) »). **Bascule
+   signalée** : landbank **Gulpilhares hôtel → logistique** (uplift hôtel
+   renchéri par son foncier jitteré ; logistique −11,4 devant) — la carte des
+   usages reste défendable ; foncier max hors prime 864 ≤ 1 200 ✓.
+5. **Sélecteur de freguesias — audit 10 pages** (prop `hideSearch` sur Header) :
+   réagit sur /gaia (carte), /prix-marge, /rendement, /arbitrage, /foncier
+   (filtres) et **désormais /energie** (surlignage + scroll de la ligne du
+   parc, simulateur alimenté par la freguesia sélectionnée : « actif type à
+   Madalena — 2 860 €/m² · parc E-F 18% » ; retour Toutes les freguesias =
+   Santa Marinha) ; **masqué** sur /vue-ensemble (niveau ville), /comparer
+   (sélecteurs dédiés), /fiscalite (barèmes ville), /ia-analyste (question
+   libre). `RetrofitSimulator` : props `placeLabel`/`efShare`.
+6. Vérifs : `tsc` OK, **19 tests** backend, 5 classes contrôlées, capture
+   **`shots/prixmarge_hotellerie.png`** (nouvelle) + vue_ensemble régénérées.
+
 ### État final du gabarit de page de mode
 Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,
 `rendement_net`, `spread`, `constructibilite`), InsightBanner + insight gradué à

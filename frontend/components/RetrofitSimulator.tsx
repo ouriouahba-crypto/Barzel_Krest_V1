@@ -9,15 +9,17 @@ const TARGET: SceGrade[] = ["D", "C", "B"];
 
 // Live retrofit simulator — neutral labelling. Picks a current and a target SCE
 // class (Portuguese scale, A+ → F), shows the estimated CAPEX per m² and its
-// impact on the net yield of a typical Santa Marinha asset (CAPEX added to the
-// value base, rent unchanged).
-export function RetrofitSimulator({ row }: { row: RdRow }) {
+// impact on the net yield of a typical asset of the given freguesia (CAPEX
+// added to the value base, rent unchanged). The header selector drives which
+// freguesia feeds it; defaults to Santa Marinha.
+export function RetrofitSimulator({ row, placeLabel, efShare }: { row: RdRow; placeLabel: string; efShare: number | null }) {
   const [from, setFrom] = useState<SceGrade>("F");
   const [to, setTo] = useState<SceGrade>("C");
 
   const rank = (g: SceGrade) => SCE_SCALE.indexOf(g);
   const capex = capexPerM2(from, to);
   const impact = capex != null ? retrofitImpact(row, capex) : null;
+  const value = row.loyer && row.yieldBrut > 0 ? row.loyer / (row.yieldBrut / 100) : null;
 
   const pick = (g: SceGrade, kind: "from" | "to") => {
     if (kind === "from") {
@@ -36,6 +38,11 @@ export function RetrofitSimulator({ row }: { row: RdRow }) {
             Simulateur de mise à niveau · Énergie
           </div>
           <div className="font-display text-lg">Rénovation énergétique (SCE)</div>
+          <div className="mt-0.5 text-[11px] text-cream/55">
+            actif type à {placeLabel}
+            {value != null ? ` — ${Math.round(value).toLocaleString("fr-FR")} €/m²` : ""}
+            {efShare != null ? ` · parc E-F ${efShare}%` : ""}
+          </div>
         </div>
         {capex != null && (
           <span className="rounded-full border border-gold/40 bg-gold/10 px-2.5 py-1 text-[11px] font-medium text-gold">
@@ -86,7 +93,7 @@ export function RetrofitSimulator({ row }: { row: RdRow }) {
         <p className="mt-4 text-[11px] leading-relaxed text-cream/45">
           La mise à niveau {from}→{to} coûte ~{capex} €/m² et comprime le yield net de{" "}
           {impact.compression.toFixed(2).replace(".", ",")} point la première décennie — loyer
-          inchangé, actif type Santa Marinha ({Math.round(impact.value).toLocaleString("fr-FR")} €/m²).
+          inchangé, actif type à {placeLabel} ({Math.round(impact.value).toLocaleString("fr-FR")} €/m²).
         </p>
       )}
     </div>

@@ -236,6 +236,21 @@ def test_landbank_best_use_land_cap():
             assert b["foncier_marche_eur_m2"] <= 1200, (r["zone"], b["foncier_marche_eur_m2"])
 
 
+def test_no_twin_price_land_pairs():
+    # No two freguesias may share strictly identical (realizable price, land)
+    # pairs, in any class — twin rows read as a formula, not a market.
+    for cls in ("residential", "office", "hotel", "logistics", "retail"):
+        seen = {}
+        for r in ms.score_city("gaia", "promotion", cls):
+            if r["level"] != "freguesia":
+                continue
+            marge = next(p for p in r["pillars"] if p["pillar"] == "marge")
+            b = marge["breakdown"]
+            key = (b["realizable_sale"], b["land"])
+            assert key not in seen, (cls, seen[key], r["zone"], key)
+            seen[key] = r["zone"]
+
+
 def test_unknown_zone_and_mode_raise():
     import pytest
     with pytest.raises(KeyError):

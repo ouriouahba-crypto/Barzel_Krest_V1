@@ -608,6 +608,32 @@ def _p(st: State, *keys, default=None):
     return cur
 
 
+def _commercial_land(st: State, cls: str, zone_id: str, sale: float) -> float:
+    """Commercial land cost €/m² for one zone+class. Hotel carries a full ±3 pts
+    deterministic jitter on the land share (the class was never finely
+    calibrated). The other commercial classes keep their flat share; only
+    PRICE-TWIN zones (same class factor, hence same price) get a +0/+1/+2 €
+    rank offset — enough to guarantee distinct rounded land values, far too
+    small (≤0.06 pt of margin) to move any verdict, and zones without a twin
+    stay bit-identical."""
+    lp = _p(st, "commercial_gaia", "classes", cls, "land_pct", default=12.0)
+    if cls == "hotel":
+        return sale * (lp + _split_jitter_pct(zone_id) * 2.0) / 100.0
+    land = sale * lp / 100.0
+    zf = _p(st, "commercial_gaia", "zone_factors", default={}) or {}
+
+    def factor(z: str) -> float:
+        return (zf.get(z) or zf.get("default") or {}).get(cls, 1.0)
+
+    me = st.zones.get(zone_id, {})
+    twins = sorted(z for z, d in st.zones.items()
+                   if d.get("city") == me.get("city") and d.get("level") == me.get("level")
+                   and factor(z) == factor(zone_id))
+    if len(twins) > 1 and zone_id in twins:
+        land += twins.index(zone_id)
+    return land
+
+
 # --------------------------------------------------------------------------- #
 # PROMOTION pillars                                                            #
 # --------------------------------------------------------------------------- #
@@ -640,11 +666,10 @@ def _promo_marge(st: State, z: dict, cls: str, asset: dict | None) -> Pillar:
                                              "land_cost_default_frac_of_sale", default=0.18)
         land_conf = ((asset or {}).get("confidence") or zp.get("confidence", RAPPORT)) \
             if land_from_params else HYPOTHESE
-    elif comm:        # commercial: land = a % of the class market price
-        lp = _p(st, "commercial_gaia", "classes", cls, "land_pct", default=12.0)
-        land = sale * lp / 100.0
+    elif comm:        # commercial: land = a % of the class market price (per-zone spread)
+        land = _commercial_land(st, cls, z["id"], sale)
         land_conf = HYPOTHESE
-        land_note = f"foncier {land:.0f} €/m² ({lp:.0f}% du prix {cls}) · "
+        land_note = f"foncier {land:.0f} €/m² ({land / sale * 100:.1f}% du prix {cls}) · "
     else:             # residential zone: real €/m² land cost per zone
         land = _land_cost_eur_m2(st, z)
         land_conf = HYPOTHESE
@@ -1044,8 +1069,7 @@ def _land_usage_econ(st: State, z: dict, cls: str) -> tuple[float, float, float]
         land = _land_cost_eur_m2(st, z)
     else:
         sale = price
-        lp = _p(st, "commercial_gaia", "classes", cls, "land_pct", default=12.0)
-        land = sale * lp / 100.0
+        land = _commercial_land(st, cls, z["id"], sale)
     if land <= 0:
         return None
     return sale, build, land
