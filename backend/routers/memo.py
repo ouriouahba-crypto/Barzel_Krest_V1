@@ -481,14 +481,15 @@ def _badge(verdict: str) -> str:
     tone = _VERDICT_TONE.get(verdict, "low")
     color = {"good": "#2F6B3D", "mid": "#8a6d2f", "low": "#9E5B5B"}[tone]
     return (f'<span style="border:1px solid {color};color:{color};border-radius:99px;'
-            f'padding:1px 8px;font-size:8.5px;white-space:nowrap">{_VERDICT_FR.get(verdict, verdict)}</span>')
+            f'padding:1px 8px;font-size:8pt;white-space:nowrap">{_VERDICT_FR.get(verdict, verdict)}</span>')
 
 
 def _esc(t: str) -> str:
     return (t or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
-# Justified text may break "non-résidents" at its hyphen — keep the word whole.
+# Le corps est fer à gauche (plus de justification) ; le nowrap reste utile pour
+# empêcher une coupure de "non-résidents" à son trait d'union en fin de ligne.
 _NOWRAP_WORD = re.compile(r"(?i)\bnon-résidents?\b")
 
 
@@ -561,7 +562,7 @@ def _html(sections: dict, tables: dict, scope: str, asset_class: str,
     return f"""<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><style>
 {_font_css()}
 * {{ margin:0; padding:0; box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }}
-body {{ font-family:'Montserrat',sans-serif; color:#243447; font-size:10.5px; line-height:1.55; }}
+body {{ font-family:'Montserrat',sans-serif; color:#243447; font-size:10.5pt; line-height:1.55; }}
 .page {{ width:210mm; height:296mm; padding:20mm 18mm 16mm; page-break-after:always; position:relative; background:#FBF9F4; overflow:hidden; }}
 .cover {{ background:#0A1628; color:#F3EEE3; display:flex; flex-direction:column; justify-content:space-between; padding:28mm 22mm; }}
 h1,h2,h3 {{ font-family:'Playfair Display',serif; font-weight:700; color:#0A1628; }}
@@ -570,27 +571,27 @@ h1,h2,h3 {{ font-family:'Playfair Display',serif; font-weight:700; color:#0A1628
 .cover .eyebrow {{ color:#C9A86A; }}
 .rule {{ width:34px; height:4px; background:#C9A86A; border-radius:2px; margin-bottom:10px; }}
 h2 {{ font-size:21px; margin:2px 0 10px; }}
-.muni {{ font-size:10px; color:#6B7A8D; margin-bottom:10px; }}
-table {{ width:100%; border-collapse:collapse; margin:6px 0 14px; }}
-th {{ text-align:left; font-size:8px; letter-spacing:1px; text-transform:uppercase; color:#6B7A8D; padding:6px 8px; border-bottom:1.5px solid #0A1628; }}
-td {{ padding:7px 8px; border-bottom:1px solid rgba(10,22,40,.08); font-size:10px; }}
+.muni {{ font-size:9.5pt; color:#3D4C5F; margin-bottom:8px; }}
+table {{ width:100%; border-collapse:collapse; margin:5px 0 10px; }}
+th {{ text-align:left; font-size:8.5pt; letter-spacing:0.8px; text-transform:uppercase; color:#3D4C5F; padding:5px 8px; border-bottom:1.5px solid #0A1628; }}
+td {{ padding:5px 8px; border-bottom:1px solid rgba(10,22,40,.08); font-size:9.5pt; line-height:1.35; }}
 td.val {{ white-space:nowrap; }}
 tr.scope td {{ background:rgba(201,168,106,.12); }}
 .mark {{ color:#B8965A; }}
-.narrative p {{ margin-bottom:8px; text-align:justify; }}
+.narrative p {{ margin-bottom:7px; text-align:left; }}
 .kpis {{ display:flex; gap:10px; margin:12px 0 16px; }}
 .kpi {{ flex:1; border:1px solid rgba(10,22,40,.12); border-top:3px solid #C9A86A; border-radius:10px; padding:10px 12px; background:#fff; }}
-.kpi .l {{ font-size:8px; letter-spacing:1.2px; text-transform:uppercase; color:#6B7A8D; }}
+.kpi .l {{ font-size:8pt; letter-spacing:1.2px; text-transform:uppercase; color:#6B7A8D; }}
 .kpi .v {{ font-family:'Playfair Display',serif; font-size:19px; color:#0A1628; margin-top:3px; }}
-.modeblock {{ margin-bottom:12px; }}
+.modeblock {{ margin-bottom:10px; }}
 .modetitle {{ font-size:17px; margin:6px 0 4px; }}
 .factgrid {{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }}
 .fact {{ border-left:3px solid #C9A86A; padding:6px 12px; margin-bottom:10px; background:#fff; border-radius:0 8px 8px 0; }}
 .factgrid .fact {{ margin-bottom:0; }}
-.fact-t {{ font-weight:600; font-size:10px; color:#0A1628; }}
-.fact-b {{ font-size:9.5px; color:#243447; }}
-.pagefoot {{ position:absolute; bottom:9mm; left:18mm; right:18mm; font-size:8px; color:#6B7A8D; border-top:1px solid rgba(10,22,40,.12); padding-top:5px; }}
-.legal {{ margin-top:18px; font-size:8.5px; color:#6B7A8D; border-top:1px solid rgba(10,22,40,.12); padding-top:8px; }}
+.fact-t {{ font-weight:600; font-size:9.5pt; color:#0A1628; }}
+.fact-b {{ font-size:9pt; color:#243447; }}
+.pagefoot {{ position:absolute; bottom:9mm; left:18mm; right:18mm; font-size:8pt; color:#6B7A8D; border-top:1px solid rgba(10,22,40,.12); padding-top:5px; }}
+.legal {{ margin-top:14px; font-size:8.5pt; color:#6B7A8D; border-top:1px solid rgba(10,22,40,.12); padding-top:8px; }}
 </style></head><body>
 
 <section class="page cover">
@@ -599,9 +600,9 @@ tr.scope td {{ background:rgba(201,168,106,.12); }}
     <div style="width:38px;height:4px;background:#C9A86A;border-radius:2px;margin:14px 0 26px"></div>
     <div class="eyebrow" style="letter-spacing:3px">Mémo d'investissement</div>
     <h1>{_esc(title_scope)}</h1>
-    <div style="margin-top:14px;color:rgba(243,238,227,.75);font-size:12px">{_ANGLES.get(angle, _ANGLES["synthese"])}</div>
+    <div style="margin-top:14px;color:rgba(243,238,227,.85);font-size:11pt">{_ANGLES.get(angle, _ANGLES["synthese"])}</div>
   </div>
-  <div style="display:flex;justify-content:space-between;align-items:flex-end;color:rgba(243,238,227,.55);font-size:10px">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;color:rgba(243,238,227,.7);font-size:9.5pt">
     <div>{today}</div><div>Document préparé par la plateforme Barzel</div>
   </div>
 </section>

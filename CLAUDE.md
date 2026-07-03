@@ -21,12 +21,54 @@ fur et à mesure.
 | Navy | `#0A1628` (+ `navy.800/700/600`) |
 | Or | `#C9A86A` (+ `gold.600 #B8965A`, `gold.300 #E0CBA0`) |
 | Cream | `#F8F5EE` — **variable CSS `--cream`** dans `globals.css`, consommée par Tailwind (`cream` = `rgb(var(--cream))`) et le fond `body` ; éclairci depuis `#F3EEE3` (validation client). `cream.200 #FBF9F4` inchangé. ⚠️ Le template PDF du mémo garde ses hex codés en dur (`#FBF9F4`/`#F3EEE3`) — indépendant, non touché. |
-| Ink / Muted | `#243447` / `#6B7A8D` |
+| Ink / Muted | `#243447` / `#6B7A8D` (+ **`ink.soft #3D4C5F`** contenu secondaire sur clair) |
+| Or texte sur clair | **`gold.700 #85683A`** (≥ 4,78:1 sur blanc/cream) — l'or brut `C9A86A`/`gold.600` est réservé aux fonds navy et au décoratif (fills, bordures, liserés) |
 | Titres | Playfair Display (`font-display`) |
 | Corps | Montserrat (`font-sans`) |
 
 Échelle de score (séquentiel) : rouge `#9E5B5B` → or `#C9A86A` → vert `#2F6B3D`
 (`scoreColor()` dans `frontend/lib/scoring.ts`).
+
+### Échelle typographique (jetons Tailwind — plancher dur 12px, lot 2026-07-03)
+| Jeton | Taille | Usage |
+|-------|--------|-------|
+| `text-label` | 12px | étiquettes, eyebrows, unités, légendes — **plancher absolu : plus rien sous 12px** |
+| `text-th` | 12,5px | en-têtes de tableaux |
+| `text-btn` | 13px | boutons, contrôles, liens d'action, inputs compacts |
+| `text-caption` | 13px | sous-titres de cartes, mentions, notes transitoires |
+| `text-td` | 13,5px | cellules de tableaux |
+| `text-body` | 14px | corps, lignes de contexte, descriptions, insights de cartes |
+| `text-insight` | 15px / 1,7 | phrases d'insight, réponses de l'analyste |
+| `text-kpi-sm` / `text-kpi` / `text-kpi-hero` | 20 / 28 / 44px | valeurs KPI (ex-18/26/40 — « un cran au-dessus ») |
+
+Axes de graphiques Recharts : `fontSize: 12` (⚠️ à 12px l'axe catégorie décime
+les étiquettes → `interval={0}` quand toutes doivent s'afficher, cf.
+`OverviewRanking`). Tailles display hors échelle : h1 Header 28, phrase de
+bandeau 28, h2 de module 24, titres de cartes 16-17, valeur de cascade 24,
+modal mémo 19. **Compenser la densité par le padding, jamais par la taille**
+(les pages scrollent dans `<main>`). Composants legacy non rendus
+(`CityCharts`, `KeyFigures`, `ScoreCards`, `CityBits` hors `MapLegendBar`)
+non migrés — à convertir s'ils sont réutilisés.
+
+### Règles de contraste (cible WCAG AA 4,5:1 pour tout texte de contenu)
+- **Sur navy** : le contenu (phrases, chiffres, sous-titres d'actifs, sous-lignes
+  de tuiles) est en cream **≥ /85** (12,2:1) ; l'opacité **/60-/70 est réservée
+  aux seules étiquettes** (≥ 6,6:1) ; jamais sous /60. Valeurs de score colorées
+  sur navy → `scoreTextColorDark()` (rouge/vert éclaircis, le vert profond tombe
+  à 2,5:1 sur navy).
+- **Sur clair** : `muted #6B7A8D` **réservé aux étiquettes** (4,0-4,4:1 assumé,
+  seul reliquat sous AA de l'audit) ; tout contenu secondaire — **en-têtes de
+  tableaux inclus** — passe à `ink.soft #3D4C5F` (8,8:1) ; accents or texte →
+  `gold.700`. Texte coloré par verdict/score → `verdictTextColor()` /
+  `scoreTextColor()` (pivot or assombri `#85683A`) ; les barres, liserés et
+  fills gardent `verdictColor()`/`scoreColor()`.
+- **Badges : jamais de blanc sur or** (2,26:1) — modèle `VerdictBadge` (fond
+  sombre, texte clair, 7,5:1), repris par les pilules verdict énergie.
+- **Outils** : `frontend/shots/audit_contrast.js` (audit WCAG des 10 pages,
+  gère le `fill` des `<text>` SVG et la composition alpha des fonds ; sortie
+  JSON + pires ratios) et `frontend/shots/check_matrix.js` (10 pages × Chrome +
+  WebKit × 1280/1440/1920 : pageerror, console.error, débordement horizontal ;
+  bruit filtré : prefetch RSC WebKit + warning Recharts `defaultProps`).
 
 ### Posture produit (règles dures)
 - **Jamais** afficher : « simulation », « confiance », les sources, ni les
@@ -1081,6 +1123,67 @@ Issue du contrôle du premier PDF réel (ville · résidentiel · synthèse).
    `qa_vue_ensemble_1440.png`, `qa_carte_haya.png`,
    `qa_fiscalite_commercial.png`, `memo_progress.png`. HayaSlider et blocs
    K-REST intacts, `_clean` inchangé, .env non commité.
+
+### Lot design final — lisibilité globale, refonte IA Analyste, PDF — **✅ Livré** (2026-07-03)
+Aucun changement de données ni de moteur (seul le template HTML du PDF a bougé
+côté backend). Détail des règles gravées en charte (échelle + contraste) ci-dessus.
+1. **Échelle typographique unique** (`tailwind.config.ts` `fontSize`) appliquée
+   aux 10 pages + composants : **597 éléments < 12px → 0** (audit). Toutes les
+   tailles arbitraires < 14px converties aux jetons ; KPI 26→28, héros de
+   bandeau 40→44, h1/bandeau 26→28, h2 modules 22→24, valeurs de tableaux
+   15→16, axes Recharts 10→12. Pages plus hautes assumées (scroll dans `<main>`).
+2. **Contraste** : audit avant → après (script `audit_contrast.js`) :
+   **526 → 218 éléments sous AA, pire ratio 1,42:1 → 4,02:1** ; les 218
+   restants sont exclusivement des étiquettes `muted` (4,0-4,4:1, assumé par la
+   règle). Correctifs structurants : `verdictTextColor()`/`scoreTextColor()`
+   (pivot or `#85683A`) pour les valeurs colorées des 4 tableaux + cascades
+   (prop `accentText` du `Waterfall`, les barres gardent l'or brut),
+   `scoreTextColorDark()` pour les tuiles K-REST sur navy, sous-titres K-REST
+   cream/45 → **/85**, badge énergie blanc-sur-or → modèle VerdictBadge
+   (7,55:1), en-têtes de tableaux muted → `ink.soft`, chips de module or →
+   `gold.700` sur `bg-gold/[0.06]`. Restylage typographique des blocs
+   HayaSlider/K-REST **sans toucher une formule** (remplacement pur de
+   `scoreColor` par la rampe dark et des classes de texte).
+3. **Refonte IA Analyste** (`app/ia-analyste/page.tsx`, backend intact) :
+   - *État vide* : toile navy pleine page centrée — ✦, eyebrow, accroche
+     Playfair cream 40px « Que voulez-vous savoir sur Gaia ? », sous-titre
+     citant la classe, **saisie en pilule blanche** (ombre portée, anneau de
+     focus or, bouton flèche or), 5 suggestions en cartes (icônes SVG trait
+     1,5, texte 14px, hover doré) sur 2 rangées (grille 3+2 en xl). Aucun
+     autre chrome.
+   - *État conversation* : colonne de lecture **max 720px**, questions en
+     pilule blanche alignées à droite + horodatage, réponses en blocs filet or
+     (eyebrow « ANALYSTE BARZEL · HH:MM », texte 15px/1,7), **chiffres en
+     `gold.700` semibold et verdicts en badge discret** (`renderAnswer`, regex
+     numérique + vocabulaire de verdicts), saisie flottante `sticky bottom` de
+     la colonne, indicateur « rédige… » à 3 points or.
+   - Le sélecteur de classe du Header et `api.analystAsk` sont inchangés.
+4. **PDF mémo** (template `memo.py` uniquement) : corps **10,5pt/1,55**
+   (l'ancien `10.5px` valait ~7,9pt), **fer à gauche** (fin de la
+   justification ; le nowrap « non-résidents » reste), tableaux **9,5pt**
+   (paddings compactés 7→5px pour tenir la pagination), en-têtes th 8,5pt
+   `#3D4C5F`, habillage en pt (muni, facts, légal, pied). Titres de sections
+   inchangés. Mémo ville·résidentiel·synthèse régénéré : **5 pages, zéro
+   débordement** (mesuré scrollHeight = clientHeight par page), comptages et
+   scores exacts.
+5. **Vérifs** : `tsc` OK ; tests backend **21/21** (20/21 sous python3
+   framework — `test_unknown_zone_and_mode_raise` importe pytest, absent de
+   cet interpréteur — et ce test passe sous le pytest anaconda, où seuls les
+   2 tests mémo échouent faute du module `anthropic` : environnement, pas
+   code) ; **matrice 10 pages × Chrome + WebKit × 1280/1440/1920 : 60/60**
+   (`check_matrix.js` — WebKit lancé par `playwright-core` 1.61.1, build
+   2311 du cache) ; audit contraste avant/après (`shots/audit_{avant,apres}.json`) ;
+   captures avant/après `shots/{avant,apres}_{vue_ensemble,rendement,
+   ia_analyste_vide,ia_analyste_conversation}.png` ; **toutes les captures
+   standard régénérées** (vue_ensemble ×3, prixmarge ×4, rendement ×2,
+   arbitrage ×2, foncier, fiscalite, energie, comparer, gaia_promotion,
+   carte_detention, ia_analyste). `foncier_bureaux.png` supprimée et
+   `capture_foncier.js` réduit à une capture (le sélecteur de classe est
+   masqué sur /foncier depuis le lot précédent — l'état « Bureaux » n'existe
+   plus). Micro-fixes de suite : `interval={0}` + hauteur 360px sur le
+   classement (Recharts décimait les 15 étiquettes à 12px), marge gauche de
+   la trajectoire (1er libellé rogné). HayaSlider et blocs K-REST intacts
+   fonctionnellement, `_clean` inchangé, .env non commité.
 
 ### État final du gabarit de page de mode
 Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,

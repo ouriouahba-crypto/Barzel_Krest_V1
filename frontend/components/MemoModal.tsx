@@ -185,7 +185,7 @@ export function MemoModal({ open, onClose }: { open: boolean; onClose: () => voi
         {/* Header */}
         <div className="flex shrink-0 items-center justify-between bg-navy px-6 py-4 text-cream">
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-widest text-gold">Barzel Analytics</div>
+            <div className="text-label font-semibold uppercase tracking-widest text-gold">Barzel Analytics</div>
             <div className="font-display text-[19px]">Mémo d'investissement</div>
           </div>
           <button onClick={onClose} className="rounded-lg px-2 py-1 text-cream/60 transition-colors hover:bg-white/10 hover:text-cream">✕</button>
@@ -200,7 +200,7 @@ export function MemoModal({ open, onClose }: { open: boolean; onClose: () => voi
                   <select
                     value={scope === "ville" ? "" : scope}
                     onChange={(e) => setScope(e.target.value || "ville")}
-                    className={`rounded-xl border px-3 py-2 text-[13px] outline-none transition-colors ${
+                    className={`rounded-xl border px-3 py-2 text-btn outline-none transition-colors ${
                       scope !== "ville" ? "border-gold/60 bg-gold/10 font-medium text-navy" : "border-navy/15 bg-white text-ink hover:border-gold/40"
                     }`}
                   >
@@ -221,7 +221,7 @@ export function MemoModal({ open, onClose }: { open: boolean; onClose: () => voi
               <Field label="Modes à inclure">
                 <div className="flex flex-wrap gap-2">
                   {MODES.map((m) => (
-                    <label key={m} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-[13px] transition-colors ${modes.includes(m) ? "border-gold/60 bg-gold/10 text-navy" : "border-navy/15 bg-white text-muted"}`}>
+                    <label key={m} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-btn transition-colors ${modes.includes(m) ? "border-gold/60 bg-gold/10 text-navy" : "border-navy/15 bg-white text-ink-soft"}`}>
                       <input type="checkbox" className="accent-[#B8965A]" checked={modes.includes(m)} onChange={() => toggleMode(m)} />
                       {MODE_LABEL[m]}
                     </label>
@@ -240,24 +240,24 @@ export function MemoModal({ open, onClose }: { open: boolean; onClose: () => voi
                   value={instructions}
                   onChange={(e) => setInstructions(e.target.value)}
                   placeholder="Ex. : insiste sur Haya Towers, cadre pour un comité d'investissement…"
-                  className="h-20 w-full rounded-xl border border-navy/15 bg-white px-3 py-2.5 text-[13px] text-ink outline-none placeholder:text-muted/60 focus:border-gold/60"
+                  className="h-20 w-full rounded-xl border border-navy/15 bg-white px-3 py-2.5 text-body text-ink outline-none placeholder:text-muted/60 focus:border-gold/60"
                 />
               </Field>
 
               {busy === "draft" && steps.length > 0 && (
                 <div className="rounded-2xl border border-gold/30 bg-white p-4 shadow-card">
-                  <div className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-gold-600">
+                  <div className="mb-2 text-label font-semibold uppercase tracking-widest text-gold-700">
                     Rédaction — {steps.filter((s) => s.done).length} / {steps.length}
                   </div>
                   <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">
                     {steps.map((s) => (
-                      <div key={s.id} className="flex items-center gap-2 text-[12.5px]">
+                      <div key={s.id} className="flex items-center gap-2 text-caption">
                         {s.done ? (
-                          <span className="text-gold-600">✓</span>
+                          <span className="text-gold-700">✓</span>
                         ) : (
                           <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-navy/25" />
                         )}
-                        <span className={s.done ? "text-ink" : "text-muted"}>{s.label}</span>
+                        <span className={s.done ? "text-ink" : "text-ink-soft"}>{s.label}</span>
                       </div>
                     ))}
                   </div>
@@ -268,7 +268,7 @@ export function MemoModal({ open, onClose }: { open: boolean; onClose: () => voi
 
           {step === "review" && draft && (
             <div className="flex flex-col gap-5">
-              <p className="text-[12px] text-muted">
+              <p className="text-caption text-ink-soft">
                 Relisez et ajustez les textes — les chiffres, tableaux et verdicts sont injectés
                 directement du moteur au rendu et ne sont pas modifiables.
               </p>
@@ -318,24 +318,24 @@ export function MemoModal({ open, onClose }: { open: boolean; onClose: () => voi
 
         {/* Footer */}
         <div className="flex shrink-0 items-center justify-between gap-4 border-t border-navy/10 bg-cream-200/60 px-6 py-4">
-          <div className="text-[12px] italic text-[#9E5B5B]">{error}</div>
+          <div className="text-caption italic text-[#9E5B5B]">{error}</div>
           <div className="flex items-center gap-3">
             {step === "review" && (
-              <button onClick={() => setStep("form")} className="rounded-xl border border-navy/20 px-4 py-2.5 text-[13px] text-ink transition-colors hover:bg-white">
+              <button onClick={() => setStep("form")} className="rounded-xl border border-navy/20 px-4 py-2.5 text-btn text-ink transition-colors hover:bg-white">
                 ← Paramètres
               </button>
             )}
             {step === "form" ? (
               <button
                 onClick={doDraft} disabled={busy === "draft"}
-                className="rounded-xl border border-gold/50 bg-gold/15 px-5 py-2.5 text-[13px] font-medium text-gold-600 transition-colors hover:bg-gold/25 disabled:cursor-wait disabled:opacity-60"
+                className="rounded-xl border border-gold/50 bg-gold/15 px-5 py-2.5 text-btn font-medium text-gold-700 transition-colors hover:bg-gold/25 disabled:cursor-wait disabled:opacity-60"
               >
                 {busy === "draft" ? "Rédaction en cours…" : "Rédiger le mémo"}
               </button>
             ) : (
               <button
                 onClick={doRender} disabled={busy === "render"}
-                className="rounded-xl bg-navy px-5 py-2.5 text-[13px] font-medium text-gold transition-colors hover:bg-navy-800 disabled:cursor-wait disabled:opacity-60"
+                className="rounded-xl bg-navy px-5 py-2.5 text-btn font-medium text-gold transition-colors hover:bg-navy-800 disabled:cursor-wait disabled:opacity-60"
               >
                 {busy === "render" ? "Rendu du PDF…" : "Générer le PDF"}
               </button>
@@ -350,7 +350,7 @@ export function MemoModal({ open, onClose }: { open: boolean; onClose: () => voi
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-muted">{label}</div>
+      <div className="mb-2 text-label font-semibold uppercase tracking-widest text-muted">{label}</div>
       {children}
     </div>
   );
@@ -360,7 +360,7 @@ function Choice({ on, label, onClick, disabled }: { on: boolean; label: string; 
   return (
     <button
       onClick={onClick} disabled={disabled}
-      className={`rounded-xl border px-3 py-2 text-[13px] transition-colors ${
+      className={`rounded-xl border px-3 py-2 text-btn transition-colors ${
         on ? "border-gold/60 bg-gold/10 font-medium text-navy" : disabled ? "cursor-not-allowed border-navy/10 text-muted/50" : "border-navy/15 bg-white text-ink hover:border-gold/40"
       }`}
     >
@@ -376,22 +376,22 @@ function Section({ id, label, value, consigne, busy, onText, onConsigne, onRevis
   const revising = busy === id;
   return (
     <div className="rounded-2xl border border-navy/10 bg-white p-4 shadow-card">
-      <div className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-gold-600">{label}</div>
+      <div className="mb-2 text-label font-semibold uppercase tracking-widest text-gold-700">{label}</div>
       <textarea
         value={value}
         onChange={(e) => onText(e.target.value)}
-        className={`min-h-[96px] w-full resize-y rounded-xl border border-navy/10 bg-cream-200/40 px-3 py-2.5 text-[13px] leading-relaxed text-ink outline-none focus:border-gold/60 ${revising ? "opacity-50" : ""}`}
+        className={`min-h-[96px] w-full resize-y rounded-xl border border-navy/10 bg-cream-200/40 px-3 py-2.5 text-body leading-relaxed text-ink outline-none focus:border-gold/60 ${revising ? "opacity-50" : ""}`}
       />
       <div className="mt-2 flex items-center gap-2">
         <input
           value={consigne}
           onChange={(e) => onConsigne(e.target.value)}
           placeholder="Consigne de révision (ex. : raccourcis, plus prudent…)"
-          className="flex-1 rounded-lg border border-navy/10 bg-white px-3 py-1.5 text-[12px] text-ink outline-none placeholder:text-muted/60 focus:border-gold/60"
+          className="flex-1 rounded-lg border border-navy/10 bg-white px-3 py-1.5 text-btn text-ink outline-none placeholder:text-muted/60 focus:border-gold/60"
         />
         <button
           onClick={onRevise} disabled={revising || !consigne.trim()}
-          className="rounded-lg border border-gold/40 bg-gold/[0.08] px-3 py-1.5 text-[12px] font-medium text-gold-600 transition-colors hover:bg-gold/20 disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-lg border border-gold/40 bg-gold/[0.08] px-3 py-1.5 text-btn font-medium text-gold-700 transition-colors hover:bg-gold/20 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {revising ? "Révision…" : "Réviser"}
         </button>
@@ -405,9 +405,9 @@ function ModeTable({ draft, mode }: { draft: MemoDraft; mode: string }) {
   if (!t) return null;
   return (
     <div className="mt-2 overflow-hidden rounded-xl border border-navy/10 bg-cream-200/50">
-      <table className="w-full border-collapse text-[11.5px]">
+      <table className="w-full border-collapse text-td">
         <thead>
-          <tr className="border-b border-navy/10 text-left text-[9px] font-semibold uppercase tracking-wide text-muted">
+          <tr className="border-b border-navy/10 text-left text-th font-semibold uppercase tracking-wide text-ink-soft">
             <th className="px-3 py-1.5">Freguesia</th><th className="px-3 py-1.5">Score</th><th className="px-3 py-1.5">Verdict</th>
             {t.headers.map((h) => <th key={h} className="px-3 py-1.5">{h}</th>)}
           </tr>
@@ -423,7 +423,7 @@ function ModeTable({ draft, mode }: { draft: MemoDraft; mode: string }) {
           ))}
         </tbody>
       </table>
-      <div className="px-3 py-1.5 text-[10px] italic text-muted">Chiffres du moteur — non éditables, réinjectés au rendu.</div>
+      <div className="px-3 py-1.5 text-label italic text-muted">Chiffres du moteur — non éditables, réinjectés au rendu.</div>
     </div>
   );
 }

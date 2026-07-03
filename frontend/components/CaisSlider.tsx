@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CAIS, arbitrageVerdict, scoreColor, spreadSubscore } from "@/lib/scoring";
+import { CAIS, arbitrageVerdict, scoreTextColorDark, spreadSubscore } from "@/lib/scoring";
 import { ArbRow, pctSigned } from "@/lib/arbitrage";
 import { VerdictBadge } from "./ui";
 
@@ -36,7 +36,7 @@ export function CaisSlider({
     <div className="rounded-2xl bg-navy p-5 text-cream shadow-card fade-up">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-widest text-gold">Actif K-REST · Arbitrage</div>
+          <div className="text-label font-semibold uppercase tracking-widest text-gold">Actif K-REST · Arbitrage</div>
           <div className="font-display text-lg">Cais Poente</div>
         </div>
         <VerdictBadge mode="arbitrage" verdict={verdict} />
@@ -44,7 +44,7 @@ export function CaisSlider({
 
       <div className="mt-4">
         <div className="flex items-baseline justify-between">
-          <span className="text-[12px] text-cream/60">Prix de cession visé</span>
+          <span className="text-label text-cream/70">Prix de cession visé</span>
           <span className="font-display text-xl text-gold">{Math.round(price).toLocaleString("fr-FR")} €/m²</span>
         </div>
         <input
@@ -57,7 +57,7 @@ export function CaisSlider({
           onChange={(e) => setPrice(Number(e.target.value))}
           style={{ ["--pct" as any]: `${pct}%` }}
         />
-        <div className="mt-1 flex justify-between text-[10px] text-cream/40">
+        <div className="mt-1 flex justify-between text-label text-cream/60">
           <span>{CAIS.priceMin.toLocaleString("fr-FR")}</span>
           <span>{CAIS.priceMax.toLocaleString("fr-FR")}</span>
         </div>
@@ -68,17 +68,17 @@ export function CaisSlider({
           label="Spread"
           value={pctSigned(spread, 0)}
           sub={row.prixMarche ? `médiane ${row.prixMarche.toLocaleString("fr-FR")} €/m²` : undefined}
-          color={scoreColor(spreadSubscore(spread))}
+          color={scoreTextColorDark(spreadSubscore(spread))}
         />
         <Metric
           label="Délai estimé"
           value={delai != null ? `${delai.toFixed(1)} mois` : "—"}
           sub={row.valeurRealisable ? `réalisable ${row.valeurRealisable.toLocaleString("fr-FR")} €/m²` : undefined}
         />
-        <Metric label="Score arbitrage" value={`${Math.round(total)}`} color={scoreColor(total)} />
+        <Metric label="Score arbitrage" value={`${Math.round(total)}`} color={scoreTextColorDark(total)} />
       </div>
 
-      <p className="mt-4 text-[11px] leading-relaxed text-cream/45">
+      <p className="mt-4 text-caption leading-relaxed text-cream/85">
         Actif trophée front de fleuve à Santa Marinha. Spread vs médiane Gaia et délai croissant
         avec le prix demandé (dérivé de la rotation de la zone) ; verdict fenêtre recalculé en direct.
       </p>
@@ -89,11 +89,11 @@ export function CaisSlider({
 function Metric({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
   return (
     <div className="rounded-xl bg-white/5 p-3">
-      <div className="text-[10px] uppercase tracking-wide text-cream/45">{label}</div>
-      <div className="font-display text-2xl leading-tight" style={{ color: color || "#F3EEE3" }}>
+      <div className="text-label uppercase tracking-wide text-cream/70">{label}</div>
+      <div className="font-display text-2xl leading-tight" style={{ color: color || "#F8F5EE" }}>
         {value}
       </div>
-      {sub && <div className="text-[10px] text-cream/40">{sub}</div>}
+      {sub && <div className="text-label text-cream/85">{sub}</div>}
     </div>
   );
 }

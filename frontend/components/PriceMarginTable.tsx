@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Mode, scoreColor, verdictColor, verdictTone } from "@/lib/scoring";
+import { Mode, scoreColor, verdictTextColor, verdictTone } from "@/lib/scoring";
 import { PmRow, eur0, pct0, pct1 } from "@/lib/priceMargin";
 import { VerdictBadge } from "./ui";
 
@@ -83,7 +83,7 @@ export function PriceMarginTable({
   return (
     <div className="shrink-0 overflow-hidden rounded-2xl border border-navy/10 bg-white shadow-card">
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-[13px]">
+        <table className="w-full border-collapse text-td">
           <thead className="bg-cream-200">
             <tr className="border-b border-navy/10">
               {cols.map((c) => {
@@ -94,23 +94,23 @@ export function PriceMarginTable({
                     onClick={() => toggle(c.key)}
                     className={`cursor-pointer select-none px-3 py-2.5 font-semibold uppercase tracking-wide ${
                       c.num ? "text-right" : "text-left"
-                    } ${active ? "text-navy" : "text-muted hover:text-navy"}`}
+                    } ${active ? "text-navy" : "text-ink-soft hover:text-navy"}`}
                     title="Trier"
                   >
-                    <span className="inline-flex items-center gap-1 text-[10.5px] leading-tight">
+                    <span className="inline-flex items-center gap-1 text-th leading-tight">
                       {!c.num && <span className="w-1" />}
                       <span className="flex flex-col">
                         <span>{c.label}</span>
-                        {c.unit && <span className="text-[9px] font-medium normal-case text-muted/70">{c.unit}</span>}
+                        {c.unit && <span className="text-label font-medium normal-case text-muted">{c.unit}</span>}
                       </span>
-                      <span className={`text-[9px] ${active ? "text-gold-600" : "text-transparent"}`}>
+                      <span className={`text-[10px] ${active ? "text-gold-700" : "text-transparent"}`}>
                         {active ? (sort.dir === "asc" ? "▲" : "▼") : "▲"}
                       </span>
                     </span>
                   </th>
                 );
               })}
-              <th className="px-3 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-wide text-muted">
+              <th className="px-3 py-2.5 text-left text-th font-semibold uppercase tracking-wide text-ink-soft">
                 Verdict
               </th>
             </tr>
@@ -122,7 +122,7 @@ export function PriceMarginTable({
                   <tr key="sep">
                     <td
                       colSpan={cols.length + 1}
-                      className="border-y border-navy/10 bg-cream-200/60 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted"
+                      className="border-y border-navy/10 bg-cream-200/60 px-3 py-1.5 text-label font-semibold uppercase tracking-widest text-muted"
                     >
                       Sous le seuil de viabilité
                     </td>
@@ -147,7 +147,7 @@ export function PriceMarginTable({
                         style={{ background: scoreColor(r.total) }}
                       />
                       <span className={`font-medium ${on ? "text-navy" : "text-ink"}`}>{r.name}</span>
-                      <span className="text-[10px] text-muted">{Math.round(r.total)}</span>
+                      <span className="text-label text-ink-soft">{Math.round(r.total)}</span>
                     </span>
                   </td>
                   {residential && (
@@ -162,8 +162,8 @@ export function PriceMarginTable({
                   <td className="px-3 py-2 text-right tabular-nums font-medium text-ink">{eur0(r.costTotal)}</td>
                   <td className="px-3 py-2 text-right">
                     <span
-                      className="font-display text-[15px] font-medium tabular-nums"
-                      style={{ color: verdictColor(mode, r.verdict) }}
+                      className="font-display text-[16px] font-medium tabular-nums"
+                      style={{ color: verdictTextColor(mode, r.verdict) }}
                     >
                       {pct1(r.marginPct)}
                     </span>
@@ -176,7 +176,7 @@ export function PriceMarginTable({
             })}
             {items.length === 0 && (
               <tr>
-                <td colSpan={cols.length + 1} className="px-4 py-10 text-center text-[13px] text-muted">
+                <td colSpan={cols.length + 1} className="px-4 py-10 text-center text-body text-ink-soft">
                   Chargement des freguesias…
                 </td>
               </tr>

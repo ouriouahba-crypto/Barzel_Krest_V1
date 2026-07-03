@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { RIBEIRA, detentionVerdict, scoreColor, yieldNetSubscore } from "@/lib/scoring";
+import { RIBEIRA, detentionVerdict, scoreTextColorDark, yieldNetSubscore } from "@/lib/scoring";
 import { RdRow } from "@/lib/rendement";
 import { VerdictBadge } from "./ui";
 
@@ -35,7 +35,7 @@ export function RibeiraSlider({
     <div className="rounded-2xl bg-navy p-5 text-cream shadow-card fade-up">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-widest text-gold">Actif K-REST · Détention</div>
+          <div className="text-label font-semibold uppercase tracking-widest text-gold">Actif K-REST · Détention</div>
           <div className="font-display text-lg">Ribeira Sul</div>
         </div>
         <VerdictBadge mode="detention" verdict={verdict} />
@@ -43,7 +43,7 @@ export function RibeiraSlider({
 
       <div className="mt-4">
         <div className="flex items-baseline justify-between">
-          <span className="text-[12px] text-cream/60">Loyer moyen</span>
+          <span className="text-label text-cream/70">Loyer moyen</span>
           <span className="font-display text-xl text-gold">
             {rent.toLocaleString("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} €/m²/mois
           </span>
@@ -58,23 +58,23 @@ export function RibeiraSlider({
           onChange={(e) => setRent(Number(e.target.value))}
           style={{ ["--pct" as any]: `${pct}%` }}
         />
-        <div className="mt-1 flex justify-between text-[10px] text-cream/40">
+        <div className="mt-1 flex justify-between text-label text-cream/60">
           <span>{RIBEIRA.rentMin.toLocaleString("fr-FR")}</span>
           <span>{RIBEIRA.rentMax.toLocaleString("fr-FR")}</span>
         </div>
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-3">
-        <Metric label="Yield net" value={`${net.toFixed(2)}%`} color={scoreColor(yieldNetSubscore(net))} />
+        <Metric label="Yield net" value={`${net.toFixed(2)}%`} color={scoreTextColorDark(yieldNetSubscore(net))} />
         <Metric
           label="Loyer vs marché"
           value={vsMarket != null ? `${vsMarket >= 0 ? "+" : ""}${vsMarket.toFixed(0)}%` : "—"}
           sub={row.loyer ? `marché ${row.loyer.toLocaleString("fr-FR")} €/m²/an` : undefined}
         />
-        <Metric label="Score détention" value={`${Math.round(total)}`} color={scoreColor(total)} />
+        <Metric label="Score détention" value={`${Math.round(total)}`} color={scoreTextColorDark(total)} />
       </div>
 
-      <p className="mt-4 text-[11px] leading-relaxed text-cream/45">
+      <p className="mt-4 text-caption leading-relaxed text-cream/85">
         Immeuble de rapport à Santa Marinha — {RIBEIRA.lots} lots, {RIBEIRA.surface.toLocaleString("fr-FR")} m²,
         acquis {RIBEIRA.acquisition.toLocaleString("fr-FR")} €/m² + {RIBEIRA.travaux} €/m² de travaux.
         Yield et verdict recalculés en direct (net = brut × (1 − charges − fiscalité), taux de la freguesia).
@@ -86,11 +86,11 @@ export function RibeiraSlider({
 function Metric({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
   return (
     <div className="rounded-xl bg-white/5 p-3">
-      <div className="text-[10px] uppercase tracking-wide text-cream/45">{label}</div>
-      <div className="font-display text-2xl leading-tight" style={{ color: color || "#F3EEE3" }}>
+      <div className="text-label uppercase tracking-wide text-cream/70">{label}</div>
+      <div className="font-display text-2xl leading-tight" style={{ color: color || "#F8F5EE" }}>
         {value}
       </div>
-      {sub && <div className="text-[10px] text-cream/40">{sub}</div>}
+      {sub && <div className="text-label text-cream/85">{sub}</div>}
     </div>
   );
 }

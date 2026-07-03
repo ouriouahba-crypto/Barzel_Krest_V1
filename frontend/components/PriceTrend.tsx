@@ -12,8 +12,8 @@ function TrendTooltip({ active, payload }: any) {
   const d = payload[0].payload as PricePoint;
   return (
     <div className="rounded-lg border border-gold/40 bg-navy px-3 py-2 text-cream shadow-card">
-      <div className="text-[12px] font-semibold">{d.t}</div>
-      <div className="text-[12px] text-gold">{d.price.toLocaleString("fr-FR")} €/m²</div>
+      <div className="text-label font-semibold">{d.t}</div>
+      <div className="text-label text-gold">{d.price.toLocaleString("fr-FR")} €/m²</div>
     </div>
   );
 }
@@ -26,7 +26,7 @@ function EndDot(props: any) {
 }
 
 export function PriceTrend({ points }: { points: PricePoint[] }) {
-  if (!points.length) return <div className="flex h-full items-center justify-center text-[13px] text-muted">Chargement…</div>;
+  if (!points.length) return <div className="flex h-full items-center justify-center text-body text-ink-soft">Chargement…</div>;
   const first = points[0];
   const last = points[points.length - 1];
   const label = ({ x, y, index }: any) => {
@@ -34,18 +34,18 @@ export function PriceTrend({ points }: { points: PricePoint[] }) {
     const p = index === 0 ? first : last;
     const anchor = index === 0 ? "start" : "end";
     return (
-      <text key={index} x={x} y={y - 9} textAnchor={anchor} fontSize={10.5} fill="#243447" fontWeight={index === 0 ? 400 : 600}>
+      <text key={index} x={x} y={y - 9} textAnchor={anchor} fontSize={12} fill="#243447" fontWeight={index === 0 ? 400 : 600}>
         {p.price.toLocaleString("fr-FR")}
       </text>
     );
   };
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={points} margin={{ top: 18, right: 12, left: 12, bottom: 2 }}>
+      <LineChart data={points} margin={{ top: 18, right: 14, left: 20, bottom: 2 }}>
         <CartesianGrid vertical={false} stroke="rgba(10,22,40,0.07)" />
         <XAxis
           dataKey="t"
-          tick={{ fontSize: 10, fill: "#6B7A8D" }}
+          tick={{ fontSize: 12, fill: "#6B7A8D" }}
           tickLine={false}
           axisLine={{ stroke: "rgba(10,22,40,0.12)" }}
           interval={1}

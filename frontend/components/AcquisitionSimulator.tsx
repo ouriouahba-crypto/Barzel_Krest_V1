@@ -19,19 +19,19 @@ export function AcquisitionSimulator({ residential }: { residential: boolean }) 
     <div className="rounded-2xl bg-navy p-5 text-cream shadow-card fade-up">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-widest text-gold">
+          <div className="text-label font-semibold uppercase tracking-widest text-gold">
             Simulateur d'acquisition · Portugal
           </div>
           <div className="font-display text-lg">Frais d'entrée {residential ? "résidentiel" : "commercial"}</div>
         </div>
-        <span className="rounded-full border border-gold/40 bg-gold/10 px-2.5 py-1 text-[11px] font-medium text-gold">
+        <span className="rounded-full border border-gold/40 bg-gold/10 px-2.5 py-1 text-label font-medium text-gold">
           {t.pct.toFixed(1)}% du prix
         </span>
       </div>
 
       <div className="mt-4">
         <div className="flex items-baseline justify-between">
-          <span className="text-[12px] text-cream/60">Prix d'acquisition</span>
+          <span className="text-label text-cream/70">Prix d'acquisition</span>
           <span className="font-display text-xl text-gold">{eur(price)}</span>
         </div>
         <input
@@ -44,7 +44,7 @@ export function AcquisitionSimulator({ residential }: { residential: boolean }) 
           onChange={(e) => setPrice(Number(e.target.value))}
           style={{ ["--pct" as any]: `${pct}%` }}
         />
-        <div className="mt-1 flex justify-between text-[10px] text-cream/40">
+        <div className="mt-1 flex justify-between text-label text-cream/60">
           <span>200 000</span>
           <span>5 000 000</span>
         </div>
@@ -60,7 +60,7 @@ export function AcquisitionSimulator({ residential }: { residential: boolean }) 
         <Metric label="Total à l'entrée" value={eur(t.total)} sub={`${t.pct.toFixed(1)}% du prix`} color="#E0CBA0" />
       </div>
 
-      <p className="mt-4 text-[11px] leading-relaxed text-cream/45">
+      <p className="mt-4 text-caption leading-relaxed text-cream/85">
         Barème IMT 2026 en vigueur (continent) : tranches marginales avec parcela a abater
         jusqu'à 660 982 €, taux uniques 6% puis 7,5% au-delà de 1 150 853 € ; prédios não
         habitacionais et terrains à bâtir au taux unique de 6,5%.
@@ -72,11 +72,11 @@ export function AcquisitionSimulator({ residential }: { residential: boolean }) 
 function Metric({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
   return (
     <div className="rounded-xl bg-white/5 p-3">
-      <div className="text-[10px] uppercase tracking-wide text-cream/45">{label}</div>
-      <div className="font-display text-xl leading-tight" style={{ color: color || "#F3EEE3" }}>
+      <div className="text-label uppercase tracking-wide text-cream/70">{label}</div>
+      <div className="font-display text-xl leading-tight" style={{ color: color || "#F8F5EE" }}>
         {value}
       </div>
-      {sub && <div className="text-[10px] text-cream/40">{sub}</div>}
+      {sub && <div className="text-label text-cream/85">{sub}</div>}
     </div>
   );
 }

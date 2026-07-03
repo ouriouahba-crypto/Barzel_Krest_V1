@@ -1,6 +1,6 @@
 "use client";
 
-import { Mode, scoreColor, verdictColor } from "@/lib/scoring";
+import { Mode, scoreTextColor, verdictColor, verdictTextColor } from "@/lib/scoring";
 import { PmRow, eur0, eurM2 } from "@/lib/priceMargin";
 import { Waterfall, WaterfallEmpty } from "./Waterfall";
 
@@ -19,6 +19,7 @@ export function MarginWaterfall({
 
   const margin = row.netSale - row.costTotal;
   const marginColor = verdictColor(mode, row.verdict);
+  const inkVerdict = verdictTextColor(mode, row.verdict);
   // The backend rounds each cost component separately, so their sum can drift
   // from costTotal by ±1-2 € : the soft-cost slice takes the residual so the
   // cascade lands exactly on netSale − costTotal — the "Marge / m²" tile value.
@@ -36,6 +37,7 @@ export function MarginWaterfall({
       verdict={row.verdict}
       headline={`${row.marginPct.toFixed(1)}%`}
       accent={marginColor}
+      accentText={inkVerdict}
       base={{ label: "Prix de vente", value: row.netSale }}
       deductions={[
         { label: "Construction", value: row.construction },
@@ -48,8 +50,8 @@ export function MarginWaterfall({
       fmt={eur0}
       stats={[
         { label: "Coût de revient", value: eurM2(row.costTotal) },
-        { label: margin >= 0 ? "Marge / m²" : "Perte / m²", value: eurM2(margin), accent: marginColor },
-        { label: "Score promotion", value: `${Math.round(row.total)}`, accent: scoreColor(row.total) },
+        { label: margin >= 0 ? "Marge / m²" : "Perte / m²", value: eurM2(margin), accent: inkVerdict },
+        { label: "Score promotion", value: `${Math.round(row.total)}`, accent: scoreTextColor(row.total) },
       ]}
     />
   );

@@ -11,7 +11,7 @@ export function VerdictBadge({ mode, verdict }: { mode: Mode; verdict: string })
     low: "bg-[#4A2626] text-[#E7C4C4] border-[#6E3C3C]",
   }[tone];
   return (
-    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium tracking-wide ${cls}`}>
+    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-label font-medium tracking-wide ${cls}`}>
       {verdictLabel(verdict)}
     </span>
   );
@@ -56,14 +56,15 @@ export function PillarBar({
   dark?: boolean;
 }) {
   const s = subscore ?? 0;
-  const textMuted = dark ? "text-white/55" : "text-muted";
+  // La valeur native est du contenu : cream ≥ 0.85 sur fond sombre, ink.soft sur clair.
+  const textMuted = dark ? "text-cream/85" : "text-ink-soft";
   const textMain = dark ? "text-cream" : "text-ink";
   const track = dark ? "bg-white/10" : "bg-navy/10";
   return (
     <div className="py-1.5">
       <div className="flex items-baseline justify-between gap-3">
-        <span className={`text-[13px] font-medium capitalize ${textMain}`}>{label.replace(/_/g, " ")}</span>
-        <span className={`text-[12px] ${textMuted}`}>{native}</span>
+        <span className={`text-body font-medium capitalize leading-snug ${textMain}`}>{label.replace(/_/g, " ")}</span>
+        <span className={`text-td ${textMuted}`}>{native}</span>
       </div>
       <div className={`mt-1 h-1.5 w-full overflow-hidden rounded-full ${track}`}>
         <div
@@ -90,7 +91,7 @@ export function Segmented<T extends string>({
   onChange: (v: T) => void;
   size?: "md" | "lg";
 }) {
-  const pad = size === "lg" ? "px-4 py-2.5 text-sm" : "px-3 py-1.5 text-[13px]";
+  const pad = size === "lg" ? "px-4 py-2.5 text-sm" : "px-3 py-1.5 text-btn";
   return (
     <div className="inline-flex rounded-xl bg-navy/5 p-1">
       {options.map((o) => {
@@ -144,7 +145,7 @@ export function MultiSelect({
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-2 rounded-xl border border-navy/10 bg-white px-3.5 py-2.5 text-[13px] text-ink shadow-sm hover:border-gold/60"
+        className="flex w-full items-center justify-between gap-2 rounded-xl border border-navy/10 bg-white px-3.5 py-2.5 text-btn text-ink shadow-sm hover:border-gold/60"
       >
         <span className="flex items-center gap-2 text-muted">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" className="text-gold">
@@ -162,11 +163,11 @@ export function MultiSelect({
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Rechercher une freguesia…"
-            className="mb-2 w-full rounded-lg border border-navy/10 bg-cream/40 px-3 py-2 text-[13px] outline-none focus:border-gold"
+            className="mb-2 w-full rounded-lg border border-navy/10 bg-cream/40 px-3 py-2 text-btn outline-none focus:border-gold"
           />
           <div className="max-h-64 overflow-auto pr-1">
             {selected.length > 0 && (
-              <button onClick={() => onChange([])} className="mb-1 w-full rounded-md px-2 py-1 text-left text-[12px] text-gold-600 hover:bg-cream">
+              <button onClick={() => onChange([])} className="mb-1 w-full rounded-md px-2 py-1 text-left text-label text-gold-700 hover:bg-cream">
                 Effacer la sélection
               </button>
             )}
@@ -176,20 +177,20 @@ export function MultiSelect({
                 <button
                   key={o.id}
                   onClick={() => toggle(o.id)}
-                  className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] hover:bg-cream"
+                  className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-btn hover:bg-cream"
                 >
                   <span
                     className={`flex h-4 w-4 items-center justify-center rounded border ${
                       on ? "border-gold bg-gold text-navy" : "border-navy/25"
                     }`}
                   >
-                    {on && <span className="text-[10px] leading-none">✓</span>}
+                    {on && <span className="text-label leading-none">✓</span>}
                   </span>
                   <span className={on ? "font-medium text-ink" : "text-ink/80"}>{o.label}</span>
                 </button>
               );
             })}
-            {filtered.length === 0 && <div className="px-2 py-3 text-center text-[12px] text-muted">Aucun résultat</div>}
+            {filtered.length === 0 && <div className="px-2 py-3 text-center text-label text-muted">Aucun résultat</div>}
           </div>
         </div>
       )}

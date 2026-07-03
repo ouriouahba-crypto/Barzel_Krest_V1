@@ -13,7 +13,7 @@ import { ModeScore } from "@/lib/api";
 
 const GaiaMap = dynamic(() => import("@/components/GaiaMap"), {
   ssr: false,
-  loading: () => <div className="flex h-full items-center justify-center bg-navy text-cream/50">Carte…</div>,
+  loading: () => <div className="flex h-full items-center justify-center bg-navy text-body text-cream/70">Carte…</div>,
 });
 
 const MARKET_LINE = "Rive sud du Douro en forte progression, offre neuve rare côté fleuve.";
@@ -81,7 +81,7 @@ export default function CartePage() {
             <div className="absolute right-7 top-7 z-[500] w-72 rounded-2xl border border-gold/40 bg-navy p-4 text-cream shadow-card fade-up">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                  <div className="text-[10px] uppercase tracking-widest text-gold/90">{q.level === "municipio" ? "Vue ville" : "Freguesia"}</div>
+                  <div className="text-label uppercase tracking-widest text-gold/90">{q.level === "municipio" ? "Vue ville" : "Freguesia"}</div>
                   <div className="font-display text-[17px] leading-tight">{q.name}</div>
                 </div>
                 <ScoreDial score={q.total} size={52} />
@@ -95,7 +95,7 @@ export default function CartePage() {
                 <Stat label={q.extra.label} value={q.extra.value} />
                 <Stat label={q.kpiLabel} value={q.kpiValue ?? "—"} />
               </div>
-              <div className="mt-3 text-[10px] text-cream/40">Survolez une freguesia · cliquez pour le détail</div>
+              <div className="mt-3 text-label text-cream/60">Survolez une freguesia · cliquez pour le détail</div>
             </div>
           )}
         </main>
@@ -116,8 +116,8 @@ export default function CartePage() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl bg-white/5 p-2.5">
-      <div className="text-[9px] uppercase tracking-wide text-cream/45">{label}</div>
-      <div className="font-display text-[15px] leading-tight text-cream">{value}</div>
+      <div className="text-label uppercase tracking-wide text-cream/70">{label}</div>
+      <div className="font-display text-[16px] leading-tight text-cream">{value}</div>
     </div>
   );
 }

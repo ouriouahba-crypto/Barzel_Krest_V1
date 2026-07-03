@@ -22,7 +22,7 @@ const LEGEND: Record<Mode, string[]> = {
   landbank: ["Prioritaire", "A phaser", "En attente"],
 };
 
-const axis = { fontSize: 10, fill: "#6B7A8D" };
+const axis = { fontSize: 12, fill: "#6B7A8D" };
 
 export function MarginBars<T extends BarRowBase>({
   rows,
@@ -54,8 +54,8 @@ export function MarginBars<T extends BarRowBase>({
     const d = payload[0].payload as T & { __value: number };
     return (
       <div className="rounded-lg border border-gold/40 bg-navy px-3 py-2 text-cream shadow-card">
-        <div className="text-[12px] font-semibold">{d.name}</div>
-        <div className="text-[12px] text-gold">
+        <div className="text-label font-semibold">{d.name}</div>
+        <div className="text-label text-gold">
           {metricLabel} {d.__value.toFixed(digits)}% · {verdictLabel(d.verdict)}
         </div>
       </div>
@@ -65,12 +65,12 @@ export function MarginBars<T extends BarRowBase>({
   return (
     <div className="rounded-2xl border border-navy/10 bg-white p-4 shadow-card">
       <div className="mb-2 flex items-baseline justify-between">
-        <h3 className="font-display text-[15px] text-navy">{title}</h3>
-        <span className="text-[11px] text-muted">barres par verdict · {classLabel}</span>
+        <h3 className="font-display text-[16px] text-navy">{title}</h3>
+        <span className="text-label text-muted">barres par verdict · {classLabel}</span>
       </div>
       <div className="h-[250px]">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 6, right: 6, left: -8, bottom: 30 }}>
+          <BarChart data={data} margin={{ top: 6, right: 6, left: -8, bottom: 42 }}>
             <XAxis
               dataKey="short"
               tick={axis}
@@ -109,7 +109,7 @@ export function MarginBars<T extends BarRowBase>({
         </ResponsiveContainer>
       </div>
       {/* verdict legend */}
-      <div className="mt-1 flex items-center gap-4 pl-1 text-[11px] text-muted">
+      <div className="mt-1 flex items-center gap-4 pl-1 text-label text-muted">
         {LEGEND[mode].map((v) => (
           <LegendDot key={v} color={verdictColor(mode, v)} label={verdictLabel(v)} />
         ))}

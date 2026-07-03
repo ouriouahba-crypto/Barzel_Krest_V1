@@ -15,8 +15,8 @@ function RankTooltip({ active, payload, mode }: any) {
   const d = payload[0].payload as RankRow;
   return (
     <div className="rounded-lg border border-gold/40 bg-navy px-3 py-2 text-cream shadow-card">
-      <div className="text-[12px] font-semibold">{d.name}</div>
-      <div className="text-[12px] text-gold">
+      <div className="text-label font-semibold">{d.name}</div>
+      <div className="text-label text-gold">
         {Math.round(d.total)} / 100 · {verdictLabel(d.verdict)}
       </div>
     </div>
@@ -33,13 +33,14 @@ export function OverviewRanking({ rows, mode }: { rows: RankRow[]; mode: Mode })
         <YAxis
           type="category"
           dataKey="short"
-          width={104}
-          tick={{ fontSize: 10.5, fill: "#243447" }}
+          width={118}
+          tick={{ fontSize: 12, fill: "#243447" }}
           tickLine={false}
           axisLine={false}
+          interval={0}
         />
         <Tooltip cursor={{ fill: "rgba(10,22,40,0.05)" }} content={<RankTooltip mode={mode} />} />
-        <Bar dataKey="total" radius={[0, 3, 3, 0]} maxBarSize={16} label={{ position: "right", fontSize: 10, fill: "#6B7A8D", formatter: (v: number) => Math.round(v) }}>
+        <Bar dataKey="total" radius={[0, 3, 3, 0]} maxBarSize={16} label={{ position: "right", fontSize: 12, fill: "#3D4C5F", formatter: (v: number) => Math.round(v) }}>
           {data.map((r) => (
             <Cell key={r.name} fill={verdictColor(mode, r.verdict)} />
           ))}

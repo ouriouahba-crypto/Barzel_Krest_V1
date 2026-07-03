@@ -105,7 +105,7 @@ export default function VueEnsemble() {
         />
 
         {g.error && (
-          <div className="mx-6 mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-[13px] text-red-700">
+          <div className="mx-6 mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-body text-red-700">
             Backend injoignable — lancez l’API (uvicorn backend.main:app). {g.error}
           </div>
         )}
@@ -119,7 +119,7 @@ export default function VueEnsemble() {
               bm && topOpp ? (
                 <>
                   <div className="text-right">
-                    <div className="text-[10px] uppercase tracking-widest text-cream/50">Meilleure opportunité · {MODE_LABEL[bm]}</div>
+                    <div className="text-label uppercase tracking-widest text-cream/70">Meilleure opportunité · {MODE_LABEL[bm]}</div>
                     <div className="font-display text-lg text-cream">{shortName(topOpp.zone_name)}</div>
                     <div className="mt-1">
                       <VerdictBadge mode={bm} verdict={topOpp.verdict} />
@@ -130,7 +130,7 @@ export default function VueEnsemble() {
               ) : bmScore && bm ? (
                 <>
                   <div className="text-right">
-                    <div className="text-[10px] uppercase tracking-widest text-cream/50">Meilleur mode</div>
+                    <div className="text-label uppercase tracking-widest text-cream/70">Meilleur mode</div>
                     <div className="font-display text-lg text-cream">{MODE_LABEL[bm]}</div>
                     <div className="mt-1">
                       <VerdictBadge mode={bm} verdict={bmScore.verdict} />
@@ -155,8 +155,8 @@ export default function VueEnsemble() {
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-[12px] font-semibold uppercase tracking-widest text-gold/90">{MODE_LABEL[m]}</span>
-                    {isBest && <span className="rounded-full bg-gold/20 px-2 py-0.5 text-[9px] uppercase tracking-wide text-gold">Dominant</span>}
+                    <span className="text-label font-semibold uppercase tracking-widest text-gold/90">{MODE_LABEL[m]}</span>
+                    {isBest && <span className="rounded-full bg-gold/20 px-2 py-0.5 text-label uppercase tracking-wide text-gold">Dominant</span>}
                   </div>
                   <div className="mt-2 flex items-center gap-3">
                     {s ? <ScoreDial score={s.total} size={54} /> : <div className="h-[54px] w-[54px] animate-pulse rounded-full bg-white/10" />}
@@ -164,25 +164,25 @@ export default function VueEnsemble() {
                       {s ? (
                         <>
                           <VerdictBadge mode={m} verdict={s.verdict} />
-                          <div className="mt-1 truncate text-[11px] text-cream/55">{s.native_indicator?.label}</div>
+                          <div className="mt-1 truncate text-caption text-cream/85">{s.native_indicator?.label}</div>
                         </>
                       ) : (
                         <div className="h-4 w-24 animate-pulse rounded bg-white/10" />
                       )}
                     </div>
                   </div>
-                  <p className="mt-3 min-h-[32px] text-[11.5px] leading-snug text-cream/75">
+                  <p className="mt-3 min-h-[32px] text-body leading-snug text-cream/90">
                     {s ? modeInsight(s, cls) : ""}
                   </p>
                   {MODE_ROUTE[m] ? (
                     <Link
                       href={MODE_ROUTE[m]!}
-                      className="mt-2 inline-flex items-center gap-1 self-start rounded-lg border border-gold/40 bg-gold/10 px-2.5 py-1 text-[11px] font-medium text-gold transition-colors hover:bg-gold/20"
+                      className="mt-2 inline-flex items-center gap-1 self-start rounded-lg border border-gold/40 bg-gold/10 px-2.5 py-1 text-btn font-medium text-gold transition-colors hover:bg-gold/20"
                     >
                       Explorer →
                     </Link>
                   ) : (
-                    <span className="mt-2 inline-flex self-start text-[10px] uppercase tracking-wide text-cream/30">Bientôt</span>
+                    <span className="mt-2 inline-flex self-start text-label uppercase tracking-wide text-cream/50">Bientôt</span>
                   )}
                 </div>
               );
@@ -195,19 +195,19 @@ export default function VueEnsemble() {
           <div className="grid shrink-0 grid-cols-1 gap-3 xl:grid-cols-[1fr_1.35fr_1fr]">
             <section className="flex flex-col rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
               <div className="mb-3 flex items-baseline justify-between">
-                <h3 className="font-display text-[15px] text-navy">Où — top 3 freguesias</h3>
-                <span className="text-[11px] text-muted">{bm ? MODE_LABEL[bm] : ""}</span>
+                <h3 className="font-display text-[16px] text-navy">Où — top 3 freguesias</h3>
+                <span className="text-label text-muted">{bm ? MODE_LABEL[bm] : ""}</span>
               </div>
               <div className="flex flex-col gap-2.5">
                 {podium.map((z, i) => (
                   <div key={z.zone} className="flex items-center gap-3 rounded-xl border border-navy/10 bg-cream-200 px-3 py-2.5">
-                    <span className="font-display text-[18px] text-gold-600">{i + 1}</span>
+                    <span className="font-display text-kpi-sm text-gold-700">{i + 1}</span>
                     <span className="h-9 w-1 rounded-full" style={{ background: verdictColor(bm as Mode, z.verdict) }} />
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-[13px] font-medium text-ink">{displayName(z.zone_name)}</div>
+                      <div className="truncate text-body font-medium text-ink">{displayName(z.zone_name)}</div>
                       <div className="mt-0.5 flex items-center gap-2">
                         <VerdictBadge mode={bm as Mode} verdict={z.verdict} />
-                        <span className="text-[11px] text-muted">
+                        <span className="text-caption text-ink-soft">
                           {bm ? `${KPI_NOUN[bm]} ${kpiVal(z, bm)}` : ""}
                         </span>
                       </div>
@@ -215,24 +215,24 @@ export default function VueEnsemble() {
                     <ScoreDial score={z.total} size={44} light />
                   </div>
                 ))}
-                {!podium.length && <div className="text-[13px] text-muted">Chargement…</div>}
+                {!podium.length && <div className="text-body text-ink-soft">Chargement…</div>}
               </div>
             </section>
 
             <section className="flex flex-col rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
               <div className="mb-2 flex items-baseline justify-between">
-                <h3 className="font-display text-[15px] text-navy">Classement des freguesias</h3>
-                <span className="text-[11px] text-muted">score {bm ? MODE_LABEL[bm].toLowerCase() : ""} · par verdict</span>
+                <h3 className="font-display text-[16px] text-navy">Classement des freguesias</h3>
+                <span className="text-label text-muted">score {bm ? MODE_LABEL[bm].toLowerCase() : ""} · par verdict</span>
               </div>
-              <div className="h-[330px]">{bm && rankRows.length ? <OverviewRanking rows={rankRows} mode={bm} /> : null}</div>
+              <div className="h-[360px]">{bm && rankRows.length ? <OverviewRanking rows={rankRows} mode={bm} /> : null}</div>
             </section>
 
             <section className="flex flex-col rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
               <div className="mb-1 flex items-baseline justify-between">
-                <h3 className="font-display text-[15px] text-navy">Trajectoire des prix</h3>
-                <span className="text-[11px] text-muted">médiane ville · 8 trimestres</span>
+                <h3 className="font-display text-[16px] text-navy">Trajectoire des prix</h3>
+                <span className="text-label text-muted">médiane ville · 8 trimestres</span>
               </div>
-              <p className="mb-2 text-[11.5px] leading-snug text-muted">{trendLine}</p>
+              <p className="mb-2 text-body leading-snug text-ink-soft">{trendLine}</p>
               <div className="h-[280px]">
                 <PriceTrend points={trajectory} />
               </div>
@@ -240,7 +240,7 @@ export default function VueEnsemble() {
           </div>
 
           {/* d) Market context — one discrete line */}
-          <div className="shrink-0 rounded-xl border border-navy/10 bg-cream-200 px-4 py-2 text-[12px] text-muted">
+          <div className="shrink-0 rounded-xl border border-navy/10 bg-cream-200 px-4 py-2.5 text-caption text-ink-soft">
             <span className="font-medium text-ink">Contexte marché</span>
             <span className="mx-2 text-navy/20">·</span>
             Prix médian {eur(market.price)}

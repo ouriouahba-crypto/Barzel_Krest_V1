@@ -102,7 +102,7 @@ export default function GaiaMap({
   );
 
   if (!geo) {
-    return <div className="flex h-full items-center justify-center bg-navy text-cream/50">Chargement de la carte…</div>;
+    return <div className="flex h-full items-center justify-center bg-navy text-body text-cream/70">Chargement de la carte…</div>;
   }
 
   const isIncluded = (zoneId: string | undefined) => selected.length === 0 || (zoneId ? selected.includes(zoneId) : false);

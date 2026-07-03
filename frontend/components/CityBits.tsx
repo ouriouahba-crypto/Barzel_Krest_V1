@@ -7,12 +7,12 @@ import { displayName } from "@/lib/useGaia";
 export function MapLegendBar({ min, max }: { min: number; max: number }) {
   return (
     <div className="flex items-center gap-4 rounded-xl border border-navy/10 bg-white px-4 py-2.5 shadow-card">
-      <span className="text-[11px] font-medium text-muted">Prudence</span>
+      <span className="text-label font-medium text-muted">Prudence</span>
       <div className="relative h-2.5 flex-1 rounded-full" style={{ background: "linear-gradient(90deg,#9E5B5B,#C9A86A,#2F6B3D)" }}>
-        <span className="absolute -top-4 left-0 text-[10px] font-semibold text-navy">{Math.round(min)}</span>
-        <span className="absolute -top-4 right-0 text-[10px] font-semibold text-navy">{Math.round(max)}</span>
+        <span className="absolute -top-4 left-0 text-label font-semibold text-navy">{Math.round(min)}</span>
+        <span className="absolute -top-4 right-0 text-label font-semibold text-navy">{Math.round(max)}</span>
       </div>
-      <span className="text-[11px] font-medium text-muted">Favorable</span>
+      <span className="text-label font-medium text-muted">Favorable</span>
     </div>
   );
 }

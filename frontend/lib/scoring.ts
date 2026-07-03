@@ -85,6 +85,36 @@ const VERDICT_COLOR: Record<"good" | "mid" | "low", string> = {
 export function verdictColor(mode: Mode, verdict: string): string {
   return VERDICT_COLOR[verdictTone(mode, verdict)];
 }
+// Encres de verdict pour du TEXTE sur fond clair (AA ≥ 4.5:1 sur blanc et cream) :
+// seul le mid diffère (or brut 2.26:1 → gold.700 #85683A). Barres, liserés et
+// badges gardent VERDICT_COLOR.
+const VERDICT_TEXT_COLOR: Record<"good" | "mid" | "low", string> = {
+  good: "#2F6B3D",
+  mid: "#85683A",
+  low: "#9E5B5B",
+};
+export function verdictTextColor(mode: Mode, verdict: string): string {
+  return VERDICT_TEXT_COLOR[verdictTone(mode, verdict)];
+}
+// Rampe de score pour du TEXTE sur fond clair : mêmes bornes rouge/vert (déjà
+// AA) mais pivot or assombri (#85683A) — miroir texte de scoreColor.
+const GOLD_TEXT = [133, 104, 58]; // #85683A
+export function scoreTextColor(score: number | null | undefined): string {
+  if (score == null || Number.isNaN(score)) return "#3D4C5F";
+  const t = Math.max(0, Math.min(1, score / 100));
+  const rgb = t < 0.5 ? lerp(RED, GOLD_TEXT, t / 0.5) : lerp(GOLD_TEXT, GREEN, (t - 0.5) / 0.5);
+  return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+}
+// Rampe de score pour du TEXTE sur fond NAVY (tuiles K-REST) : rouge/vert
+// éclaircis (le vert profond tombe à 2.5:1 sur navy), pivot or inchangé (8:1).
+const RED_DARKBG = [217, 148, 148]; // #D99494
+const GREEN_DARKBG = [125, 184, 138]; // #7DB88A
+export function scoreTextColorDark(score: number | null | undefined): string {
+  if (score == null || Number.isNaN(score)) return "#F8F5EE";
+  const t = Math.max(0, Math.min(1, score / 100));
+  const rgb = t < 0.5 ? lerp(RED_DARKBG, GOLD, t / 0.5) : lerp(GOLD, GREEN_DARKBG, (t - 0.5) / 0.5);
+  return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+}
 
 export function median(vals: number[]): number | null {
   const a = vals.filter((v) => v != null && !Number.isNaN(v)).sort((x, y) => x - y);

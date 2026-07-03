@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Mode, scoreColor, verdictColor, verdictTone } from "@/lib/scoring";
+import { Mode, scoreColor, verdictTextColor, verdictTone } from "@/lib/scoring";
 import { eur0 } from "@/lib/priceMargin";
 import { RdRow, pct2 } from "@/lib/rendement";
 import { VerdictBadge } from "./ui";
@@ -79,7 +79,7 @@ export function RendementTable({
   return (
     <div className="shrink-0 overflow-hidden rounded-2xl border border-navy/10 bg-white shadow-card">
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-[13px]">
+        <table className="w-full border-collapse text-td">
           <thead className="bg-cream-200">
             <tr className="border-b border-navy/10">
               {COLS.map((c) => {
@@ -92,23 +92,23 @@ export function RendementTable({
                     onClick={() => toggle(c.key)}
                     className={`cursor-pointer select-none px-3 py-2.5 font-semibold uppercase tracking-wide ${
                       c.num ? "text-right" : "text-left"
-                    } ${active ? "text-navy" : "text-muted hover:text-navy"}`}
+                    } ${active ? "text-navy" : "text-ink-soft hover:text-navy"}`}
                     title="Trier"
                   >
-                    <span className="inline-flex items-center gap-1 text-[10.5px] leading-tight">
+                    <span className="inline-flex items-center gap-1 text-th leading-tight">
                       {!c.num && <span className="w-1" />}
                       <span className="flex flex-col">
                         <span>{c.label}</span>
-                        {c.unit && <span className="text-[9px] font-medium normal-case text-muted/70">{c.unit}</span>}
+                        {c.unit && <span className="text-label font-medium normal-case text-muted">{c.unit}</span>}
                       </span>
-                      <span className={`text-[9px] ${active ? "text-gold-600" : "text-transparent"}`}>
+                      <span className={`text-[10px] ${active ? "text-gold-700" : "text-transparent"}`}>
                         {active ? (sort.dir === "asc" ? "▲" : "▼") : "▲"}
                       </span>
                     </span>
                   </th>
                 );
               })}
-              <th className="px-3 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-wide text-muted">
+              <th className="px-3 py-2.5 text-left text-th font-semibold uppercase tracking-wide text-ink-soft">
                 Verdict
               </th>
             </tr>
@@ -120,7 +120,7 @@ export function RendementTable({
                   <tr key="sep">
                     <td
                       colSpan={COLS.length + 1}
-                      className="border-y border-navy/10 bg-cream-200/60 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted"
+                      className="border-y border-navy/10 bg-cream-200/60 px-3 py-1.5 text-label font-semibold uppercase tracking-widest text-muted"
                     >
                       À céder
                     </td>
@@ -145,7 +145,7 @@ export function RendementTable({
                         style={{ background: scoreColor(r.total) }}
                       />
                       <span className={`font-medium ${on ? "text-navy" : "text-ink"}`}>{r.name}</span>
-                      <span className="text-[10px] text-muted">{Math.round(r.total)}</span>
+                      <span className="text-label text-ink-soft">{Math.round(r.total)}</span>
                     </span>
                   </td>
                   <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eur0(r.loyer)}</td>
@@ -154,8 +154,8 @@ export function RendementTable({
                   <td className="px-3 py-2 text-right tabular-nums text-ink/80">{r.fiscPctLoyer.toFixed(1)}%</td>
                   <td className="px-3 py-2 text-right">
                     <span
-                      className="font-display text-[15px] font-medium tabular-nums"
-                      style={{ color: verdictColor(mode, r.verdict) }}
+                      className="font-display text-[16px] font-medium tabular-nums"
+                      style={{ color: verdictTextColor(mode, r.verdict) }}
                     >
                       {pct2(r.yieldNet)}
                     </span>
@@ -168,7 +168,7 @@ export function RendementTable({
             })}
             {items.length === 0 && (
               <tr>
-                <td colSpan={COLS.length + 1} className="px-4 py-10 text-center text-[13px] text-muted">
+                <td colSpan={COLS.length + 1} className="px-4 py-10 text-center text-body text-ink-soft">
                   Chargement des freguesias…
                 </td>
               </tr>

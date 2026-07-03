@@ -28,24 +28,14 @@ async function fitAndShoot(p, path) {
 (async () => {
   const b = await chromium.launch({ channel: "chrome", headless: true });
 
-  // 1) Résidentiel (défaut) — meilleure fenêtre sélectionnée
+  // Une seule capture : le landbank est class-indépendant et /foncier masque le
+  // sélecteur de classe (hideClass) — l'ancienne variante « Bureaux » n'existe plus.
   const p1 = await b.newPage({ viewport: { width: W, height: 1024 }, deviceScaleFactor: 2 });
   await p1.goto(URL, { waitUntil: "networkidle" });
   await ready(p1);
   await fitAndShoot(p1, "shots/foncier_residentiel.png");
   console.log("shot résidentiel done");
   await p1.close();
-
-  // 2) Bureaux
-  const p2 = await b.newPage({ viewport: { width: W, height: 1024 }, deviceScaleFactor: 2 });
-  await p2.goto(URL, { waitUntil: "networkidle" });
-  await ready(p2);
-  await p2.getByRole("button", { name: "Bureaux", exact: true }).click();
-  await p2.waitForTimeout(1800); // refetch office class + re-render
-  await ready(p2);
-  await fitAndShoot(p2, "shots/foncier_bureaux.png");
-  console.log("shot bureaux done");
-  await p2.close();
 
   await b.close();
 })().catch((e) => {

@@ -26,7 +26,15 @@ const TIMELINE: { when: string; what: string }[] = [
   { when: "2040", what: "Sortie des chaudières à combustibles fossiles." },
 ];
 
-const toneColor = { good: "#2F6B3D", mid: "#C9A86A", low: "#9E5B5B" } as const;
+// Encres AA pour le texte sur fond clair (pivot or assombri) + pilules de
+// verdict sur le modèle VerdictBadge (fond sombre, texte clair — jamais de
+// blanc sur or, 2.26:1).
+const toneTextColor = { good: "#2F6B3D", mid: "#85683A", low: "#9E5B5B" } as const;
+const tonePill = {
+  good: "bg-[#284E3A] text-[#CDE7D6] border border-[#3C6E51]",
+  mid: "bg-[#4A3E1E] text-[#EDD9A8] border border-[#6E5A2C]",
+  low: "bg-[#4A2626] text-[#E7C4C4] border border-[#6E3C3C]",
+} as const;
 
 export default function EnergiePage() {
   const g = useGaia();
@@ -98,12 +106,12 @@ export default function EnergiePage() {
           <div>
             <div className="flex items-center gap-3">
               <span className="inline-block h-5 w-1.5 rounded-full bg-gold" />
-              <h2 className="font-display text-[22px] leading-none text-navy">Énergie</h2>
-              <span className="rounded-full border border-gold/40 bg-gold/10 px-2.5 py-0.5 text-[11px] font-medium text-gold-600">
+              <h2 className="font-display text-[24px] leading-none text-navy">Énergie</h2>
+              <span className="rounded-full border border-gold/40 bg-gold/[0.06] px-2.5 py-0.5 text-label font-medium text-gold-700">
                 EPBD · {classLabel(cls)}
               </span>
             </div>
-            <p className="mt-2 max-w-3xl pl-[18px] text-[13px] leading-relaxed text-muted">
+            <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
               La directive EPBD impose une trajectoire de rénovation au parc européen ; le
               certificat SCE (A+ → F) en est l'instrument portugais. Exposition du parc de Gaia,
               échéances, et coût d'une mise à niveau.
@@ -117,9 +125,9 @@ export default function EnergiePage() {
             right={
               maxRow ? (
                 <div className="text-right">
-                  <div className="text-[10px] uppercase tracking-widest text-cream/50">Parc le plus exposé · {maxRow.name.split(/ e |,/)[0]}</div>
-                  <div className="font-display text-[40px] leading-none text-gold">{maxRow.parc.ef}%</div>
-                  <div className="text-[10px] text-cream/50">du parc en classes E-F</div>
+                  <div className="text-label uppercase tracking-widest text-cream/70">Parc le plus exposé · {maxRow.name.split(/ e |,/)[0]}</div>
+                  <div className="font-display text-kpi-hero leading-none text-gold">{maxRow.parc.ef}%</div>
+                  <div className="text-label text-cream/70">du parc en classes E-F</div>
                 </div>
               ) : undefined
             }
@@ -129,24 +137,24 @@ export default function EnergiePage() {
           <div className="grid shrink-0 grid-cols-1 gap-4 xl:grid-cols-[1.35fr_1fr]">
             <section className="rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
               <h3 className="font-display text-[16px] leading-tight text-navy">Trajectoire réglementaire</h3>
-              <p className="mt-0.5 text-[11px] text-muted">EPBD (UE) 2024/1275 — échéances applicables au parc existant et au neuf.</p>
+              <p className="mt-0.5 text-label text-muted">EPBD (UE) 2024/1275 — échéances applicables au parc existant et au neuf.</p>
               <div className="mt-3 flex flex-col">
                 {TIMELINE.map((t) => (
                   <div key={t.when} className="flex gap-3 border-l-2 border-gold/30 pb-3 pl-4 last:pb-0">
                     <div className="relative -ml-[21px] mt-1 h-2.5 w-2.5 shrink-0 rounded-full border-2 border-gold bg-white" />
                     <div>
-                      <span className="text-[12px] font-semibold text-navy">{t.when}</span>
+                      <span className="text-body font-semibold text-navy">{t.when}</span>
                       <span className="mx-2 text-navy/20">·</span>
-                      <span className="text-[12.5px] leading-snug text-ink/80">{t.what}</span>
+                      <span className="text-body leading-snug text-ink-soft">{t.what}</span>
                     </div>
                   </div>
                 ))}
               </div>
               <Link
                 href="/rendement"
-                className="mt-4 block rounded-xl border border-gold/30 bg-gold/[0.07] px-3 py-2 text-[11.5px] leading-snug text-gold-600 transition-colors hover:bg-gold/15"
+                className="mt-4 block rounded-xl border border-gold/30 bg-gold/[0.07] px-3 py-2 text-btn leading-snug text-gold-700 transition-colors hover:bg-gold/15"
               >
-                <span className="text-[10px] font-semibold uppercase tracking-wide">Dans la plateforme</span>
+                <span className="text-label font-semibold uppercase tracking-wide">Dans la plateforme</span>
                 <br />
                 pilier énergie de la cascade Rendement →
               </Link>
@@ -160,11 +168,11 @@ export default function EnergiePage() {
                   efShare={simParc?.ef ?? null}
                 />
               ) : (
-                <div className="flex min-h-[280px] items-center justify-center rounded-2xl bg-navy text-[13px] text-cream/60 shadow-card">
+                <div className="flex min-h-[280px] items-center justify-center rounded-2xl bg-navy text-body text-cream/70 shadow-card">
                   Chargement…
                 </div>
               )}
-              <p className="px-1 text-[11px] leading-snug text-muted">
+              <p className="px-1 text-caption leading-snug text-ink-soft">
                 Simulateur temps réel : sélectionnez une freguesia dans le champ de recherche,
                 puis la classe actuelle et la cible pour voir le CAPEX et la compression du
                 yield net se recalculer.
@@ -175,9 +183,9 @@ export default function EnergiePage() {
           {/* Stock by freguesia */}
           <div className="shrink-0 overflow-hidden rounded-2xl border border-navy/10 bg-white shadow-card">
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-[13px]">
+              <table className="w-full border-collapse text-td">
                 <thead className="bg-cream-200">
-                  <tr className="border-b border-navy/10 text-[10.5px] font-semibold uppercase tracking-wide text-muted">
+                  <tr className="border-b border-navy/10 text-th font-semibold uppercase tracking-wide text-ink-soft">
                     <th className="px-3 py-2.5 text-left">Freguesia</th>
                     <th className="px-3 py-2.5 text-right">Classes A+-B</th>
                     <th className="px-3 py-2.5 text-right">Classes C-D</th>
@@ -197,16 +205,13 @@ export default function EnergiePage() {
                       <td className="px-3 py-2 text-right tabular-nums text-ink/80">{r.parc.ab}%</td>
                       <td className="px-3 py-2 text-right tabular-nums text-ink/80">{r.parc.cd}%</td>
                       <td className="px-3 py-2 text-right">
-                        <span className="font-display text-[15px] font-medium tabular-nums" style={{ color: toneColor[r.verdict.tone] }}>
+                        <span className="font-display text-[16px] font-medium tabular-nums" style={{ color: toneTextColor[r.verdict.tone] }}>
                           {r.parc.ef}%
                         </span>
                       </td>
                       <td className="px-3 py-2 text-right tabular-nums text-ink/80">{r.risk}</td>
                       <td className="px-3 py-2">
-                        <span
-                          className="rounded-full px-2.5 py-0.5 text-[11px] font-medium text-white"
-                          style={{ background: toneColor[r.verdict.tone] }}
-                        >
+                        <span className={`rounded-full px-2.5 py-0.5 text-label font-medium ${tonePill[r.verdict.tone]}`}>
                           {r.verdict.label}
                         </span>
                       </td>
@@ -214,7 +219,7 @@ export default function EnergiePage() {
                   ))}
                   {rows.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-4 py-10 text-center text-[13px] text-muted">
+                      <td colSpan={6} className="px-4 py-10 text-center text-body text-ink-soft">
                         Chargement des freguesias…
                       </td>
                     </tr>
@@ -225,7 +230,7 @@ export default function EnergiePage() {
           </div>
 
           {/* Discreet source line */}
-          <p className="shrink-0 pl-1 text-[11px] text-muted/80">
+          <p className="shrink-0 pl-1 text-label text-muted">
             Directive EPBD (UE) 2024/1275 · SCE — DL 101-D/2020 (classes A+ → F) · coûts de
             rénovation : ordres de grandeur ADENE / marché 2026. Répartition du parc par freguesia :
             estimation Barzel.

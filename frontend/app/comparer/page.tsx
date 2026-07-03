@@ -123,7 +123,7 @@ export default function ComparerPage() {
         />
 
         {g.error && (
-          <div className="mx-6 mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-[13px] text-red-700">
+          <div className="mx-6 mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-body text-red-700">
             Backend injoignable — lancez l'API (uvicorn backend.main:app). {g.error}
           </div>
         )}
@@ -133,12 +133,12 @@ export default function ComparerPage() {
           <div>
             <div className="flex items-center gap-3">
               <span className="inline-block h-5 w-1.5 rounded-full bg-gold" />
-              <h2 className="font-display text-[22px] leading-none text-navy">Comparer</h2>
-              <span className="rounded-full border border-gold/40 bg-gold/10 px-2.5 py-0.5 text-[11px] font-medium text-gold-600">
+              <h2 className="font-display text-[24px] leading-none text-navy">Comparer</h2>
+              <span className="rounded-full border border-gold/40 bg-gold/[0.06] px-2.5 py-0.5 text-label font-medium text-gold-700">
                 4 modes · {classLabel(cls)}
               </span>
             </div>
-            <p className="mt-2 max-w-3xl pl-[18px] text-[13px] leading-relaxed text-muted">
+            <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
               Deux ou trois freguesias côte à côte, à travers les quatre lectures du même marché —
               la couche de décision avant d'entrer dans chaque module.
             </p>
@@ -155,8 +155,8 @@ export default function ComparerPage() {
                   key={slot}
                   value={value}
                   onChange={(e) => setPick(slot, e.target.value)}
-                  className={`w-full cursor-pointer rounded-xl border bg-white px-3 py-2.5 text-[13px] shadow-card outline-none transition-colors ${
-                    value ? "border-navy/15 text-ink" : "border-dashed border-gold/50 text-gold-600"
+                  className={`w-full cursor-pointer rounded-xl border bg-white px-3 py-2.5 text-btn shadow-card outline-none transition-colors ${
+                    value ? "border-navy/15 text-ink" : "border-dashed border-gold/50 text-gold-700"
                   }`}
                 >
                   {slot === 2 ? (
@@ -194,16 +194,16 @@ export default function ComparerPage() {
                       <ScoreDial score={c.total} size={44} light />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-[11px] font-semibold uppercase tracking-widest text-muted">
+                          <span className="text-label font-semibold uppercase tracking-widest text-muted">
                             {MODE_LABEL[c.mode]}
                           </span>
                           <VerdictBadge mode={c.mode} verdict={c.verdict} />
                         </div>
-                        <div className="mt-0.5 truncate text-[12.5px] text-ink/80">{metricDisplay(c)}</div>
+                        <div className="mt-0.5 truncate text-body text-ink-soft">{metricDisplay(c)}</div>
                       </div>
                       <Link
                         href={MODE_ROUTE[c.mode]}
-                        className="shrink-0 text-[11px] font-medium text-gold-600 transition-colors hover:text-gold"
+                        className="shrink-0 text-btn font-medium text-gold-700 transition-colors hover:text-gold-600"
                       >
                         Voir en détail →
                       </Link>
@@ -213,13 +213,13 @@ export default function ComparerPage() {
 
                 {/* c) signal dominant */}
                 <div className="mt-auto border-t border-dashed border-navy/15 pt-3">
-                  <span className="text-[10px] font-semibold uppercase tracking-widest text-gold-600">Signal dominant</span>
-                  <p className="mt-1 text-[12.5px] leading-snug text-ink/85">{compareInsight(col.cells)}</p>
+                  <span className="text-label font-semibold uppercase tracking-widest text-gold-700">Signal dominant</span>
+                  <p className="mt-1 text-body leading-snug text-ink">{compareInsight(col.cells)}</p>
                 </div>
               </section>
             ))}
             {columns.length === 0 && (
-              <div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-navy/10 bg-white text-[13px] text-muted shadow-card xl:col-span-2">
+              <div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-navy/10 bg-white text-body text-ink-soft shadow-card xl:col-span-2">
                 Chargement des freguesias…
               </div>
             )}
@@ -233,9 +233,9 @@ export default function ComparerPage() {
               right={
                 advantage ? (
                   <div className="text-right">
-                    <div className="text-[10px] uppercase tracking-widest text-cream/50">Avantage · {advantage.short}</div>
-                    <div className="font-display text-[40px] leading-none text-gold">{advantage.won} / 4</div>
-                    <div className="text-[10px] text-cream/50">modes en tête</div>
+                    <div className="text-label uppercase tracking-widest text-cream/70">Avantage · {advantage.short}</div>
+                    <div className="font-display text-kpi-hero leading-none text-gold">{advantage.won} / 4</div>
+                    <div className="text-label text-cream/70">modes en tête</div>
                   </div>
                 ) : undefined
               }
@@ -250,9 +250,9 @@ export default function ComparerPage() {
 function Ident({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div className="rounded-xl border border-navy/10 bg-cream-200 px-3 py-2">
-      <div className="text-[9.5px] uppercase tracking-wide text-muted">{label}</div>
-      <div className="font-display text-[15px] leading-tight text-navy">{value}</div>
-      {sub && <div className="text-[9.5px] text-muted">{sub}</div>}
+      <div className="text-label uppercase tracking-wide text-muted">{label}</div>
+      <div className="font-display text-[16px] leading-tight text-navy">{value}</div>
+      {sub && <div className="text-label text-muted">{sub}</div>}
     </div>
   );
 }

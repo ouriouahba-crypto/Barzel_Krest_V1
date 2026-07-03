@@ -85,7 +85,7 @@ export default function PrixMargePage() {
         />
 
         {g.error && (
-          <div className="mx-6 mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-[13px] text-red-700">
+          <div className="mx-6 mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-body text-red-700">
             Backend injoignable — lancez l’API (uvicorn backend.main:app). {g.error}
           </div>
         )}
@@ -95,12 +95,12 @@ export default function PrixMargePage() {
           <div>
             <div className="flex items-center gap-3">
               <span className="inline-block h-5 w-1.5 rounded-full bg-gold" />
-              <h2 className="font-display text-[22px] leading-none text-navy">Prix & marge</h2>
-              <span className="rounded-full border border-gold/40 bg-gold/10 px-2.5 py-0.5 text-[11px] font-medium text-gold-600">
+              <h2 className="font-display text-[24px] leading-none text-navy">Prix & marge</h2>
+              <span className="rounded-full border border-gold/40 bg-gold/[0.06] px-2.5 py-0.5 text-label font-medium text-gold-700">
                 Promotion · {classLabel(cls)}
               </span>
             </div>
-            <p className="mt-2 max-w-3xl pl-[18px] text-[13px] leading-relaxed text-muted">
+            <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
               {CONTEXT[cls] ?? CONTEXT.residential}
             </p>
           </div>
@@ -112,8 +112,8 @@ export default function PrixMargePage() {
             right={
               maxRow ? (
                 <div className="text-right">
-                  <div className="text-[10px] uppercase tracking-widest text-cream/50">Marge max · {maxRow.short}</div>
-                  <div className="font-display text-[40px] leading-none text-gold">{Math.round(maxRow.marginPct)}%</div>
+                  <div className="text-label uppercase tracking-widest text-cream/70">Marge max · {maxRow.short}</div>
+                  <div className="font-display text-kpi-hero leading-none text-gold">{Math.round(maxRow.marginPct)}%</div>
                 </div>
               ) : undefined
             }
@@ -158,8 +158,8 @@ export default function PrixMargePage() {
 
           {/* Analysis note — the most telling exception (if any) */}
           {note && (
-            <div className="-mt-2 shrink-0 pl-1 text-[12px] leading-snug text-muted">
-              <span className="text-[10px] font-semibold uppercase tracking-widest text-gold-600">Note d’analyse</span>
+            <div className="-mt-2 shrink-0 pl-1 text-body leading-snug text-ink-soft">
+              <span className="text-label font-semibold uppercase tracking-widest text-gold-700">Note d’analyse</span>
               <span className="mx-2 text-navy/20">·</span>
               {note}
             </div>
@@ -171,7 +171,7 @@ export default function PrixMargePage() {
             {showHaya && g.hayaProps && (
               <div className="flex flex-col gap-2">
                 <HayaSlider {...g.hayaProps} />
-                <p className="px-1 text-[11px] leading-snug text-muted">
+                <p className="px-1 text-caption leading-snug text-ink-soft">
                   Curseur temps réel sur l’actif K-REST à Afurada : ajustez le prix de vente pour
                   voir la marge et le verdict se recalculer.
                 </p>
@@ -199,11 +199,11 @@ function Kpi({ label, value, sub, small }: { label: string; value: string; sub?:
   return (
     <div className="relative overflow-hidden rounded-2xl border border-navy/10 bg-white px-4 py-3.5 shadow-card">
       <span className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-gold/40 via-gold to-gold/40" />
-      <div className="text-[11px] font-medium uppercase tracking-widest text-muted">{label}</div>
-      <div className={`mt-1 font-display leading-tight text-navy ${small ? "text-[18px]" : "text-[26px] leading-none"}`}>
+      <div className="text-label font-medium uppercase tracking-widest text-muted">{label}</div>
+      <div className={`mt-1 font-display leading-tight text-navy ${small ? "text-kpi-sm" : "text-kpi leading-none"}`}>
         {value}
       </div>
-      {sub && <div className="mt-1 text-[11px] text-muted">{sub}</div>}
+      {sub && <div className="mt-1 text-label text-muted">{sub}</div>}
     </div>
   );
 }

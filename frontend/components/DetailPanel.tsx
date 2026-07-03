@@ -46,7 +46,7 @@ export function DetailPanel({
           <div className="p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <div className="text-[11px] font-semibold uppercase tracking-widest text-gold-600">
+                <div className="text-label font-semibold uppercase tracking-widest text-gold-700">
                   {MODE_LABEL[mode]}
                 </div>
                 <h2 className="font-display text-xl leading-tight text-navy">{score.zone_name}</h2>
@@ -65,7 +65,7 @@ export function DetailPanel({
               <ScoreDial score={score.total} size={68} />
               <div>
                 <VerdictBadge mode={mode} verdict={score.verdict} />
-                <div className="mt-1.5 text-[12px] text-cream/70">{score.native_indicator?.label}</div>
+                <div className="mt-1.5 text-td text-cream/85">{score.native_indicator?.label}</div>
               </div>
             </div>
 
@@ -73,21 +73,21 @@ export function DetailPanel({
               <div className="mt-4 grid grid-cols-2 gap-2">
                 {keyFigures.map((k) => (
                   <div key={k.label} className="rounded-xl border border-navy/10 bg-white p-3">
-                    <div className="text-[10px] uppercase tracking-wide text-muted">{k.label}</div>
-                    <div className="font-display text-lg text-navy">{k.value}</div>
+                    <div className="text-label uppercase tracking-wide text-muted">{k.label}</div>
+                    <div className="font-display text-kpi-sm text-navy">{k.value}</div>
                   </div>
                 ))}
               </div>
             )}
 
             <div className="mt-5">
-              <h3 className="mb-1 font-display text-[15px] text-navy">Piliers</h3>
+              <h3 className="mb-1 font-display text-[16px] text-navy">Piliers</h3>
               <div className="rounded-2xl border border-navy/10 bg-white p-3">
                 {score.pillars.map((p) =>
                   p.applicable ? (
                     <div key={p.pillar}>
                       <PillarBar label={p.pillar} native={p.native.label} subscore={p.subscore} />
-                      <p className="mb-1 mt-0.5 text-[11px] leading-snug text-muted">{p.why}</p>
+                      <p className="mb-1 mt-0.5 text-caption leading-snug text-ink-soft">{p.why}</p>
                     </div>
                   ) : null
                 )}
