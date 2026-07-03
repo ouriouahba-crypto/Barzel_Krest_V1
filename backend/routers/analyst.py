@@ -118,8 +118,26 @@ def _build_context(asset_class: str) -> str:
         zones = _clean(ms.score_city("gaia", mode, asset_class))
         zones.sort(key=lambda z: z["total"], reverse=True)
         lines += _mode_block(mode, zones)
+    if asset_class == "residential":
+        lines.append(_haya_block())
     lines.append(_FACTS)
     return "\n".join(lines)
+
+
+def _haya_block() -> str:
+    """The K-REST flagship asset, from the same cleaned asset payload the
+    platform serves (Prix & marge page)."""
+    try:
+        a = _clean(ms.score_asset("haya"))
+        promo = a["scores"]["promotion"]
+        b = next(p for p in promo["pillars"] if p["pillar"] == "marge").get("breakdown") or {}
+        return ("## ACTIF K-REST — HAYA TOWERS (Santa Marinha e São Pedro da Afurada, résidentiel, promotion)\n"
+                f"- Prix de vente réalisable {b.get('realizable_sale')} €/m² "
+                f"(prime +{round(b.get('premium_over_median_pct') or 0)}% sur la médiane réelle de la freguesia), "
+                f"construction {b.get('construction')} €/m², foncier {b.get('land')} €/m², "
+                f"marge promoteur {b.get('margin_pct')}%, score promotion {promo['total']}/100, verdict {promo['verdict']}.")
+    except Exception:  # noqa: BLE001 — l'actif est optionnel dans le contexte
+        return ""
 
 
 _SYSTEM = """Tu es l'analyste de Barzel Analytics, plateforme d'intelligence immobilière couvrant Vila Nova de Gaia (Portugal) pour un investisseur institutionnel.
@@ -132,6 +150,7 @@ RÈGLES ABSOLUES :
 - Si la question sort de Vila Nova de Gaia ou du périmètre immobilier de la plateforme, réponds avec élégance que c'est hors du périmètre couvert par la plateforme sur Gaia, et propose ce que tu peux couvrir.
 - Ton sobre et professionnel, en français. Réponses courtes : 5 à 10 lignes, en texte simple — JAMAIS de markdown (pas de titres, pas de gras, pas de puces), des phrases.
 - Avant de conclure, vérifie la cohérence interne de ta réponse : n'affirme jamais qu'un territoire domine sur tous les axes si un seul axe s'inverse ; dans ce cas, nomme l'exception d'emblée.
+- Ne cite un rang (« premier », « deuxième ») ou un compte (« N freguesias ») que si tu l'as vérifié en recomptant dans les données ; au moindre doute, formule sans rang ni compte.
 - Quand la question s'y prête, conclus par un verdict actionnable en une phrase (celui des données : Go/Conditionnel/Passer, Conserver/Surveiller/Céder, Fenêtre ouverte/étroite/fermée, Prioritaire/À phaser/En attente)."""
 
 

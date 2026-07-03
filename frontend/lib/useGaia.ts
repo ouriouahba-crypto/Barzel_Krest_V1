@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { api, AssetResponse, CityResponse, ModeScore, ZoneAllModes } from "./api";
 import { Mode, MODES, MODE_KPI, MODE_LABEL, median, pillarValue } from "./scoring";
 import { PARC_SCE, parcFor } from "./energie";
+import { setMemoDefaults } from "./session";
 import { normFreguesia } from "./normalize";
 import type { Figure } from "@/components/KeyFigures";
 import type { ChartRow } from "@/components/CityCharts";
@@ -136,6 +137,11 @@ export function useGaia() {
     () => fregOnly(city).map((z) => ({ id: z.zone, label: displayName(z.zone_name) })).sort((a, b) => a.label.localeCompare(b.label)),
     [city]
   );
+
+  // Publish the page's current class/focus for the memo modal (Sidebar-mounted).
+  useEffect(() => {
+    setMemoDefaults({ assetClass, focusZone, cityZoneId: CITY_ZONE, freguesias });
+  }, [assetClass, focusZone, freguesias]);
 
   const cardScores = useMemo(() => {
     const out: Partial<Record<Mode, ModeScore>> = {};

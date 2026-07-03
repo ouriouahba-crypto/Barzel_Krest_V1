@@ -863,6 +863,48 @@ intégrales conservées dans le rapport de livraison.
    `vue_ensemble_{residentiel,bureaux,hotellerie}.png` régénérées (ligne
    contexte). Vérifs : `tsc` OK, 18 tests backend, zéro régression ailleurs.
 
+### **Mémo d'investissement** (bouton Sidebar, remplace Export PDF) — **✅ Livré** (2026-07-03)
+Troisième moment fort de la démo (après le curseur Haya et l'IA Analyste).
+**Architecture** (`backend/routers/memo.py`) :
+- `POST /api/memo/draft {scope, asset_class, modes[], angle, instructions?}` :
+  contexte = le MÊME `_build_context` nettoyé que l'IA Analyste (désormais
+  enrichi de l'actif **Haya Towers** via `_clean(score_asset)` en résidentiel),
+  `claude-sonnet-4-6` (temp 0.2) rédige en **JSON strict**
+  `{executive_summary, lecture_par_mode, risques, recommandation}` (parse
+  robuste + 1 retry). Garde-fous analyste + **règle rang/comptage** (ajoutée
+  après tests : le modèle avait écrit « deuxième score » pour le premier et
+  compté « six » Céder au lieu de sept — ajoutée AUSSI au prompt analyste).
+- `POST /api/memo/render {sections, scope, asset_class, modes[], angle}` :
+  les CHIFFRES sont recalculés serveur (`_tables` depuis `_clean(score_city)`,
+  jamais du texte IA ni du client), injectés dans le template HTML de marque
+  (navy/or/cream, Playfair/Montserrat **variables woff2 embarquées en base64**
+  — `backend/assets/fonts/`, ~74 Ko), PDF via **Playwright Python** →
+  `Barzel_Memo_Gaia_<Classe>_<date>.pdf`. **5 pages** avec 4 modes (couverture,
+  synthèse+KPI ville, 2 modes/page, risques+recommandation+mention légale) —
+  la version 1 mode/page faisait 8 pages, compactée pour tenir dans 4-6.
+  Scope freguesia : ligne ◆ ajoutée/marquée dans chaque tableau.
+- `POST /api/memo/revise {section_id, texte_actuel, consigne, scope,
+  asset_class}` : réécrit une seule section (« applique la consigne de façon
+  marquée » — sinon « raccourcis » ne réduisait que de 3 %).
+**Dépendances backend** (python3) : `anthropic ≥ 0.116`, `playwright`
+(le rendu utilise le **Chrome système, canal "chrome"** comme les captures ;
+fallback si absent : `python3 -m playwright install chromium`), `pypdf`
+(vérifs de test uniquement).
+**Frontend** : `MemoModal` (montée dans la Sidebar — d'où `text-ink` explicite
+sur le panneau, la Sidebar est `text-cream`) : formulaire (périmètre ville /
+freguesia courante via le bridge `lib/session.ts` alimenté par useGaia, classe
+préremplie, 4 modes cochés, 3 angles, instructions libres) → relecture
+(sections éditables + « Réviser » avec consigne par section ; tableaux moteur
+en lecture seule) → « Générer le PDF » (blob + filename du Content-Disposition).
+Bouton Sidebar « Mémo d'investissement » (l'Export PDF `window.print` n'existe
+plus). Helpers `api.memoDraft/memoRevise/memoRender`.
+**Tests** : 3 mémos générés (ville résidentiel Synthèse ; Santa Marinha Note
+d'acquisition « insiste sur Haya Towers » — cite désormais les chiffres réels
+de l'actif 5 750 €/m² / marge 35,5 % / prime +111 % ; ville bureaux Revue de
+détention) — 5 pages chacun, chiffres des textes IA vérifiés contre les
+tableaux ; révision « raccourcis la recommandation » : −21 % et resserrée.
+Modal contrôlée à l'écran (formulaire + relecture).
+
 ### État final du gabarit de page de mode
 Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,
 `rendement_net`, `spread`, `constructibilite`), InsightBanner + insight gradué à

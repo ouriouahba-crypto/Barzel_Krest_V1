@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { MemoModal } from "./MemoModal";
 
 const ICONS: Record<string, string> = {
   "Vue d'ensemble": "▦",
@@ -31,6 +33,7 @@ const MODULES = ["Vue d'ensemble", "Carte", "Comparer", "Prix & marge", "Rendeme
 
 export function Sidebar() {
   const pathname = usePathname();
+  const [memoOpen, setMemoOpen] = useState(false);
   return (
     <aside className="flex h-full w-56 shrink-0 flex-col bg-navy text-cream">
       <div className="px-5 py-5">
@@ -77,12 +80,13 @@ export function Sidebar() {
 
       <div className="p-3">
         <button
-          onClick={() => window.print()}
+          onClick={() => setMemoOpen(true)}
           className="flex w-full items-center justify-center gap-2 rounded-lg border border-gold/40 bg-gold/10 px-3 py-2.5 text-[13px] font-medium text-gold transition-colors hover:bg-gold/20"
         >
-          <span>⭳</span> Export PDF
+          <span>⭳</span> Mémo d'investissement
         </button>
       </div>
+      <MemoModal open={memoOpen} onClose={() => setMemoOpen(false)} />
     </aside>
   );
 }

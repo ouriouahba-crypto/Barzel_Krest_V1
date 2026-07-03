@@ -144,4 +144,54 @@ export const api = {
     if (!res.ok) throw new Error(`API ${res.status}`);
     return res.json();
   },
+  memoDraft: async (body: object): Promise<MemoDraft> => {
+    const res = await fetch(`${BASE}/api/memo/draft`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    return res.json();
+  },
+  memoRevise: async (body: object): Promise<{ texte: string }> => {
+    const res = await fetch(`${BASE}/api/memo/revise`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    return res.json();
+  },
+  memoRender: async (body: object): Promise<{ blob: Blob; filename: string }> => {
+    const res = await fetch(`${BASE}/api/memo/render`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    const dispo = res.headers.get("Content-Disposition") || "";
+    const m = /filename="([^"]+)"/.exec(dispo);
+    return { blob: await res.blob(), filename: m?.[1] ?? "Barzel_Memo.pdf" };
+  },
 };
+
+export interface MemoTables {
+  ville: { price: string; yoy: string; tx: string };
+  scope_name: string | null;
+  modes: Record<string, {
+    headers: string[];
+    municipio: { score: number; verdict: string; native: string } | null;
+    rows: { name: string; score: number; verdict: string; cols: string[]; is_scope: boolean }[];
+  }>;
+}
+export interface MemoSections {
+  executive_summary: string;
+  lecture_par_mode: Record<string, string>;
+  risques: string;
+  recommandation: string;
+}
+export interface MemoDraft {
+  sections: MemoSections;
+  tables: MemoTables;
+  meta: { scope: string; asset_class: string; modes: string[]; angle: string };
+}
