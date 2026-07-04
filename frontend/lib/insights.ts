@@ -241,7 +241,7 @@ function yieldList(rows: RdRow[]): string {
   return parts.slice(0, -1).join(", ") + " et " + parts[parts.length - 1];
 }
 
-export function detentionInsight(rows: RdRow[], assetClass: string): string {
+export function detentionInsight(rows: RdRow[], assetClass: string, trapClause?: string): string {
   const adj = CLASS_ADJ_FR[assetClass] ?? classLabel(assetClass).toLowerCase();
   const keep = rows
     .filter((r) => verdictTone("detention", r.verdict) === "good")
@@ -253,7 +253,7 @@ export function detentionInsight(rows: RdRow[], assetClass: string): string {
   const maxY = rows.length ? rows.reduce((a, b) => (b.yieldNet > a.yieldNet ? b : a)) : null;
   const trap =
     maxY && verdictTone("detention", maxY.verdict) === "low"
-      ? ` Les yields les plus élevés (${maxY.short} ${maxY.yieldNet.toFixed(1)}%) sont des pièges de fragilité : marchés étroits, vacance longue.`
+      ? ` ${trapClause ?? `Les yields les plus élevés (${maxY.short} ${maxY.yieldNet.toFixed(1)}%) sont des pièges de fragilité : marchés étroits, vacance longue.`}`
       : "";
 
   if (n === 0) {

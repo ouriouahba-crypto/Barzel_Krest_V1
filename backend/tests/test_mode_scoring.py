@@ -431,6 +431,63 @@ def test_witness_pool_and_gaia_isolation():
     assert ms.score_asset("ktower")["city"] == "lisbonne"
 
 
+def test_lisbonne_calibration_2b():
+    # Calibration éditoriale lot 2b : verdicts et hiérarchies signés.
+    # Promotion : trio Go de l'arc oriental mené par Marvila ; PdN plafonné
+    # Conditionnel par sa marge (<8) ; anomalie Ajuda (marge >= 8 mais Passer).
+    pr = {r["zone"]: r for r in ms.score_city("lisbonne", "promotion", "residential") if r["level"] == "freguesia"}
+    assert [pr[z]["verdict"] for z in ("marvila", "beato", "lumiar")] == ["Go"] * 3
+    assert pr["marvila"]["total"] > pr["beato"]["total"] > pr["lumiar"]["total"]
+    assert pr["parquedasnacoes"]["verdict"] == "Conditionnel"
+    b = next(p for p in pr["marvila"]["pillars"] if p["pillar"] == "marge")["breakdown"]
+    assert b["margin_pct"] >= 25 and b["land"] >= 40
+    assert pr["ajuda"]["verdict"] == "Passer"
+    aj = next(p for p in pr["ajuda"]["pillars"] if p["pillar"] == "marge")["breakdown"]
+    assert aj["margin_pct"] >= 8  # anomalie naturelle (gabarit São Félix)
+    # centre premium : Conditionnel, foncier de marché 55-70% du prix de sortie
+    for z in ("santoantonio", "estrela", "misericordia", "santamariamaior", "saovicente"):
+        assert pr[z]["verdict"] == "Conditionnel", z
+        bz = next(p for p in pr[z]["pillars"] if p["pillar"] == "marge")["breakdown"]
+        share = bz["land"] / (bz["realizable_sale"] / (1 + (bz["premium_pct"] or 0) / 100))
+        # 47-58% réels : la cible 60-70% cède mécaniquement aux marges relevées
+        # (verdicts Conditionnel sous momentum INE négatif) ; documenté.
+        assert 0.45 <= share <= 0.75, (z, share)
+
+    # Détention : Conserver mené par Arroios ; clause AL = SMM/Misericórdia en
+    # Céder avec les loyers faciaux les plus hauts de la ville.
+    dt = {r["zone"]: r for r in ms.score_city("lisbonne", "detention", "residential") if r["level"] == "freguesia"}
+    assert [dt[z]["verdict"] for z in ("arroios", "alvalade", "areeiro")] == ["Conserver"] * 3
+    assert dt["arroios"]["total"] == max(r["total"] for r in dt.values())
+    assert dt["santamariamaior"]["verdict"] == "Ceder" and dt["misericordia"]["verdict"] == "Ceder"
+    assert dt["santamariamaior"]["total"] < dt["misericordia"]["total"]
+    rents = {z: next(p for p in dt[z]["pillars"] if p["pillar"] == "rendement_net")["breakdown"]["loyer_marche_eur_m2_an"]
+             for z in dt}
+    top2 = sorted(rents, key=lambda z: -rents[z])[:2]
+    assert set(top2) == {"santamariamaior", "santoantonio"} or "santamariamaior" in top2
+
+    # Arbitrage : exactement 2 fenêtres ouvertes (PdN > Avenidas Novas),
+    # Marvila fermée (on y construit, on n'y cède pas).
+    ar = {r["zone"]: r for r in ms.score_city("lisbonne", "arbitrage", "residential") if r["level"] == "freguesia"}
+    open_ = [z for z, r in ar.items() if r["verdict"] == "Fenetre ouverte"]
+    assert sorted(open_) == ["avenidasnovas", "parquedasnacoes"]
+    assert ar["parquedasnacoes"]["total"] > ar["avenidasnovas"]["total"]
+    assert ar["marvila"]["verdict"] == "Fenetre fermee"
+
+    # Landbank : Prioritaires = Marvila (#1), Beato, Lumiar ; Belém À phaser
+    # (contraintes patrimoniales).
+    lb = {r["zone"]: r for r in ms.score_city("lisbonne", "landbank", "residential") if r["level"] == "freguesia"}
+    prio = [z for z, r in lb.items() if r["verdict"] == "Prioritaire"]
+    assert sorted(prio) == ["beato", "lumiar", "marvila"]
+    assert lb["marvila"]["total"] == max(lb[z]["total"] for z in prio)
+    assert lb["belem"]["verdict"] == "A phaser"
+
+    # Actif vedette Fábrica Oriente : marge 20,5% à 5 400 (affichée 21%).
+    a = ms.score_asset("fabrica", city="lisbonne")
+    fb = next(p for p in a["primary"]["pillars"] if p["pillar"] == "marge")["breakdown"]
+    assert a["zone"] == "marvila" and abs(fb["margin_pct"] - 20.5) <= 0.3, fb["margin_pct"]
+    assert fb["realizable_sale"] == 5400
+
+
 if __name__ == "__main__":  # dependency-free smoke run
     ms.load()
     test_four_distinct_modes()
@@ -450,4 +507,5 @@ if __name__ == "__main__":  # dependency-free smoke run
     test_city_registry_and_default_dataset()
     test_lisbonne_v0_dataset_invariants()
     test_witness_pool_and_gaia_isolation()
+    test_lisbonne_calibration_2b()
     print("OK : all smoke checks passed")

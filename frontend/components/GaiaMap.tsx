@@ -77,6 +77,7 @@ export default function GaiaMap({
   selected,
   onSelectZone,
   hayaNorm,
+  assetName = "Haya Towers",
   mode,
   focusZoneId,
   onHoverZone,
@@ -85,6 +86,7 @@ export default function GaiaMap({
   selected: string[];
   onSelectZone: (zoneId: string) => void;
   hayaNorm: string;
+  assetName?: string;
   mode: Mode;
   focusZoneId?: string | null;
   onHoverZone?: (zoneId: string | null) => void;
@@ -173,7 +175,7 @@ export default function GaiaMap({
             eventHandlers={{ click: () => onSelectZone(scoresByNorm[hayaNorm]?.zoneId) }}
           >
             <Tooltip direction="top" offset={[0, -8]} className="freg-tooltip" opacity={1}>
-              <div style={{ fontWeight: 600 }}>Haya Towers</div>
+              <div style={{ fontWeight: 600 }}>{assetName}</div>
               <div style={{ color: "#C9A86A" }}>Actif K-REST · Promotion</div>
             </Tooltip>
           </CircleMarker>

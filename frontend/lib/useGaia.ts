@@ -58,10 +58,11 @@ export function useGaia() {
     });
   }, [cityReady, CITY, assetClass, cityByKey]);
 
+  const promoAssetName = cityBySlug(citySlug).promoAsset.apiName;
   useEffect(() => {
     if (!cityReady) return;
-    api.asset("haya").then(setHaya).catch(() => {});
-  }, [cityReady]);
+    api.asset(promoAssetName).then(setHaya).catch(() => {});
+  }, [cityReady, promoAssetName]);
 
   // Focus zone's four modes (for score cards + detail), reactive to class.
   useEffect(() => {

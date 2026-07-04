@@ -10,7 +10,7 @@
     },
     "edit_note": "value = valeur ; unit = unite ; conf = confiance ; src = source. Ne pas supprimer les cles, corriger les valeurs.",
     "city": "lisbonne",
-    "note": "Params V0 lisbonne (lot 2a) : générés mécaniquement depuis les prix INE 2025-Q4 (gradients + jitter déterministe + anti-jumeaux), SANS calibration éditoriale (2b)."
+    "note": "Params Lisbonne CALIBRÉS (lot 2b) : hiérarchies éditoriales par mode (promotion arc oriental, détention locatif domestique profond, arbitrage PdN/Avenidas, landbank est+nord), clause AL centre historique, anomalie Ajuda, actif Fábrica Oriente. Prix/yoy/transactions : INE 2025-Q4 réels."
   },
   "global": {
     "cost_of_capital_pct": {
@@ -83,7 +83,7 @@
       },
       "holding": {
         "imi_pct": {
-          "value": 0.4,
+          "value": 0.36,
           "unit": "% / an sur VPT",
           "conf": "officiel",
           "src": "IMI municipal 0.3-0.45%"
@@ -265,89 +265,89 @@
   "new_build_premium_by_zone": {
     "note": "Prime en % du neuf realisable sur la mediane de l'ancien (backbone), par zone_id. Le neuf se vend 20-40% plus cher que l'ancien; prime plus forte la ou le neuf est rare/recherche. Confiance hypothese (parametre). N'applique qu'au cas zone-sans-actif nomme.",
     "default": 30,
-    "gaia_default": 26,
-    "ajuda": 24,
+    "gaia_default": 24,
+    "lisboa": 24,
+    "marvila": 31,
+    "beato": 29,
+    "lumiar": 24,
+    "parquedasnacoes": 21,
+    "santoantonio": 19,
+    "estrela": 20,
+    "misericordia": 18,
+    "santamariamaior": 18,
+    "saovicente": 19,
+    "avenidasnovas": 21,
+    "campodeourique": 20,
+    "campolide": 21,
+    "belem": 20,
     "alcantara": 22,
-    "alvalade": 23,
-    "areeiro": 23,
-    "arroios": 21,
-    "avenidasnovas": 27,
-    "beato": 22,
-    "belem": 25,
-    "benfica": 21,
-    "campodeourique": 30,
-    "campolide": 26,
-    "carnide": 21,
-    "estrela": 27,
-    "lumiar": 23,
-    "marvila": 25,
-    "misericordia": 28,
-    "olivais": 22,
-    "parquedasnacoes": 31,
-    "penhadefranca": 20,
-    "santaclara": 18,
-    "santamariamaior": 25,
-    "santoantonio": 33,
-    "saodomingosdebenfica": 23,
-    "saovicente": 24,
-    "lisboa": 26
+    "arroios": 20,
+    "alvalade": 19,
+    "areeiro": 19,
+    "saodomingosdebenfica": 20,
+    "penhadefranca": 19,
+    "ajuda": 18,
+    "benfica": 19,
+    "carnide": 18,
+    "olivais": 19,
+    "santaclara": 18
   },
   "land_cost_eur_m2_by_zone": {
-    "note": "Cout du foncier en euros par m2 de surface vendable, par zone_id du backbone. Remplace l'estimation 18% du prix de vente (qui gonflait le foncier en zone chere). Confiance hypothese (parametre). N'applique qu'au cas zone-sans-actif nomme. V0 lisbonne (lot 2a) : foncier dérivé mécaniquement d'un gradient de marge 0-18% croissant avec le prix INE (jitter ±3 pts), équation moteur inversée (realisable/(1.261*(1+m)) - construction 1700). Niveaux 45-65% du prix, cohérents avec le foncier central lisboète ; hiérarchie NON calibrée (2b).",
+    "note": "Cout du foncier en euros par m2 de surface vendable, par zone_id du backbone. Remplace l'estimation 18% du prix de vente (qui gonflait le foncier en zone chere). Confiance hypothese (parametre). N'applique qu'au cas zone-sans-actif nomme. V0 lisbonne (lot 2a) : foncier dérivé mécaniquement d'un gradient de marge 0-18% croissant avec le prix INE (jitter ±3 pts), équation moteur inversée (realisable/(1.261*(1+m)) - construction 1700). Niveaux 45-65% du prix, cohérents avec le foncier central lisboète ; hiérarchie NON calibrée (2b). Lot 2b : foncier calé sur les marges éditoriales (équation moteur inversée), 55-70% du prix au centre patrimonial (rareté), plus accessible à l'arc oriental (friches). Lot 2b : foncier calé sur les marges éditoriales (équation moteur inversée), 55-70% du prix au centre patrimonial (rareté), plus accessible à l'arc oriental (friches). Lot 2b : foncier calé sur les marges éditoriales (équation moteur inversée), 55-70% du prix au centre patrimonial (rareté), plus accessible à l'arc oriental (friches). Lot 2b : foncier calé sur les marges éditoriales (équation moteur inversée), 55-70% du prix au centre patrimonial (rareté), plus accessible à l'arc oriental (friches).",
     "default": 300,
-    "gaia_default": 2769,
-    "santoantonio": 4529,
-    "parquedasnacoes": 4152,
-    "campodeourique": 3783,
-    "estrela": 3427,
-    "misericordia": 3306,
-    "avenidasnovas": 3333,
-    "campolide": 3143,
-    "belem": 2917,
-    "marvila": 2975,
-    "santamariamaior": 2981,
-    "alvalade": 2757,
-    "saodomingosdebenfica": 2851,
-    "ajuda": 2825,
-    "saovicente": 2629,
-    "alcantara": 2517,
-    "areeiro": 2600,
-    "lumiar": 2639,
-    "arroios": 2559,
-    "carnide": 2383,
-    "benfica": 2259,
-    "beato": 2371,
-    "penhadefranca": 2173,
-    "olivais": 2343,
-    "santaclara": 1844,
-    "lisboa": 2769
+    "marvila": 2350,
+    "beato": 2038,
+    "lumiar": 2090,
+    "parquedasnacoes": 3976,
+    "santoantonio": 3970,
+    "estrela": 3032,
+    "misericordia": 2891,
+    "santamariamaior": 2333,
+    "saovicente": 2270,
+    "avenidasnovas": 2982,
+    "campodeourique": 3341,
+    "campolide": 2930,
+    "belem": 2777,
+    "alcantara": 2434,
+    "arroios": 2263,
+    "alvalade": 2554,
+    "areeiro": 2292,
+    "saodomingosdebenfica": 2627,
+    "penhadefranca": 2091,
+    "ajuda": 2469,
+    "benfica": 2348,
+    "carnide": 2402,
+    "olivais": 2153,
+    "santaclara": 1866,
+    "gaia_default": 2678,
+    "lisboa": 2678
   },
   "commercial_gaia": {
-    "note": "Clé legacy (nommage historique) : économies commerciales de la ville courante. V0 lisbonne lot 2a : classes reprises de Gaia, zone_factors mécaniques (2b calibrera).",
+    "note": "Clé legacy (nommage historique) : économies commerciales de la ville courante. Lot 2b Lisbonne : bureaux prime CBD 30-32 €/m²/mois, PdN 22-24, secondaires 15-18 ; commerce Chiado en tête nationale (zone A ~100-120, dégradé rapide, courant 25-45) ; hôtellerie forte au centre historique ; logistique résiduelle intra-muros (jamais optimale).",
     "classes": {
       "office": {
-        "yield_pct": 5.25,
-        "rent_eur_m2_month": 17,
-        "construction_eur_m2": 1500,
-        "land_pct": 34
+        "yield_pct": 4.75,
+        "rent_eur_m2_month": 20,
+        "construction_eur_m2": 1650,
+        "land_pct": 38
       },
       "hotel": {
-        "yield_pct": 6.0,
-        "rent_eur_m2_month": 20,
-        "construction_eur_m2": 2200,
-        "land_pct": 21
+        "yield_pct": 5.5,
+        "rent_eur_m2_month": 24,
+        "construction_eur_m2": 2350,
+        "land_pct": 24
       },
       "logistics": {
         "yield_pct": 6.0,
-        "rent_eur_m2_month": 5.5,
-        "construction_eur_m2": 500,
-        "land_pct": 26
+        "rent_eur_m2_month": 5.75,
+        "construction_eur_m2": 520,
+        "land_pct": 22
       },
       "retail": {
         "yield_pct": 5.5,
-        "rent_eur_m2_month": 15,
-        "construction_eur_m2": 1200,
-        "land_pct": 30
+        "rent_eur_m2_month": 35,
+        "construction_eur_m2": 1250,
+        "land_pct": 34
       }
     },
     "cost_note": "construction €/m² par classe (hors TVA) ; foncier commercial = land_pct % du prix de la classe. land_pct calibre comme part realiste du foncier dans la valeur commerciale prime (34/21/48% bureaux/hotel/commerce, 12% logistique) pour des marges de promotion 15-25%. TVA commerciale recuperable (neutre pour le promoteur). Logistique construction ajustee 650->500 (cout entrepot realiste, sinon non rentable au prix marche).",
@@ -360,153 +360,153 @@
       },
       "lisboa": {
         "office": 1.12,
-        "hotel": 1.14,
-        "logistics": 0.9,
-        "retail": 1.02
+        "hotel": 1.18,
+        "logistics": 0.62,
+        "retail": 1.15
       },
       "santoantonio": {
-        "office": 1.281,
-        "hotel": 1.303,
-        "logistics": 0.911,
-        "retail": 1.14
+        "office": 1.55,
+        "hotel": 1.442,
+        "logistics": 0.426,
+        "retail": 1.86
       },
       "parquedasnacoes": {
-        "office": 1.217,
-        "hotel": 1.22,
-        "logistics": 0.934,
-        "retail": 1.069
+        "office": 1.165,
+        "hotel": 1.081,
+        "logistics": 0.566,
+        "retail": 1.076
       },
       "campodeourique": {
-        "office": 1.153,
-        "hotel": 1.153,
-        "logistics": 0.954,
-        "retail": 1.03
+        "office": 1.023,
+        "hotel": 1.122,
+        "logistics": 0.486,
+        "retail": 1.186
       },
       "estrela": {
-        "office": 1.116,
-        "hotel": 1.101,
-        "logistics": 0.968,
-        "retail": 0.983
+        "office": 1.183,
+        "hotel": 1.266,
+        "logistics": 0.458,
+        "retail": 1.278
       },
       "misericordia": {
-        "office": 1.115,
-        "hotel": 1.092,
-        "logistics": 0.969,
-        "retail": 0.983
+        "office": 1.087,
+        "hotel": 1.566,
+        "logistics": 0.417,
+        "retail": 3.023
       },
       "avenidasnovas": {
-        "office": 1.087,
-        "hotel": 1.084,
-        "logistics": 0.976,
-        "retail": 0.958
+        "office": 1.52,
+        "hotel": 1.221,
+        "logistics": 0.468,
+        "retail": 1.336
       },
       "campolide": {
-        "office": 1.088,
-        "hotel": 1.069,
-        "logistics": 0.979,
-        "retail": 0.936
+        "office": 0.941,
+        "hotel": 0.964,
+        "logistics": 0.607,
+        "retail": 0.832
       },
       "belem": {
-        "office": 1.024,
-        "hotel": 1.036,
-        "logistics": 0.987,
-        "retail": 0.922
+        "office": 0.828,
+        "hotel": 1.243,
+        "logistics": 0.546,
+        "retail": 1.058
       },
       "marvila": {
-        "office": 1.028,
-        "hotel": 1.015,
-        "logistics": 0.987,
-        "retail": 0.915
+        "office": 0.782,
+        "hotel": 0.823,
+        "logistics": 1.003,
+        "retail": 0.704
       },
       "santamariamaior": {
-        "office": 1.019,
-        "hotel": 1.006,
-        "logistics": 0.991,
-        "retail": 0.924
+        "office": 1.049,
+        "hotel": 1.62,
+        "logistics": 0.405,
+        "retail": 3.251
       },
       "alvalade": {
-        "office": 1.018,
-        "hotel": 0.993,
-        "logistics": 0.983,
-        "retail": 0.9
+        "office": 0.984,
+        "hotel": 0.94,
+        "logistics": 0.528,
+        "retail": 0.983
       },
       "saodomingosdebenfica": {
-        "office": 1.003,
-        "hotel": 0.98,
-        "logistics": 0.989,
-        "retail": 0.904
+        "office": 0.869,
+        "hotel": 0.796,
+        "logistics": 0.62,
+        "retail": 0.788
       },
       "ajuda": {
-        "office": 1.013,
-        "hotel": 0.976,
-        "logistics": 0.98,
-        "retail": 0.877
+        "office": 0.746,
+        "hotel": 0.874,
+        "logistics": 0.576,
+        "retail": 0.753
       },
       "saovicente": {
-        "office": 0.971,
-        "hotel": 0.952,
-        "logistics": 1.006,
-        "retail": 0.86
+        "office": 0.798,
+        "hotel": 1.318,
+        "logistics": 0.447,
+        "retail": 1.11
       },
       "alcantara": {
-        "office": 0.989,
-        "hotel": 0.951,
-        "logistics": 1.0,
-        "retail": 0.849
+        "office": 0.89,
+        "hotel": 1.161,
+        "logistics": 0.661,
+        "retail": 0.913
       },
       "areeiro": {
-        "office": 0.955,
-        "hotel": 0.936,
-        "logistics": 0.993,
-        "retail": 0.833
+        "office": 0.959,
+        "hotel": 0.922,
+        "logistics": 0.515,
+        "retail": 0.892
       },
       "lumiar": {
-        "office": 0.955,
-        "hotel": 0.936,
-        "logistics": 1.012,
-        "retail": 0.853
+        "office": 0.819,
+        "hotel": 0.782,
+        "logistics": 0.705,
+        "retail": 0.804
       },
       "arroios": {
-        "office": 0.946,
-        "hotel": 0.915,
-        "logistics": 1.016,
-        "retail": 0.829
+        "office": 0.895,
+        "hotel": 1.042,
+        "logistics": 0.507,
+        "retail": 1.012
       },
       "carnide": {
-        "office": 0.956,
-        "hotel": 0.925,
-        "logistics": 1.022,
-        "retail": 0.816
+        "office": 0.839,
+        "hotel": 0.706,
+        "logistics": 0.727,
+        "retail": 0.711
       },
       "benfica": {
-        "office": 0.93,
-        "hotel": 0.905,
-        "logistics": 1.018,
-        "retail": 0.842
+        "office": 0.787,
+        "hotel": 0.719,
+        "logistics": 0.684,
+        "retail": 0.749
       },
       "beato": {
-        "office": 0.942,
-        "hotel": 0.917,
-        "logistics": 1.001,
-        "retail": 0.808
+        "office": 0.768,
+        "hotel": 0.87,
+        "logistics": 0.874,
+        "retail": 0.713
       },
       "penhadefranca": {
-        "office": 0.932,
-        "hotel": 0.872,
-        "logistics": 1.019,
-        "retail": 0.809
+        "office": 0.778,
+        "hotel": 0.97,
+        "logistics": 0.512,
+        "retail": 0.818
       },
       "olivais": {
-        "office": 0.914,
-        "hotel": 0.896,
-        "logistics": 1.011,
-        "retail": 0.786
+        "office": 0.851,
+        "hotel": 0.768,
+        "logistics": 0.957,
+        "retail": 0.758
       },
       "santaclara": {
-        "office": 0.828,
-        "hotel": 0.806,
-        "logistics": 1.03,
-        "retail": 0.722
+        "office": 0.653,
+        "hotel": 0.583,
+        "logistics": 0.835,
+        "retail": 0.589
       }
     }
   },
@@ -532,10 +532,10 @@
         "src": "residentiel Bruxelles"
       },
       "institutional_appetite": {
-        "value": 55,
+        "value": 80,
         "unit": "0-100",
         "conf": "hypothese",
-        "src": "residentiel diffus peu institutionnel"
+        "src": "PRS/BTR profond en capitale, poches residentielles institutionnelles"
       }
     },
     "living": {
@@ -584,7 +584,7 @@
         "src": "vacance bureau Bruxelles"
       },
       "institutional_appetite": {
-        "value": 70,
+        "value": 72,
         "unit": "0-100",
         "conf": "hypothese",
         "src": "bifurcation prime ESG vs secondaire"
@@ -598,7 +598,7 @@
         "src": "hotellerie PT"
       },
       "institutional_appetite": {
-        "value": 75,
+        "value": 78,
         "unit": "0-100",
         "conf": "hypothese",
         "src": "tourisme PT record"
@@ -634,250 +634,495 @@
     }
   },
   "zones": {
-    "note": "Overrides par zone V0 (lot 2a, MÉCANIQUES : gradient prix/centralité + jitter, SANS hiérarchie éditoriale ; à calibrer en 2b). 0-100.",
-    "santoantonio": {
+    "note": "Overrides curés lot 2b : constructibilité (patrimoine bas au centre, arcs d'expansion hauts), connectivité (métro/Tage), cycle_momentum (Marvila/Beato : régénération front de Tage, pipeline livré, le yoy spot INE -10,6%/+9,2% reflète un mix de ventes, pas la dynamique), risque_energie (parc par âge du bâti, cf. PARC_SCE), comparables_eur_m2 (valeur de cession réalisable par zone : spread d'arbitrage mesuré contre la médiane de la freguesia).",
+    "marvila": {
       "constructibility": {
-        "value": 32,
+        "value": 82,
         "conf": "hypothese"
       },
       "connectivity": {
-        "value": 72,
+        "value": 74,
         "conf": "hypothese"
-      }
+      },
+      "cycle_momentum": {
+        "value": 78,
+        "conf": "hypothese",
+        "src": "régénération arc oriental, pipeline en cours"
+      },
+      "risque_energie": {
+        "value": 52,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 4576,
+      "comparables_eur_m2_conf": "hypothese",
+      "best_use": [
+        "residential",
+        "office",
+        "hotel"
+      ]
+    },
+    "beato": {
+      "constructibility": {
+        "value": 80,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 71,
+        "conf": "hypothese"
+      },
+      "cycle_momentum": {
+        "value": 73,
+        "conf": "hypothese",
+        "src": "régénération arc oriental, pipeline en cours"
+      },
+      "risque_energie": {
+        "value": 54,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 4435,
+      "comparables_eur_m2_conf": "hypothese",
+      "best_use": [
+        "residential",
+        "office",
+        "hotel"
+      ]
+    },
+    "lumiar": {
+      "constructibility": {
+        "value": 79,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 67,
+        "conf": "hypothese"
+      },
+      "risque_energie": {
+        "value": 38,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 4707,
+      "comparables_eur_m2_conf": "hypothese"
     },
     "parquedasnacoes": {
       "constructibility": {
-        "value": 46,
+        "value": 40,
         "conf": "hypothese"
       },
       "connectivity": {
-        "value": 68,
+        "value": 76,
         "conf": "hypothese"
-      }
+      },
+      "risque_energie": {
+        "value": 18,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 6822,
+      "comparables_eur_m2_conf": "hypothese",
+      "best_use": [
+        "office",
+        "residential"
+      ]
     },
-    "campodeourique": {
+    "santoantonio": {
       "constructibility": {
-        "value": 46,
+        "value": 44,
         "conf": "hypothese"
       },
       "connectivity": {
-        "value": 68,
+        "value": 71,
         "conf": "hypothese"
-      }
+      },
+      "risque_energie": {
+        "value": 66,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 6921,
+      "comparables_eur_m2_conf": "hypothese",
+      "best_use": [
+        "residential",
+        "office"
+      ]
     },
     "estrela": {
       "constructibility": {
-        "value": 51,
+        "value": 47,
         "conf": "hypothese"
       },
       "connectivity": {
-        "value": 66,
+        "value": 69,
         "conf": "hypothese"
-      }
+      },
+      "risque_energie": {
+        "value": 61,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 5798,
+      "comparables_eur_m2_conf": "hypothese",
+      "best_use": [
+        "residential"
+      ]
     },
     "misericordia": {
       "constructibility": {
-        "value": 48,
+        "value": 50,
         "conf": "hypothese"
       },
       "connectivity": {
-        "value": 64,
-        "conf": "hypothese"
-      }
-    },
-    "avenidasnovas": {
-      "constructibility": {
-        "value": 48,
+        "value": 58,
         "conf": "hypothese"
       },
-      "connectivity": {
-        "value": 66,
-        "conf": "hypothese"
-      }
-    },
-    "campolide": {
-      "constructibility": {
-        "value": 51,
-        "conf": "hypothese"
+      "risque_energie": {
+        "value": 84,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
       },
-      "connectivity": {
-        "value": 61,
-        "conf": "hypothese"
-      }
-    },
-    "belem": {
-      "constructibility": {
-        "value": 56,
-        "conf": "hypothese"
-      },
-      "connectivity": {
-        "value": 62,
-        "conf": "hypothese"
-      }
-    },
-    "marvila": {
-      "constructibility": {
-        "value": 51,
-        "conf": "hypothese"
-      },
-      "connectivity": {
-        "value": 61,
-        "conf": "hypothese"
-      }
+      "comparables_eur_m2": 5708,
+      "comparables_eur_m2_conf": "hypothese",
+      "best_use": [
+        "hotel",
+        "residential"
+      ]
     },
     "santamariamaior": {
-      "constructibility": {
-        "value": 57,
-        "conf": "hypothese"
-      },
-      "connectivity": {
-        "value": 61,
-        "conf": "hypothese"
-      }
-    },
-    "alvalade": {
       "constructibility": {
         "value": 52,
         "conf": "hypothese"
       },
       "connectivity": {
-        "value": 56,
-        "conf": "hypothese"
-      }
-    },
-    "saodomingosdebenfica": {
-      "constructibility": {
-        "value": 51,
+        "value": 55,
         "conf": "hypothese"
       },
-      "connectivity": {
-        "value": 56,
-        "conf": "hypothese"
-      }
-    },
-    "ajuda": {
-      "constructibility": {
-        "value": 54,
-        "conf": "hypothese"
+      "risque_energie": {
+        "value": 88,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
       },
-      "connectivity": {
-        "value": 57,
-        "conf": "hypothese"
-      }
+      "comparables_eur_m2": 5100,
+      "comparables_eur_m2_conf": "hypothese",
+      "best_use": [
+        "hotel",
+        "residential"
+      ]
     },
     "saovicente": {
       "constructibility": {
-        "value": 56,
+        "value": 48,
         "conf": "hypothese"
       },
       "connectivity": {
-        "value": 57,
-        "conf": "hypothese"
-      }
-    },
-    "alcantara": {
-      "constructibility": {
-        "value": 54,
-        "conf": "hypothese"
-      },
-      "connectivity": {
-        "value": 57,
-        "conf": "hypothese"
-      }
-    },
-    "areeiro": {
-      "constructibility": {
-        "value": 57,
-        "conf": "hypothese"
-      },
-      "connectivity": {
-        "value": 56,
-        "conf": "hypothese"
-      }
-    },
-    "lumiar": {
-      "constructibility": {
-        "value": 61,
-        "conf": "hypothese"
-      },
-      "connectivity": {
-        "value": 56,
-        "conf": "hypothese"
-      }
-    },
-    "arroios": {
-      "constructibility": {
-        "value": 58,
-        "conf": "hypothese"
-      },
-      "connectivity": {
-        "value": 56,
-        "conf": "hypothese"
-      }
-    },
-    "carnide": {
-      "constructibility": {
-        "value": 58,
-        "conf": "hypothese"
-      },
-      "connectivity": {
-        "value": 53,
-        "conf": "hypothese"
-      }
-    },
-    "benfica": {
-      "constructibility": {
         "value": 59,
         "conf": "hypothese"
       },
-      "connectivity": {
-        "value": 54,
-        "conf": "hypothese"
-      }
+      "risque_energie": {
+        "value": 74,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 4835,
+      "comparables_eur_m2_conf": "hypothese",
+      "best_use": [
+        "hotel",
+        "residential"
+      ]
     },
-    "beato": {
+    "avenidasnovas": {
       "constructibility": {
-        "value": 59,
+        "value": 41,
         "conf": "hypothese"
       },
       "connectivity": {
-        "value": 51,
+        "value": 74,
         "conf": "hypothese"
-      }
+      },
+      "risque_energie": {
+        "value": 44,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 5727,
+      "comparables_eur_m2_conf": "hypothese",
+      "best_use": [
+        "residential",
+        "office"
+      ]
     },
-    "penhadefranca": {
+    "campodeourique": {
       "constructibility": {
-        "value": 57,
+        "value": 44,
         "conf": "hypothese"
       },
       "connectivity": {
-        "value": 56,
+        "value": 66,
         "conf": "hypothese"
-      }
+      },
+      "risque_energie": {
+        "value": 47,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 5949,
+      "comparables_eur_m2_conf": "hypothese",
+      "best_use": [
+        "residential"
+      ]
     },
-    "olivais": {
+    "campolide": {
       "constructibility": {
+        "value": 46,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 64,
+        "conf": "hypothese"
+      },
+      "risque_energie": {
+        "value": 43,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 5399,
+      "comparables_eur_m2_conf": "hypothese"
+    },
+    "belem": {
+      "constructibility": {
+        "value": 46,
+        "conf": "hypothese"
+      },
+      "connectivity": {
         "value": 63,
         "conf": "hypothese"
       },
-      "connectivity": {
-        "value": 51,
-        "conf": "hypothese"
-      }
+      "risque_energie": {
+        "value": 41,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 5259,
+      "comparables_eur_m2_conf": "hypothese",
+      "best_use": [
+        "residential"
+      ]
     },
-    "santaclara": {
+    "alcantara": {
       "constructibility": {
-        "value": 67,
+        "value": 52,
         "conf": "hypothese"
       },
       "connectivity": {
+        "value": 63,
+        "conf": "hypothese"
+      },
+      "risque_energie": {
+        "value": 46,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 4728,
+      "comparables_eur_m2_conf": "hypothese"
+    },
+    "arroios": {
+      "constructibility": {
+        "value": 43,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 74,
+        "conf": "hypothese"
+      },
+      "risque_energie": {
+        "value": 39,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 4546,
+      "comparables_eur_m2_conf": "hypothese"
+    },
+    "alvalade": {
+      "constructibility": {
+        "value": 42,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 73,
+        "conf": "hypothese"
+      },
+      "risque_energie": {
+        "value": 36,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 4971,
+      "comparables_eur_m2_conf": "hypothese"
+    },
+    "areeiro": {
+      "constructibility": {
+        "value": 40,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 71,
+        "conf": "hypothese"
+      },
+      "risque_energie": {
+        "value": 37,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 4552,
+      "comparables_eur_m2_conf": "hypothese"
+    },
+    "saodomingosdebenfica": {
+      "constructibility": {
+        "value": 47,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 66,
+        "conf": "hypothese"
+      },
+      "risque_energie": {
+        "value": 34,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 4907,
+      "comparables_eur_m2_conf": "hypothese"
+    },
+    "penhadefranca": {
+      "constructibility": {
+        "value": 44,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 62,
+        "conf": "hypothese"
+      },
+      "risque_energie": {
+        "value": 58,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 4261,
+      "comparables_eur_m2_conf": "hypothese"
+    },
+    "ajuda": {
+      "constructibility": {
+        "value": 26,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 62,
+        "conf": "hypothese"
+      },
+      "risque_energie": {
+        "value": 62,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 4825,
+      "comparables_eur_m2_conf": "hypothese"
+    },
+    "benfica": {
+      "constructibility": {
         "value": 49,
         "conf": "hypothese"
-      }
+      },
+      "connectivity": {
+        "value": 64,
+        "conf": "hypothese"
+      },
+      "risque_energie": {
+        "value": 42,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 4392,
+      "comparables_eur_m2_conf": "hypothese"
+    },
+    "carnide": {
+      "constructibility": {
+        "value": 51,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 67,
+        "conf": "hypothese"
+      },
+      "risque_energie": {
+        "value": 34,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 4414,
+      "comparables_eur_m2_conf": "hypothese"
+    },
+    "olivais": {
+      "constructibility": {
+        "value": 54,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 65,
+        "conf": "hypothese"
+      },
+      "risque_energie": {
+        "value": 41,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 4174,
+      "comparables_eur_m2_conf": "hypothese"
+    },
+    "santaclara": {
+      "constructibility": {
+        "value": 57,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 60,
+        "conf": "hypothese"
+      },
+      "risque_energie": {
+        "value": 36,
+        "conf": "hypothese",
+        "src": "parc par âge du bâti"
+      },
+      "comparables_eur_m2": 3634,
+      "comparables_eur_m2_conf": "hypothese"
     }
   },
   "assets": {
-    "note": "Pas d'actif K-REST vedette à Lisbonne en lot 2a (choix en 2b)."
+    "note": "Actif vedette lisboète (fictif, à remplacer par les données KREST).",
+    "fabrica_oriente": {
+      "name": "Fábrica Oriente",
+      "city": "lisbonne",
+      "zone": "marvila",
+      "class": "residential",
+      "target_price_eur_m2": {
+        "value": 5400,
+        "unit": "eur/m2",
+        "conf": "hypothese"
+      },
+      "construction_eur_m2": {
+        "value": 2210,
+        "unit": "eur/m2",
+        "conf": "hypothese",
+        "src": "reconversion friche : coque conservée + finitions"
+      },
+      "land_cost_eur_m2": {
+        "value": 1343,
+        "unit": "eur/m2",
+        "conf": "hypothese",
+        "src": "friche industrielle arc oriental, hors marché central"
+      },
+      "surface_constructible_m2": 14000
+    }
   },
   "scoring": {
     "weights": {
@@ -942,11 +1187,11 @@
         "src": "rendement net, a moduler par classe"
       },
       "arbitrage_spread_pct": {
-        "faible": 10,
-        "correct": 25,
-        "bon": 50,
+        "faible": -1.0,
+        "correct": 3.0,
+        "bon": 6.5,
         "conf": "hypothese",
-        "src": "uplift valorisation vs cout"
+        "src": "spread de cession bloc, échelle capitale"
       }
     },
     "verdicts": {
@@ -1002,5 +1247,38 @@
     "Appetit institutionnel par classe (0-100) : ajuste.",
     "Verifier statut 2026 : regime 6% demolition-reconstruction BE, reforme habitation PT, droits Wallonie.",
     "Bandes de normalisation et seuils de verdict : valider les paliers."
-  ]
+  ],
+  "residential_rent_factor_by_zone": {
+    "note": "Facteur de loyer résidentiel par zone (lot 2b) : loyers contractés curés (centre prime 19-22 €/m²/mois, arc oriental 12-14) ; le facial touristique du centre reste élevé, la clause AL vit dans les verdicts.",
+    "marvila": 0.6978,
+    "beato": 0.7966,
+    "lumiar": 0.8438,
+    "parquedasnacoes": 0.7865,
+    "santoantonio": 0.9211,
+    "estrela": 0.9833,
+    "misericordia": 1.0048,
+    "santamariamaior": 1.088,
+    "saovicente": 1.0339,
+    "avenidasnovas": 0.9141,
+    "campodeourique": 0.8495,
+    "campolide": 0.8382,
+    "belem": 0.8937,
+    "alcantara": 0.888,
+    "arroios": 0.9667,
+    "alvalade": 0.9678,
+    "areeiro": 0.9687,
+    "saodomingosdebenfica": 0.8304,
+    "penhadefranca": 0.8867,
+    "ajuda": 0.8314,
+    "benfica": 0.8209,
+    "carnide": 0.8334,
+    "olivais": 0.8268,
+    "santaclara": 0.8288
+  },
+  "charges_pct": {
+    "pt": {
+      "detention": 0.52,
+      "vacance": 3.0
+    }
+  }
 }

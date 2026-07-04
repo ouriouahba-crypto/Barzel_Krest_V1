@@ -169,11 +169,20 @@ _FACTS_ENERGY_GAIA = """- Parc résidentiel de Gaia en classes E-F (part la plus
 - Mise à niveau énergétique (coûts types, €/m² habitable) : F→C ~270 €/m², E→C ~200 €/m², C→B +180 €/m². Sur un actif type de Santa Marinha (2 725 €/m², loyer inchangé), F→C comprime le yield net d'environ 0,31 point la première décennie (3,49% → 3,18%)."""
 
 
+_FACTS_ENERGY_LISBONNE = """- Parc résidentiel de Lisbonne en classes E-F (exposé aux MEPS) : centre historique 45-55% (Santa Maria Maior 52%, Misericórdia 49%, São Vicente 47%, Ajuda 46%), Avenidas Novas/Alvalade/Areeiro 25-35%, périphéries 20-30% (classes C-D dominantes), Parque das Nações 6% (A/B dominants, parc récent)."""
+
+_FACTS_AL_LISBONNE = """## LOCATION COURTE DURÉE (AL) · LISBONNE
+- Le centre historique (Santa Maria Maior, Misericórdia) est en zone de contention : la pression réglementaire municipale sur l'alojamento local rend le yield facial touristique non représentatif d'une détention institutionnelle. Les verdicts de détention de la plateforme intègrent cette fragilité (rotation lente, marché locatif contractuel étroit) : yields affichés élevés, verdict Céder."""
+
+
 def _facts_for(city: str) -> str:
-    """Faits statiques : fiscalité PT + énergie EPBD communes ; le parc SCE
-    simulé et l'exemple retrofit sont propres à Gaia (2b fournira Lisbonne)."""
+    """Faits statiques : fiscalité PT + énergie EPBD communes ; parc SCE et
+    clauses locales par ville (Gaia : parc simulé + retrofit ; Lisbonne :
+    parc curé + clause AL du centre historique)."""
     if city == "gaia":
         return "\n\n".join([_FACTS_FISCAL, _FACTS_ENERGY_COMMON, _FACTS_ENERGY_GAIA])
+    if city == "lisbonne":
+        return "\n\n".join([_FACTS_FISCAL, _FACTS_ENERGY_COMMON, _FACTS_ENERGY_LISBONNE, _FACTS_AL_LISBONNE])
     return "\n\n".join([_FACTS_FISCAL, _FACTS_ENERGY_COMMON])
 
 
@@ -192,6 +201,8 @@ def _build_context(asset_class: str, city: str = "gaia") -> str:
     lines += _counts_block(asset_class, city)
     if city == "gaia" and asset_class == "residential":
         lines.append(_haya_block())
+    if city == "lisbonne" and asset_class == "residential":
+        lines.append(_fabrica_block())
     lines.append(_facts_for(city))
     return "\n".join(lines)
 
@@ -207,6 +218,22 @@ def _haya_block() -> str:
                 f"- Prix de vente réalisable {b.get('realizable_sale')} €/m² "
                 f"(prime +{round(b.get('premium_over_median_pct') or 0)}% sur la médiane réelle de la freguesia), "
                 f"construction {b.get('construction')} €/m², foncier {b.get('land')} €/m², "
+                f"marge promoteur {b.get('margin_pct')}%, score promotion {_ri(promo['total'])}/100, verdict {promo['verdict']}.")
+    except Exception:  # noqa: BLE001 ; l'actif est optionnel dans le contexte
+        return ""
+
+
+def _fabrica_block() -> str:
+    """L'actif vedette lisboète, depuis le même payload nettoyé que la page
+    Prix & marge (miroir du bloc Haya de Gaia)."""
+    try:
+        a = _clean(ms.score_asset("fabrica", city="lisbonne"))
+        promo = a["scores"]["promotion"]
+        b = next(p for p in promo["pillars"] if p["pillar"] == "marge").get("breakdown") or {}
+        return ("## ACTIF K-REST · FÁBRICA ORIENTE (Marvila, résidentiel, promotion, reconversion de friche industrielle, 14 000 m² constructibles)\n"
+                f"- Prix de sortie visé {b.get('realizable_sale')} €/m² "
+                f"(prime +{round(b.get('premium_over_median_pct') or 0)}% sur la médiane réelle de la freguesia), "
+                f"construction (coque + finitions) {b.get('construction')} €/m², foncier {b.get('land')} €/m², "
                 f"marge promoteur {b.get('margin_pct')}%, score promotion {_ri(promo['total'])}/100, verdict {promo['verdict']}.")
     except Exception:  # noqa: BLE001 ; l'actif est optionnel dans le contexte
         return ""

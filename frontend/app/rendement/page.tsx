@@ -65,7 +65,10 @@ export default function RendementPage() {
   const scopeLabel = summary.scope === "viables" ? "freguesias viables" : "toutes freguesias";
 
   // Conclusion layer: page insight + banner right block + anomaly note.
-  const rdLine = useMemo(() => detentionInsight(allRows, cls), [allRows, cls]);
+  const rdLine = useMemo(
+    () => detentionInsight(allRows, cls, cls === "residential" ? city.texts.yieldTrapClause : undefined),
+    [allRows, cls, city.texts.yieldTrapClause]
+  );
   // Banner right block: the best-held freguesia (top-score Conserver, else top
   // viable), never a global yield max that would contradict the sentence.
   const bestHold: RdRow | null = useMemo(() => {
@@ -78,7 +81,10 @@ export default function RendementPage() {
     () => (g.detentionCity?.zones ?? []).filter((z) => z.level === "freguesia"),
     [g.detentionCity]
   );
-  const note = useMemo(() => anomalyNote("detention", fregScores), [fregScores]);
+  const autoNote = useMemo(() => anomalyNote("detention", fregScores), [fregScores]);
+  // Note dédiée de la ville (clause AL lisboète) prioritaire sur la note auto,
+  // en résidentiel seulement ; Gaia garde sa note générée (São Félix intacte).
+  const note = (cls === "residential" && city.texts.detentionNote) || autoNote;
 
   // K-REST featured asset (Ribeira Sul), shown for Santa Marinha / résidentiel,
   // fed by the freguesia's own rates, market rent and score.

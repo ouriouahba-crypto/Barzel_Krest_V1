@@ -40,6 +40,14 @@ async function goCity(p, route) {
   await p.waitForSelector("table tbody tr", { timeout: 20000 });
   await fitAndShoot(p, "shots/lisbonne_prixmarge.png");
 
+  await goCity(p, "/rendement");
+  await p.waitForSelector("table tbody tr", { timeout: 20000 });
+  await fitAndShoot(p, "shots/lisbonne_rendement.png");
+
+  await goCity(p, "/arbitrage");
+  await p.waitForSelector("table tbody tr", { timeout: 20000 });
+  await fitAndShoot(p, "shots/lisbonne_arbitrage.png");
+
   await goCity(p, "/ia-analyste");
   await p.setViewportSize({ width: W, height: 1024 });
   await p.waitForTimeout(1000);

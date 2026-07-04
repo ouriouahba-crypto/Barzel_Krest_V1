@@ -32,6 +32,32 @@ export const PARC_SCE: Record<string, ParcRow> = {
   madalena: { ab: 33, cd: 49, ef: 18 },
   vilardeandorinho: { ab: 30, cd: 54, ef: 16 },              // périurbain récent
   canidelo: { ab: 36, cd: 50, ef: 14 },                      // neuf littoral
+  // Lisbonne (lot 2b) : parc curé par âge du bâti. Centre historique 45-55%
+  // E-F, Parque das Nações A/B dominants, périphéries C-D dominantes.
+  santamariamaior: { ab: 8, cd: 40, ef: 52 },   // Alfama/Baixa, bâti ancien
+  misericordia: { ab: 9, cd: 42, ef: 49 },      // Bairro Alto/Chiado
+  saovicente: { ab: 10, cd: 43, ef: 47 },
+  ajuda: { ab: 11, cd: 43, ef: 46 },            // parc ancien dégradé
+  estrela: { ab: 16, cd: 46, ef: 38 },
+  beato: { ab: 17, cd: 46, ef: 37 },            // industriel ancien en mutation
+  santoantonio: { ab: 18, cd: 46, ef: 36 },
+  penhadefranca: { ab: 17, cd: 49, ef: 34 },
+  marvila: { ab: 19, cd: 48, ef: 33 },
+  campodeourique: { ab: 19, cd: 49, ef: 32 },
+  alcantara: { ab: 21, cd: 48, ef: 31 },
+  avenidasnovas: { ab: 23, cd: 47, ef: 30 },
+  arroios: { ab: 22, cd: 49, ef: 29 },
+  belem: { ab: 24, cd: 48, ef: 28 },
+  campolide: { ab: 24, cd: 49, ef: 27 },
+  alvalade: { ab: 27, cd: 47, ef: 26 },
+  areeiro: { ab: 26, cd: 49, ef: 25 },
+  saodomingosdebenfica: { ab: 28, cd: 48, ef: 24 },
+  olivais: { ab: 29, cd: 48, ef: 23 },
+  benfica: { ab: 30, cd: 48, ef: 22 },
+  carnide: { ab: 31, cd: 48, ef: 21 },
+  santaclara: { ab: 28, cd: 52, ef: 20 },
+  lumiar: { ab: 34, cd: 48, ef: 18 },           // Alta de Lisboa, parc récent
+  parquedasnacoes: { ab: 64, cd: 30, ef: 6 },   // Expo 98, A/B dominants
 };
 
 // Le parc tertiaire diffère du résidentiel : décalage multiplicatif sur la part

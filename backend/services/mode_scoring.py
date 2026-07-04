@@ -197,6 +197,10 @@ def _adapt_params(raw: dict) -> dict:
                "living": _y(cls["living"].get("be_net_yield_pct"))},
     }
     P["city_yields"] = {"gaia": {"residential": _y(cls["residential"].get("pt_gaia_gross_yield_pct"))}}
+    # Multi-villes : yield brut résidentiel par ville (clé générique ; le legacy
+    # pt_gaia_gross_yield_pct reste servi pour gaia, bytes identiques).
+    for _city, _gy in (cls["residential"].get("gross_yield_pct_by_city") or {}).items():
+        P["city_yields"][_city] = {"residential": _pv(_gy)}
     P["_yields_conf"] = _pc(cls["residential"].get("pt_prime_gross_yield_pct"), RAPPORT)
     P["institutional_appetite"] = {
         k: _pv(v["institutional_appetite"]) / 100.0
@@ -204,6 +208,11 @@ def _adapt_params(raw: dict) -> dict:
     }
     P["charges_pct"] = {"pt": {"detention": 1.0, "vacance": 4.0},
                         "be": {"detention": 1.2, "vacance": 5.0}}
+    # Override par fichier ville (parc institutionnel récent → charges/vacance
+    # plus basses) ; absent des params gaia : bytes identiques.
+    for _cc, _ov in (raw.get("charges_pct") or {}).items():
+        if _cc in P["charges_pct"] and isinstance(_ov, dict):
+            P["charges_pct"][_cc].update({k: _pv(v) for k, v in _ov.items()})
 
     P["energy_meps"] = {
         "pt": {"min_label": "F/G", "deadline": "~2030-2033", "risk_0_100": 35,
@@ -232,7 +241,18 @@ def _adapt_params(raw: dict) -> dict:
             e["connectivite"] = _pv(zd["connectivity"]); e["connectivite_conf"] = _pc(zd["connectivity"])
         if "cycle_momentum" in zd:
             e["cycle_momentum"] = _pv(zd["cycle_momentum"]); e["cycle_momentum_conf"] = _pc(zd["cycle_momentum"])
-        if zid in best_use:
+        # Overrides multi-villes (lot 2b) : valeur de cession comparable (spread
+        # d'arbitrage + base du meilleur usage), risque énergie du parc local,
+        # meilleurs usages depuis le fichier. Absents des params gaia : bytes
+        # identiques (la table best_use codée en dur reste le repli legacy).
+        if "comparables_eur_m2" in zd:
+            e["comparables_eur_m2"] = _pv(zd["comparables_eur_m2"])
+            e["comparables_eur_m2_conf"] = zd.get("comparables_eur_m2_conf", HYPOTHESE)
+        if "risque_energie" in zd:
+            e["risque_energie"] = {"value": _pv(zd["risque_energie"]), "conf": _pc(zd["risque_energie"])}
+        if isinstance(zd.get("best_use"), list):
+            e["best_use"] = list(zd["best_use"])
+        if zid in best_use and "best_use" not in e:
             e["best_use"] = best_use[zid]
         zones_out[zid] = e
     if "alcochete" in zones_out:
@@ -269,6 +289,16 @@ def _adapt_params(raw: dict) -> dict:
                          "land_cost_eur_m2": _pv(a.get("land_cost_eur_m2"), 1300),
                          "premium_pct": _pv(a.get("premium_vs_freguesia_pct")), "confidence": RAPPORT}
         krest["haya_towers"] = krest["haya"]
+    if "fabrica_oriente" in A:
+        a = A["fabrica_oriente"]
+        krest["fabrica"] = {"name": "Fábrica Oriente", "city": a.get("city", "lisbonne"),
+                            "zone": a.get("zone", "marvila"), "class": a.get("class", "residential"),
+                            "primary_mode": "promotion",
+                            "achievable_sale_eur_m2": _pv(a.get("target_price_eur_m2")),
+                            "construction_eur_m2": _pv(a.get("construction_eur_m2"), 2210),
+                            "land_cost_eur_m2": _pv(a.get("land_cost_eur_m2"), 1343),
+                            "confidence": RAPPORT}
+        krest["fabrica_oriente"] = krest["fabrica"]
     if "alcochete_landbank" in A:
         a = A["alcochete_landbank"]
         krest["alcochete"] = {"name": "Alcochete Landbank", "city": a.get("city", "alcochete"),
@@ -485,6 +515,16 @@ def _best_use_value(st: State, z: dict) -> tuple[float | None, str | None]:
     return round(best_val), best_cls
 
 
+def _zone_rent_factor(st: State, zone_id: str) -> float:
+    """Facteur de loyer résidentiel par zone (params residential_rent_factor_by_zone,
+    défaut 1.0) : exprime les écarts loyer/prix locaux (prime touristique du
+    centre, décote des fronts en régénération) que la compression prix^0.4 ne
+    porte pas. Absent des params gaia : bytes identiques."""
+    tbl = st.params.get("_raw", {}).get("residential_rent_factor_by_zone", {})
+    val = tbl.get(zone_id)
+    return float(val) if isinstance(val, (int, float)) else 1.0
+
+
 def _res_market_rent(st: State, z: dict) -> float | None:
     """Residential market rent €/m²/year (price × zone-adjusted gross yield) ;
     the depth proxy for rental demand, whatever the asset class studied."""
@@ -496,6 +536,7 @@ def _res_market_rent(st: State, z: dict) -> float | None:
     ref = _city_price_median(st, z["city"], "residential")
     if ref:
         gross = gross * (ref / price) ** 0.4
+    gross *= _zone_rent_factor(st, z["id"])
     return price * gross / 100.0
 
 
@@ -896,6 +937,8 @@ def _net_yield_pct(st: State, z: dict, cls: str) -> tuple[float | None, str, str
     price = _class_price(st, z, cls)
     if ref and price:
         gross = gross * (ref / price) ** 0.4
+    if cls == "residential":
+        gross *= _zone_rent_factor(st, z["id"])
     det_tax = _p(st, "fiscalite", country, "detention_annual_pct", default=0.0) or 0.0
     charges = _p(st, "charges_pct", country, "detention", default=1.0)
     vac = _p(st, "charges_pct", country, "vacance", default=5.0)
@@ -950,6 +993,11 @@ def _det_energie(st: State, z: dict) -> Pillar:
     if not meps:
         return _np("risque_energie", "MEPS non paramétré")
     risk = meps.get("risk_0_100", 50)
+    zr = _zone_param(st, z["id"]).get("risque_energie")
+    if isinstance(zr, dict) and isinstance(zr.get("value"), (int, float)):
+        risk = float(zr["value"])  # parc local (âge du bâti) ; conf du paramètre
+    elif isinstance(zr, (int, float)):
+        risk = float(zr)
     sub = 100 - risk
     return Pillar("risque_energie", sub, risk, "/100 risque",
                   f"MEPS {meps.get('min_label')} {meps.get('deadline')}",

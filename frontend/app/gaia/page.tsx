@@ -28,6 +28,10 @@ function detailFigures(score: ModeScore, mode: Mode): KeyFigure[] {
   return figs;
 }
 
+function cityAssetName(c: { promoAsset: { displayName: string } }) {
+  return c.promoAsset.displayName;
+}
+
 export default function CartePage() {
   const g = useGaia();
   const city = cityBySlug(useCityStore((s) => s.slug));
@@ -69,6 +73,7 @@ export default function CartePage() {
               onSelectZone={onSelectZone}
               onHoverZone={setHover}
               hayaNorm={g.hayaNorm}
+              assetName={city.texts ? cityAssetName(city) : undefined}
               mode={g.mode}
               focusZoneId={g.focusZone}
             />

@@ -54,13 +54,15 @@ export default function EnergiePage() {
   // Table: simulated SCE stock joined with the engine's energy pillar risk.
   const rows = useMemo(() => {
     const fregs = (g.detentionCity?.zones ?? []).filter((z) => z.level === "freguesia");
-    const engineRisk = fregs.length ? pillarValue(fregs[0].pillars, "risque_energie") ?? 35 : 35;
     const parcs = fregs
       .map((z) => ({ z, parc: E.parcFor(z.zone, cls) }))
       .filter((e): e is { z: (typeof fregs)[number]; parc: NonNullable<ReturnType<typeof E.parcFor>> } => !!e.parc);
     const efMax = Math.max(...parcs.map((e) => e.parc.ef), 1);
     return parcs
       .map(({ z, parc }) => {
+        // Risque moteur PAR ZONE (le pilier énergie varie par freguesia à
+        // Lisbonne ; à Gaia il est constant → rendu strictement identique).
+        const engineRisk = pillarValue(z.pillars, "risque_energie") ?? 35;
         const risk = E.riskMeps(engineRisk, parc.ef, efMax);
         return {
           zone: z.zone,

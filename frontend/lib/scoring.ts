@@ -174,6 +174,35 @@ export const HAYA = {
 
 const COST_FACTOR = 1.261; // 1 + dev_cost_stack(0.18) + finance(LTV0.6×debt0.045×3y)
 
+// ---------------------------------------------------------------------------
+// Fábrica Oriente : actif vedette lisboète (Marvila, reconversion de friche
+// industrielle, 14 000 m² constructibles). Même équation moteur que Haya :
+// coût = 1,261 × (construction + foncier), résidentiel PT sans TVA sur le prix
+// de sortie (IMT côté acquéreur). Marge 20,5 % à 5 400 (affichée 21 %).
+// ---------------------------------------------------------------------------
+export const FABRICA = {
+  construction: 2210, // coque conservée + finitions (reconversion)
+  foncier: 1343,      // friche hors marché central
+  freguesiaMedian: 5029,
+  baseSale: 5400,
+  saleMin: 4800,
+  saleMax: 6200,
+  surface: 14000,
+};
+
+export function fabricaCost() {
+  return COST_FACTOR * (FABRICA.construction + FABRICA.foncier);
+}
+
+export function fabricaMargin(salePerM2: number): number {
+  const cost = fabricaCost();
+  return ((salePerM2 - cost) / cost) * 100;
+}
+
+export function fabricaPremium(salePerM2: number): number {
+  return (salePerM2 / FABRICA.freguesiaMedian - 1) * 100;
+}
+
 export function hayaCost() {
   return COST_FACTOR * (HAYA.construction + HAYA.foncier);
 }

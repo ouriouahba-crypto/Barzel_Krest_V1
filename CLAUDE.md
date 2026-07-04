@@ -89,6 +89,12 @@ non migrés — à convertir s'ils sont réutilisés.
   Ce sont les *knobs* de params.json qui restent cachés, pas leurs résultats.
 
 ### À remplacer par les données client (avant mise en prod)
+- **Questions ouvertes KREST** : actifs réels au Portugal hors Gaia, notamment
+  Lisbonne, et intérêt pour l'arc oriental (Marvila/Beato) ; l'actif vedette
+  lisboète `Fábrica Oriente` (reconversion de friche, Marvila, 14 000 m²
+  constructibles, constantes `FABRICA` dans `lib/scoring.ts` + asset
+  `fabrica_oriente` des params lisbonne) est fictif, nom vérifié sans
+  correspondance : à remplacer par un actif réel du portefeuille.
 - **Actifs K-REST vedettes fictifs** : `Ribeira Sul` (détention — immeuble de
   rapport Santa Marinha, 24 lots / 1 800 m², acquis 2 300 €/m² + 340 €/m² de
   travaux, constantes `RIBEIRA` dans `lib/scoring.ts`), `Cais Poente`
@@ -1420,6 +1426,91 @@ lisboète : V0 mécanique, hiérarchie en 2b.
    26/27 inchangés (split env) ; `tsc` OK ; slug inconnu → défaut contrôlé à
    l'écran ; capture `lisbonne_vue_ensemble.png` régénérée (24 barres
    lisibles, valeurs rendues).
+
+### Lot 2b : calibration éditoriale complète de Lisbonne — **✅ Livré** (2026-07-04)
+Ligne analytique (validée Ouri) : capitale au foncier rare, la marge de
+promotion se joue à l'arc oriental en régénération, le yield facial touristique
+n'est pas un yield de détention. Snapshot Gaia AUX OCTETS vérifié après chaque
+ajout moteur. Prix/yoy/transactions INE 2025-Q4 inchangés (réels).
+1. **Ajouts moteur, tous neutres pour Gaia** (défauts absents des params gaia,
+   snapshot le prouve) : facteur de loyer résidentiel par zone
+   (`residential_rent_factor_by_zone`, appliqué au brut affiché ET à la
+   profondeur), yields par ville (`gross_yield_pct_by_city`),
+   `charges_pct` surchargeable par fichier ville, **`risque_energie` par zone**
+   (parc local ; le pilier détention varie enfin par freguesia), adaptation
+   étendue des overrides de zone (`comparables_eur_m2` → spread d'arbitrage ET
+   base du meilleur usage ; `best_use` par fichier ; `risque_energie`), actif
+   `fabrica_oriente` mappé comme `haya_towers`.
+2. **Verdicts et hiérarchies livrés** (résidentiel) :
+   - *Promotion* 3 Go / 16 Conditionnel / 5 Passer : **Marvila 72 (marge 29%) >
+     Beato 71 (19%) > Lumiar 70 (18%)** ; PdN 54 **Conditionnel par le cap de
+     marge (6,8% < 8)**, pas un malus ; centre premium Conditionnel 53-58
+     (foncier de marché 47-58% du prix qui écrase la marge) ; Passer = Ajuda +
+     Areeiro/Benfica/Carnide/Santa Clara. **Anomalie Ajuda** : marge 9,4% mais
+     37 Passer → la note d'analyse (gabarit São Félix) tire naturellement.
+   - *Détention* 5 Conserver / 15 Surveiller / 4 Céder : **Arroios 71 >
+     PdN 70 > Avenidas 68 > Alvalade 68 > Areeiro 65** (nets 3,3-3,5%, loyers
+     16,8-17,8 €/m²/mois) ; **clause AL signature** : SMM 43 et Misericórdia 44
+     **Céder avec les loyers faciaux les plus hauts** (20,2/19,9 €/m²/mois,
+     bruts 4,85/4,29) — la clause vit dans l'insight (`yieldTrapClause`), la
+     note du tableau (`detentionNote`, prioritaire sur la note auto en
+     résidentiel lisboète) et les facts analyste (`_FACTS_AL_LISBONNE`).
+     Céder additionnels assumés : Santa Clara/Ajuda (queues fragiles).
+   - *Arbitrage* exactement 2 ouvertes : **PdN 68 (spread +8%, délai 3,7 m) >
+     Avenidas 67 (+4,8%, 3,5 m)** ; **Marvila 44 Fenêtre fermée (spread -9%)**
+     — la cohérence croisée voulue (on y construit, on n'y cède pas) ; bande de
+     spread recalibrée à l'échelle d'une cession de bloc (faible -1 / correct 3
+     / bon 6,5) ; appétit résidentiel 0,8 (PRS/BTR de capitale, « soutenu »).
+   - *Landbank* 3 Prioritaires : **Marvila 78 > Beato 74 > Lumiar 66** ; Belém
+     **52 À phaser** (contraintes patrimoniales) ; hôtel optimal SMM/
+     Misericórdia (facteurs commerciaux), logistique nulle part optimale
+     intra-muros.
+3. **Classes commerciales** : bureaux base 20 €/m²/mois yield 4,75 (prime CBD
+   30-32 : Santo António 1,55 / Avenidas 1,52 ; PdN 22-24 ; secondaires
+   15-18) ; commerce base 35 yield 5,5 (Chiado : SMM 3,24 / Misericórdia 3,02
+   ≈ 100-120 zone A, courant 25-45) ; hôtel base 24 (centre historique fort) ;
+   logistique base 5,75 résiduelle (facteurs 0,4-1,0, Marvila/Olivais en
+   tête). Jitter md5 + anti-jumeaux par n-uplet de facteurs.
+4. **Énergie** : parc SCE lisboète curé dans `PARC_SCE` (centre historique
+   45-55% E-F : SMM 52, Misericórdia 49, São Vicente 47, Ajuda 46 ; PdN 6%,
+   A/B dominants ; Avenidas/Alvalade/Areeiro 25-30 ; périphéries 18-24, C-D
+   dominants ; aucun jumeau) ; la page Énergie lit le **risque moteur par
+   zone** (à Gaia il est constant → rendu inchangé) ; overrides
+   `risque_energie` backend alignés sur le parc (SMM 88 → PdN 12).
+5. **Fábrica Oriente** (actif vedette Prix & marge, gabarit Haya, HayaSlider
+   strictement intouché) : reconversion de friche à Marvila, 14 000 m²
+   constructibles, curseur 4 800-6 200 pas 10, valeur centrale 5 400 →
+   **marge 20,5% affichée 21%** (coût = 1,261 × (2 210 coque+finitions +
+   1 343 foncier) = 4 480), 7,1% à 4 800 (fortement compressée), 38,4% à
+   6 200, bascule Go visible ~5 620. Backend : asset `fabrica` + bloc
+   contexte analyste (miroir Haya). Frontend : `FABRICA` + `FabricaSlider`,
+   **actif vedette par ville dans le registre** (`promoAsset` + slider +
+   légende) : prix-marge focalise Marvila par défaut à Lisbonne, la carte
+   porte le marqueur or « Fábrica Oriente » (tooltip paramétré, Gaia
+   inchangé).
+6. **Textes** : MARKET_LINEs lisboètes réécrits sur la signature capitale
+   (gabarit Gaia, zéro cadratin) ; contexte promotion résidentiel « le foncier
+   de marché du centre absorbe 60 à 70% du prix de sortie » ; facts analyste
+   lisbonne (parc SCE + clause AL + bloc Fábrica) ; DÉNOMBREMENTS recalculés.
+7. **Écarts aux cibles, documentés** (constantes structurelles, verdicts et
+   ordres tous respectés) : scores Go 72/71/70 vs 84/81/78 (le momentum
+   promotion = percentile du **yoy INE réel**, non curable : Marvila -10,6%
+   écrête ~14 pts) ; marge Marvila 29% vs 21 (nécessaire au rang #1 sous ce
+   même momentum ; l'actif vedette à 20,5% porte la cible d'origine) ;
+   détention SMM/Miser 43/44 vs 34/37 (plancher = fiscalité 6,6 + portage 2,8
+   + profondeur tirée par les prix) ; arbitrage 68/67 vs 76/73 (appétit ≤ 20 +
+   coût d'opportunité 3,4 + frictions 8,1 constants) ; landbank Lumiar 66 vs
+   76 (valeur du meilleur usage bornée par son niveau de prix) ; foncier
+   centre 47-58% vs 60-70 (marges relevées pour tenir Conditionnel) ; PdN
+   délai 3,7 vs ~3 (le DOM sert absorption ET rotation ET délai). Détention
+   AvNovas/PdN Conserver additionnels assumés (produit récent, profondeur).
+8. **Vérifs** : tests **28** (27/28 framework, +1 `test_lisbonne_calibration_2b`
+   verdicts/ordres/parts foncières/Fábrica ; split env inchangé) ; snapshot
+   Gaia aux octets ; mémo Lisbonne 5 pages 0 cadratin (« Marvila en tête avec
+   une marge de 29,0% ») ; analyste live : clause AL citée avec les chiffres
+   exacts (4,85/3,82, 43/100), trio Go 73/71/70, Fábrica 66 Conditionnel
+   nuancé ; captures `lisbonne_{vue_ensemble,carte,prixmarge,rendement,
+   arbitrage,ia_analyste}.png` ; matrice 120 relancée.
 
 ### État final du gabarit de page de mode
 Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,

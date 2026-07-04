@@ -6,7 +6,6 @@ import { Sidebar } from "@/components/Sidebar";
 import { PriceMarginTable } from "@/components/PriceMarginTable";
 import { MarginWaterfall } from "@/components/MarginWaterfall";
 import { MarginBars } from "@/components/MarginBars";
-import { HayaSlider } from "@/components/HayaSlider";
 import { InsightBanner } from "@/components/InsightBanner";
 import { useGaia } from "@/lib/useGaia";
 import { classLabel } from "@/lib/scoring";
@@ -15,7 +14,6 @@ import { priceMarginInsight, anomalyNote } from "@/lib/insights";
 import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
 
-const AFURADA = "santamarinhaesaopedrodaafurada";
 // Ligne marché et contexte résidentiel : registre des villes (lib/cities.ts).
 
 // Promotion economics, one line per class.
@@ -36,9 +34,12 @@ export default function PrixMargePage() {
   const city = cityBySlug(useCityStore((s) => s.slug));
   const [selected, setSelected] = useState<string[]>([]);
 
-  // Promotion module: default the selection to Afurada (the KREST asset's freguesia).
+  // Module promotion : sélection par défaut sur la freguesia de l'actif vedette
+  // (Afurada à Gaia, Marvila à Lisbonne).
+  const assetZone = city.promoAsset.zoneId;
+  const AssetSlider = city.promoAssetSlider;
   useEffect(() => {
-    g.setFocusZone(AFURADA);
+    g.setFocusZone(assetZone);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -54,7 +55,7 @@ export default function PrixMargePage() {
     [allRows, g.focusZone]
   );
 
-  const showHaya = g.focusZone === AFURADA && cls === "residential" && !!g.hayaProps;
+  const showHaya = g.focusZone === assetZone && cls === "residential" && !!g.hayaProps;
   const scopeLabel = summary.scope === "viables" ? "freguesias viables" : "toutes freguesias";
 
   // Conclusion layer: page insight + banner right block + margin anomaly note.
@@ -171,10 +172,9 @@ export default function PrixMargePage() {
             <MarginWaterfall row={selectedRow} mode="promotion" classLabel={classLabel(cls)} />
             {showHaya && g.hayaProps && (
               <div className="flex flex-col gap-2">
-                <HayaSlider {...g.hayaProps} />
+                <AssetSlider {...g.hayaProps} />
                 <p className="px-1 text-caption leading-snug text-ink-soft">
-                  Curseur temps réel sur l’actif K-REST à Afurada : ajustez le prix de vente pour
-                  voir la marge et le verdict se recalculer.
+                  {city.texts.promoAssetCaption}
                 </p>
               </div>
             )}
