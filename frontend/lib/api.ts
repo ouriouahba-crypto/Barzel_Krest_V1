@@ -2,6 +2,7 @@
 // confidence fields (backend strips them): the front never surfaces them.
 
 import type { Mode } from "./scoring";
+import { currentCitySlug } from "./cityStore";
 
 const BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
 
@@ -109,6 +110,10 @@ export interface AssetResponse {
   primary: ModeScore;
 }
 
+// Injection centrale du slug de ville : query `city` sur les GET zone/asset,
+// champ `city` sur les POST (un city explicite du caller garde la priorité).
+const withCity = (body: object) => ({ city: currentCitySlug(), ...body });
+
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}${path}`, { cache: "no-store" });
   if (!res.ok) {
@@ -126,20 +131,20 @@ export const api = {
     ),
   zone: (zone: string, assetClass?: string) =>
     get<ZoneAllModes>(
-      `/api/scoring/zone?zone=${encodeURIComponent(zone)}` +
+      `/api/scoring/zone?zone=${encodeURIComponent(zone)}&city=${encodeURIComponent(currentCitySlug())}` +
         (assetClass ? `&class=${assetClass}` : "")
     ),
   zoneMode: (zone: string, mode: Mode, assetClass?: string) =>
     get<ModeScore>(
-      `/api/scoring/zone?zone=${encodeURIComponent(zone)}&mode=${mode}` +
+      `/api/scoring/zone?zone=${encodeURIComponent(zone)}&mode=${mode}&city=${encodeURIComponent(currentCitySlug())}` +
         (assetClass ? `&class=${assetClass}` : "")
     ),
-  asset: (asset: string) => get<AssetResponse>(`/api/scoring/asset?asset=${asset}`),
+  asset: (asset: string) => get<AssetResponse>(`/api/scoring/asset?asset=${asset}&city=${encodeURIComponent(currentCitySlug())}`),
   analystAsk: async (question: string, assetClass: string): Promise<{ answer: string }> => {
     const res = await fetch(`${BASE}/api/analyst/ask`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question, asset_class: assetClass }),
+      body: JSON.stringify(withCity({ question, asset_class: assetClass })),
     });
     if (!res.ok) throw new Error(`API ${res.status}`);
     return res.json();
@@ -148,7 +153,7 @@ export const api = {
     const res = await fetch(`${BASE}/api/memo/draft`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify(withCity(body)),
     });
     if (!res.ok) throw new Error(`API ${res.status}`);
     return res.json();
@@ -157,7 +162,7 @@ export const api = {
     const res = await fetch(`${BASE}/api/memo/tables`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify(withCity(body)),
     });
     if (!res.ok) throw new Error(`API ${res.status}`);
     return res.json();
@@ -166,7 +171,7 @@ export const api = {
     const res = await fetch(`${BASE}/api/memo/draft_section`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify(withCity(body)),
     });
     if (!res.ok) throw new Error(`API ${res.status}`);
     return res.json();
@@ -175,7 +180,7 @@ export const api = {
     const res = await fetch(`${BASE}/api/memo/revise`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify(withCity(body)),
     });
     if (!res.ok) throw new Error(`API ${res.status}`);
     return res.json();
@@ -184,7 +189,7 @@ export const api = {
     const res = await fetch(`${BASE}/api/memo/render`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify(withCity(body)),
     });
     if (!res.ok) throw new Error(`API ${res.status}`);
     const dispo = res.headers.get("Content-Disposition") || "";

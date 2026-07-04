@@ -338,6 +338,36 @@ def test_memo_em_dash_sanitized_everywhere():
     assert "\u2014" not in html
 
 
+def test_gaia_payload_snapshot_4_modes_residential():
+    # Invariant multi-villes (lot 1) : les payloads _clean de Gaia, 4 modes en
+    # résidentiel, sont identiques AU CARACTÈRE PRÈS à la fixture figée avant
+    # le refactor (backend/tests/fixtures/). Toute dérive de données, score,
+    # verdict ou texte casse ici.
+    import json
+    from pathlib import Path
+    from backend.routers.scoring import _clean
+
+    fixture = Path(__file__).parent / "fixtures" / "gaia_city_residential_snapshot.json"
+    snap = {m: _clean(ms.score_city("gaia", m, "residential")) for m in ms.MODES}
+    canon = json.dumps(snap, ensure_ascii=False, sort_keys=True, indent=1)
+    ref = fixture.read_text(encoding="utf-8")
+    assert canon == ref, "payload Gaia dérivé de la fixture (voir tests/fixtures)"
+
+
+def test_city_registry_and_default_dataset():
+    # Registre : gaia seule enregistrée, défaut gaia ; un nom de ville non
+    # enregistré (témoins lisbonne/bruxelles) est servi par le dataset par
+    # défaut, à l'identique des routes historiques sans slug.
+    from backend.services import cities as reg
+
+    assert reg.default_slug() == "gaia"
+    assert reg.slugs() == {"gaia"}
+    assert reg.resolve_slug(None) == "gaia"
+    assert reg.resolve_slug("gaia") == "gaia"
+    assert reg.resolve_slug("lisbonne") == "gaia"  # témoin, pas encore de dataset propre
+    assert ms.load("lisbonne") is ms.load()  # même State (cache par slug)
+
+
 if __name__ == "__main__":  # dependency-free smoke run
     ms.load()
     test_four_distinct_modes()
@@ -353,4 +383,6 @@ if __name__ == "__main__":  # dependency-free smoke run
     test_memo_count_guard()
     test_no_em_dash_in_clean_texts()
     test_memo_em_dash_sanitized_everywhere()
+    test_gaia_payload_snapshot_4_modes_residential()
+    test_city_registry_and_default_dataset()
     print("OK : all smoke checks passed")

@@ -6,12 +6,14 @@ import { Mode, MODES, MODE_KPI, MODE_LABEL, median, pillarValue } from "./scorin
 import { PARC_SCE, parcFor } from "./energie";
 import { setMemoDefaults } from "./session";
 import { normFreguesia } from "./normalize";
+import { cityBySlug } from "./cities";
+import { useCityStore } from "./cityStore";
 import type { Figure } from "@/components/KeyFigures";
 import type { ChartRow } from "@/components/CityCharts";
 import type { ZoneScore } from "@/components/GaiaMap";
 
-const CITY = "gaia";
-const CITY_ZONE = "vilanovadegaia"; // município = aggregate "city view"
+// Ville active : slug du store (gaia par défaut) ; le municipio vient du
+// registre des villes (lib/cities.ts).
 
 export function displayName(name: string) {
   return name.replace(/^União das freguesias de /i, "").replace(/^Uniao das freguesias de /i, "");
@@ -25,6 +27,9 @@ const eur = (v: number | null | undefined) =>
   v != null ? `${Math.round(v).toLocaleString("fr-FR")} €/m²` : "–";
 
 export function useGaia() {
+  const citySlug = useCityStore((s) => s.slug);
+  const CITY = citySlug;
+  const CITY_ZONE = cityBySlug(citySlug).cityZoneId;
   const [mode, setMode] = useState<Mode>("promotion");
   const [assetClass, setAssetClass] = useState("residential");
   const [focusZone, setFocusZone] = useState<string>(CITY_ZONE);

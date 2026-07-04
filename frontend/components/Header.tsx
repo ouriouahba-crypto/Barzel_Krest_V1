@@ -2,6 +2,8 @@
 
 import { ASSET_CLASSES, MODES, MODE_LABEL, Mode } from "@/lib/scoring";
 import { MultiSelect, Segmented } from "./ui";
+import { CitySelector } from "./CitySelector";
+import { CITIES } from "@/lib/cities";
 
 export function Header({
   marketLine,
@@ -46,6 +48,8 @@ export function Header({
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-x-8 gap-y-3 pl-[18px]">
+        {/* Sélecteur de ville : monté seulement en multi-villes (registre) */}
+        {CITIES.length > 1 && <CitySelector />}
         {!hideMode && (
           <div className="flex items-center gap-3">
             <span className="text-label font-semibold uppercase tracking-widest text-muted">Mode</span>

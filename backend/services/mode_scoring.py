@@ -5,10 +5,12 @@ Replaces Dubai's single Barzel Score with FOUR scores, one per investment mode
 readable pillars, with a verdict and a data-confidence index.
 
 Inputs (loaded once at startup):
-  * backend/data/params.json     : curated params (weights, bands, verdicts,
+  * backend/data/cities/<slug>/params.json     : curated params (weights, bands, verdicts,
                                     fiscalité, yields, zone attributes, KREST).
-  * data/backbone.json           : official real aggregates per zone.
-  * data/listings_sim.csv        : simulated listings (density; DOM/mix proxies).
+  * backend/data/cities/<slug>/backbone.json   : official real aggregates per zone.
+  * backend/data/cities/<slug>/listings_sim.csv : simulated listings (density; DOM/mix).
+One State per city slug (cache mémoire) ; le registre vit dans
+backend/data/cities/registry.json (services/cities.py).
 
 Contract honoured:
   * Hybrid normalisation: absolute bands for business-sense metrics (marge %,
@@ -29,6 +31,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from . import cities
+
 log = logging.getLogger("services.mode_scoring")
 
 # --------------------------------------------------------------------------- #
@@ -38,9 +42,6 @@ log = logging.getLogger("services.mode_scoring")
 _SERVICES = Path(__file__).resolve().parent
 BACKEND = _SERVICES.parent
 REPO_ROOT = BACKEND.parent
-PARAMS_PATH = BACKEND / "data" / "params.json"
-BACKBONE_PATH = REPO_ROOT / "data" / "backbone.json"
-LISTINGS_PATH = REPO_ROOT / "data" / "listings_sim.csv"
 
 MODES = ("promotion", "detention", "arbitrage", "landbank")
 
@@ -115,7 +116,7 @@ class State:
     price_med_cache: dict = field(default_factory=dict)   # (city, cls) -> median price
 
 
-_STATE: State | None = None
+_STATES: dict[str, State] = {}
 
 
 def _pv(node, default=None):
@@ -327,13 +328,15 @@ def _adapt_verdicts(vr: dict) -> dict:
     return out
 
 
-def load(force: bool = False) -> State:
-    global _STATE
-    if _STATE is not None and not force:
-        return _STATE
-    raw = json.loads(PARAMS_PATH.read_text(encoding="utf-8"))
+def load(city: str | None = None, force: bool = False) -> State:
+    """State du dataset de la ville (slug enregistré, sinon dataset par
+    défaut : rétrocompat des zones témoins). Cache mémoire par slug."""
+    slug = cities.resolve_slug(city)
+    if slug in _STATES and not force:
+        return _STATES[slug]
+    raw = json.loads(cities.params_path(slug).read_text(encoding="utf-8"))
     params = _adapt_params(raw)
-    backbone = json.loads(BACKBONE_PATH.read_text(encoding="utf-8"))
+    backbone = json.loads(cities.backbone_path(slug).read_text(encoding="utf-8"))
 
     zones: dict[str, dict] = {}
     for city, cdata in backbone.get("cities", {}).items():
@@ -345,26 +348,27 @@ def load(force: bool = False) -> State:
                 "krest": z.get("krest"),
             }
 
-    listings_by_zone = _load_listings_stats()
+    listings_by_zone = _load_listings_stats(slug)
 
     st = State(params=params, zones=zones, listings_by_zone=listings_by_zone)
     st.socle = _build_socle(st)
-    _STATE = st
-    log.info("mode_scoring loaded: %d zones, %d zones with listings",
-             len(zones), len(listings_by_zone))
+    _STATES[slug] = st
+    log.info("mode_scoring loaded [%s]: %d zones, %d zones with listings",
+             slug, len(zones), len(listings_by_zone))
     return st
 
 
-def _load_listings_stats() -> dict[str, dict]:
+def _load_listings_stats(slug: str) -> dict[str, dict]:
     """Per-zone DOM median, listing count, dominant-class share (from sim CSV)."""
     stats: dict[str, dict] = {}
-    if not LISTINGS_PATH.exists():
+    path = cities.listings_path(slug)
+    if not path.exists():
         log.warning("listings_sim.csv missing: absorption pillar will be limited")
         return stats
     import csv
     doms: dict[str, list] = {}
     cls_counts: dict[str, dict] = {}
-    for r in csv.DictReader(LISTINGS_PATH.open(encoding="utf-8")):
+    for r in csv.DictReader(path.open(encoding="utf-8")):
         z = r["zone_id"]
         try:
             doms.setdefault(z, []).append(float(r["dom_days"]))
@@ -1289,8 +1293,8 @@ def _native_indicator(mode: str, pillars: dict) -> dict:
 
 
 def score_mode(zone_id: str, mode: str, asset_class: str | None = None,
-               asset_name: str | None = None) -> dict:
-    st = load()
+               asset_name: str | None = None, city: str | None = None) -> dict:
+    st = load(city)
     if mode not in MODES:
         raise ValueError(f"unknown mode {mode!r}; expected one of {MODES}")
     z = st.zones.get(zone_id)
@@ -1354,31 +1358,31 @@ def score_mode(zone_id: str, mode: str, asset_class: str | None = None,
 
 
 def score_all_modes(zone_id: str, asset_class: str | None = None,
-                    asset_name: str | None = None) -> dict:
-    return {m: score_mode(zone_id, m, asset_class, asset_name) for m in MODES}
+                    asset_name: str | None = None, city: str | None = None) -> dict:
+    return {m: score_mode(zone_id, m, asset_class, asset_name, city=city) for m in MODES}
 
 
 def score_city(city: str, mode: str, asset_class: str | None = None) -> list[dict]:
-    st = load()
+    st = load(city)
     out = []
     for zid, z in st.zones.items():
         if z["city"] != city:
             continue
         try:
-            out.append(score_mode(zid, mode, asset_class))
+            out.append(score_mode(zid, mode, asset_class, city=city))
         except Exception as exc:  # noqa: BLE001
             log.warning("scoring failed for %s/%s: %s", city, zid, exc)
     out.sort(key=lambda r: r["total"], reverse=True)
     return out
 
 
-def score_asset(asset_name: str) -> dict:
-    st = load()
+def score_asset(asset_name: str, city: str | None = None) -> dict:
+    st = load(city)
     asset = st.params.get("krest_assets", {}).get(asset_name.lower())
     if asset is None:
         raise KeyError(f"unknown KREST asset {asset_name!r}")
     zone_id = asset["zone"]
-    scores = {m: score_mode(zone_id, m, asset.get("class"), asset_name) for m in MODES}
+    scores = {m: score_mode(zone_id, m, asset.get("class"), asset_name, city=city) for m in MODES}
     return {
         "asset": asset.get("name", asset_name), "city": asset.get("city"),
         "zone": zone_id, "class": asset.get("class"),

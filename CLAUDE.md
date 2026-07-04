@@ -11,7 +11,7 @@ fur et à mesure.
 - **Monorepo** `barzel_Krest_v1` : backend FastAPI (Python, pandas) + frontend
   Next.js 14 (`frontend/`, TypeScript, Tailwind, Leaflet, Recharts, zustand).
 - **Ville de démo** : Vila Nova de Gaia (15 freguesias, contours réels dans
-  `frontend/public/geo/gaia_freguesias.geojson`, propriété `freguesia`).
+  `frontend/public/geo/gaia/freguesias.geojson`, propriété `freguesia`).
 - **Actif phare** : Haya Towers, à Santa Marinha e São Pedro da Afurada
   (zone id `santamarinhaesaopedrodaafurada`).
 
@@ -72,7 +72,7 @@ non migrés — à convertir s'ils sont réutilisés.
 
 ### Posture produit (règles dures)
 - **Jamais** afficher : « simulation », « confiance », les sources, ni les
-  paramètres bruts de `backend/data/params.json`. Le backend `_clean()` retire
+  paramètres bruts de `backend/data/cities/<slug>/params.json`. Le backend `_clean()` retire
   déjà `data_confidence_index`, `confidence`, `source`, `krest`, etc.
 - **Jamais de tiret cadratin (U+2014) dans quoi que ce soit de visible**
   (titres, insights, textes, tooltips, contexte `_clean`, template PDF,
@@ -1233,6 +1233,81 @@ payloads identiques, label natif municipio inchangé au caractère près).
    régénérées (les 10 pages + carte ×2 + ia_analyste). En-dashes (U+2013,
    informatif) : 6 préexistants non touchés (fiscalite 3, analyst 2, memo 1) ;
    65 au total après lot (les +59 sont la conversion du placeholder).
+
+### Lot 1 multi-villes — architecture par slug, zéro régression — **✅ Livré** (2026-07-04)
+Préalable à la duplication (Lisbonne, Bruxelles, Alcochete, Loulé,
+Mont-Saint-Guibert). Aucune nouvelle ville, aucun changement de données,
+scores, verdicts, textes ni HayaSlider.
+1. **Structure** : `backend/data/cities/gaia/` porte `params.json` (ex
+   `backend/data/`), `backbone.json` et `listings_sim.csv` (ex `data/` racine),
+   tous déplacés en `git mv` sans modification de contenu ; geojson →
+   `frontend/public/geo/gaia/freguesias.geojson`. ⚠️ Le dataset gaia contient
+   encore les **zones témoins historiques** (lisbonne ×11, bruxelles ×19,
+   alcochete, loulé, mont_saint_guibert : backbone, listings et params les
+   embarquaient déjà) : les tests témoins (`ixelles`, `parquedasnacoes`) et la
+   rétrocompat `city=lisbonne` en vivent ; le lot 2 les extraira vers leurs
+   propres répertoires. `barzel_data_backbone_v0.json` (racine) **conservé** :
+   contrairement à la note historique, c'est le **contrat de schéma** du
+   pipeline collect (`BACKBONE_SCHEMA`, normalize.py:384) ;
+   `data/backbone.excerpt.json` (non référencé) laissé en place. Outillage
+   offline repointé (`collect/utils.py` `CITY_DATA_DIR`, sortie normalize +
+   listings simulate → cities/gaia/).
+2. **Loader + registre** : `backend/services/cities.py` (registre
+   `backend/data/cities/registry.json` : slug, label, pays, devise,
+   fiscal_locale, fiscal_regime, energy_regime ; défaut gaia) ;
+   `mode_scoring.load(city)` → **un State par slug, cache mémoire**
+   (`_STATES`). `resolve_slug` : slug enregistré tel quel, sinon dataset par
+   défaut (rétrocompat des noms témoins). `score_mode/score_all_modes/
+   score_asset` gagnent `city` en fin de signature ; `score_city` route son
+   propre paramètre vers le loader.
+3. **Convention de routes (documentée)** : le slug voyage dans le paramètre
+   **`city`** : query sur les GET (déjà le cas de `/api/scoring/city` ;
+   `/zone` et `/asset` l'acceptent en option), champ de body sur les POST
+   (analyste + les 5 endpoints mémo, modèles pydantic `city: str = "gaia"`).
+   **Aucune route renommée, aucun paramètre obligatoire ajouté** : sans slug,
+   tout est servi par le dataset par défaut, identique aux réponses
+   historiques. Nouveau `GET /api/cities` (routeur `routers/cities.py`) sert
+   le registre. Caches analyste/mémo (`_build_context`, `verdict_counts`)
+   keyés (classe, ville).
+4. **Frontend** : `lib/cities.ts` (registre miroir : slug, label, pays,
+   devise, cityZoneId, geojson, **régimes fiscal/énergie** = modules +
+   simulateurs par ville) ; `lib/cityStore.ts` (**zustand**, installé à cette
+   occasion : slug actif, `currentCitySlug()` hors React) ; `lib/api.ts`
+   injecte le slug partout (`withCity` sur les POST, `&city=` sur zone/asset,
+   `useGaia` passe le slug du store à `/city`) ; GaiaMap lit le geojson du
+   registre ; `components/CitySelector.tsx` **créé mais monté uniquement si
+   CITIES.length > 1** (invisible avec Gaia seule).
+5. **Points PT isolés** (Fiscalité/Énergie brancheront un régime BE sans
+   toucher les pages) : `lib/fiscal.ts` expose désormais TOUT le contenu PT de
+   la page (volets Acquérir/Détenir/Céder, CHECKPOINTS, notes, sources,
+   `entryMaxPct`, formatters) et `lib/energie.ts` idem (TIMELINE EPBD/SCE,
+   PAGE.textes, defaultZone Santa Marinha) : chaînes déplacées **verbatim** ;
+   les pages consomment `city.fiscal` / `city.energie` /
+   `city.fiscalSimulator` / `city.retrofitSimulator`. Vérifié : **innerText
+   rendu identique au caractère près** (diff avant/après sur les 2 pages).
+6. **Zéro régression prouvée** : instantanés figés AVANT refactor puis
+   comparés : payloads HTTP des 4 modes × résidentiel + actif Haya
+   **identiques aux octets** (`backend/tests/fixtures/http_*.bytes`) ; fixture
+   engine canonique + **`test_gaia_payload_snapshot_4_modes_residential`**
+   (nouveau test permanent, tout écart = échec) + `test_city_registry_and_
+   default_dataset` ; tables mémo == fixture ; mémo régénéré 5 pages, 0
+   cadratin ; tests **25/25** (couverture combinée, split env inchangé) ;
+   `tsc` OK ; matrice **60/60** ; carte OK sur le nouveau chemin geojson (17
+   tracés, zéro 404). Captures non régénérées : aucun pixel ne change
+   (innerText prouvé identique).
+7. **Ce que le lot 2 (Lisbonne) devra fournir** : répertoire
+   `backend/data/cities/lisbonne/` (params.json calibré : zones/freguesias,
+   primes neuf, fonciers, facteurs commerciaux, connectivité/constructibilité,
+   actif vedette éventuel ; backbone.json extrait ; listings_sim.csv filtré ou
+   régénéré) ; `frontend/public/geo/lisbonne/freguesias.geojson` ; entrée
+   registre backend + frontend ; **interpolation du nom de ville dans les
+   textes** aujourd'hui « Gaia » en dur (insights lib/insights.ts, intro
+   énergie, fiscalInsight, contexte analyste `# DONNÉES BARZEL · VILA NOVA DE
+   GAIA`, template mémo « Marché · Vila Nova de Gaia » + nom de fichier PDF,
+   MARKET_LINEs des pages) ; montée du CitySelector (automatique dès 2
+   villes) ; extraction des zones témoins hors du dataset gaia ; calibration
+   complète (marges cibles par classe, hiérarchie, verdicts, anomalies
+   « naturelles ») + QA des 10 pages sur la nouvelle ville.
 
 ### État final du gabarit de page de mode
 Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,

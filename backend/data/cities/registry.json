@@ -1,0 +1,17 @@
+{
+  "_note": "Registre des villes de la plateforme. Chaque ville vit dans backend/data/cities/<slug>/ (params.json, backbone.json, listings_sim.csv) et frontend/public/geo/<slug>/freguesias.geojson. Les slugs doivent correspondre au registre frontend (frontend/lib/cities.ts). fiscal_regime / energy_regime pilotent les modules Fiscalité et Énergie par pays (pt aujourd'hui ; be à brancher pour Bruxelles sans toucher les pages).",
+  "default": "gaia",
+  "cities": [
+    {
+      "slug": "gaia",
+      "label": "Vila Nova de Gaia",
+      "country": "pt",
+      "currency": "EUR",
+      "fiscal_locale": "pt-PT",
+      "fiscal_regime": "pt",
+      "energy_regime": "pt-sce",
+      "zone_noun": "freguesia",
+      "zone_noun_plural": "freguesias"
+    }
+  ]
+}

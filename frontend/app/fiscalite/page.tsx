@@ -5,36 +5,21 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { InsightBanner } from "@/components/InsightBanner";
-import { AcquisitionSimulator } from "@/components/AcquisitionSimulator";
 import { Segmented } from "@/components/ui";
 import { useGaia } from "@/lib/useGaia";
 import { pmRows } from "@/lib/priceMargin";
 import { rdRows } from "@/lib/rendement";
-import {
-  AIMI_COMPANY_PCT,
-  IMI_MAX_PCT,
-  IMI_MIN_PCT,
-  IMT_COMMERCIAL_PCT,
-  IMT_SECONDARY_2026,
-  IRC_BASE_PCT,
-  IRC_EFFECTIVE_PCT,
-  SELO_PCT,
-  acquisitionTaxes,
-  fiscalInsight,
-} from "@/lib/fiscal";
+import { cityBySlug } from "@/lib/cities";
+import { useCityStore } from "@/lib/cityStore";
 
-const MARKET_LINE =
-  "Portugal, rive sud du Douro : ce que le fisc prend à chaque étape, et comment c'est déjà intégré dans nos verdicts.";
+// Page transverse de contexte fiscal. Tout le contenu spécifique au régime du
+// pays (barèmes, volets, points de contrôle, textes, simulateur) vient de la
+// config par ville (lib/cities.ts → city.fiscal / city.fiscalSimulator) : un
+// régime BE se branche pour Bruxelles sans toucher cette page.
 
-const eur = (v: number) => `${Math.round(v).toLocaleString("fr-FR")} €`;
-const pct = (v: number, d = 1) => `${v.toLocaleString("fr-FR", { minimumFractionDigits: d, maximumFractionDigits: d })}%`;
-
-// Fixed, verifiable checkpoints rendered from the same functions as the simulator.
-const CHECKPOINTS = [400_000, 1_500_000, 4_000_000];
-
-// PT taxation only distinguishes résidentiel / commercial : the 5-class selector
-// is replaced by a page-local two-way toggle (bureaux stands in for the
-// commercial engine data feeding the detention-cycle insight).
+// La fiscalité ne distingue que résidentiel / commercial : le sélecteur
+// 5 classes est remplacé par un toggle local (bureaux alimente l'insight du
+// cycle de détention commercial côté moteur).
 const REGIMES = [
   { value: "residential", label: "Résidentiel" },
   { value: "commercial", label: "Commercial" },
@@ -43,6 +28,9 @@ type Regime = (typeof REGIMES)[number]["value"];
 
 export default function FiscalitePage() {
   const g = useGaia();
+  const city = cityBySlug(useCityStore((s) => s.slug));
+  const F = city.fiscal;
+  const FiscalSimulator = city.fiscalSimulator;
   const [selected, setSelected] = useState<string[]>([]);
   const [regime, setRegime] = useState<Regime>("residential");
   const residential = regime === "residential";
@@ -56,15 +44,18 @@ export default function FiscalitePage() {
   // Banner sentence computed from the same engine-served rows as the mode pages.
   const pm = useMemo(() => pmRows(g.promoCity), [g.promoCity]);
   const rd = useMemo(() => rdRows(g.detentionCity), [g.detentionCity]);
-  const sentence = useMemo(() => fiscalInsight(residential ? "residential" : "commercial", pm, rd), [residential, pm, rd]);
-  const entryMax = residential ? 7.5 + SELO_PCT : IMT_COMMERCIAL_PCT + SELO_PCT;
+  const sentence = useMemo(
+    () => F.fiscalInsight(residential ? "residential" : "commercial", pm, rd),
+    [F, residential, pm, rd]
+  );
+  const entryMax = F.entryMaxPct(residential);
 
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={MARKET_LINE}
+          marketLine={F.PAGE.marketLine}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}
@@ -78,14 +69,14 @@ export default function FiscalitePage() {
         />
 
         <main className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-6">
-          {/* Module header: page-local fiscal regime toggle (PT law only splits
-              résidentiel / commercial ; a 5-class selector changed nothing here) */}
+          {/* Module header : toggle de régime local (le droit fiscal ne
+              distingue que résidentiel / commercial) */}
           <div>
             <div className="flex flex-wrap items-center gap-3">
               <span className="inline-block h-5 w-1.5 rounded-full bg-gold" />
               <h2 className="font-display text-[24px] leading-none text-navy">Fiscalité</h2>
               <span className="rounded-full border border-gold/40 bg-gold/[0.06] px-2.5 py-0.5 text-label font-medium text-gold-700">
-                Portugal · {regimeLabel}
+                {F.PAGE.chipPrefix} · {regimeLabel}
               </span>
               <div className="ml-2 flex items-center gap-3">
                 <span className="text-label font-semibold uppercase tracking-widest text-muted">Régime</span>
@@ -93,113 +84,61 @@ export default function FiscalitePage() {
               </div>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
-              Acquérir, détenir, céder : les prélèvements portugais aux taux officiels 2026,
-              et l'endroit exact où chacun est déjà compté dans les cascades de la plateforme.
+              {F.PAGE.intro}
             </p>
           </div>
 
           {/* Fiscal weight of the cycle */}
           <InsightBanner
-            eyebrow={`Poids fiscal du cycle · ${regimeLabel}`}
+            eyebrow={`${F.PAGE.bannerEyebrowPrefix} · ${regimeLabel}`}
             sentence={sentence}
             right={
               <div className="text-right">
-                <div className="text-label uppercase tracking-widest text-cream/70">Frais d'entrée max</div>
-                <div className="font-display text-kpi-hero leading-none text-gold">{pct(entryMax)}</div>
-                <div className="text-label text-cream/70">IMT + imposto do selo</div>
+                <div className="text-label uppercase tracking-widest text-cream/70">{F.PAGE.entryMaxLabel}</div>
+                <div className="font-display text-kpi-hero leading-none text-gold">{F.pctFR(entryMax)}</div>
+                <div className="text-label text-cream/70">{F.PAGE.entryMaxSub}</div>
               </div>
             }
           />
 
-          {/* Acquérir / Détenir / Céder */}
+          {/* Volets du cycle (Acquérir / Détenir / Céder pour le régime PT) */}
           <div className="grid shrink-0 grid-cols-1 gap-4 xl:grid-cols-3">
-            <Volet title="Acquérir" eyebrow="À la signature">
-              <Row
-                label="IMT · habitation (investisseur)"
-                value="1% → 8%"
-                sub={`barème progressif ; taux uniques 6% (${(660_982).toLocaleString("fr-FR")} – ${(1_150_853).toLocaleString("fr-FR")} €) et 7,5% au-delà`}
-              />
-              <Row
-                label="IMT · commercial & terrains à bâtir"
-                value={pct(IMT_COMMERCIAL_PCT)}
-                sub="prédios não habitacionais : taux unique"
-              />
-              <Row
-                label="Non-résidents · résidentiel (dès 01/09/2026)"
-                value={pct(7.5)}
-                sub="taux fixe (DL 97/2026) ; remboursable si résidence fiscale sous 2 ans ou location à loyer modéré (≤ 2 300 €/mois)"
-              />
-              <Row label="Imposto do Selo" value={pct(SELO_PCT)} sub="sur le prix d'acquisition (verba 1.1)" />
-              <Platform to="/prix-marge" label="intégré au coût du foncier de la cascade Prix & marge" />
-            </Volet>
-
-            <Volet title="Détenir" eyebrow="Chaque année">
-              <Row
-                label="IMI · prédios urbains"
-                value={`${pct(IMI_MIN_PCT, 2)} – ${pct(IMI_MAX_PCT, 2)}`}
-                sub="par an sur la VPT, taux fixé par la commune"
-              />
-              <Row
-                label="AIMI · véhicule société"
-                value={pct(AIMI_COMPANY_PCT)}
-                sub="par an sur le patrimoine résidentiel détenu en société"
-              />
-              <Row
-                label="IRC sur les loyers nets"
-                value={pct(IRC_BASE_PCT, 0)}
-                sub="véhicule société ; + derramas selon la commune"
-              />
-              <Platform to="/rendement" label="intégré à la ligne Fiscalité de la cascade Rendement" />
-            </Volet>
-
-            <Volet title="Céder" eyebrow="À la sortie">
-              <Row
-                label="Plus-values en IRC"
-                value={pct(IRC_BASE_PCT, 0)}
-                sub="résultat de cession imposé au taux IRC 2026"
-              />
-              <Row
-                label="Derrama municipale & estadual"
-                value="≤ 1,5% + prog."
-                sub="selon la commune et le résultat"
-              />
-              <Row
-                label="Taux effectif retenu"
-                value={`~${pct(IRC_EFFECTIVE_PCT, 0)}`}
-                sub="IRC + derramas, celui des verdicts de la plateforme"
-              />
-              <Platform to="/arbitrage" label="intégré aux frictions de sortie d'Arbitrage (et à la marge nette de Promotion)" />
-            </Volet>
+            {F.volets().map((v) => (
+              <Volet key={v.title} title={v.title} eyebrow={v.eyebrow}>
+                {v.rows.map((r) => (
+                  <Row key={r.label} label={r.label} value={r.value} sub={r.sub} />
+                ))}
+                <Platform to={v.platform.to} label={v.platform.label} />
+              </Volet>
+            ))}
           </div>
 
           {/* Checkpoints + simulator */}
           <div className="grid shrink-0 grid-cols-1 gap-4 xl:grid-cols-[1.35fr_1fr]">
             <section className="rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
               <h3 className="font-display text-[16px] leading-tight text-navy">
-                Points de contrôle · {residential ? "habitation (investisseur)" : "commercial"}
+                {F.PAGE.checkpointsTitle(residential)}
               </h3>
               <p className="mt-0.5 text-label text-muted">
-                Mêmes formules que le simulateur ; chaque ligne est vérifiable sur le barème officiel.
+                {F.PAGE.checkpointsSub}
               </p>
               <table className="mt-3 w-full border-collapse text-td">
                 <thead>
                   <tr className="border-b border-navy/10 text-left text-th font-semibold uppercase tracking-wide text-ink-soft">
-                    <th className="py-2 pr-3">Prix d'acquisition</th>
-                    <th className="px-3 py-2 text-right">IMT</th>
-                    <th className="px-3 py-2 text-right">Imposto do selo</th>
-                    <th className="px-3 py-2 text-right">Total entrée</th>
-                    <th className="px-3 py-2 text-right">% du prix</th>
+                    {F.PAGE.checkpointCols.map((c, i) => (
+                      <th key={c} className={i === 0 ? "py-2 pr-3" : "px-3 py-2 text-right"}>{c}</th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {CHECKPOINTS.map((p) => {
-                    const t = acquisitionTaxes(p, residential);
+                  {F.CHECKPOINTS.map((p) => {
+                    const t = F.acquisitionTaxes(p, residential);
                     return (
                       <tr key={p} className="border-b border-navy/[0.06]">
-                        <td className="py-2.5 pr-3 font-medium text-ink">{eur(p)}</td>
-                        <td className="px-3 py-2.5 text-right tabular-nums text-ink/80">{eur(t.imt)}</td>
-                        <td className="px-3 py-2.5 text-right tabular-nums text-ink/80">{eur(t.selo)}</td>
-                        <td className="px-3 py-2.5 text-right tabular-nums font-medium text-ink">{eur(t.total)}</td>
+                        <td className="py-2.5 pr-3 font-medium text-ink">{F.eurFR(p)}</td>
+                        <td className="px-3 py-2.5 text-right tabular-nums text-ink/80">{F.eurFR(t.imt)}</td>
+                        <td className="px-3 py-2.5 text-right tabular-nums text-ink/80">{F.eurFR(t.selo)}</td>
+                        <td className="px-3 py-2.5 text-right tabular-nums font-medium text-ink">{F.eurFR(t.total)}</td>
                         <td className="px-3 py-2.5 text-right">
                           <span className="font-display text-[16px] text-navy">{t.pct.toFixed(1)}%</span>
                         </td>
@@ -210,26 +149,22 @@ export default function FiscalitePage() {
               </table>
               {residential && (
                 <p className="mt-3 text-caption leading-snug text-ink-soft">
-                  Barème habitação secundária (continent) : {IMT_SECONDARY_2026.length - 2} tranches
-                  marginales de 1% à 8% avec parcela a abater, puis taux uniques de 6% (660 982 –
-                  1 150 853 €) et 7,5% au-delà.
+                  {F.PAGE.baremeNote}
                 </p>
               )}
             </section>
 
             <div className="flex flex-col gap-2">
-              <AcquisitionSimulator residential={residential} />
+              <FiscalSimulator residential={residential} />
               <p className="px-1 text-caption leading-snug text-ink-soft">
-                Simulateur temps réel sur le barème en vigueur : déplacez le prix pour voir
-                l'IMT, le selo et le total d'entrée se recalculer.
+                {F.PAGE.simulatorCaption}
               </p>
             </div>
           </div>
 
           {/* Discreet source line */}
           <p className="shrink-0 pl-1 text-label text-muted">
-            Barèmes officiels PT 2026 : IMT (CIMT art. 17, tables du 06-01-2026), Imposto do Selo,
-            IMI/AIMI, IRC (OE 2026), non-résidents (DL 97/2026, du 20 mai).
+            {F.PAGE.sources}
           </p>
         </main>
       </div>

@@ -12,14 +12,14 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from ..collect.utils import DATA_DIR, BACKBONE_OUT
+from ..collect.utils import CITY_DATA_DIR, DATA_DIR, BACKBONE_OUT
 
 # --------------------------------------------------------------------------- #
 # Paths / reproducibility                                                     #
 # --------------------------------------------------------------------------- #
 
 BACKBONE = BACKBONE_OUT
-LISTINGS_OUT = DATA_DIR / "listings_sim.csv"
+LISTINGS_OUT = CITY_DATA_DIR / "listings_sim.csv"
 FIDELITY_REPORT = Path(__file__).resolve().parent / "FIDELITY_REPORT.md"
 
 # Master seed : the run is fully reproducible. Each zone/type stream also gets a

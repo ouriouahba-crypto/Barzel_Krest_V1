@@ -5,26 +5,16 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { InsightBanner } from "@/components/InsightBanner";
-import { RetrofitSimulator } from "@/components/RetrofitSimulator";
 import { useGaia } from "@/lib/useGaia";
 import { classLabel, pillarValue } from "@/lib/scoring";
 import { rdRows } from "@/lib/rendement";
-import { energieInsight, energyVerdict, parcFor, riskMeps } from "@/lib/energie";
+import { cityBySlug } from "@/lib/cities";
+import { useCityStore } from "@/lib/cityStore";
 
-const SANTA = "santamarinhaesaopedrodaafurada";
-const MARKET_LINE =
-  "Rive sud du Douro : ce que la réglementation énergétique va coûter au parc, où, et comment c'est déjà compté dans nos verdicts.";
-
-// Verified regulatory milestones (EPBD (UE) 2024/1275 ; SCE DL 101-D/2020).
-const TIMELINE: { when: string; what: string }[] = [
-  { when: "28 mai 2024", what: "Directive EPBD (UE) 2024/1275 en vigueur (refonte)." },
-  { when: "29 mai 2026", what: "Transposition nationale ; Portugal : révision du SCE (DL 101-D/2020, classes A+ → F)." },
-  { when: "2028", what: "Neuf public zéro émission ; carbone du cycle de vie calculé au-delà de 1 000 m²." },
-  { when: "2030", what: "Non-résidentiel : les 16% les moins performants rénovés ; tout le neuf zéro émission ; résidentiel : énergie primaire moyenne −16%." },
-  { when: "2033", what: "Non-résidentiel : seuil porté aux 26% les moins performants." },
-  { when: "2035", what: "Résidentiel : −20 à 22%, dont ≥ 55% de l'effort sur les 43% les plus énergivores." },
-  { when: "2040", what: "Sortie des chaudières à combustibles fossiles." },
-];
+// Page transverse de contexte énergie. Tout le contenu spécifique au régime du
+// pays (échelle SCE, parc, frise réglementaire, textes, simulateur) vient de la
+// config par ville (lib/cities.ts → city.energie / city.retrofitSimulator) :
+// un régime BE (PEB) se branche pour Bruxelles sans toucher cette page.
 
 // Encres AA pour le texte sur fond clair (pivot or assombri) + pilules de
 // verdict sur le modèle VerdictBadge (fond sombre, texte clair : jamais de
@@ -38,20 +28,24 @@ const tonePill = {
 
 export default function EnergiePage() {
   const g = useGaia();
+  const city = cityBySlug(useCityStore((s) => s.slug));
+  const E = city.energie;
+  const Retrofit = city.retrofitSimulator;
+  const DEFAULT_ZONE = E.PAGE.defaultZone;
   const [selected, setSelected] = useState<string[]>([]);
   const cls = g.assetClass;
 
   const detRows = useMemo(() => rdRows(g.detentionCity), [g.detentionCity]);
-  const santaRow = useMemo(() => detRows.find((r) => r.zone === SANTA) ?? null, [detRows]);
+  const defaultRow = useMemo(() => detRows.find((r) => r.zone === DEFAULT_ZONE) ?? null, [detRows, DEFAULT_ZONE]);
 
   // Header selection drives the simulator (first selected freguesia) and
-  // highlights its rows in the stock table; empty selection = Santa Marinha.
-  const simZone = selected[0] ?? SANTA;
+  // highlights its rows in the stock table; empty selection = default zone.
+  const simZone = selected[0] ?? DEFAULT_ZONE;
   const simRow = useMemo(
-    () => detRows.find((r) => r.zone === simZone) ?? santaRow,
-    [detRows, simZone, santaRow]
+    () => detRows.find((r) => r.zone === simZone) ?? defaultRow,
+    [detRows, simZone, defaultRow]
   );
-  const simParc = useMemo(() => parcFor(simRow?.zone ?? SANTA, cls), [simRow, cls]);
+  const simParc = useMemo(() => E.parcFor(simRow?.zone ?? DEFAULT_ZONE, cls), [E, simRow, DEFAULT_ZONE, cls]);
   const rowRefs = useRef<Record<string, HTMLTableRowElement | null>>({});
   useEffect(() => {
     if (selected[0]) rowRefs.current[selected[0]]?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -62,26 +56,26 @@ export default function EnergiePage() {
     const fregs = (g.detentionCity?.zones ?? []).filter((z) => z.level === "freguesia");
     const engineRisk = fregs.length ? pillarValue(fregs[0].pillars, "risque_energie") ?? 35 : 35;
     const parcs = fregs
-      .map((z) => ({ z, parc: parcFor(z.zone, cls) }))
-      .filter((e): e is { z: (typeof fregs)[number]; parc: NonNullable<ReturnType<typeof parcFor>> } => !!e.parc);
+      .map((z) => ({ z, parc: E.parcFor(z.zone, cls) }))
+      .filter((e): e is { z: (typeof fregs)[number]; parc: NonNullable<ReturnType<typeof E.parcFor>> } => !!e.parc);
     const efMax = Math.max(...parcs.map((e) => e.parc.ef), 1);
     return parcs
       .map(({ z, parc }) => {
-        const risk = riskMeps(engineRisk, parc.ef, efMax);
+        const risk = E.riskMeps(engineRisk, parc.ef, efMax);
         return {
           zone: z.zone,
           name: z.zone_name.replace(/^União das freguesias de /i, ""),
           parc,
           risk,
-          verdict: energyVerdict(risk),
+          verdict: E.energyVerdict(risk),
         };
       })
       .sort((a, b) => b.parc.ef - a.parc.ef);
-  }, [g.detentionCity, cls]);
+  }, [E, g.detentionCity, cls]);
 
   const sentence = useMemo(
-    () => energieInsight(cls, rows.map((r) => r.zone)),
-    [cls, rows]
+    () => E.energieInsight(cls, rows.map((r) => r.zone)),
+    [E, cls, rows]
   );
   const maxRow = rows[0];
 
@@ -90,7 +84,7 @@ export default function EnergiePage() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={MARKET_LINE}
+          marketLine={E.PAGE.marketLine}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}
@@ -108,26 +102,24 @@ export default function EnergiePage() {
               <span className="inline-block h-5 w-1.5 rounded-full bg-gold" />
               <h2 className="font-display text-[24px] leading-none text-navy">Énergie</h2>
               <span className="rounded-full border border-gold/40 bg-gold/[0.06] px-2.5 py-0.5 text-label font-medium text-gold-700">
-                EPBD · {classLabel(cls)}
+                {E.PAGE.chipPrefix} · {classLabel(cls)}
               </span>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
-              La directive EPBD impose une trajectoire de rénovation au parc européen ; le
-              certificat SCE (A+ → F) en est l'instrument portugais. Exposition du parc de Gaia,
-              échéances, et coût d'une mise à niveau.
+              {E.PAGE.intro}
             </p>
           </div>
 
           {/* Exposure of the stock */}
           <InsightBanner
-            eyebrow={`Exposition du parc · ${classLabel(cls)}`}
+            eyebrow={`${E.PAGE.bannerEyebrowPrefix} · ${classLabel(cls)}`}
             sentence={sentence}
             right={
               maxRow ? (
                 <div className="text-right">
-                  <div className="text-label uppercase tracking-widest text-cream/70">Parc le plus exposé · {maxRow.name.split(/ e |,/)[0]}</div>
+                  <div className="text-label uppercase tracking-widest text-cream/70">{E.PAGE.maxLabelPrefix} · {maxRow.name.split(/ e |,/)[0]}</div>
                   <div className="font-display text-kpi-hero leading-none text-gold">{maxRow.parc.ef}%</div>
-                  <div className="text-label text-cream/70">du parc en classes E-F</div>
+                  <div className="text-label text-cream/70">{E.PAGE.maxSub}</div>
                 </div>
               ) : undefined
             }
@@ -136,10 +128,10 @@ export default function EnergiePage() {
           {/* Timeline + simulator */}
           <div className="grid shrink-0 grid-cols-1 gap-4 xl:grid-cols-[1.35fr_1fr]">
             <section className="rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
-              <h3 className="font-display text-[16px] leading-tight text-navy">Trajectoire réglementaire</h3>
-              <p className="mt-0.5 text-label text-muted">EPBD (UE) 2024/1275 : échéances applicables au parc existant et au neuf.</p>
+              <h3 className="font-display text-[16px] leading-tight text-navy">{E.PAGE.timelineTitle}</h3>
+              <p className="mt-0.5 text-label text-muted">{E.PAGE.timelineSub}</p>
               <div className="mt-3 flex flex-col">
-                {TIMELINE.map((t) => (
+                {E.TIMELINE.map((t) => (
                   <div key={t.when} className="flex gap-3 border-l-2 border-gold/30 pb-3 pl-4 last:pb-0">
                     <div className="relative -ml-[21px] mt-1 h-2.5 w-2.5 shrink-0 rounded-full border-2 border-gold bg-white" />
                     <div>
@@ -151,18 +143,18 @@ export default function EnergiePage() {
                 ))}
               </div>
               <Link
-                href="/rendement"
+                href={E.PAGE.platform.to}
                 className="mt-4 block rounded-xl border border-gold/30 bg-gold/[0.07] px-3 py-2 text-btn leading-snug text-gold-700 transition-colors hover:bg-gold/15"
               >
                 <span className="text-label font-semibold uppercase tracking-wide">Dans la plateforme</span>
                 <br />
-                pilier énergie de la cascade Rendement →
+                {E.PAGE.platform.label}
               </Link>
             </section>
 
             <div className="flex flex-col gap-2">
               {simRow ? (
-                <RetrofitSimulator
+                <Retrofit
                   row={simRow}
                   placeLabel={simRow.short}
                   efShare={simParc?.ef ?? null}
@@ -173,9 +165,7 @@ export default function EnergiePage() {
                 </div>
               )}
               <p className="px-1 text-caption leading-snug text-ink-soft">
-                Simulateur temps réel : sélectionnez une freguesia dans le champ de recherche,
-                puis la classe actuelle et la cible pour voir le CAPEX et la compression du
-                yield net se recalculer.
+                {E.PAGE.simulatorCaption}
               </p>
             </div>
           </div>
@@ -186,12 +176,9 @@ export default function EnergiePage() {
               <table className="w-full border-collapse text-td">
                 <thead className="bg-cream-200">
                   <tr className="border-b border-navy/10 text-th font-semibold uppercase tracking-wide text-ink-soft">
-                    <th className="px-3 py-2.5 text-left">Freguesia</th>
-                    <th className="px-3 py-2.5 text-right">Classes A+-B</th>
-                    <th className="px-3 py-2.5 text-right">Classes C-D</th>
-                    <th className="px-3 py-2.5 text-right">Classes E-F</th>
-                    <th className="px-3 py-2.5 text-right">Risque MEPS /100</th>
-                    <th className="px-3 py-2.5 text-left">Verdict énergie</th>
+                    {E.PAGE.tableCols.map((c, i) => (
+                      <th key={c} className={`px-3 py-2.5 ${i === 0 || i === E.PAGE.tableCols.length - 1 ? "text-left" : "text-right"}`}>{c}</th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
@@ -231,9 +218,7 @@ export default function EnergiePage() {
 
           {/* Discreet source line */}
           <p className="shrink-0 pl-1 text-label text-muted">
-            Directive EPBD (UE) 2024/1275 · SCE (DL 101-D/2020, classes A+ → F) · coûts de
-            rénovation : ordres de grandeur ADENE / marché 2026. Répartition du parc par freguesia :
-            estimation Barzel.
+            {E.PAGE.sources}
           </p>
         </main>
       </div>

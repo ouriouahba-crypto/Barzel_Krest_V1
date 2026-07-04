@@ -1,7 +1,7 @@
-"""Merge step : build data/backbone.json from the two raw collector CSVs.
+"""Merge step : build backend/data/cities/gaia/backbone.json from the two raw collector CSVs.
 
 Reads data/raw/ine_pt.csv and data/raw/statbel_be.csv and produces
-data/backbone.json, which respects barzel_data_backbone_v0.json:
+the city backbone, which respects barzel_data_backbone_v0.json:
 
     cities > <slug> > zones[] > { id, name, level, status, residential {...} }
 
@@ -93,7 +93,7 @@ def _read_csv(path) -> list[dict]:
 
 def _load_be_eur_m2() -> dict[str, float]:
     """normalized commune name -> curated €/m² anchor (from params.json)."""
-    params_path = BACKBONE_SCHEMA.parent / "backend" / "data" / "params.json"
+    params_path = BACKBONE_SCHEMA.parent / "backend" / "data" / "cities" / "gaia" / "params.json"
     if not params_path.exists():
         log.warning("params.json not found (%s) : BE €/m² anchors unavailable", params_path)
         return {}

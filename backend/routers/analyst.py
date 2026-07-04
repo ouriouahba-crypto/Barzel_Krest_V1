@@ -74,24 +74,24 @@ _MODE_FR_CTX = {"promotion": "promotion", "detention": "détention",
                 "arbitrage": "arbitrage", "landbank": "landbank"}
 
 
-@lru_cache(maxsize=8)
-def verdict_counts(asset_class: str) -> dict:
+@lru_cache(maxsize=16)
+def verdict_counts(asset_class: str, city: str = "gaia") -> dict:
     """Pre-computed freguesia counts per mode and verdict, from cleaned payloads.
     Injected into the LLM context (analyst + memo) so the model never counts by
     itself, and reused by the memo's post-generation count check."""
     out: dict = {}
     for mode in ms.MODES:
-        zones = _clean(ms.score_city("gaia", mode, asset_class))
+        zones = _clean(ms.score_city(city, mode, asset_class))
         fregs = [z for z in zones if z["level"] == "freguesia"]
         out[mode] = {v: sum(1 for z in fregs if z["verdict"] == v)
                      for v in _VERDICT_LADDER[mode]}
     return out
 
 
-def _counts_block(asset_class: str) -> list[str]:
+def _counts_block(asset_class: str, city: str = "gaia") -> list[str]:
     lines = ["## DÉNOMBREMENTS (comptages exacts sur les 15 freguesias ; utilise UNIQUEMENT "
              "ces comptages, ne recompte JAMAIS toi-même à partir des listes)"]
-    for mode, counts in verdict_counts(asset_class).items():
+    for mode, counts in verdict_counts(asset_class, city).items():
         parts = ", ".join(f"{_VERDICT_ACCENT.get(v, v)} {n}" for v, n in counts.items())
         lines.append(f"- {_MODE_FR_CTX[mode]} : {parts}, total 15 freguesias")
     return lines
@@ -166,19 +166,19 @@ _FACTS = """## FISCALITÉ PORTUGAL 2026 (barèmes officiels, tels qu'affichés p
 - Le risque énergétique est déjà compté dans les verdicts de détention (pilier énergie de la cascade Rendement)."""
 
 
-@lru_cache(maxsize=8)
-def _build_context(asset_class: str) -> str:
+@lru_cache(maxsize=16)
+def _build_context(asset_class: str, city: str = "gaia") -> str:
     lines: list[str] = [
         f"# DONNÉES BARZEL · VILA NOVA DE GAIA · CLASSE {_CLS_FR.get(asset_class, asset_class).upper()}",
         "(scores /100 ; verdicts par mode : promotion Go/Conditionnel/Passer, détention Conserver/Surveiller/Céder, "
         "arbitrage Fenêtre ouverte/étroite/fermée, landbank Prioritaire/À phaser/En attente)",
     ]
     for mode in ms.MODES:
-        zones = _clean(ms.score_city("gaia", mode, asset_class))
+        zones = _clean(ms.score_city(city, mode, asset_class))
         zones.sort(key=lambda z: z["total"], reverse=True)
         lines += _mode_block(mode, zones)
-    lines += _counts_block(asset_class)
-    if asset_class == "residential":
+    lines += _counts_block(asset_class, city)
+    if city == "gaia" and asset_class == "residential":
         lines.append(_haya_block())
     lines.append(_FACTS)
     return "\n".join(lines)
@@ -218,6 +218,7 @@ RÈGLES ABSOLUES :
 class AskPayload(BaseModel):
     question: str
     asset_class: str = "residential"
+    city: str = "gaia"
 
 
 @router.post("/ask")
@@ -228,6 +229,8 @@ def ask(payload: AskPayload) -> dict:
     if len(question) > 600:
         raise HTTPException(status_code=400, detail="question trop longue")
     asset_class = payload.asset_class if payload.asset_class in _CLASSES else "residential"
+    from ..services.cities import resolve_slug
+    city = resolve_slug(payload.city)
 
     key = _api_key()
     if not key:
@@ -244,7 +247,7 @@ def ask(payload: AskPayload) -> dict:
             system=_SYSTEM,
             messages=[{
                 "role": "user",
-                "content": f"{_build_context(asset_class)}\n\n# QUESTION\n{question}",
+                "content": f"{_build_context(asset_class, city)}\n\n# QUESTION\n{question}",
             }],
         )
         answer = "".join(b.text for b in message.content if getattr(b, "type", "") == "text").strip()

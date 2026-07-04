@@ -1,0 +1,198 @@
+{
+ "modes": {
+  "arbitrage": {
+   "headers": [
+    "Spread",
+    "Valeur réalisable",
+    "Délai de cession"
+   ],
+   "municipio": {
+    "native": "spread 10% · appétit modéré",
+    "score": 52,
+    "verdict": "Fenetre etroite"
+   },
+   "rows": [
+    {
+     "cols": [
+      "+21,0 %",
+      "2 721 €/m²",
+      "3,0 mois"
+     ],
+     "is_scope": false,
+     "name": "Santa Marinha e São Pedro da Afurada",
+     "score": 58,
+     "verdict": "Fenetre etroite"
+    },
+    {
+     "cols": [
+      "+39,8 %",
+      "3 145 €/m²",
+      "3,6 mois"
+     ],
+     "is_scope": false,
+     "name": "Canidelo",
+     "score": 55,
+     "verdict": "Fenetre etroite"
+    },
+    {
+     "cols": [
+      "+26,7 %",
+      "2 849 €/m²",
+      "5,1 mois"
+     ],
+     "is_scope": false,
+     "name": "Madalena",
+     "score": 55,
+     "verdict": "Fenetre etroite"
+    }
+   ]
+  },
+  "detention": {
+   "headers": [
+    "Yield net",
+    "Loyer de marché",
+    "Charges + fiscalité"
+   ],
+   "municipio": {
+    "native": "yield net 3.7% · MEPS F/G ~2030-2033",
+    "score": 50,
+    "verdict": "Surveiller"
+   },
+   "rows": [
+    {
+     "cols": [
+      "3,5 %",
+      "139 €/m²/an",
+      "31,4 % du loyer"
+     ],
+     "is_scope": false,
+     "name": "Santa Marinha e São Pedro da Afurada",
+     "score": 70,
+     "verdict": "Conserver"
+    },
+    {
+     "cols": [
+      "3,4 %",
+      "143 €/m²/an",
+      "32,0 % du loyer"
+     ],
+     "is_scope": false,
+     "name": "Madalena",
+     "score": 66,
+     "verdict": "Conserver"
+    },
+    {
+     "cols": [
+      "3,2 %",
+      "151 €/m²/an",
+      "33,1 % du loyer"
+     ],
+     "is_scope": false,
+     "name": "Canidelo",
+     "score": 60,
+     "verdict": "Surveiller"
+    }
+   ]
+  },
+  "landbank": {
+   "headers": [
+    "Uplift",
+    "Valeur résiduelle",
+    "Meilleur usage · horizon"
+   ],
+   "municipio": {
+    "native": "constructibilité 51 · meilleur usage hôtel 3018 €/m²",
+    "score": 45,
+    "verdict": "En attente"
+   },
+   "rows": [
+    {
+     "cols": [
+      "+55,4 %",
+      "814 €/m²",
+      "résidentiel · immédiat"
+     ],
+     "is_scope": false,
+     "name": "Santa Marinha e São Pedro da Afurada",
+     "score": 74,
+     "verdict": "Prioritaire"
+    },
+    {
+     "cols": [
+      "+47,1 %",
+      "874 €/m²",
+      "résidentiel · immédiat"
+     ],
+     "is_scope": false,
+     "name": "Madalena",
+     "score": 74,
+     "verdict": "Prioritaire"
+    },
+    {
+     "cols": [
+      "+27,7 %",
+      "859 €/m²",
+      "résidentiel · immédiat"
+     ],
+     "is_scope": false,
+     "name": "Canidelo",
+     "score": 67,
+     "verdict": "Prioritaire"
+    }
+   ]
+  },
+  "promotion": {
+   "headers": [
+    "Marge",
+    "Prix neuf réalisable",
+    "Coût total"
+   ],
+   "municipio": {
+    "native": "marge 14%",
+    "score": 59,
+    "verdict": "Conditionnel"
+   },
+   "rows": [
+    {
+     "cols": [
+      "30,0 %",
+      "3 646 €/m²",
+      "2 804 €/m²"
+     ],
+     "is_scope": false,
+     "name": "Santa Marinha e São Pedro da Afurada",
+     "score": 87,
+     "verdict": "Go"
+    },
+    {
+     "cols": [
+      "29,0 %",
+      "3 732 €/m²",
+      "2 893 €/m²"
+     ],
+     "is_scope": false,
+     "name": "Madalena",
+     "score": 83,
+     "verdict": "Go"
+    },
+    {
+     "cols": [
+      "24,0 %",
+      "3 711 €/m²",
+      "2 992 €/m²"
+     ],
+     "is_scope": false,
+     "name": "Canidelo",
+     "score": 72,
+     "verdict": "Go"
+    }
+   ]
+  }
+ },
+ "scope_name": null,
+ "ville": {
+  "price": "2 474",
+  "tx": "5 494",
+  "yoy": "+16,3 %"
+ }
+}

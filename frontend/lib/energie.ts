@@ -116,3 +116,41 @@ export function energieInsight(cls: string, zones: string[]): string {
   }
   return `~${Math.round(x)}% du parc ${classLabel(cls).toLowerCase()} de Gaia en classes E-F : les seuils MEPS imposent la rénovation des 16% les moins performants d'ici 2030 (26% en 2033), déjà compté dans les verdicts de détention.`;
 }
+
+// --------------------------------------------------------------------------- #
+// Contenu de page du régime énergie PT (page Énergie). Un régime BE (PEB…)     #
+// exposera la même interface (PAGE, TIMELINE…) : la page ne change pas.        #
+// --------------------------------------------------------------------------- #
+
+// Jalons réglementaires vérifiés (EPBD (UE) 2024/1275 ; SCE DL 101-D/2020).
+export const TIMELINE: { when: string; what: string }[] = [
+  { when: "28 mai 2024", what: "Directive EPBD (UE) 2024/1275 en vigueur (refonte)." },
+  { when: "29 mai 2026", what: "Transposition nationale ; Portugal : révision du SCE (DL 101-D/2020, classes A+ → F)." },
+  { when: "2028", what: "Neuf public zéro émission ; carbone du cycle de vie calculé au-delà de 1 000 m²." },
+  { when: "2030", what: "Non-résidentiel : les 16% les moins performants rénovés ; tout le neuf zéro émission ; résidentiel : énergie primaire moyenne −16%." },
+  { when: "2033", what: "Non-résidentiel : seuil porté aux 26% les moins performants." },
+  { when: "2035", what: "Résidentiel : −20 à 22%, dont ≥ 55% de l'effort sur les 43% les plus énergivores." },
+  { when: "2040", what: "Sortie des chaudières à combustibles fossiles." },
+];
+
+// Textes de page du régime PT (déplacés de app/energie/page.tsx, verbatim).
+export const PAGE = {
+  marketLine:
+    "Rive sud du Douro : ce que la réglementation énergétique va coûter au parc, où, et comment c'est déjà compté dans nos verdicts.",
+  chipPrefix: "EPBD",
+  intro:
+    "La directive EPBD impose une trajectoire de rénovation au parc européen ; le certificat SCE (A+ → F) en est l'instrument portugais. Exposition du parc de Gaia, échéances, et coût d'une mise à niveau.",
+  bannerEyebrowPrefix: "Exposition du parc",
+  maxLabelPrefix: "Parc le plus exposé",
+  maxSub: "du parc en classes E-F",
+  timelineTitle: "Trajectoire réglementaire",
+  timelineSub: "EPBD (UE) 2024/1275 : échéances applicables au parc existant et au neuf.",
+  platform: { to: "/rendement", label: "pilier énergie de la cascade Rendement →" },
+  simulatorCaption:
+    "Simulateur temps réel : sélectionnez une freguesia dans le champ de recherche, puis la classe actuelle et la cible pour voir le CAPEX et la compression du yield net se recalculer.",
+  tableCols: ["Freguesia", "Classes A+-B", "Classes C-D", "Classes E-F", "Risque MEPS /100", "Verdict énergie"],
+  sources:
+    "Directive EPBD (UE) 2024/1275 · SCE (DL 101-D/2020, classes A+ → F) · coûts de rénovation : ordres de grandeur ADENE / marché 2026. Répartition du parc par freguesia : estimation Barzel.",
+  // Freguesia par défaut du simulateur (actif type) quand rien n'est sélectionné.
+  defaultZone: "santamarinhaesaopedrodaafurada",
+};

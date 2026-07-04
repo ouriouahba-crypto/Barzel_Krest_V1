@@ -134,14 +134,14 @@ def _native_metric(mode: str, z: dict) -> float:
     return v if v is not None else float("-inf")
 
 
-def _tables(scope: str, asset_class: str, modes: list[str]) -> dict:
+def _tables(scope: str, asset_class: str, modes: list[str], city: str = "gaia") -> dict:
     """All deterministic figures for the memo, from cleaned engine payloads.
     Scores are half-up integers (the platform convention) ; rows follow the mode
     pages' order : rounded score desc, native metric desc on rounded ties."""
     out: dict = {"modes": {}}
     muni_seen = None
     for mode in modes:
-        zones = _clean(ms.score_city("gaia", mode, asset_class))
+        zones = _clean(ms.score_city(city, mode, asset_class))
         fregs = sorted([z for z in zones if z["level"] == "freguesia"],
                        key=lambda z: (-_ri(z["total"]), -_native_metric(mode, z)))
         muni = next((z for z in zones if z["level"] == "municipio"), None)
@@ -163,7 +163,7 @@ def _tables(scope: str, asset_class: str, modes: list[str]) -> dict:
     scope_name = None
     if scope != "ville":
         for mode in modes:
-            zones = ms.score_city("gaia", modes[0], asset_class)
+            zones = ms.score_city(city, modes[0], asset_class)
             m = next((z for z in zones if z["zone"] == scope), None)
             if m:
                 scope_name = _short(m["zone_name"])
@@ -241,6 +241,7 @@ async def _llm_text_async(client, user: str, max_tokens: int) -> str:
 class DraftPayload(BaseModel):
     scope: str = "ville"                # "ville" ou zone id de freguesia
     asset_class: str = "residential"
+    city: str = "gaia"
     modes: list[str] = ["promotion", "detention", "arbitrage", "landbank"]
     angle: str = "synthese"
     instructions: str | None = None
@@ -250,6 +251,7 @@ class RenderPayload(BaseModel):
     sections: dict
     scope: str = "ville"
     asset_class: str = "residential"
+    city: str = "gaia"
     modes: list[str] = ["promotion", "detention", "arbitrage", "landbank"]
     angle: str = "synthese"
 
@@ -260,13 +262,16 @@ class RevisePayload(BaseModel):
     consigne: str
     scope: str = "ville"
     asset_class: str = "residential"
+    city: str = "gaia"
 
 
-def _validate(payload) -> tuple[str, str, list[str]]:
+def _validate(payload) -> tuple[str, str, list[str], str]:
+    from ..services.cities import resolve_slug
     asset_class = payload.asset_class if payload.asset_class in _CLASSES else "residential"
     modes = [m for m in payload.modes if m in ms.MODES] or list(ms.MODES)
-    scope = payload.scope if payload.scope == "ville" or payload.scope in ms.load().zones else "ville"
-    return asset_class, modes, scope
+    city = resolve_slug(getattr(payload, "city", None))
+    scope = payload.scope if payload.scope == "ville" or payload.scope in ms.load(city).zones else "ville"
+    return asset_class, modes, scope, city
 
 
 def _mission(scope: str, asset_class: str, modes: list[str], angle: str,
@@ -405,8 +410,8 @@ def _bad_counts(sections: dict, counts: dict, modes: list[str]) -> list[str]:
 def tables_only(payload: DraftPayload) -> dict:
     """Deterministic figures + meta, instantly : first step of the modal's
     progressive draft ("Analyse des N modes")."""
-    asset_class, modes, scope = _validate(payload)
-    return {"tables": _tables(scope, asset_class, modes),
+    asset_class, modes, scope, city = _validate(payload)
+    return {"tables": _tables(scope, asset_class, modes, city),
             "meta": {"scope": scope, "asset_class": asset_class, "modes": modes, "angle": payload.angle}}
 
 
@@ -418,12 +423,12 @@ class DraftSectionPayload(DraftPayload):
 async def draft_section(payload: DraftSectionPayload) -> dict:
     """One narrative section : the modal fires these in parallel and checks a
     progress step off as each one lands."""
-    asset_class, modes, scope = _validate(payload)
+    asset_class, modes, scope, city = _validate(payload)
     section = payload.section if payload.section in {"executive_summary", "risques", "recommandation"} \
         or payload.section in ms.MODES else "executive_summary"
-    tables = _tables(scope, asset_class, modes)
-    base = f"{_build_context(asset_class)}\n\n{_mission(scope, asset_class, modes, payload.angle, payload.instructions, tables)}"
-    texte = await _draft_section(_async_client(), base, section, verdict_counts(asset_class), modes)
+    tables = _tables(scope, asset_class, modes, city)
+    base = f"{_build_context(asset_class, city)}\n\n{_mission(scope, asset_class, modes, payload.angle, payload.instructions, tables)}"
+    texte = await _draft_section(_async_client(), base, section, verdict_counts(asset_class, city), modes)
     return {"texte": texte}
 
 
@@ -431,10 +436,10 @@ async def draft_section(payload: DraftSectionPayload) -> dict:
 async def draft(payload: DraftPayload) -> dict:
     """Full draft : all sections written in parallel (asyncio.gather) ; wall
     time ≈ the longest single section instead of the sum of seven."""
-    asset_class, modes, scope = _validate(payload)
-    tables = _tables(scope, asset_class, modes)
-    counts = verdict_counts(asset_class)
-    base = f"{_build_context(asset_class)}\n\n{_mission(scope, asset_class, modes, payload.angle, payload.instructions, tables)}"
+    asset_class, modes, scope, city = _validate(payload)
+    tables = _tables(scope, asset_class, modes, city)
+    counts = verdict_counts(asset_class, city)
+    base = f"{_build_context(asset_class, city)}\n\n{_mission(scope, asset_class, modes, payload.angle, payload.instructions, tables)}"
     client = _async_client()
     section_ids = ["executive_summary", *modes, "risques", "recommandation"]
     texts = await asyncio.gather(*[_draft_section(client, base, s, counts, modes) for s in section_ids])
@@ -451,10 +456,10 @@ async def draft(payload: DraftPayload) -> dict:
 
 @router.post("/revise")
 def revise(payload: RevisePayload) -> dict:
-    asset_class, modes, scope = _validate(DraftPayload(scope=payload.scope, asset_class=payload.asset_class))
-    counts = verdict_counts(asset_class)
+    asset_class, modes, scope, city = _validate(DraftPayload(scope=payload.scope, asset_class=payload.asset_class, city=payload.city))
+    counts = verdict_counts(asset_class, city)
     user = (
-        f"{_build_context(asset_class)}\n\n# RÉVISION DE SECTION\n"
+        f"{_build_context(asset_class, city)}\n\n# RÉVISION DE SECTION\n"
         f"Section : {payload.section_id}\n"
         f"Texte actuel :\n{payload.texte_actuel.strip()[:2000]}\n\n"
         f"Consigne : {payload.consigne.strip()[:300]}\n"
@@ -677,10 +682,10 @@ def _pdf_bytes(html: str) -> bytes:
 
 @router.post("/render")
 def render(payload: RenderPayload):
-    asset_class, modes, scope = _validate(payload)
+    asset_class, modes, scope, city = _validate(payload)
     if not isinstance(payload.sections, dict):
         raise HTTPException(status_code=400, detail="sections invalides")
-    tables = _tables(scope, asset_class, modes)          # chiffres du moteur, jamais du client
+    tables = _tables(scope, asset_class, modes, city)    # chiffres du moteur, jamais du client
     d = date.today()
     today = f"{d.day} {_MONTHS_FR[d.month - 1]} {d.year}"
     html = _html(_sanitize_sections(payload.sections), tables, scope, asset_class, modes, payload.angle, today)

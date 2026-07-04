@@ -1,0 +1,6586 @@
+{
+ "arbitrage": [
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2721,
+   "mode": "arbitrage",
+   "n_transactions": 778,
+   "native_indicator": {
+    "label": "spread 21% · appétit modéré"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "decote_negociation_pct": 2.4,
+      "delai_cession_mois": 3.0,
+      "frais_cession_pct": 2.6,
+      "prix_marche_eur_m2": 2249,
+      "spread_pct": 21.0,
+      "valeur_realisable_eur_m2": 2721
+     },
+     "native": {
+      "label": "spread 21%",
+      "unit": "%",
+      "value": 21.0
+     },
+     "pillar": "spread",
+     "subscore": 56.1,
+     "weight": 0.3,
+     "why": "spread +21% (positionnement vs médiane ville)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "appétit 0.55",
+      "unit": "0-1",
+      "value": 0.55
+     },
+     "pillar": "appetit_institutionnel",
+     "subscore": 55.0,
+     "weight": 0.25,
+     "why": "appétit institutionnel residential 0.55"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +15.2%",
+      "unit": "%",
+      "value": 15.2
+     },
+     "pillar": "momentum_cycle",
+     "subscore": 78.4,
+     "weight": 0.2,
+     "why": "cycle (courbe non monotone): yoy +15.2% vs pic ~10%, momentum cycle paramétré 80/100"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "sortie 21%",
+      "unit": "%",
+      "value": 21
+     },
+     "pillar": "frictions_sortie",
+     "subscore": 53.8,
+     "weight": 0.15,
+     "why": "frictions de sortie: plus-value/friction 21%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "CoC 7.5%",
+      "unit": "%",
+      "value": 7.5
+     },
+     "pillar": "cout_opportunite",
+     "subscore": 34.0,
+     "weight": 0.1,
+     "why": "coût d'opportunité du capital 7.5%"
+    }
+   ],
+   "price_eur_m2": 2721.0,
+   "total": 57.7,
+   "verdict": "Fenetre etroite",
+   "yoy_pct": 15.2,
+   "zone": "santamarinhaesaopedrodaafurada",
+   "zone_name": "União das freguesias de Santa Marinha e São Pedro da Afurada"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 3145,
+   "mode": "arbitrage",
+   "n_transactions": 834,
+   "native_indicator": {
+    "label": "spread 40% · appétit modéré"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "decote_negociation_pct": 2.9,
+      "delai_cession_mois": 3.6,
+      "frais_cession_pct": 2.5,
+      "prix_marche_eur_m2": 2249,
+      "spread_pct": 39.8,
+      "valeur_realisable_eur_m2": 3145
+     },
+     "native": {
+      "label": "spread 40%",
+      "unit": "%",
+      "value": 39.8
+     },
+     "pillar": "spread",
+     "subscore": 73.9,
+     "weight": 0.3,
+     "why": "spread +40% (positionnement vs médiane ville)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "appétit 0.55",
+      "unit": "0-1",
+      "value": 0.55
+     },
+     "pillar": "appetit_institutionnel",
+     "subscore": 55.0,
+     "weight": 0.25,
+     "why": "appétit institutionnel residential 0.55"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +25.8%",
+      "unit": "%",
+      "value": 25.8
+     },
+     "pillar": "momentum_cycle",
+     "subscore": 39.7,
+     "weight": 0.2,
+     "why": "cycle (courbe non monotone): yoy +25.8% vs pic ~10%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "sortie 21%",
+      "unit": "%",
+      "value": 21
+     },
+     "pillar": "frictions_sortie",
+     "subscore": 53.8,
+     "weight": 0.15,
+     "why": "frictions de sortie: plus-value/friction 21%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "CoC 7.5%",
+      "unit": "%",
+      "value": 7.5
+     },
+     "pillar": "cout_opportunite",
+     "subscore": 34.0,
+     "weight": 0.1,
+     "why": "coût d'opportunité du capital 7.5%"
+    }
+   ],
+   "price_eur_m2": 3145.0,
+   "total": 55.3,
+   "verdict": "Fenetre etroite",
+   "yoy_pct": 25.8,
+   "zone": "canidelo",
+   "zone_name": "Canidelo"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2548,
+   "mode": "arbitrage",
+   "n_transactions": 1108,
+   "native_indicator": {
+    "label": "spread 13% · appétit modéré"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "decote_negociation_pct": 2.5,
+      "delai_cession_mois": 3.1,
+      "frais_cession_pct": 2.0,
+      "prix_marche_eur_m2": 2249,
+      "spread_pct": 13.3,
+      "valeur_realisable_eur_m2": 2548
+     },
+     "native": {
+      "label": "spread 13%",
+      "unit": "%",
+      "value": 13.3
+     },
+     "pillar": "spread",
+     "subscore": 44.8,
+     "weight": 0.3,
+     "why": "spread +13% (positionnement vs médiane ville)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "appétit 0.55",
+      "unit": "0-1",
+      "value": 0.55
+     },
+     "pillar": "appetit_institutionnel",
+     "subscore": 55.0,
+     "weight": 0.25,
+     "why": "appétit institutionnel residential 0.55"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +13.6%",
+      "unit": "%",
+      "value": 13.6
+     },
+     "pillar": "momentum_cycle",
+     "subscore": 82.4,
+     "weight": 0.2,
+     "why": "cycle (courbe non monotone): yoy +13.6% vs pic ~10%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "sortie 21%",
+      "unit": "%",
+      "value": 21
+     },
+     "pillar": "frictions_sortie",
+     "subscore": 53.8,
+     "weight": 0.15,
+     "why": "frictions de sortie: plus-value/friction 21%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "CoC 7.5%",
+      "unit": "%",
+      "value": 7.5
+     },
+     "pillar": "cout_opportunite",
+     "subscore": 34.0,
+     "weight": 0.1,
+     "why": "coût d'opportunité du capital 7.5%"
+    }
+   ],
+   "price_eur_m2": 2548.0,
+   "total": 55.1,
+   "verdict": "Fenetre etroite",
+   "yoy_pct": 13.6,
+   "zone": "mafamudeevilardoparaiso",
+   "zone_name": "União das freguesias de Mafamude e Vilar do Paraíso"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2849,
+   "mode": "arbitrage",
+   "n_transactions": 337,
+   "native_indicator": {
+    "label": "spread 27% · appétit modéré"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "decote_negociation_pct": 4.1,
+      "delai_cession_mois": 5.1,
+      "frais_cession_pct": 3.0,
+      "prix_marche_eur_m2": 2249,
+      "spread_pct": 26.7,
+      "valeur_realisable_eur_m2": 2849
+     },
+     "native": {
+      "label": "spread 27%",
+      "unit": "%",
+      "value": 26.7
+     },
+     "pillar": "spread",
+     "subscore": 63.3,
+     "weight": 0.3,
+     "why": "spread +27% (positionnement vs médiane ville)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "appétit 0.55",
+      "unit": "0-1",
+      "value": 0.55
+     },
+     "pillar": "appetit_institutionnel",
+     "subscore": 55.0,
+     "weight": 0.25,
+     "why": "appétit institutionnel residential 0.55"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +22.5%",
+      "unit": "%",
+      "value": 22.5
+     },
+     "pillar": "momentum_cycle",
+     "subscore": 51.2,
+     "weight": 0.2,
+     "why": "cycle (courbe non monotone): yoy +22.5% vs pic ~10%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "sortie 21%",
+      "unit": "%",
+      "value": 21
+     },
+     "pillar": "frictions_sortie",
+     "subscore": 53.8,
+     "weight": 0.15,
+     "why": "frictions de sortie: plus-value/friction 21%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "CoC 7.5%",
+      "unit": "%",
+      "value": 7.5
+     },
+     "pillar": "cout_opportunite",
+     "subscore": 34.0,
+     "weight": 0.1,
+     "why": "coût d'opportunité du capital 7.5%"
+    }
+   ],
+   "price_eur_m2": 2849.0,
+   "total": 54.5,
+   "verdict": "Fenetre etroite",
+   "yoy_pct": 22.5,
+   "zone": "madalena",
+   "zone_name": "Madalena"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "municipio",
+   "median_eur_m2": 2474,
+   "mode": "arbitrage",
+   "n_transactions": 5494,
+   "native_indicator": {
+    "label": "spread 10% · appétit modéré"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "decote_negociation_pct": null,
+      "delai_cession_mois": null,
+      "frais_cession_pct": 2.1,
+      "prix_marche_eur_m2": 2249,
+      "spread_pct": 10.0,
+      "valeur_realisable_eur_m2": 2474
+     },
+     "native": {
+      "label": "spread 10%",
+      "unit": "%",
+      "value": 10.0
+     },
+     "pillar": "spread",
+     "subscore": 40.0,
+     "weight": 0.3,
+     "why": "spread +10% (positionnement vs médiane ville)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "appétit 0.55",
+      "unit": "0-1",
+      "value": 0.55
+     },
+     "pillar": "appetit_institutionnel",
+     "subscore": 55.0,
+     "weight": 0.25,
+     "why": "appétit institutionnel residential 0.55"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +16.3%",
+      "unit": "%",
+      "value": 16.3
+     },
+     "pillar": "momentum_cycle",
+     "subscore": 72.9,
+     "weight": 0.2,
+     "why": "cycle (courbe non monotone): yoy +16.3% vs pic ~10%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "sortie 21%",
+      "unit": "%",
+      "value": 21
+     },
+     "pillar": "frictions_sortie",
+     "subscore": 53.8,
+     "weight": 0.15,
+     "why": "frictions de sortie: plus-value/friction 21%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "CoC 7.5%",
+      "unit": "%",
+      "value": 7.5
+     },
+     "pillar": "cout_opportunite",
+     "subscore": 34.0,
+     "weight": 0.1,
+     "why": "coût d'opportunité du capital 7.5%"
+    }
+   ],
+   "price_eur_m2": 2474.0,
+   "total": 51.8,
+   "verdict": "Fenetre etroite",
+   "yoy_pct": 16.3,
+   "zone": "vilanovadegaia",
+   "zone_name": "Vila Nova de Gaia"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2279,
+   "mode": "arbitrage",
+   "n_transactions": 176,
+   "native_indicator": {
+    "label": "spread 1% · appétit modéré"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "decote_negociation_pct": 6.0,
+      "delai_cession_mois": 8.1,
+      "frais_cession_pct": 3.7,
+      "prix_marche_eur_m2": 2249,
+      "spread_pct": 1.3,
+      "valeur_realisable_eur_m2": 2279
+     },
+     "native": {
+      "label": "spread 1%",
+      "unit": "%",
+      "value": 1.3
+     },
+     "pillar": "spread",
+     "subscore": 24.8,
+     "weight": 0.3,
+     "why": "spread +1% (positionnement vs médiane ville)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "appétit 0.55",
+      "unit": "0-1",
+      "value": 0.55
+     },
+     "pillar": "appetit_institutionnel",
+     "subscore": 55.0,
+     "weight": 0.25,
+     "why": "appétit institutionnel residential 0.55"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +13.6%",
+      "unit": "%",
+      "value": 13.6
+     },
+     "pillar": "momentum_cycle",
+     "subscore": 82.4,
+     "weight": 0.2,
+     "why": "cycle (courbe non monotone): yoy +13.6% vs pic ~10%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "sortie 21%",
+      "unit": "%",
+      "value": 21
+     },
+     "pillar": "frictions_sortie",
+     "subscore": 53.8,
+     "weight": 0.15,
+     "why": "frictions de sortie: plus-value/friction 21%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "CoC 7.5%",
+      "unit": "%",
+      "value": 7.5
+     },
+     "pillar": "cout_opportunite",
+     "subscore": 34.0,
+     "weight": 0.1,
+     "why": "coût d'opportunité du capital 7.5%"
+    }
+   ],
+   "price_eur_m2": 2279.0,
+   "total": 49.2,
+   "verdict": "Fenetre etroite",
+   "yoy_pct": 13.6,
+   "zone": "saofelixdamarinha",
+   "zone_name": "São Félix da Marinha"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2249,
+   "mode": "arbitrage",
+   "n_transactions": 296,
+   "native_indicator": {
+    "label": "spread 0% · appétit modéré"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "decote_negociation_pct": 4.5,
+      "delai_cession_mois": 5.6,
+      "frais_cession_pct": 3.3,
+      "prix_marche_eur_m2": 2249,
+      "spread_pct": 0.0,
+      "valeur_realisable_eur_m2": 2249
+     },
+     "native": {
+      "label": "spread 0%",
+      "unit": "%",
+      "value": 0.0
+     },
+     "pillar": "spread",
+     "subscore": 22.5,
+     "weight": 0.3,
+     "why": "spread +0% (positionnement vs médiane ville)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "appétit 0.55",
+      "unit": "0-1",
+      "value": 0.55
+     },
+     "pillar": "appetit_institutionnel",
+     "subscore": 55.0,
+     "weight": 0.25,
+     "why": "appétit institutionnel residential 0.55"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +14.9%",
+      "unit": "%",
+      "value": 14.9
+     },
+     "pillar": "momentum_cycle",
+     "subscore": 77.8,
+     "weight": 0.2,
+     "why": "cycle (courbe non monotone): yoy +14.9% vs pic ~10%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "sortie 21%",
+      "unit": "%",
+      "value": 21
+     },
+     "pillar": "frictions_sortie",
+     "subscore": 53.8,
+     "weight": 0.15,
+     "why": "frictions de sortie: plus-value/friction 21%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "CoC 7.5%",
+      "unit": "%",
+      "value": 7.5
+     },
+     "pillar": "cout_opportunite",
+     "subscore": 34.0,
+     "weight": 0.1,
+     "why": "coût d'opportunité du capital 7.5%"
+    }
+   ],
+   "price_eur_m2": 2249.0,
+   "total": 47.5,
+   "verdict": "Fenetre etroite",
+   "yoy_pct": 14.9,
+   "zone": "gulpilharesevaladares",
+   "zone_name": "União das freguesias de Gulpilhares e Valadares"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2288,
+   "mode": "arbitrage",
+   "n_transactions": 549,
+   "native_indicator": {
+    "label": "spread 2% · appétit modéré"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "decote_negociation_pct": 3.4,
+      "delai_cession_mois": 4.2,
+      "frais_cession_pct": 2.5,
+      "prix_marche_eur_m2": 2249,
+      "spread_pct": 1.7,
+      "valeur_realisable_eur_m2": 2288
+     },
+     "native": {
+      "label": "spread 2%",
+      "unit": "%",
+      "value": 1.7
+     },
+     "pillar": "spread",
+     "subscore": 25.5,
+     "weight": 0.3,
+     "why": "spread +2% (positionnement vs médiane ville)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "appétit 0.55",
+      "unit": "0-1",
+      "value": 0.55
+     },
+     "pillar": "appetit_institutionnel",
+     "subscore": 55.0,
+     "weight": 0.25,
+     "why": "appétit institutionnel residential 0.55"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +3.6%",
+      "unit": "%",
+      "value": 3.6
+     },
+     "pillar": "momentum_cycle",
+     "subscore": 72.6,
+     "weight": 0.2,
+     "why": "cycle (courbe non monotone): yoy +3.6% vs pic ~10%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "sortie 21%",
+      "unit": "%",
+      "value": 21
+     },
+     "pillar": "frictions_sortie",
+     "subscore": 53.8,
+     "weight": 0.15,
+     "why": "frictions de sortie: plus-value/friction 21%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "CoC 7.5%",
+      "unit": "%",
+      "value": 7.5
+     },
+     "pillar": "cout_opportunite",
+     "subscore": 34.0,
+     "weight": 0.1,
+     "why": "coût d'opportunité du capital 7.5%"
+    }
+   ],
+   "price_eur_m2": 2288.0,
+   "total": 47.4,
+   "verdict": "Fenetre etroite",
+   "yoy_pct": 3.6,
+   "zone": "oliveiradodouro",
+   "zone_name": "Oliveira do Douro"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2286,
+   "mode": "arbitrage",
+   "n_transactions": 205,
+   "native_indicator": {
+    "label": "spread 2% · appétit modéré"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "decote_negociation_pct": 4.8,
+      "delai_cession_mois": 5.9,
+      "frais_cession_pct": 3.5,
+      "prix_marche_eur_m2": 2249,
+      "spread_pct": 1.6,
+      "valeur_realisable_eur_m2": 2286
+     },
+     "native": {
+      "label": "spread 2%",
+      "unit": "%",
+      "value": 1.6
+     },
+     "pillar": "spread",
+     "subscore": 25.4,
+     "weight": 0.3,
+     "why": "spread +2% (positionnement vs médiane ville)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "appétit 0.55",
+      "unit": "0-1",
+      "value": 0.55
+     },
+     "pillar": "appetit_institutionnel",
+     "subscore": 55.0,
+     "weight": 0.25,
+     "why": "appétit institutionnel residential 0.55"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +21.3%",
+      "unit": "%",
+      "value": 21.3
+     },
+     "pillar": "momentum_cycle",
+     "subscore": 55.4,
+     "weight": 0.2,
+     "why": "cycle (courbe non monotone): yoy +21.3% vs pic ~10%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "sortie 21%",
+      "unit": "%",
+      "value": 21
+     },
+     "pillar": "frictions_sortie",
+     "subscore": 53.8,
+     "weight": 0.15,
+     "why": "frictions de sortie: plus-value/friction 21%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "CoC 7.5%",
+      "unit": "%",
+      "value": 7.5
+     },
+     "pillar": "cout_opportunite",
+     "subscore": 34.0,
+     "weight": 0.1,
+     "why": "coût d'opportunité du capital 7.5%"
+    }
+   ],
+   "price_eur_m2": 2286.0,
+   "total": 43.9,
+   "verdict": "Fenetre fermee",
+   "yoy_pct": 21.3,
+   "zone": "arcozelo",
+   "zone_name": "Arcozelo"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 1909,
+   "mode": "arbitrage",
+   "n_transactions": 123,
+   "native_indicator": {
+    "label": "spread -15% · appétit modéré"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "decote_negociation_pct": 5.7,
+      "delai_cession_mois": 7.1,
+      "frais_cession_pct": 3.9,
+      "prix_marche_eur_m2": 2249,
+      "spread_pct": -15.1,
+      "valeur_realisable_eur_m2": 1909
+     },
+     "native": {
+      "label": "spread -15%",
+      "unit": "%",
+      "value": -15.1
+     },
+     "pillar": "spread",
+     "subscore": 5.0,
+     "weight": 0.3,
+     "why": "spread -15% (positionnement vs médiane ville)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "appétit 0.55",
+      "unit": "0-1",
+      "value": 0.55
+     },
+     "pillar": "appetit_institutionnel",
+     "subscore": 55.0,
+     "weight": 0.25,
+     "why": "appétit institutionnel residential 0.55"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +14.2%",
+      "unit": "%",
+      "value": 14.2
+     },
+     "pillar": "momentum_cycle",
+     "subscore": 80.3,
+     "weight": 0.2,
+     "why": "cycle (courbe non monotone): yoy +14.2% vs pic ~10%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "sortie 21%",
+      "unit": "%",
+      "value": 21
+     },
+     "pillar": "frictions_sortie",
+     "subscore": 53.8,
+     "weight": 0.15,
+     "why": "frictions de sortie: plus-value/friction 21%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "CoC 7.5%",
+      "unit": "%",
+      "value": 7.5
+     },
+     "pillar": "cout_opportunite",
+     "subscore": 34.0,
+     "weight": 0.1,
+     "why": "coût d'opportunité du capital 7.5%"
+    }
+   ],
+   "price_eur_m2": 1909.0,
+   "total": 42.8,
+   "verdict": "Fenetre fermee",
+   "yoy_pct": 14.2,
+   "zone": "serzedoeperosinho",
+   "zone_name": "União das freguesias de Serzedo e Perosinho"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 1927,
+   "mode": "arbitrage",
+   "n_transactions": 139,
+   "native_indicator": {
+    "label": "spread -14% · appétit modéré"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "decote_negociation_pct": 5.4,
+      "delai_cession_mois": 6.8,
+      "frais_cession_pct": 3.8,
+      "prix_marche_eur_m2": 2249,
+      "spread_pct": -14.3,
+      "valeur_realisable_eur_m2": 1927
+     },
+     "native": {
+      "label": "spread -14%",
+      "unit": "%",
+      "value": -14.3
+     },
+     "pillar": "spread",
+     "subscore": 5.0,
+     "weight": 0.3,
+     "why": "spread -14% (positionnement vs médiane ville)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "appétit 0.55",
+      "unit": "0-1",
+      "value": 0.55
+     },
+     "pillar": "appetit_institutionnel",
+     "subscore": 55.0,
+     "weight": 0.25,
+     "why": "appétit institutionnel residential 0.55"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +4.8%",
+      "unit": "%",
+      "value": 4.8
+     },
+     "pillar": "momentum_cycle",
+     "subscore": 76.8,
+     "weight": 0.2,
+     "why": "cycle (courbe non monotone): yoy +4.8% vs pic ~10%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "sortie 21%",
+      "unit": "%",
+      "value": 21
+     },
+     "pillar": "frictions_sortie",
+     "subscore": 53.8,
+     "weight": 0.15,
+     "why": "frictions de sortie: plus-value/friction 21%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "CoC 7.5%",
+      "unit": "%",
+      "value": 7.5
+     },
+     "pillar": "cout_opportunite",
+     "subscore": 34.0,
+     "weight": 0.1,
+     "why": "coût d'opportunité du capital 7.5%"
+    }
+   ],
+   "price_eur_m2": 1927.0,
+   "total": 42.1,
+   "verdict": "Fenetre fermee",
+   "yoy_pct": 4.8,
+   "zone": "grijoesermonde",
+   "zone_name": "União das freguesias de Grijó e Sermonde"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 1797,
+   "mode": "arbitrage",
+   "n_transactions": 136,
+   "native_indicator": {
+    "label": "spread -20% · appétit modéré"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "decote_negociation_pct": 5.5,
+      "delai_cession_mois": 6.9,
+      "frais_cession_pct": 4.0,
+      "prix_marche_eur_m2": 2249,
+      "spread_pct": -20.1,
+      "valeur_realisable_eur_m2": 1797
+     },
+     "native": {
+      "label": "spread -20%",
+      "unit": "%",
+      "value": -20.1
+     },
+     "pillar": "spread",
+     "subscore": 5.0,
+     "weight": 0.3,
+     "why": "spread -20% (positionnement vs médiane ville)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "appétit 0.55",
+      "unit": "0-1",
+      "value": 0.55
+     },
+     "pillar": "appetit_institutionnel",
+     "subscore": 55.0,
+     "weight": 0.25,
+     "why": "appétit institutionnel residential 0.55"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +16.8%",
+      "unit": "%",
+      "value": 16.8
+     },
+     "pillar": "momentum_cycle",
+     "subscore": 71.2,
+     "weight": 0.2,
+     "why": "cycle (courbe non monotone): yoy +16.8% vs pic ~10%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "sortie 21%",
+      "unit": "%",
+      "value": 21
+     },
+     "pillar": "frictions_sortie",
+     "subscore": 53.8,
+     "weight": 0.15,
+     "why": "frictions de sortie: plus-value/friction 21%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "CoC 7.5%",
+      "unit": "%",
+      "value": 7.5
+     },
+     "pillar": "cout_opportunite",
+     "subscore": 34.0,
+     "weight": 0.1,
+     "why": "coût d'opportunité du capital 7.5%"
+    }
+   ],
+   "price_eur_m2": 1797.0,
+   "total": 41.0,
+   "verdict": "Fenetre fermee",
+   "yoy_pct": 16.8,
+   "zone": "sandim,olival,leverecrestuma",
+   "zone_name": "União das freguesias de Sandim, Olival, Lever e Crestuma"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2060,
+   "mode": "arbitrage",
+   "n_transactions": 191,
+   "native_indicator": {
+    "label": "spread -8% · appétit modéré"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "decote_negociation_pct": 5.2,
+      "delai_cession_mois": 6.5,
+      "frais_cession_pct": 3.4,
+      "prix_marche_eur_m2": 2249,
+      "spread_pct": -8.4,
+      "valeur_realisable_eur_m2": 2060
+     },
+     "native": {
+      "label": "spread -8%",
+      "unit": "%",
+      "value": -8.4
+     },
+     "pillar": "spread",
+     "subscore": 7.8,
+     "weight": 0.3,
+     "why": "spread -8% (positionnement vs médiane ville)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "appétit 0.55",
+      "unit": "0-1",
+      "value": 0.55
+     },
+     "pillar": "appetit_institutionnel",
+     "subscore": 55.0,
+     "weight": 0.25,
+     "why": "appétit institutionnel residential 0.55"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +18.1%",
+      "unit": "%",
+      "value": 18.1
+     },
+     "pillar": "momentum_cycle",
+     "subscore": 66.6,
+     "weight": 0.2,
+     "why": "cycle (courbe non monotone): yoy +18.1% vs pic ~10%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "sortie 21%",
+      "unit": "%",
+      "value": 21
+     },
+     "pillar": "frictions_sortie",
+     "subscore": 53.8,
+     "weight": 0.15,
+     "why": "frictions de sortie: plus-value/friction 21%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "CoC 7.5%",
+      "unit": "%",
+      "value": 7.5
+     },
+     "pillar": "cout_opportunite",
+     "subscore": 34.0,
+     "weight": 0.1,
+     "why": "coût d'opportunité du capital 7.5%"
+    }
+   ],
+   "price_eur_m2": 2060.0,
+   "total": 40.9,
+   "verdict": "Fenetre fermee",
+   "yoy_pct": 18.1,
+   "zone": "canelas",
+   "zone_name": "Canelas"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 1964,
+   "mode": "arbitrage",
+   "n_transactions": 246,
+   "native_indicator": {
+    "label": "spread -13% · appétit modéré"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "decote_negociation_pct": 4.7,
+      "delai_cession_mois": 5.9,
+      "frais_cession_pct": 3.2,
+      "prix_marche_eur_m2": 2249,
+      "spread_pct": -12.7,
+      "valeur_realisable_eur_m2": 1964
+     },
+     "native": {
+      "label": "spread -13%",
+      "unit": "%",
+      "value": -12.7
+     },
+     "pillar": "spread",
+     "subscore": 5.0,
+     "weight": 0.3,
+     "why": "spread -13% (positionnement vs médiane ville)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "appétit 0.55",
+      "unit": "0-1",
+      "value": 0.55
+     },
+     "pillar": "appetit_institutionnel",
+     "subscore": 55.0,
+     "weight": 0.25,
+     "why": "appétit institutionnel residential 0.55"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +17.3%",
+      "unit": "%",
+      "value": 17.3
+     },
+     "pillar": "momentum_cycle",
+     "subscore": 69.4,
+     "weight": 0.2,
+     "why": "cycle (courbe non monotone): yoy +17.3% vs pic ~10%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "sortie 21%",
+      "unit": "%",
+      "value": 21
+     },
+     "pillar": "frictions_sortie",
+     "subscore": 53.8,
+     "weight": 0.15,
+     "why": "frictions de sortie: plus-value/friction 21%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "CoC 7.5%",
+      "unit": "%",
+      "value": 7.5
+     },
+     "pillar": "cout_opportunite",
+     "subscore": 34.0,
+     "weight": 0.1,
+     "why": "coût d'opportunité du capital 7.5%"
+    }
+   ],
+   "price_eur_m2": 1964.0,
+   "total": 40.6,
+   "verdict": "Fenetre fermee",
+   "yoy_pct": 17.3,
+   "zone": "pedrosoeseixezelo",
+   "zone_name": "União das freguesias de Pedroso e Seixezelo"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2058,
+   "mode": "arbitrage",
+   "n_transactions": 158,
+   "native_indicator": {
+    "label": "spread -8% · appétit modéré"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "decote_negociation_pct": 5.3,
+      "delai_cession_mois": 6.7,
+      "frais_cession_pct": 3.5,
+      "prix_marche_eur_m2": 2249,
+      "spread_pct": -8.5,
+      "valeur_realisable_eur_m2": 2058
+     },
+     "native": {
+      "label": "spread -8%",
+      "unit": "%",
+      "value": -8.5
+     },
+     "pillar": "spread",
+     "subscore": 7.6,
+     "weight": 0.3,
+     "why": "spread -8% (positionnement vs médiane ville)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "appétit 0.55",
+      "unit": "0-1",
+      "value": 0.55
+     },
+     "pillar": "appetit_institutionnel",
+     "subscore": 55.0,
+     "weight": 0.25,
+     "why": "appétit institutionnel residential 0.55"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +22.4%",
+      "unit": "%",
+      "value": 22.4
+     },
+     "pillar": "momentum_cycle",
+     "subscore": 51.6,
+     "weight": 0.2,
+     "why": "cycle (courbe non monotone): yoy +22.4% vs pic ~10%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "sortie 21%",
+      "unit": "%",
+      "value": 21
+     },
+     "pillar": "frictions_sortie",
+     "subscore": 53.8,
+     "weight": 0.15,
+     "why": "frictions de sortie: plus-value/friction 21%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "CoC 7.5%",
+      "unit": "%",
+      "value": 7.5
+     },
+     "pillar": "cout_opportunite",
+     "subscore": 34.0,
+     "weight": 0.1,
+     "why": "coût d'opportunité du capital 7.5%"
+    }
+   ],
+   "price_eur_m2": 2058.0,
+   "total": 37.8,
+   "verdict": "Fenetre fermee",
+   "yoy_pct": 22.4,
+   "zone": "avintes",
+   "zone_name": "Avintes"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2078,
+   "mode": "arbitrage",
+   "n_transactions": 218,
+   "native_indicator": {
+    "label": "spread -8% · appétit modéré"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "decote_negociation_pct": 4.9,
+      "delai_cession_mois": 6.1,
+      "frais_cession_pct": 3.6,
+      "prix_marche_eur_m2": 2249,
+      "spread_pct": -7.6,
+      "valeur_realisable_eur_m2": 2078
+     },
+     "native": {
+      "label": "spread -8%",
+      "unit": "%",
+      "value": -7.6
+     },
+     "pillar": "spread",
+     "subscore": 9.2,
+     "weight": 0.3,
+     "why": "spread -8% (positionnement vs médiane ville)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "appétit 0.55",
+      "unit": "0-1",
+      "value": 0.55
+     },
+     "pillar": "appetit_institutionnel",
+     "subscore": 55.0,
+     "weight": 0.25,
+     "why": "appétit institutionnel residential 0.55"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +28.5%",
+      "unit": "%",
+      "value": 28.5
+     },
+     "pillar": "momentum_cycle",
+     "subscore": 30.2,
+     "weight": 0.2,
+     "why": "cycle (courbe non monotone): yoy +28.5% vs pic ~10%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "sortie 21%",
+      "unit": "%",
+      "value": 21
+     },
+     "pillar": "frictions_sortie",
+     "subscore": 53.8,
+     "weight": 0.15,
+     "why": "frictions de sortie: plus-value/friction 21%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "CoC 7.5%",
+      "unit": "%",
+      "value": 7.5
+     },
+     "pillar": "cout_opportunite",
+     "subscore": 34.0,
+     "weight": 0.1,
+     "why": "coût d'opportunité du capital 7.5%"
+    }
+   ],
+   "price_eur_m2": 2078.0,
+   "total": 34.0,
+   "verdict": "Fenetre fermee",
+   "yoy_pct": 28.5,
+   "zone": "vilardeandorinho",
+   "zone_name": "Vilar de Andorinho"
+  }
+ ],
+ "detention": [
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2721,
+   "mode": "detention",
+   "n_transactions": 778,
+   "native_indicator": {
+    "label": "yield net 3.5% · MEPS F/G ~2030-2033"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "charges_pct_loyer": 23.0,
+      "fiscalite_pct_loyer": 8.4,
+      "loyer_marche_eur_m2_an": 139,
+      "yield_brut_pct": 5.1,
+      "yield_net_pct": 3.49
+     },
+     "native": {
+      "label": "yield net 3.5%",
+      "unit": "%",
+      "value": 3.49
+     },
+     "pillar": "rendement_net",
+     "subscore": 47.2,
+     "weight": 0.15,
+     "why": "rendement net 3.49% (brut 5.10% − fisc 0.43 − charges 0.97 − vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "profondeur 73",
+      "unit": "/100",
+      "value": 73
+     },
+     "pillar": "profondeur_locative",
+     "subscore": 72.8,
+     "weight": 0.3,
+     "why": "profondeur du marché locatif: loyer de marché ~139 €/m²/an, parc 778 ventes/an, rotation ~2.0 mois (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "résilience 75",
+      "unit": "/100",
+      "value": 75
+     },
+     "pillar": "resilience",
+     "subscore": 93.9,
+     "weight": 0.2,
+     "why": "résilience locative 75/100 (connectivité 75, vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "MEPS F/G ~2030-2033",
+      "unit": "/100 risque",
+      "value": 35
+     },
+     "pillar": "risque_energie",
+     "subscore": 65,
+     "weight": 0.2,
+     "why": "risque énergie 35/100 (min F/G d'ici ~2030-2033)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "acq 7.8% + détention 0.4%/an",
+      "unit": "/burden",
+      "value": 11.8
+     },
+     "pillar": "fiscalite",
+     "subscore": 64.6,
+     "weight": 0.1,
+     "why": "charge fiscale détention (droits 7.8%, annuel 0.4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "WACC 5.7%",
+      "unit": "%",
+      "value": 5.7
+     },
+     "pillar": "portage",
+     "subscore": 55.6,
+     "weight": 0.05,
+     "why": "coût de portage 5.7%/an (dette senior + fonds propres, LTV cible)"
+    }
+   ],
+   "price_eur_m2": 2721.0,
+   "total": 70.0,
+   "verdict": "Conserver",
+   "yoy_pct": 15.2,
+   "zone": "santamarinhaesaopedrodaafurada",
+   "zone_name": "União das freguesias de Santa Marinha e São Pedro da Afurada"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2849,
+   "mode": "detention",
+   "n_transactions": 337,
+   "native_indicator": {
+    "label": "yield net 3.4% · MEPS F/G ~2030-2033"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "charges_pct_loyer": 24.7,
+      "fiscalite_pct_loyer": 7.3,
+      "loyer_marche_eur_m2_an": 143,
+      "yield_brut_pct": 5.0,
+      "yield_net_pct": 3.4
+     },
+     "native": {
+      "label": "yield net 3.4%",
+      "unit": "%",
+      "value": 3.4
+     },
+     "pillar": "rendement_net",
+     "subscore": 45.9,
+     "weight": 0.15,
+     "why": "rendement net 3.40% (brut 5.00% − fisc 0.36 − charges 1.04 − vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "profondeur 63",
+      "unit": "/100",
+      "value": 63
+     },
+     "pillar": "profondeur_locative",
+     "subscore": 63.1,
+     "weight": 0.3,
+     "why": "profondeur du marché locatif: loyer de marché ~143 €/m²/an, parc 337 ventes/an, rotation ~2.4 mois (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "résilience 75",
+      "unit": "/100",
+      "value": 75
+     },
+     "pillar": "resilience",
+     "subscore": 91.8,
+     "weight": 0.2,
+     "why": "résilience locative 75/100 (connectivité 74, vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "MEPS F/G ~2030-2033",
+      "unit": "/100 risque",
+      "value": 35
+     },
+     "pillar": "risque_energie",
+     "subscore": 65,
+     "weight": 0.2,
+     "why": "risque énergie 35/100 (min F/G d'ici ~2030-2033)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "acq 7.8% + détention 0.4%/an",
+      "unit": "/burden",
+      "value": 11.8
+     },
+     "pillar": "fiscalite",
+     "subscore": 64.6,
+     "weight": 0.1,
+     "why": "charge fiscale détention (droits 7.8%, annuel 0.4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "WACC 5.7%",
+      "unit": "%",
+      "value": 5.7
+     },
+     "pillar": "portage",
+     "subscore": 55.6,
+     "weight": 0.05,
+     "why": "coût de portage 5.7%/an (dette senior + fonds propres, LTV cible)"
+    }
+   ],
+   "price_eur_m2": 2849.0,
+   "total": 66.4,
+   "verdict": "Conserver",
+   "yoy_pct": 22.5,
+   "zone": "madalena",
+   "zone_name": "Madalena"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 3145,
+   "mode": "detention",
+   "n_transactions": 834,
+   "native_indicator": {
+    "label": "yield net 3.2% · MEPS F/G ~2030-2033"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "charges_pct_loyer": 24.5,
+      "fiscalite_pct_loyer": 8.6,
+      "loyer_marche_eur_m2_an": 151,
+      "yield_brut_pct": 4.81,
+      "yield_net_pct": 3.22
+     },
+     "native": {
+      "label": "yield net 3.2%",
+      "unit": "%",
+      "value": 3.22
+     },
+     "pillar": "rendement_net",
+     "subscore": 43.2,
+     "weight": 0.15,
+     "why": "rendement net 3.22% (brut 4.81% − fisc 0.41 − charges 0.99 − vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "profondeur 70",
+      "unit": "/100",
+      "value": 70
+     },
+     "pillar": "profondeur_locative",
+     "subscore": 70.4,
+     "weight": 0.3,
+     "why": "profondeur du marché locatif: loyer de marché ~151 €/m²/an, parc 834 ventes/an, rotation ~2.5 mois (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "résilience 68",
+      "unit": "/100",
+      "value": 68
+     },
+     "pillar": "resilience",
+     "subscore": 49.0,
+     "weight": 0.2,
+     "why": "résilience locative 68/100 (connectivité 63, vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "MEPS F/G ~2030-2033",
+      "unit": "/100 risque",
+      "value": 35
+     },
+     "pillar": "risque_energie",
+     "subscore": 65,
+     "weight": 0.2,
+     "why": "risque énergie 35/100 (min F/G d'ici ~2030-2033)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "acq 7.8% + détention 0.4%/an",
+      "unit": "/burden",
+      "value": 11.8
+     },
+     "pillar": "fiscalite",
+     "subscore": 64.6,
+     "weight": 0.1,
+     "why": "charge fiscale détention (droits 7.8%, annuel 0.4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "WACC 5.7%",
+      "unit": "%",
+      "value": 5.7
+     },
+     "pillar": "portage",
+     "subscore": 55.6,
+     "weight": 0.05,
+     "why": "coût de portage 5.7%/an (dette senior + fonds propres, LTV cible)"
+    }
+   ],
+   "price_eur_m2": 3145.0,
+   "total": 59.6,
+   "verdict": "Surveiller",
+   "yoy_pct": 25.8,
+   "zone": "canidelo",
+   "zone_name": "Canidelo"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2548,
+   "mode": "detention",
+   "n_transactions": 1108,
+   "native_indicator": {
+    "label": "yield net 3.6% · MEPS F/G ~2030-2033"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "charges_pct_loyer": 24.2,
+      "fiscalite_pct_loyer": 6.5,
+      "loyer_marche_eur_m2_an": 133,
+      "yield_brut_pct": 5.23,
+      "yield_net_pct": 3.62
+     },
+     "native": {
+      "label": "yield net 3.6%",
+      "unit": "%",
+      "value": 3.62
+     },
+     "pillar": "rendement_net",
+     "subscore": 49.1,
+     "weight": 0.15,
+     "why": "rendement net 3.62% (brut 5.23% − fisc 0.34 − charges 1.06 − vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "profondeur 62",
+      "unit": "/100",
+      "value": 62
+     },
+     "pillar": "profondeur_locative",
+     "subscore": 62.4,
+     "weight": 0.3,
+     "why": "profondeur du marché locatif: loyer de marché ~133 €/m²/an, parc 1108 ventes/an, rotation ~2.6 mois (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "résilience 67",
+      "unit": "/100",
+      "value": 67
+     },
+     "pillar": "resilience",
+     "subscore": 46.9,
+     "weight": 0.2,
+     "why": "résilience locative 67/100 (connectivité 62, vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "MEPS F/G ~2030-2033",
+      "unit": "/100 risque",
+      "value": 35
+     },
+     "pillar": "risque_energie",
+     "subscore": 65,
+     "weight": 0.2,
+     "why": "risque énergie 35/100 (min F/G d'ici ~2030-2033)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "acq 7.8% + détention 0.4%/an",
+      "unit": "/burden",
+      "value": 11.8
+     },
+     "pillar": "fiscalite",
+     "subscore": 64.6,
+     "weight": 0.1,
+     "why": "charge fiscale détention (droits 7.8%, annuel 0.4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "WACC 5.7%",
+      "unit": "%",
+      "value": 5.7
+     },
+     "pillar": "portage",
+     "subscore": 55.6,
+     "weight": 0.05,
+     "why": "coût de portage 5.7%/an (dette senior + fonds propres, LTV cible)"
+    }
+   ],
+   "price_eur_m2": 2548.0,
+   "total": 57.7,
+   "verdict": "Surveiller",
+   "yoy_pct": 13.6,
+   "zone": "mafamudeevilardoparaiso",
+   "zone_name": "União das freguesias de Mafamude e Vilar do Paraíso"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2288,
+   "mode": "detention",
+   "n_transactions": 549,
+   "native_indicator": {
+    "label": "yield net 3.8% · MEPS F/G ~2030-2033"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "charges_pct_loyer": 23.3,
+      "fiscalite_pct_loyer": 6.3,
+      "loyer_marche_eur_m2_an": 125,
+      "yield_brut_pct": 5.46,
+      "yield_net_pct": 3.84
+     },
+     "native": {
+      "label": "yield net 3.8%",
+      "unit": "%",
+      "value": 3.84
+     },
+     "pillar": "rendement_net",
+     "subscore": 52.4,
+     "weight": 0.15,
+     "why": "rendement net 3.84% (brut 5.46% − fisc 0.34 − charges 1.06 − vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "profondeur 53",
+      "unit": "/100",
+      "value": 53
+     },
+     "pillar": "profondeur_locative",
+     "subscore": 53.4,
+     "weight": 0.3,
+     "why": "profondeur du marché locatif: loyer de marché ~125 €/m²/an, parc 549 ventes/an, rotation ~2.5 mois (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "résilience 66",
+      "unit": "/100",
+      "value": 66
+     },
+     "pillar": "resilience",
+     "subscore": 44.9,
+     "weight": 0.2,
+     "why": "résilience locative 66/100 (connectivité 61, vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "MEPS F/G ~2030-2033",
+      "unit": "/100 risque",
+      "value": 35
+     },
+     "pillar": "risque_energie",
+     "subscore": 65,
+     "weight": 0.2,
+     "why": "risque énergie 35/100 (min F/G d'ici ~2030-2033)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "acq 7.8% + détention 0.4%/an",
+      "unit": "/burden",
+      "value": 11.8
+     },
+     "pillar": "fiscalite",
+     "subscore": 64.6,
+     "weight": 0.1,
+     "why": "charge fiscale détention (droits 7.8%, annuel 0.4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "WACC 5.7%",
+      "unit": "%",
+      "value": 5.7
+     },
+     "pillar": "portage",
+     "subscore": 55.6,
+     "weight": 0.05,
+     "why": "coût de portage 5.7%/an (dette senior + fonds propres, LTV cible)"
+    }
+   ],
+   "price_eur_m2": 2288.0,
+   "total": 55.1,
+   "verdict": "Surveiller",
+   "yoy_pct": 3.6,
+   "zone": "oliveiradodouro",
+   "zone_name": "Oliveira do Douro"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2286,
+   "mode": "detention",
+   "n_transactions": 205,
+   "native_indicator": {
+    "label": "yield net 3.8% · MEPS F/G ~2030-2033"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "charges_pct_loyer": 22.6,
+      "fiscalite_pct_loyer": 7.0,
+      "loyer_marche_eur_m2_an": 125,
+      "yield_brut_pct": 5.46,
+      "yield_net_pct": 3.85
+     },
+     "native": {
+      "label": "yield net 3.8%",
+      "unit": "%",
+      "value": 3.85
+     },
+     "pillar": "rendement_net",
+     "subscore": 52.4,
+     "weight": 0.15,
+     "why": "rendement net 3.85% (brut 5.46% − fisc 0.38 − charges 1.02 − vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "profondeur 47",
+      "unit": "/100",
+      "value": 47
+     },
+     "pillar": "profondeur_locative",
+     "subscore": 46.9,
+     "weight": 0.3,
+     "why": "profondeur du marché locatif: loyer de marché ~125 €/m²/an, parc 205 ventes/an, rotation ~2.4 mois (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "résilience 64",
+      "unit": "/100",
+      "value": 64
+     },
+     "pillar": "resilience",
+     "subscore": 40.8,
+     "weight": 0.2,
+     "why": "résilience locative 64/100 (connectivité 58, vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "MEPS F/G ~2030-2033",
+      "unit": "/100 risque",
+      "value": 35
+     },
+     "pillar": "risque_energie",
+     "subscore": 65,
+     "weight": 0.2,
+     "why": "risque énergie 35/100 (min F/G d'ici ~2030-2033)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "acq 7.8% + détention 0.4%/an",
+      "unit": "/burden",
+      "value": 11.8
+     },
+     "pillar": "fiscalite",
+     "subscore": 64.6,
+     "weight": 0.1,
+     "why": "charge fiscale détention (droits 7.8%, annuel 0.4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "WACC 5.7%",
+      "unit": "%",
+      "value": 5.7
+     },
+     "pillar": "portage",
+     "subscore": 55.6,
+     "weight": 0.05,
+     "why": "coût de portage 5.7%/an (dette senior + fonds propres, LTV cible)"
+    }
+   ],
+   "price_eur_m2": 2286.0,
+   "total": 52.3,
+   "verdict": "Surveiller",
+   "yoy_pct": 21.3,
+   "zone": "arcozelo",
+   "zone_name": "Arcozelo"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "municipio",
+   "median_eur_m2": 2474,
+   "mode": "detention",
+   "n_transactions": 5494,
+   "native_indicator": {
+    "label": "yield net 3.7% · MEPS F/G ~2030-2033"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "charges_pct_loyer": 22.8,
+      "fiscalite_pct_loyer": 7.6,
+      "loyer_marche_eur_m2_an": 131,
+      "yield_brut_pct": 5.29,
+      "yield_net_pct": 3.68
+     },
+     "native": {
+      "label": "yield net 3.7%",
+      "unit": "%",
+      "value": 3.68
+     },
+     "pillar": "rendement_net",
+     "subscore": 50.0,
+     "weight": 0.15,
+     "why": "rendement net 3.68% (brut 5.29% − fisc 0.40 − charges 1.00 − vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "profondeur 67",
+      "unit": "/100",
+      "value": 67
+     },
+     "pillar": "profondeur_locative",
+     "subscore": 66.6,
+     "weight": 0.3,
+     "why": "profondeur du marché locatif: loyer de marché ~131 €/m²/an, parc 5494 ventes/an (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "résilience 62",
+      "unit": "/100",
+      "value": 62
+     },
+     "pillar": "resilience",
+     "subscore": 2.0,
+     "weight": 0.2,
+     "why": "résilience locative 62/100 (connectivité 55, vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "MEPS F/G ~2030-2033",
+      "unit": "/100 risque",
+      "value": 35
+     },
+     "pillar": "risque_energie",
+     "subscore": 65,
+     "weight": 0.2,
+     "why": "risque énergie 35/100 (min F/G d'ici ~2030-2033)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "acq 7.8% + détention 0.4%/an",
+      "unit": "/burden",
+      "value": 11.8
+     },
+     "pillar": "fiscalite",
+     "subscore": 64.6,
+     "weight": 0.1,
+     "why": "charge fiscale détention (droits 7.8%, annuel 0.4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "WACC 5.7%",
+      "unit": "%",
+      "value": 5.7
+     },
+     "pillar": "portage",
+     "subscore": 55.6,
+     "weight": 0.05,
+     "why": "coût de portage 5.7%/an (dette senior + fonds propres, LTV cible)"
+    }
+   ],
+   "price_eur_m2": 2474.0,
+   "total": 50.1,
+   "verdict": "Surveiller",
+   "yoy_pct": 16.3,
+   "zone": "vilanovadegaia",
+   "zone_name": "Vila Nova de Gaia"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2249,
+   "mode": "detention",
+   "n_transactions": 296,
+   "native_indicator": {
+    "label": "yield net 3.9% · MEPS F/G ~2030-2033"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "charges_pct_loyer": 21.8,
+      "fiscalite_pct_loyer": 7.6,
+      "loyer_marche_eur_m2_an": 124,
+      "yield_brut_pct": 5.5,
+      "yield_net_pct": 3.88
+     },
+     "native": {
+      "label": "yield net 3.9%",
+      "unit": "%",
+      "value": 3.88
+     },
+     "pillar": "rendement_net",
+     "subscore": 52.9,
+     "weight": 0.15,
+     "why": "rendement net 3.88% (brut 5.50% − fisc 0.42 − charges 0.98 − vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "profondeur 39",
+      "unit": "/100",
+      "value": 39
+     },
+     "pillar": "profondeur_locative",
+     "subscore": 38.8,
+     "weight": 0.3,
+     "why": "profondeur du marché locatif: loyer de marché ~124 €/m²/an, parc 296 ventes/an, rotation ~2.5 mois (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "résilience 64",
+      "unit": "/100",
+      "value": 64
+     },
+     "pillar": "resilience",
+     "subscore": 38.8,
+     "weight": 0.2,
+     "why": "résilience locative 64/100 (connectivité 57, vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "MEPS F/G ~2030-2033",
+      "unit": "/100 risque",
+      "value": 35
+     },
+     "pillar": "risque_energie",
+     "subscore": 65,
+     "weight": 0.2,
+     "why": "risque énergie 35/100 (min F/G d'ici ~2030-2033)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "acq 7.8% + détention 0.4%/an",
+      "unit": "/burden",
+      "value": 11.8
+     },
+     "pillar": "fiscalite",
+     "subscore": 64.6,
+     "weight": 0.1,
+     "why": "charge fiscale détention (droits 7.8%, annuel 0.4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "WACC 5.7%",
+      "unit": "%",
+      "value": 5.7
+     },
+     "pillar": "portage",
+     "subscore": 55.6,
+     "weight": 0.05,
+     "why": "coût de portage 5.7%/an (dette senior + fonds propres, LTV cible)"
+    }
+   ],
+   "price_eur_m2": 2249.0,
+   "total": 49.6,
+   "verdict": "Surveiller",
+   "yoy_pct": 14.9,
+   "zone": "gulpilharesevaladares",
+   "zone_name": "União das freguesias de Gulpilhares e Valadares"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2279,
+   "mode": "detention",
+   "n_transactions": 176,
+   "native_indicator": {
+    "label": "yield net 3.9% · MEPS F/G ~2030-2033"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "charges_pct_loyer": 22.2,
+      "fiscalite_pct_loyer": 7.4,
+      "loyer_marche_eur_m2_an": 125,
+      "yield_brut_pct": 5.47,
+      "yield_net_pct": 3.85
+     },
+     "native": {
+      "label": "yield net 3.9%",
+      "unit": "%",
+      "value": 3.85
+     },
+     "pillar": "rendement_net",
+     "subscore": 52.5,
+     "weight": 0.15,
+     "why": "rendement net 3.85% (brut 5.47% − fisc 0.41 − charges 0.99 − vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "profondeur 33",
+      "unit": "/100",
+      "value": 33
+     },
+     "pillar": "profondeur_locative",
+     "subscore": 33.4,
+     "weight": 0.3,
+     "why": "profondeur du marché locatif: loyer de marché ~125 €/m²/an, parc 176 ventes/an, rotation ~3.1 mois (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "résilience 63",
+      "unit": "/100",
+      "value": 63
+     },
+     "pillar": "resilience",
+     "subscore": 36.7,
+     "weight": 0.2,
+     "why": "résilience locative 63/100 (connectivité 56, vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "MEPS F/G ~2030-2033",
+      "unit": "/100 risque",
+      "value": 35
+     },
+     "pillar": "risque_energie",
+     "subscore": 65,
+     "weight": 0.2,
+     "why": "risque énergie 35/100 (min F/G d'ici ~2030-2033)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "acq 7.8% + détention 0.4%/an",
+      "unit": "/burden",
+      "value": 11.8
+     },
+     "pillar": "fiscalite",
+     "subscore": 64.6,
+     "weight": 0.1,
+     "why": "charge fiscale détention (droits 7.8%, annuel 0.4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "WACC 5.7%",
+      "unit": "%",
+      "value": 5.7
+     },
+     "pillar": "portage",
+     "subscore": 55.6,
+     "weight": 0.05,
+     "why": "coût de portage 5.7%/an (dette senior + fonds propres, LTV cible)"
+    }
+   ],
+   "price_eur_m2": 2279.0,
+   "total": 47.5,
+   "verdict": "Surveiller",
+   "yoy_pct": 13.6,
+   "zone": "saofelixdamarinha",
+   "zone_name": "São Félix da Marinha"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2078,
+   "mode": "detention",
+   "n_transactions": 218,
+   "native_indicator": {
+    "label": "yield net 4.0% · MEPS F/G ~2030-2033"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "charges_pct_loyer": 20.9,
+      "fiscalite_pct_loyer": 7.7,
+      "loyer_marche_eur_m2_an": 118,
+      "yield_brut_pct": 5.68,
+      "yield_net_pct": 4.05
+     },
+     "native": {
+      "label": "yield net 4.0%",
+      "unit": "%",
+      "value": 4.05
+     },
+     "pillar": "rendement_net",
+     "subscore": 55.4,
+     "weight": 0.15,
+     "why": "rendement net 4.05% (brut 5.68% − fisc 0.44 − charges 0.96 − vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "profondeur 28",
+      "unit": "/100",
+      "value": 28
+     },
+     "pillar": "profondeur_locative",
+     "subscore": 27.5,
+     "weight": 0.3,
+     "why": "profondeur du marché locatif: loyer de marché ~118 €/m²/an, parc 218 ventes/an, rotation ~2.5 mois (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "résilience 62",
+      "unit": "/100",
+      "value": 62
+     },
+     "pillar": "resilience",
+     "subscore": 2.0,
+     "weight": 0.2,
+     "why": "résilience locative 62/100 (connectivité 55, vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "MEPS F/G ~2030-2033",
+      "unit": "/100 risque",
+      "value": 35
+     },
+     "pillar": "risque_energie",
+     "subscore": 65,
+     "weight": 0.2,
+     "why": "risque énergie 35/100 (min F/G d'ici ~2030-2033)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "acq 7.8% + détention 0.4%/an",
+      "unit": "/burden",
+      "value": 11.8
+     },
+     "pillar": "fiscalite",
+     "subscore": 64.6,
+     "weight": 0.1,
+     "why": "charge fiscale détention (droits 7.8%, annuel 0.4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "WACC 5.7%",
+      "unit": "%",
+      "value": 5.7
+     },
+     "pillar": "portage",
+     "subscore": 55.6,
+     "weight": 0.05,
+     "why": "coût de portage 5.7%/an (dette senior + fonds propres, LTV cible)"
+    }
+   ],
+   "price_eur_m2": 2078.0,
+   "total": 39.2,
+   "verdict": "Ceder",
+   "yoy_pct": 28.5,
+   "zone": "vilardeandorinho",
+   "zone_name": "Vilar de Andorinho"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 1964,
+   "mode": "detention",
+   "n_transactions": 246,
+   "native_indicator": {
+    "label": "yield net 4.2% · MEPS F/G ~2030-2033"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "charges_pct_loyer": 22.0,
+      "fiscalite_pct_loyer": 6.1,
+      "loyer_marche_eur_m2_an": 114,
+      "yield_brut_pct": 5.81,
+      "yield_net_pct": 4.17
+     },
+     "native": {
+      "label": "yield net 4.2%",
+      "unit": "%",
+      "value": 4.17
+     },
+     "pillar": "rendement_net",
+     "subscore": 57.2,
+     "weight": 0.15,
+     "why": "rendement net 4.17% (brut 5.81% − fisc 0.35 − charges 1.05 − vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "profondeur 26",
+      "unit": "/100",
+      "value": 26
+     },
+     "pillar": "profondeur_locative",
+     "subscore": 26.2,
+     "weight": 0.3,
+     "why": "profondeur du marché locatif: loyer de marché ~114 €/m²/an, parc 246 ventes/an, rotation ~2.5 mois (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "résilience 62",
+      "unit": "/100",
+      "value": 62
+     },
+     "pillar": "resilience",
+     "subscore": 2.0,
+     "weight": 0.2,
+     "why": "résilience locative 62/100 (connectivité 55, vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "MEPS F/G ~2030-2033",
+      "unit": "/100 risque",
+      "value": 35
+     },
+     "pillar": "risque_energie",
+     "subscore": 65,
+     "weight": 0.2,
+     "why": "risque énergie 35/100 (min F/G d'ici ~2030-2033)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "acq 7.8% + détention 0.4%/an",
+      "unit": "/burden",
+      "value": 11.8
+     },
+     "pillar": "fiscalite",
+     "subscore": 64.6,
+     "weight": 0.1,
+     "why": "charge fiscale détention (droits 7.8%, annuel 0.4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "WACC 5.7%",
+      "unit": "%",
+      "value": 5.7
+     },
+     "pillar": "portage",
+     "subscore": 55.6,
+     "weight": 0.05,
+     "why": "coût de portage 5.7%/an (dette senior + fonds propres, LTV cible)"
+    }
+   ],
+   "price_eur_m2": 1964.0,
+   "total": 39.1,
+   "verdict": "Ceder",
+   "yoy_pct": 17.3,
+   "zone": "pedrosoeseixezelo",
+   "zone_name": "União das freguesias de Pedroso e Seixezelo"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2060,
+   "mode": "detention",
+   "n_transactions": 191,
+   "native_indicator": {
+    "label": "yield net 4.1% · MEPS F/G ~2030-2033"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "charges_pct_loyer": 22.1,
+      "fiscalite_pct_loyer": 6.5,
+      "loyer_marche_eur_m2_an": 117,
+      "yield_brut_pct": 5.7,
+      "yield_net_pct": 4.07
+     },
+     "native": {
+      "label": "yield net 4.1%",
+      "unit": "%",
+      "value": 4.07
+     },
+     "pillar": "rendement_net",
+     "subscore": 55.7,
+     "weight": 0.15,
+     "why": "rendement net 4.07% (brut 5.70% − fisc 0.37 − charges 1.03 − vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "profondeur 25",
+      "unit": "/100",
+      "value": 25
+     },
+     "pillar": "profondeur_locative",
+     "subscore": 24.7,
+     "weight": 0.3,
+     "why": "profondeur du marché locatif: loyer de marché ~117 €/m²/an, parc 191 ventes/an, rotation ~2.5 mois (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "résilience 62",
+      "unit": "/100",
+      "value": 62
+     },
+     "pillar": "resilience",
+     "subscore": 2.0,
+     "weight": 0.2,
+     "why": "résilience locative 62/100 (connectivité 55, vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "MEPS F/G ~2030-2033",
+      "unit": "/100 risque",
+      "value": 35
+     },
+     "pillar": "risque_energie",
+     "subscore": 65,
+     "weight": 0.2,
+     "why": "risque énergie 35/100 (min F/G d'ici ~2030-2033)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "acq 7.8% + détention 0.4%/an",
+      "unit": "/burden",
+      "value": 11.8
+     },
+     "pillar": "fiscalite",
+     "subscore": 64.6,
+     "weight": 0.1,
+     "why": "charge fiscale détention (droits 7.8%, annuel 0.4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "WACC 5.7%",
+      "unit": "%",
+      "value": 5.7
+     },
+     "pillar": "portage",
+     "subscore": 55.6,
+     "weight": 0.05,
+     "why": "coût de portage 5.7%/an (dette senior + fonds propres, LTV cible)"
+    }
+   ],
+   "price_eur_m2": 2060.0,
+   "total": 38.4,
+   "verdict": "Ceder",
+   "yoy_pct": 18.1,
+   "zone": "canelas",
+   "zone_name": "Canelas"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2058,
+   "mode": "detention",
+   "n_transactions": 158,
+   "native_indicator": {
+    "label": "yield net 4.1% · MEPS F/G ~2030-2033"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "charges_pct_loyer": 22.2,
+      "fiscalite_pct_loyer": 6.3,
+      "loyer_marche_eur_m2_an": 117,
+      "yield_brut_pct": 5.7,
+      "yield_net_pct": 4.07
+     },
+     "native": {
+      "label": "yield net 4.1%",
+      "unit": "%",
+      "value": 4.07
+     },
+     "pillar": "rendement_net",
+     "subscore": 55.7,
+     "weight": 0.15,
+     "why": "rendement net 4.07% (brut 5.70% − fisc 0.36 − charges 1.04 − vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "profondeur 24",
+      "unit": "/100",
+      "value": 24
+     },
+     "pillar": "profondeur_locative",
+     "subscore": 24.4,
+     "weight": 0.3,
+     "why": "profondeur du marché locatif: loyer de marché ~117 €/m²/an, parc 158 ventes/an, rotation ~2.5 mois (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "résilience 62",
+      "unit": "/100",
+      "value": 62
+     },
+     "pillar": "resilience",
+     "subscore": 2.0,
+     "weight": 0.2,
+     "why": "résilience locative 62/100 (connectivité 55, vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "MEPS F/G ~2030-2033",
+      "unit": "/100 risque",
+      "value": 35
+     },
+     "pillar": "risque_energie",
+     "subscore": 65,
+     "weight": 0.2,
+     "why": "risque énergie 35/100 (min F/G d'ici ~2030-2033)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "acq 7.8% + détention 0.4%/an",
+      "unit": "/burden",
+      "value": 11.8
+     },
+     "pillar": "fiscalite",
+     "subscore": 64.6,
+     "weight": 0.1,
+     "why": "charge fiscale détention (droits 7.8%, annuel 0.4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "WACC 5.7%",
+      "unit": "%",
+      "value": 5.7
+     },
+     "pillar": "portage",
+     "subscore": 55.6,
+     "weight": 0.05,
+     "why": "coût de portage 5.7%/an (dette senior + fonds propres, LTV cible)"
+    }
+   ],
+   "price_eur_m2": 2058.0,
+   "total": 38.3,
+   "verdict": "Ceder",
+   "yoy_pct": 22.4,
+   "zone": "avintes",
+   "zone_name": "Avintes"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 1927,
+   "mode": "detention",
+   "n_transactions": 139,
+   "native_indicator": {
+    "label": "yield net 4.2% · MEPS F/G ~2030-2033"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "charges_pct_loyer": 21.2,
+      "fiscalite_pct_loyer": 6.7,
+      "loyer_marche_eur_m2_an": 113,
+      "yield_brut_pct": 5.85,
+      "yield_net_pct": 4.22
+     },
+     "native": {
+      "label": "yield net 4.2%",
+      "unit": "%",
+      "value": 4.22
+     },
+     "pillar": "rendement_net",
+     "subscore": 57.8,
+     "weight": 0.15,
+     "why": "rendement net 4.22% (brut 5.85% − fisc 0.39 − charges 1.01 − vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "profondeur 23",
+      "unit": "/100",
+      "value": 23
+     },
+     "pillar": "profondeur_locative",
+     "subscore": 23.1,
+     "weight": 0.3,
+     "why": "profondeur du marché locatif: loyer de marché ~113 €/m²/an, parc 139 ventes/an, rotation ~2.4 mois (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "résilience 62",
+      "unit": "/100",
+      "value": 62
+     },
+     "pillar": "resilience",
+     "subscore": 2.0,
+     "weight": 0.2,
+     "why": "résilience locative 62/100 (connectivité 55, vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "MEPS F/G ~2030-2033",
+      "unit": "/100 risque",
+      "value": 35
+     },
+     "pillar": "risque_energie",
+     "subscore": 65,
+     "weight": 0.2,
+     "why": "risque énergie 35/100 (min F/G d'ici ~2030-2033)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "acq 7.8% + détention 0.4%/an",
+      "unit": "/burden",
+      "value": 11.8
+     },
+     "pillar": "fiscalite",
+     "subscore": 64.6,
+     "weight": 0.1,
+     "why": "charge fiscale détention (droits 7.8%, annuel 0.4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "WACC 5.7%",
+      "unit": "%",
+      "value": 5.7
+     },
+     "pillar": "portage",
+     "subscore": 55.6,
+     "weight": 0.05,
+     "why": "coût de portage 5.7%/an (dette senior + fonds propres, LTV cible)"
+    }
+   ],
+   "price_eur_m2": 1927.0,
+   "total": 38.3,
+   "verdict": "Ceder",
+   "yoy_pct": 4.8,
+   "zone": "grijoesermonde",
+   "zone_name": "União das freguesias de Grijó e Sermonde"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 1797,
+   "mode": "detention",
+   "n_transactions": 136,
+   "native_indicator": {
+    "label": "yield net 4.4% · MEPS F/G ~2030-2033"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "charges_pct_loyer": 19.2,
+      "fiscalite_pct_loyer": 8.1,
+      "loyer_marche_eur_m2_an": 108,
+      "yield_brut_pct": 6.02,
+      "yield_net_pct": 4.38
+     },
+     "native": {
+      "label": "yield net 4.4%",
+      "unit": "%",
+      "value": 4.38
+     },
+     "pillar": "rendement_net",
+     "subscore": 60.2,
+     "weight": 0.15,
+     "why": "rendement net 4.38% (brut 6.02% − fisc 0.49 − charges 0.91 − vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "profondeur 22",
+      "unit": "/100",
+      "value": 22
+     },
+     "pillar": "profondeur_locative",
+     "subscore": 21.8,
+     "weight": 0.3,
+     "why": "profondeur du marché locatif: loyer de marché ~108 €/m²/an, parc 136 ventes/an, rotation ~2.4 mois (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "résilience 62",
+      "unit": "/100",
+      "value": 62
+     },
+     "pillar": "resilience",
+     "subscore": 2.0,
+     "weight": 0.2,
+     "why": "résilience locative 62/100 (connectivité 55, vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "MEPS F/G ~2030-2033",
+      "unit": "/100 risque",
+      "value": 35
+     },
+     "pillar": "risque_energie",
+     "subscore": 65,
+     "weight": 0.2,
+     "why": "risque énergie 35/100 (min F/G d'ici ~2030-2033)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "acq 7.8% + détention 0.4%/an",
+      "unit": "/burden",
+      "value": 11.8
+     },
+     "pillar": "fiscalite",
+     "subscore": 64.6,
+     "weight": 0.1,
+     "why": "charge fiscale détention (droits 7.8%, annuel 0.4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "WACC 5.7%",
+      "unit": "%",
+      "value": 5.7
+     },
+     "pillar": "portage",
+     "subscore": 55.6,
+     "weight": 0.05,
+     "why": "coût de portage 5.7%/an (dette senior + fonds propres, LTV cible)"
+    }
+   ],
+   "price_eur_m2": 1797.0,
+   "total": 38.2,
+   "verdict": "Ceder",
+   "yoy_pct": 16.8,
+   "zone": "sandim,olival,leverecrestuma",
+   "zone_name": "União das freguesias de Sandim, Olival, Lever e Crestuma"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 1909,
+   "mode": "detention",
+   "n_transactions": 123,
+   "native_indicator": {
+    "label": "yield net 4.2% · MEPS F/G ~2030-2033"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "charges_pct_loyer": 20.9,
+      "fiscalite_pct_loyer": 6.9,
+      "loyer_marche_eur_m2_an": 112,
+      "yield_brut_pct": 5.87,
+      "yield_net_pct": 4.24
+     },
+     "native": {
+      "label": "yield net 4.2%",
+      "unit": "%",
+      "value": 4.24
+     },
+     "pillar": "rendement_net",
+     "subscore": 58.2,
+     "weight": 0.15,
+     "why": "rendement net 4.24% (brut 5.87% − fisc 0.41 − charges 0.99 − vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "profondeur 19",
+      "unit": "/100",
+      "value": 19
+     },
+     "pillar": "profondeur_locative",
+     "subscore": 19.2,
+     "weight": 0.3,
+     "why": "profondeur du marché locatif: loyer de marché ~112 €/m²/an, parc 123 ventes/an, rotation ~2.5 mois (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "résilience 62",
+      "unit": "/100",
+      "value": 62
+     },
+     "pillar": "resilience",
+     "subscore": 2.0,
+     "weight": 0.2,
+     "why": "résilience locative 62/100 (connectivité 55, vacance 4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "MEPS F/G ~2030-2033",
+      "unit": "/100 risque",
+      "value": 35
+     },
+     "pillar": "risque_energie",
+     "subscore": 65,
+     "weight": 0.2,
+     "why": "risque énergie 35/100 (min F/G d'ici ~2030-2033)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "acq 7.8% + détention 0.4%/an",
+      "unit": "/burden",
+      "value": 11.8
+     },
+     "pillar": "fiscalite",
+     "subscore": 64.6,
+     "weight": 0.1,
+     "why": "charge fiscale détention (droits 7.8%, annuel 0.4%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "WACC 5.7%",
+      "unit": "%",
+      "value": 5.7
+     },
+     "pillar": "portage",
+     "subscore": 55.6,
+     "weight": 0.05,
+     "why": "coût de portage 5.7%/an (dette senior + fonds propres, LTV cible)"
+    }
+   ],
+   "price_eur_m2": 1909.0,
+   "total": 37.1,
+   "verdict": "Ceder",
+   "yoy_pct": 14.2,
+   "zone": "serzedoeperosinho",
+   "zone_name": "União das freguesias de Serzedo e Perosinho"
+  }
+ ],
+ "landbank": [
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2849,
+   "mode": "landbank",
+   "n_transactions": 337,
+   "native_indicator": {
+    "label": "constructibilité 67 · meilleur usage hôtel 3476 €/m²"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "constructibilite": 67,
+      "foncier_marche_eur_m2": 594,
+      "horizon_activation": "immédiat",
+      "meilleur_usage": "résidentiel",
+      "prix_realisable_meilleur_usage_eur_m2": 3732,
+      "uplift_pct": 47.1,
+      "usages": {
+       "hotel": {
+        "foncier_marche_eur_m2": 826,
+        "label": "hôtel",
+        "prix_realisable_eur_m2": 4220,
+        "uplift_pct": -14.0,
+        "valeur_residuelle_eur_m2": 710
+       },
+       "logistics": {
+        "foncier_marche_eur_m2": 277,
+        "label": "logistique",
+        "prix_realisable_eur_m2": 1067,
+        "uplift_pct": -15.0,
+        "valeur_residuelle_eur_m2": 236
+       },
+       "office": {
+        "foncier_marche_eur_m2": 1387,
+        "label": "bureaux",
+        "prix_realisable_eur_m2": 4080,
+        "uplift_pct": -5.3,
+        "valeur_residuelle_eur_m2": 1314
+       },
+       "residential": {
+        "foncier_marche_eur_m2": 594,
+        "label": "résidentiel",
+        "prix_realisable_eur_m2": 3732,
+        "uplift_pct": 47.1,
+        "valeur_residuelle_eur_m2": 874
+       },
+       "retail": {
+        "foncier_marche_eur_m2": 982,
+        "label": "commerce",
+        "prix_realisable_eur_m2": 3273,
+        "uplift_pct": 7.6,
+        "valeur_residuelle_eur_m2": 1057
+       }
+      },
+      "valeur_residuelle_eur_m2": 874
+     },
+     "native": {
+      "label": "constructibilité 67",
+      "unit": "/100",
+      "value": 67
+     },
+     "pillar": "constructibilite",
+     "subscore": 93.9,
+     "weight": 0.25,
+     "why": "constructibilité 67/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "meilleur usage hôtel 3476 €/m²",
+      "unit": "€/m²",
+      "value": 3476
+     },
+     "pillar": "valeur_meilleur_usage",
+     "subscore": 53.1,
+     "weight": 0.25,
+     "why": "valeur meilleur usage: hôtel ~3476 €/m² (max multi-usages)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "connectivité 74",
+      "unit": "/100",
+      "value": 74
+     },
+     "pillar": "connectivite",
+     "subscore": 91.8,
+     "weight": 0.2,
+     "why": "connectivité 74/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "incitations 65",
+      "unit": "/100",
+      "value": 65.0
+     },
+     "pillar": "incitations",
+     "subscore": 65.0,
+     "weight": 0.15,
+     "why": "incitations 2026: IVA 6% construction abordable, exoneration IMT/IS sous plafonds, exoneration AIMI, contrats CIA"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque timing 40",
+      "unit": "/100 risque",
+      "value": 40
+     },
+     "pillar": "risque_timing",
+     "subscore": 60.0,
+     "weight": 0.15,
+     "why": "risque de timing réglementaire 40/100"
+    }
+   ],
+   "price_eur_m2": 2849.0,
+   "total": 73.9,
+   "verdict": "Prioritaire",
+   "yoy_pct": 22.5,
+   "zone": "madalena",
+   "zone_name": "Madalena"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2721,
+   "mode": "landbank",
+   "n_transactions": 778,
+   "native_indicator": {
+    "label": "constructibilité 71 · meilleur usage hôtel 3320 €/m²"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "constructibilite": 71,
+      "foncier_marche_eur_m2": 524,
+      "horizon_activation": "immédiat",
+      "meilleur_usage": "résidentiel",
+      "prix_realisable_meilleur_usage_eur_m2": 3646,
+      "uplift_pct": 55.4,
+      "usages": {
+       "hotel": {
+        "foncier_marche_eur_m2": 1081,
+        "label": "hôtel",
+        "prix_realisable_eur_m2": 4880,
+        "uplift_pct": 7.8,
+        "valeur_residuelle_eur_m2": 1165
+       },
+       "logistics": {
+        "foncier_marche_eur_m2": 270,
+        "label": "logistique",
+        "prix_realisable_eur_m2": 1034,
+        "uplift_pct": -21.1,
+        "valeur_residuelle_eur_m2": 213
+       },
+       "office": {
+        "foncier_marche_eur_m2": 1585,
+        "label": "bureaux",
+        "prix_realisable_eur_m2": 4663,
+        "uplift_pct": 8.2,
+        "valeur_residuelle_eur_m2": 1716
+       },
+       "residential": {
+        "foncier_marche_eur_m2": 524,
+        "label": "résidentiel",
+        "prix_realisable_eur_m2": 3646,
+        "uplift_pct": 55.4,
+        "valeur_residuelle_eur_m2": 814
+       },
+       "retail": {
+        "foncier_marche_eur_m2": 1031,
+        "label": "commerce",
+        "prix_realisable_eur_m2": 3436,
+        "uplift_pct": 13.4,
+        "valeur_residuelle_eur_m2": 1169
+       }
+      },
+      "valeur_residuelle_eur_m2": 814
+     },
+     "native": {
+      "label": "constructibilité 71",
+      "unit": "/100",
+      "value": 71
+     },
+     "pillar": "constructibilite",
+     "subscore": 98.0,
+     "weight": 0.25,
+     "why": "constructibilité 71/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "meilleur usage hôtel 3320 €/m²",
+      "unit": "€/m²",
+      "value": 3320
+     },
+     "pillar": "valeur_meilleur_usage",
+     "subscore": 46.9,
+     "weight": 0.25,
+     "why": "valeur meilleur usage: hôtel ~3320 €/m² (max multi-usages)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "connectivité 75",
+      "unit": "/100",
+      "value": 75
+     },
+     "pillar": "connectivite",
+     "subscore": 93.9,
+     "weight": 0.2,
+     "why": "connectivité 75/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "incitations 65",
+      "unit": "/100",
+      "value": 65.0
+     },
+     "pillar": "incitations",
+     "subscore": 65.0,
+     "weight": 0.15,
+     "why": "incitations 2026: IVA 6% construction abordable, exoneration IMT/IS sous plafonds, exoneration AIMI, contrats CIA"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque timing 40",
+      "unit": "/100 risque",
+      "value": 40
+     },
+     "pillar": "risque_timing",
+     "subscore": 60.0,
+     "weight": 0.15,
+     "why": "risque de timing réglementaire 40/100"
+    }
+   ],
+   "price_eur_m2": 2721.0,
+   "total": 73.8,
+   "verdict": "Prioritaire",
+   "yoy_pct": 15.2,
+   "zone": "santamarinhaesaopedrodaafurada",
+   "zone_name": "União das freguesias de Santa Marinha e São Pedro da Afurada"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 3145,
+   "mode": "landbank",
+   "n_transactions": 834,
+   "native_indicator": {
+    "label": "constructibilité 69 · meilleur usage hôtel 3837 €/m²"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "constructibilite": 69,
+      "foncier_marche_eur_m2": 673,
+      "horizon_activation": "immédiat",
+      "meilleur_usage": "résidentiel",
+      "prix_realisable_meilleur_usage_eur_m2": 3711,
+      "uplift_pct": 27.7,
+      "usages": {
+       "hotel": {
+        "foncier_marche_eur_m2": 1002,
+        "label": "hôtel",
+        "prix_realisable_eur_m2": 4660,
+        "uplift_pct": 1.2,
+        "valeur_residuelle_eur_m2": 1013
+       },
+       "logistics": {
+        "foncier_marche_eur_m2": 269,
+        "label": "logistique",
+        "prix_realisable_eur_m2": 1034,
+        "uplift_pct": -20.8,
+        "valeur_residuelle_eur_m2": 213
+       },
+       "office": {
+        "foncier_marche_eur_m2": 1453,
+        "label": "bureaux",
+        "prix_realisable_eur_m2": 4274,
+        "uplift_pct": -0.4,
+        "valeur_residuelle_eur_m2": 1447
+       },
+       "residential": {
+        "foncier_marche_eur_m2": 673,
+        "label": "résidentiel",
+        "prix_realisable_eur_m2": 3711,
+        "uplift_pct": 27.7,
+        "valeur_residuelle_eur_m2": 859
+       },
+       "retail": {
+        "foncier_marche_eur_m2": 864,
+        "label": "commerce",
+        "prix_realisable_eur_m2": 2880,
+        "uplift_pct": -9.0,
+        "valeur_residuelle_eur_m2": 786
+       }
+      },
+      "valeur_residuelle_eur_m2": 859
+     },
+     "native": {
+      "label": "constructibilité 69",
+      "unit": "/100",
+      "value": 69
+     },
+     "pillar": "constructibilite",
+     "subscore": 95.9,
+     "weight": 0.25,
+     "why": "constructibilité 69/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "meilleur usage hôtel 3837 €/m²",
+      "unit": "€/m²",
+      "value": 3837
+     },
+     "pillar": "valeur_meilleur_usage",
+     "subscore": 59.2,
+     "weight": 0.25,
+     "why": "valeur meilleur usage: hôtel ~3837 €/m² (max multi-usages)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "connectivité 63",
+      "unit": "/100",
+      "value": 63
+     },
+     "pillar": "connectivite",
+     "subscore": 49.0,
+     "weight": 0.2,
+     "why": "connectivité 63/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "incitations 65",
+      "unit": "/100",
+      "value": 65.0
+     },
+     "pillar": "incitations",
+     "subscore": 65.0,
+     "weight": 0.15,
+     "why": "incitations 2026: IVA 6% construction abordable, exoneration IMT/IS sous plafonds, exoneration AIMI, contrats CIA"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque timing 40",
+      "unit": "/100 risque",
+      "value": 40
+     },
+     "pillar": "risque_timing",
+     "subscore": 60.0,
+     "weight": 0.15,
+     "why": "risque de timing réglementaire 40/100"
+    }
+   ],
+   "price_eur_m2": 3145.0,
+   "total": 67.3,
+   "verdict": "Prioritaire",
+   "yoy_pct": 25.8,
+   "zone": "canidelo",
+   "zone_name": "Canidelo"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2548,
+   "mode": "landbank",
+   "n_transactions": 1108,
+   "native_indicator": {
+    "label": "constructibilité 63 · meilleur usage hôtel 3109 €/m²"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "constructibilite": 63,
+      "foncier_marche_eur_m2": 473,
+      "horizon_activation": "2-4 ans",
+      "meilleur_usage": "résidentiel",
+      "prix_realisable_meilleur_usage_eur_m2": 3261,
+      "uplift_pct": 16.1,
+      "usages": {
+       "hotel": {
+        "foncier_marche_eur_m2": 815,
+        "label": "hôtel",
+        "prix_realisable_eur_m2": 4340,
+        "uplift_pct": -2.8,
+        "valeur_residuelle_eur_m2": 793
+       },
+       "logistics": {
+        "foncier_marche_eur_m2": 273,
+        "label": "logistique",
+        "prix_realisable_eur_m2": 1050,
+        "uplift_pct": -17.9,
+        "valeur_residuelle_eur_m2": 224
+       },
+       "office": {
+        "foncier_marche_eur_m2": 1519,
+        "label": "bureaux",
+        "prix_realisable_eur_m2": 4469,
+        "uplift_pct": 4.1,
+        "valeur_residuelle_eur_m2": 1582
+       },
+       "residential": {
+        "foncier_marche_eur_m2": 473,
+        "label": "résidentiel",
+        "prix_realisable_eur_m2": 3261,
+        "uplift_pct": 16.1,
+        "valeur_residuelle_eur_m2": 549
+       },
+       "retail": {
+        "foncier_marche_eur_m2": 854,
+        "label": "commerce",
+        "prix_realisable_eur_m2": 2847,
+        "uplift_pct": -10.6,
+        "valeur_residuelle_eur_m2": 763
+       }
+      },
+      "valeur_residuelle_eur_m2": 549
+     },
+     "native": {
+      "label": "constructibilité 63",
+      "unit": "/100",
+      "value": 63
+     },
+     "pillar": "constructibilite",
+     "subscore": 87.8,
+     "weight": 0.25,
+     "why": "constructibilité 63/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "meilleur usage hôtel 3109 €/m²",
+      "unit": "€/m²",
+      "value": 3109
+     },
+     "pillar": "valeur_meilleur_usage",
+     "subscore": 32.7,
+     "weight": 0.25,
+     "why": "valeur meilleur usage: hôtel ~3109 €/m² (max multi-usages)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "connectivité 62",
+      "unit": "/100",
+      "value": 62
+     },
+     "pillar": "connectivite",
+     "subscore": 46.9,
+     "weight": 0.2,
+     "why": "connectivité 62/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "incitations 65",
+      "unit": "/100",
+      "value": 65.0
+     },
+     "pillar": "incitations",
+     "subscore": 65.0,
+     "weight": 0.15,
+     "why": "incitations 2026: IVA 6% construction abordable, exoneration IMT/IS sous plafonds, exoneration AIMI, contrats CIA"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque timing 40",
+      "unit": "/100 risque",
+      "value": 40
+     },
+     "pillar": "risque_timing",
+     "subscore": 60.0,
+     "weight": 0.15,
+     "why": "risque de timing réglementaire 40/100"
+    }
+   ],
+   "price_eur_m2": 2548.0,
+   "total": 58.2,
+   "verdict": "A phaser",
+   "yoy_pct": 13.6,
+   "zone": "mafamudeevilardoparaiso",
+   "zone_name": "União das freguesias de Mafamude e Vilar do Paraíso"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2288,
+   "mode": "landbank",
+   "n_transactions": 549,
+   "native_indicator": {
+    "label": "constructibilité 64 · meilleur usage hôtel 2791 €/m²"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "constructibilite": 64,
+      "foncier_marche_eur_m2": 865,
+      "horizon_activation": "2-4 ans",
+      "meilleur_usage": "commerce",
+      "prix_realisable_meilleur_usage_eur_m2": 2880,
+      "uplift_pct": -9.1,
+      "usages": {
+       "hotel": {
+        "foncier_marche_eur_m2": 761,
+        "label": "hôtel",
+        "prix_realisable_eur_m2": 4020,
+        "uplift_pct": -24.8,
+        "valeur_residuelle_eur_m2": 572
+       },
+       "logistics": {
+        "foncier_marche_eur_m2": 283,
+        "label": "logistique",
+        "prix_realisable_eur_m2": 1084,
+        "uplift_pct": -12.5,
+        "valeur_residuelle_eur_m2": 248
+       },
+       "office": {
+        "foncier_marche_eur_m2": 1321,
+        "label": "bureaux",
+        "prix_realisable_eur_m2": 3886,
+        "uplift_pct": -10.7,
+        "valeur_residuelle_eur_m2": 1180
+       },
+       "residential": {
+        "foncier_marche_eur_m2": 440,
+        "label": "résidentiel",
+        "prix_realisable_eur_m2": 2860,
+        "uplift_pct": -38.1,
+        "valeur_residuelle_eur_m2": 272
+       },
+       "retail": {
+        "foncier_marche_eur_m2": 865,
+        "label": "commerce",
+        "prix_realisable_eur_m2": 2880,
+        "uplift_pct": -9.1,
+        "valeur_residuelle_eur_m2": 786
+       }
+      },
+      "valeur_residuelle_eur_m2": 786
+     },
+     "native": {
+      "label": "constructibilité 64",
+      "unit": "/100",
+      "value": 64
+     },
+     "pillar": "constructibilite",
+     "subscore": 89.8,
+     "weight": 0.25,
+     "why": "constructibilité 64/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "meilleur usage hôtel 2791 €/m²",
+      "unit": "€/m²",
+      "value": 2791
+     },
+     "pillar": "valeur_meilleur_usage",
+     "subscore": 22.4,
+     "weight": 0.25,
+     "why": "valeur meilleur usage: hôtel ~2791 €/m² (max multi-usages)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "connectivité 61",
+      "unit": "/100",
+      "value": 61
+     },
+     "pillar": "connectivite",
+     "subscore": 44.9,
+     "weight": 0.2,
+     "why": "connectivité 61/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "incitations 65",
+      "unit": "/100",
+      "value": 65.0
+     },
+     "pillar": "incitations",
+     "subscore": 65.0,
+     "weight": 0.15,
+     "why": "incitations 2026: IVA 6% construction abordable, exoneration IMT/IS sous plafonds, exoneration AIMI, contrats CIA"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque timing 40",
+      "unit": "/100 risque",
+      "value": 40
+     },
+     "pillar": "risque_timing",
+     "subscore": 60.0,
+     "weight": 0.15,
+     "why": "risque de timing réglementaire 40/100"
+    }
+   ],
+   "price_eur_m2": 2288.0,
+   "total": 55.8,
+   "verdict": "A phaser",
+   "yoy_pct": 3.6,
+   "zone": "oliveiradodouro",
+   "zone_name": "Oliveira do Douro"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2286,
+   "mode": "landbank",
+   "n_transactions": 205,
+   "native_indicator": {
+    "label": "constructibilité 53 · meilleur usage hôtel 2789 €/m²"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "constructibilite": 53,
+      "foncier_marche_eur_m2": 286,
+      "horizon_activation": "2-4 ans",
+      "meilleur_usage": "logistique",
+      "prix_realisable_meilleur_usage_eur_m2": 1100,
+      "uplift_pct": -9.6,
+      "usages": {
+       "hotel": {
+        "foncier_marche_eur_m2": 842,
+        "label": "hôtel",
+        "prix_realisable_eur_m2": 4120,
+        "uplift_pct": -23.8,
+        "valeur_residuelle_eur_m2": 641
+       },
+       "logistics": {
+        "foncier_marche_eur_m2": 286,
+        "label": "logistique",
+        "prix_realisable_eur_m2": 1100,
+        "uplift_pct": -9.6,
+        "valeur_residuelle_eur_m2": 259
+       },
+       "office": {
+        "foncier_marche_eur_m2": 1255,
+        "label": "bureaux",
+        "prix_realisable_eur_m2": 3691,
+        "uplift_pct": -16.7,
+        "valeur_residuelle_eur_m2": 1045
+       },
+       "residential": {
+        "foncier_marche_eur_m2": 435,
+        "label": "résidentiel",
+        "prix_realisable_eur_m2": 2880,
+        "uplift_pct": -34.2,
+        "valeur_residuelle_eur_m2": 286
+       },
+       "retail": {
+        "foncier_marche_eur_m2": 766,
+        "label": "commerce",
+        "prix_realisable_eur_m2": 2553,
+        "uplift_pct": -26.8,
+        "valeur_residuelle_eur_m2": 561
+       }
+      },
+      "valeur_residuelle_eur_m2": 259
+     },
+     "native": {
+      "label": "constructibilité 53",
+      "unit": "/100",
+      "value": 53
+     },
+     "pillar": "constructibilite",
+     "subscore": 79.6,
+     "weight": 0.25,
+     "why": "constructibilité 53/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "meilleur usage hôtel 2789 €/m²",
+      "unit": "€/m²",
+      "value": 2789
+     },
+     "pillar": "valeur_meilleur_usage",
+     "subscore": 20.4,
+     "weight": 0.25,
+     "why": "valeur meilleur usage: hôtel ~2789 €/m² (max multi-usages)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "connectivité 58",
+      "unit": "/100",
+      "value": 58
+     },
+     "pillar": "connectivite",
+     "subscore": 40.8,
+     "weight": 0.2,
+     "why": "connectivité 58/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "incitations 65",
+      "unit": "/100",
+      "value": 65.0
+     },
+     "pillar": "incitations",
+     "subscore": 65.0,
+     "weight": 0.15,
+     "why": "incitations 2026: IVA 6% construction abordable, exoneration IMT/IS sous plafonds, exoneration AIMI, contrats CIA"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque timing 40",
+      "unit": "/100 risque",
+      "value": 40
+     },
+     "pillar": "risque_timing",
+     "subscore": 60.0,
+     "weight": 0.15,
+     "why": "risque de timing réglementaire 40/100"
+    }
+   ],
+   "price_eur_m2": 2286.0,
+   "total": 51.9,
+   "verdict": "A phaser",
+   "yoy_pct": 21.3,
+   "zone": "arcozelo",
+   "zone_name": "Arcozelo"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2249,
+   "mode": "landbank",
+   "n_transactions": 296,
+   "native_indicator": {
+    "label": "constructibilité 56 · meilleur usage hôtel 2744 €/m²"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "constructibilite": 56,
+      "foncier_marche_eur_m2": 961,
+      "horizon_activation": "2-4 ans",
+      "meilleur_usage": "hôtel",
+      "prix_realisable_meilleur_usage_eur_m2": 4420,
+      "uplift_pct": -11.8,
+      "usages": {
+       "hotel": {
+        "foncier_marche_eur_m2": 961,
+        "label": "hôtel",
+        "prix_realisable_eur_m2": 4420,
+        "uplift_pct": -11.8,
+        "valeur_residuelle_eur_m2": 848
+       },
+       "logistics": {
+        "foncier_marche_eur_m2": 282,
+        "label": "logistique",
+        "prix_realisable_eur_m2": 1084,
+        "uplift_pct": -12.2,
+        "valeur_residuelle_eur_m2": 248
+       },
+       "office": {
+        "foncier_marche_eur_m2": 1256,
+        "label": "bureaux",
+        "prix_realisable_eur_m2": 3691,
+        "uplift_pct": -16.8,
+        "valeur_residuelle_eur_m2": 1045
+       },
+       "residential": {
+        "foncier_marche_eur_m2": 423,
+        "label": "résidentiel",
+        "prix_realisable_eur_m2": 2811,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 254
+       },
+       "retail": {
+        "foncier_marche_eur_m2": 767,
+        "label": "commerce",
+        "prix_realisable_eur_m2": 2553,
+        "uplift_pct": -26.9,
+        "valeur_residuelle_eur_m2": 561
+       }
+      },
+      "valeur_residuelle_eur_m2": 848
+     },
+     "native": {
+      "label": "constructibilité 56",
+      "unit": "/100",
+      "value": 56
+     },
+     "pillar": "constructibilite",
+     "subscore": 85.7,
+     "weight": 0.25,
+     "why": "constructibilité 56/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "meilleur usage hôtel 2744 €/m²",
+      "unit": "€/m²",
+      "value": 2744
+     },
+     "pillar": "valeur_meilleur_usage",
+     "subscore": 14.3,
+     "weight": 0.25,
+     "why": "valeur meilleur usage: hôtel ~2744 €/m² (max multi-usages)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "connectivité 57",
+      "unit": "/100",
+      "value": 57
+     },
+     "pillar": "connectivite",
+     "subscore": 38.8,
+     "weight": 0.2,
+     "why": "connectivité 57/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "incitations 65",
+      "unit": "/100",
+      "value": 65.0
+     },
+     "pillar": "incitations",
+     "subscore": 65.0,
+     "weight": 0.15,
+     "why": "incitations 2026: IVA 6% construction abordable, exoneration IMT/IS sous plafonds, exoneration AIMI, contrats CIA"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque timing 40",
+      "unit": "/100 risque",
+      "value": 40
+     },
+     "pillar": "risque_timing",
+     "subscore": 60.0,
+     "weight": 0.15,
+     "why": "risque de timing réglementaire 40/100"
+    }
+   ],
+   "price_eur_m2": 2249.0,
+   "total": 51.5,
+   "verdict": "A phaser",
+   "yoy_pct": 14.9,
+   "zone": "gulpilharesevaladares",
+   "zone_name": "União das freguesias de Gulpilhares e Valadares"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "municipio",
+   "median_eur_m2": 2474,
+   "mode": "landbank",
+   "n_transactions": 5494,
+   "native_indicator": {
+    "label": "constructibilité 51 · meilleur usage hôtel 3018 €/m²"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "constructibilite": 51,
+      "foncier_marche_eur_m2": 1453,
+      "horizon_activation": "au-delà",
+      "meilleur_usage": "bureaux",
+      "prix_realisable_meilleur_usage_eur_m2": 4274,
+      "uplift_pct": -0.4,
+      "usages": {
+       "hotel": {
+        "foncier_marche_eur_m2": 914,
+        "label": "hôtel",
+        "prix_realisable_eur_m2": 4320,
+        "uplift_pct": -14.8,
+        "valeur_residuelle_eur_m2": 779
+       },
+       "logistics": {
+        "foncier_marche_eur_m2": 277,
+        "label": "logistique",
+        "prix_realisable_eur_m2": 1067,
+        "uplift_pct": -15.0,
+        "valeur_residuelle_eur_m2": 236
+       },
+       "office": {
+        "foncier_marche_eur_m2": 1453,
+        "label": "bureaux",
+        "prix_realisable_eur_m2": 4274,
+        "uplift_pct": -0.4,
+        "valeur_residuelle_eur_m2": 1447
+       },
+       "residential": {
+        "foncier_marche_eur_m2": 470,
+        "label": "résidentiel",
+        "prix_realisable_eur_m2": 3117,
+        "uplift_pct": -4.3,
+        "valeur_residuelle_eur_m2": 450
+       },
+       "retail": {
+        "foncier_marche_eur_m2": 844,
+        "label": "commerce",
+        "prix_realisable_eur_m2": 2815,
+        "uplift_pct": -12.2,
+        "valeur_residuelle_eur_m2": 741
+       }
+      },
+      "valeur_residuelle_eur_m2": 1447
+     },
+     "native": {
+      "label": "constructibilité 51",
+      "unit": "/100",
+      "value": 51
+     },
+     "pillar": "constructibilite",
+     "subscore": 75.5,
+     "weight": 0.25,
+     "why": "constructibilité 51/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "meilleur usage hôtel 3018 €/m²",
+      "unit": "€/m²",
+      "value": 3018
+     },
+     "pillar": "valeur_meilleur_usage",
+     "subscore": 26.5,
+     "weight": 0.25,
+     "why": "valeur meilleur usage: hôtel ~3018 €/m² (max multi-usages)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "connectivité 55",
+      "unit": "/100",
+      "value": 55
+     },
+     "pillar": "connectivite",
+     "subscore": 2.0,
+     "weight": 0.2,
+     "why": "connectivité 55/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "incitations 65",
+      "unit": "/100",
+      "value": 65.0
+     },
+     "pillar": "incitations",
+     "subscore": 65.0,
+     "weight": 0.15,
+     "why": "incitations 2026: IVA 6% construction abordable, exoneration IMT/IS sous plafonds, exoneration AIMI, contrats CIA"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque timing 40",
+      "unit": "/100 risque",
+      "value": 40
+     },
+     "pillar": "risque_timing",
+     "subscore": 60.0,
+     "weight": 0.15,
+     "why": "risque de timing réglementaire 40/100"
+    }
+   ],
+   "price_eur_m2": 2474.0,
+   "total": 44.7,
+   "verdict": "En attente",
+   "yoy_pct": 16.3,
+   "zone": "vilanovadegaia",
+   "zone_name": "Vila Nova de Gaia"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2279,
+   "mode": "landbank",
+   "n_transactions": 176,
+   "native_indicator": {
+    "label": "constructibilité 48 · meilleur usage hôtel 2780 €/m²"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "constructibilite": 48,
+      "foncier_marche_eur_m2": 290,
+      "horizon_activation": "au-delà",
+      "meilleur_usage": "logistique",
+      "prix_realisable_meilleur_usage_eur_m2": 1116,
+      "uplift_pct": -7.1,
+      "usages": {
+       "hotel": {
+        "foncier_marche_eur_m2": 832,
+        "label": "hôtel",
+        "prix_realisable_eur_m2": 3920,
+        "uplift_pct": -39.5,
+        "valeur_residuelle_eur_m2": 503
+       },
+       "logistics": {
+        "foncier_marche_eur_m2": 290,
+        "label": "logistique",
+        "prix_realisable_eur_m2": 1116,
+        "uplift_pct": -7.1,
+        "valeur_residuelle_eur_m2": 270
+       },
+       "office": {
+        "foncier_marche_eur_m2": 1189,
+        "label": "bureaux",
+        "prix_realisable_eur_m2": 3497,
+        "uplift_pct": -23.3,
+        "valeur_residuelle_eur_m2": 911
+       },
+       "residential": {
+        "foncier_marche_eur_m2": 286,
+        "label": "résidentiel",
+        "prix_realisable_eur_m2": 2780,
+        "uplift_pct": -24.0,
+        "valeur_residuelle_eur_m2": 217
+       },
+       "retail": {
+        "foncier_marche_eur_m2": 727,
+        "label": "commerce",
+        "prix_realisable_eur_m2": 2422,
+        "uplift_pct": -35.3,
+        "valeur_residuelle_eur_m2": 470
+       }
+      },
+      "valeur_residuelle_eur_m2": 270
+     },
+     "native": {
+      "label": "constructibilité 48",
+      "unit": "/100",
+      "value": 48
+     },
+     "pillar": "constructibilite",
+     "subscore": 53.1,
+     "weight": 0.25,
+     "why": "constructibilité 48/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "meilleur usage hôtel 2780 €/m²",
+      "unit": "€/m²",
+      "value": 2780
+     },
+     "pillar": "valeur_meilleur_usage",
+     "subscore": 18.4,
+     "weight": 0.25,
+     "why": "valeur meilleur usage: hôtel ~2780 €/m² (max multi-usages)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "connectivité 56",
+      "unit": "/100",
+      "value": 56
+     },
+     "pillar": "connectivite",
+     "subscore": 36.7,
+     "weight": 0.2,
+     "why": "connectivité 56/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "incitations 65",
+      "unit": "/100",
+      "value": 65.0
+     },
+     "pillar": "incitations",
+     "subscore": 65.0,
+     "weight": 0.15,
+     "why": "incitations 2026: IVA 6% construction abordable, exoneration IMT/IS sous plafonds, exoneration AIMI, contrats CIA"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque timing 40",
+      "unit": "/100 risque",
+      "value": 40
+     },
+     "pillar": "risque_timing",
+     "subscore": 60.0,
+     "weight": 0.15,
+     "why": "risque de timing réglementaire 40/100"
+    }
+   ],
+   "price_eur_m2": 2279.0,
+   "total": 44.0,
+   "verdict": "En attente",
+   "yoy_pct": 13.6,
+   "zone": "saofelixdamarinha",
+   "zone_name": "São Félix da Marinha"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2078,
+   "mode": "landbank",
+   "n_transactions": 218,
+   "native_indicator": {
+    "label": "constructibilité 51 · meilleur usage hôtel 2535 €/m²"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "constructibilite": 51,
+      "foncier_marche_eur_m2": 297,
+      "horizon_activation": "au-delà",
+      "meilleur_usage": "logistique",
+      "prix_realisable_meilleur_usage_eur_m2": 1133,
+      "uplift_pct": -5.2,
+      "usages": {
+       "hotel": {
+        "foncier_marche_eur_m2": 756,
+        "label": "hôtel",
+        "prix_realisable_eur_m2": 3380,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 454
+       },
+       "logistics": {
+        "foncier_marche_eur_m2": 297,
+        "label": "logistique",
+        "prix_realisable_eur_m2": 1133,
+        "uplift_pct": -5.2,
+        "valeur_residuelle_eur_m2": 281
+       },
+       "office": {
+        "foncier_marche_eur_m2": 1125,
+        "label": "bureaux",
+        "prix_realisable_eur_m2": 3303,
+        "uplift_pct": -30.9,
+        "valeur_residuelle_eur_m2": 778
+       },
+       "residential": {
+        "foncier_marche_eur_m2": 271,
+        "label": "résidentiel",
+        "prix_realisable_eur_m2": 2535,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 163
+       },
+       "retail": {
+        "foncier_marche_eur_m2": 530,
+        "label": "commerce",
+        "prix_realisable_eur_m2": 1767,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 318
+       }
+      },
+      "valeur_residuelle_eur_m2": 281
+     },
+     "native": {
+      "label": "constructibilité 51",
+      "unit": "/100",
+      "value": 51
+     },
+     "pillar": "constructibilite",
+     "subscore": 75.5,
+     "weight": 0.25,
+     "why": "constructibilité 51/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "meilleur usage hôtel 2535 €/m²",
+      "unit": "€/m²",
+      "value": 2535
+     },
+     "pillar": "valeur_meilleur_usage",
+     "subscore": 12.2,
+     "weight": 0.25,
+     "why": "valeur meilleur usage: hôtel ~2535 €/m² (max multi-usages)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "connectivité 55",
+      "unit": "/100",
+      "value": 55
+     },
+     "pillar": "connectivite",
+     "subscore": 2.0,
+     "weight": 0.2,
+     "why": "connectivité 55/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "incitations 65",
+      "unit": "/100",
+      "value": 65.0
+     },
+     "pillar": "incitations",
+     "subscore": 65.0,
+     "weight": 0.15,
+     "why": "incitations 2026: IVA 6% construction abordable, exoneration IMT/IS sous plafonds, exoneration AIMI, contrats CIA"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque timing 40",
+      "unit": "/100 risque",
+      "value": 40
+     },
+     "pillar": "risque_timing",
+     "subscore": 60.0,
+     "weight": 0.15,
+     "why": "risque de timing réglementaire 40/100"
+    }
+   ],
+   "price_eur_m2": 2078.0,
+   "total": 41.1,
+   "verdict": "En attente",
+   "yoy_pct": 28.5,
+   "zone": "vilardeandorinho",
+   "zone_name": "Vilar de Andorinho"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2058,
+   "mode": "landbank",
+   "n_transactions": 158,
+   "native_indicator": {
+    "label": "constructibilité 49 · meilleur usage hôtel 2511 €/m²"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "constructibilite": 49,
+      "foncier_marche_eur_m2": 295,
+      "horizon_activation": "au-delà",
+      "meilleur_usage": "logistique",
+      "prix_realisable_meilleur_usage_eur_m2": 1133,
+      "uplift_pct": -4.5,
+      "usages": {
+       "hotel": {
+        "foncier_marche_eur_m2": 676,
+        "label": "hôtel",
+        "prix_realisable_eur_m2": 3440,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 405
+       },
+       "logistics": {
+        "foncier_marche_eur_m2": 295,
+        "label": "logistique",
+        "prix_realisable_eur_m2": 1133,
+        "uplift_pct": -4.5,
+        "valeur_residuelle_eur_m2": 281
+       },
+       "office": {
+        "foncier_marche_eur_m2": 1123,
+        "label": "bureaux",
+        "prix_realisable_eur_m2": 3303,
+        "uplift_pct": -30.7,
+        "valeur_residuelle_eur_m2": 778
+       },
+       "residential": {
+        "foncier_marche_eur_m2": 295,
+        "label": "résidentiel",
+        "prix_realisable_eur_m2": 2490,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 177
+       },
+       "retail": {
+        "foncier_marche_eur_m2": 520,
+        "label": "commerce",
+        "prix_realisable_eur_m2": 1735,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 312
+       }
+      },
+      "valeur_residuelle_eur_m2": 281
+     },
+     "native": {
+      "label": "constructibilité 49",
+      "unit": "/100",
+      "value": 49
+     },
+     "pillar": "constructibilite",
+     "subscore": 55.1,
+     "weight": 0.25,
+     "why": "constructibilité 49/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "meilleur usage hôtel 2511 €/m²",
+      "unit": "€/m²",
+      "value": 2511
+     },
+     "pillar": "valeur_meilleur_usage",
+     "subscore": 8.2,
+     "weight": 0.25,
+     "why": "valeur meilleur usage: hôtel ~2511 €/m² (max multi-usages)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "connectivité 55",
+      "unit": "/100",
+      "value": 55
+     },
+     "pillar": "connectivite",
+     "subscore": 2.0,
+     "weight": 0.2,
+     "why": "connectivité 55/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "incitations 65",
+      "unit": "/100",
+      "value": 65.0
+     },
+     "pillar": "incitations",
+     "subscore": 65.0,
+     "weight": 0.15,
+     "why": "incitations 2026: IVA 6% construction abordable, exoneration IMT/IS sous plafonds, exoneration AIMI, contrats CIA"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque timing 40",
+      "unit": "/100 risque",
+      "value": 40
+     },
+     "pillar": "risque_timing",
+     "subscore": 60.0,
+     "weight": 0.15,
+     "why": "risque de timing réglementaire 40/100"
+    }
+   ],
+   "price_eur_m2": 2058.0,
+   "total": 35.0,
+   "verdict": "En attente",
+   "yoy_pct": 22.4,
+   "zone": "avintes",
+   "zone_name": "Avintes"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2060,
+   "mode": "landbank",
+   "n_transactions": 191,
+   "native_indicator": {
+    "label": "constructibilité 46 · meilleur usage hôtel 2513 €/m²"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "constructibilite": 46,
+      "foncier_marche_eur_m2": 296,
+      "horizon_activation": "au-delà",
+      "meilleur_usage": "logistique",
+      "prix_realisable_meilleur_usage_eur_m2": 1133,
+      "uplift_pct": -4.8,
+      "usages": {
+       "hotel": {
+        "foncier_marche_eur_m2": 712,
+        "label": "hôtel",
+        "prix_realisable_eur_m2": 3580,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 427
+       },
+       "logistics": {
+        "foncier_marche_eur_m2": 296,
+        "label": "logistique",
+        "prix_realisable_eur_m2": 1133,
+        "uplift_pct": -4.8,
+        "valeur_residuelle_eur_m2": 281
+       },
+       "office": {
+        "foncier_marche_eur_m2": 1124,
+        "label": "bureaux",
+        "prix_realisable_eur_m2": 3303,
+        "uplift_pct": -30.8,
+        "valeur_residuelle_eur_m2": 778
+       },
+       "residential": {
+        "foncier_marche_eur_m2": 277,
+        "label": "résidentiel",
+        "prix_realisable_eur_m2": 2493,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 166
+       },
+       "retail": {
+        "foncier_marche_eur_m2": 522,
+        "label": "commerce",
+        "prix_realisable_eur_m2": 1735,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 313
+       }
+      },
+      "valeur_residuelle_eur_m2": 281
+     },
+     "native": {
+      "label": "constructibilité 46",
+      "unit": "/100",
+      "value": 46
+     },
+     "pillar": "constructibilite",
+     "subscore": 51.0,
+     "weight": 0.25,
+     "why": "constructibilité 46/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "meilleur usage hôtel 2513 €/m²",
+      "unit": "€/m²",
+      "value": 2513
+     },
+     "pillar": "valeur_meilleur_usage",
+     "subscore": 10.2,
+     "weight": 0.25,
+     "why": "valeur meilleur usage: hôtel ~2513 €/m² (max multi-usages)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "connectivité 55",
+      "unit": "/100",
+      "value": 55
+     },
+     "pillar": "connectivite",
+     "subscore": 2.0,
+     "weight": 0.2,
+     "why": "connectivité 55/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "incitations 65",
+      "unit": "/100",
+      "value": 65.0
+     },
+     "pillar": "incitations",
+     "subscore": 65.0,
+     "weight": 0.15,
+     "why": "incitations 2026: IVA 6% construction abordable, exoneration IMT/IS sous plafonds, exoneration AIMI, contrats CIA"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque timing 40",
+      "unit": "/100 risque",
+      "value": 40
+     },
+     "pillar": "risque_timing",
+     "subscore": 60.0,
+     "weight": 0.15,
+     "why": "risque de timing réglementaire 40/100"
+    }
+   ],
+   "price_eur_m2": 2060.0,
+   "total": 34.5,
+   "verdict": "En attente",
+   "yoy_pct": 18.1,
+   "zone": "canelas",
+   "zone_name": "Canelas"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 1964,
+   "mode": "landbank",
+   "n_transactions": 246,
+   "native_indicator": {
+    "label": "constructibilité 43 · meilleur usage hôtel 2396 €/m²"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "constructibilite": 43,
+      "foncier_marche_eur_m2": 299,
+      "horizon_activation": "au-delà",
+      "meilleur_usage": "logistique",
+      "prix_realisable_meilleur_usage_eur_m2": 1150,
+      "uplift_pct": -2.0,
+      "usages": {
+       "hotel": {
+        "foncier_marche_eur_m2": 613,
+        "label": "hôtel",
+        "prix_realisable_eur_m2": 3160,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 368
+       },
+       "logistics": {
+        "foncier_marche_eur_m2": 299,
+        "label": "logistique",
+        "prix_realisable_eur_m2": 1150,
+        "uplift_pct": -2.0,
+        "valeur_residuelle_eur_m2": 293
+       },
+       "office": {
+        "foncier_marche_eur_m2": 1057,
+        "label": "bureaux",
+        "prix_realisable_eur_m2": 3109,
+        "uplift_pct": -39.1,
+        "valeur_residuelle_eur_m2": 644
+       },
+       "residential": {
+        "foncier_marche_eur_m2": 227,
+        "label": "résidentiel",
+        "prix_realisable_eur_m2": 2357,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 136
+       },
+       "retail": {
+        "foncier_marche_eur_m2": 511,
+        "label": "commerce",
+        "prix_realisable_eur_m2": 1702,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 306
+       }
+      },
+      "valeur_residuelle_eur_m2": 293
+     },
+     "native": {
+      "label": "constructibilité 43",
+      "unit": "/100",
+      "value": 43
+     },
+     "pillar": "constructibilite",
+     "subscore": 8.2,
+     "weight": 0.25,
+     "why": "constructibilité 43/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "meilleur usage hôtel 2396 €/m²",
+      "unit": "€/m²",
+      "value": 2396
+     },
+     "pillar": "valeur_meilleur_usage",
+     "subscore": 6.1,
+     "weight": 0.25,
+     "why": "valeur meilleur usage: hôtel ~2396 €/m² (max multi-usages)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "connectivité 55",
+      "unit": "/100",
+      "value": 55
+     },
+     "pillar": "connectivite",
+     "subscore": 2.0,
+     "weight": 0.2,
+     "why": "connectivité 55/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "incitations 65",
+      "unit": "/100",
+      "value": 65.0
+     },
+     "pillar": "incitations",
+     "subscore": 65.0,
+     "weight": 0.15,
+     "why": "incitations 2026: IVA 6% construction abordable, exoneration IMT/IS sous plafonds, exoneration AIMI, contrats CIA"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque timing 40",
+      "unit": "/100 risque",
+      "value": 40
+     },
+     "pillar": "risque_timing",
+     "subscore": 60.0,
+     "weight": 0.15,
+     "why": "risque de timing réglementaire 40/100"
+    }
+   ],
+   "price_eur_m2": 1964.0,
+   "total": 22.7,
+   "verdict": "En attente",
+   "yoy_pct": 17.3,
+   "zone": "pedrosoeseixezelo",
+   "zone_name": "União das freguesias de Pedroso e Seixezelo"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 1927,
+   "mode": "landbank",
+   "n_transactions": 139,
+   "native_indicator": {
+    "label": "constructibilité 39 · meilleur usage hôtel 2351 €/m²"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "constructibilite": 39,
+      "foncier_marche_eur_m2": 303,
+      "horizon_activation": "au-delà",
+      "meilleur_usage": "logistique",
+      "prix_realisable_meilleur_usage_eur_m2": 1166,
+      "uplift_pct": 0.3,
+      "usages": {
+       "hotel": {
+        "foncier_marche_eur_m2": 668,
+        "label": "hôtel",
+        "prix_realisable_eur_m2": 3220,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 401
+       },
+       "logistics": {
+        "foncier_marche_eur_m2": 303,
+        "label": "logistique",
+        "prix_realisable_eur_m2": 1166,
+        "uplift_pct": 0.3,
+        "valeur_residuelle_eur_m2": 304
+       },
+       "office": {
+        "foncier_marche_eur_m2": 991,
+        "label": "bureaux",
+        "prix_realisable_eur_m2": 2914,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 594
+       },
+       "residential": {
+        "foncier_marche_eur_m2": 214,
+        "label": "résidentiel",
+        "prix_realisable_eur_m2": 2293,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 128
+       },
+       "retail": {
+        "foncier_marche_eur_m2": 491,
+        "label": "commerce",
+        "prix_realisable_eur_m2": 1636,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 294
+       }
+      },
+      "valeur_residuelle_eur_m2": 304
+     },
+     "native": {
+      "label": "constructibilité 39",
+      "unit": "/100",
+      "value": 39
+     },
+     "pillar": "constructibilite",
+     "subscore": 6.1,
+     "weight": 0.25,
+     "why": "constructibilité 39/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "meilleur usage hôtel 2351 €/m²",
+      "unit": "€/m²",
+      "value": 2351
+     },
+     "pillar": "valeur_meilleur_usage",
+     "subscore": 4.1,
+     "weight": 0.25,
+     "why": "valeur meilleur usage: hôtel ~2351 €/m² (max multi-usages)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "connectivité 55",
+      "unit": "/100",
+      "value": 55
+     },
+     "pillar": "connectivite",
+     "subscore": 2.0,
+     "weight": 0.2,
+     "why": "connectivité 55/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "incitations 65",
+      "unit": "/100",
+      "value": 65.0
+     },
+     "pillar": "incitations",
+     "subscore": 65.0,
+     "weight": 0.15,
+     "why": "incitations 2026: IVA 6% construction abordable, exoneration IMT/IS sous plafonds, exoneration AIMI, contrats CIA"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque timing 40",
+      "unit": "/100 risque",
+      "value": 40
+     },
+     "pillar": "risque_timing",
+     "subscore": 60.0,
+     "weight": 0.15,
+     "why": "risque de timing réglementaire 40/100"
+    }
+   ],
+   "price_eur_m2": 1927.0,
+   "total": 21.7,
+   "verdict": "En attente",
+   "yoy_pct": 4.8,
+   "zone": "grijoesermonde",
+   "zone_name": "União das freguesias de Grijó e Sermonde"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 1909,
+   "mode": "landbank",
+   "n_transactions": 123,
+   "native_indicator": {
+    "label": "constructibilité 37 · meilleur usage hôtel 2329 €/m²"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "constructibilite": 37,
+      "foncier_marche_eur_m2": 300,
+      "horizon_activation": "au-delà",
+      "meilleur_usage": "logistique",
+      "prix_realisable_meilleur_usage_eur_m2": 1150,
+      "uplift_pct": -2.3,
+      "usages": {
+       "hotel": {
+        "foncier_marche_eur_m2": 703,
+        "label": "hôtel",
+        "prix_realisable_eur_m2": 3320,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 422
+       },
+       "logistics": {
+        "foncier_marche_eur_m2": 300,
+        "label": "logistique",
+        "prix_realisable_eur_m2": 1150,
+        "uplift_pct": -2.3,
+        "valeur_residuelle_eur_m2": 293
+       },
+       "office": {
+        "foncier_marche_eur_m2": 1058,
+        "label": "bureaux",
+        "prix_realisable_eur_m2": 3109,
+        "uplift_pct": -39.1,
+        "valeur_residuelle_eur_m2": 644
+       },
+       "residential": {
+        "foncier_marche_eur_m2": 217,
+        "label": "résidentiel",
+        "prix_realisable_eur_m2": 2272,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 130
+       },
+       "retail": {
+        "foncier_marche_eur_m2": 501,
+        "label": "commerce",
+        "prix_realisable_eur_m2": 1669,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 300
+       }
+      },
+      "valeur_residuelle_eur_m2": 293
+     },
+     "native": {
+      "label": "constructibilité 37",
+      "unit": "/100",
+      "value": 37
+     },
+     "pillar": "constructibilite",
+     "subscore": 4.1,
+     "weight": 0.25,
+     "why": "constructibilité 37/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "meilleur usage hôtel 2329 €/m²",
+      "unit": "€/m²",
+      "value": 2329
+     },
+     "pillar": "valeur_meilleur_usage",
+     "subscore": 2.0,
+     "weight": 0.25,
+     "why": "valeur meilleur usage: hôtel ~2329 €/m² (max multi-usages)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "connectivité 55",
+      "unit": "/100",
+      "value": 55
+     },
+     "pillar": "connectivite",
+     "subscore": 2.0,
+     "weight": 0.2,
+     "why": "connectivité 55/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "incitations 65",
+      "unit": "/100",
+      "value": 65.0
+     },
+     "pillar": "incitations",
+     "subscore": 65.0,
+     "weight": 0.15,
+     "why": "incitations 2026: IVA 6% construction abordable, exoneration IMT/IS sous plafonds, exoneration AIMI, contrats CIA"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque timing 40",
+      "unit": "/100 risque",
+      "value": 40
+     },
+     "pillar": "risque_timing",
+     "subscore": 60.0,
+     "weight": 0.15,
+     "why": "risque de timing réglementaire 40/100"
+    }
+   ],
+   "price_eur_m2": 1909.0,
+   "total": 20.7,
+   "verdict": "En attente",
+   "yoy_pct": 14.2,
+   "zone": "serzedoeperosinho",
+   "zone_name": "União das freguesias de Serzedo e Perosinho"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 1797,
+   "mode": "landbank",
+   "n_transactions": 136,
+   "native_indicator": {
+    "label": "constructibilité 34 · meilleur usage hôtel 2192 €/m²"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "constructibilite": 34,
+      "foncier_marche_eur_m2": 304,
+      "horizon_activation": "au-delà",
+      "meilleur_usage": "logistique",
+      "prix_realisable_meilleur_usage_eur_m2": 1166,
+      "uplift_pct": -0.0,
+      "usages": {
+       "hotel": {
+        "foncier_marche_eur_m2": 696,
+        "label": "hôtel",
+        "prix_realisable_eur_m2": 2920,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 418
+       },
+       "logistics": {
+        "foncier_marche_eur_m2": 304,
+        "label": "logistique",
+        "prix_realisable_eur_m2": 1166,
+        "uplift_pct": -0.0,
+        "valeur_residuelle_eur_m2": 304
+       },
+       "office": {
+        "foncier_marche_eur_m2": 925,
+        "label": "bureaux",
+        "prix_realisable_eur_m2": 2720,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 555
+       },
+       "residential": {
+        "foncier_marche_eur_m2": 128,
+        "label": "résidentiel",
+        "prix_realisable_eur_m2": 2120,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 77
+       },
+       "retail": {
+        "foncier_marche_eur_m2": 461,
+        "label": "commerce",
+        "prix_realisable_eur_m2": 1538,
+        "uplift_pct": -40.0,
+        "valeur_residuelle_eur_m2": 277
+       }
+      },
+      "valeur_residuelle_eur_m2": 304
+     },
+     "native": {
+      "label": "constructibilité 34",
+      "unit": "/100",
+      "value": 34
+     },
+     "pillar": "constructibilite",
+     "subscore": 2.0,
+     "weight": 0.25,
+     "why": "constructibilité 34/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "meilleur usage hôtel 2192 €/m²",
+      "unit": "€/m²",
+      "value": 2192
+     },
+     "pillar": "valeur_meilleur_usage",
+     "subscore": 0.0,
+     "weight": 0.25,
+     "why": "valeur meilleur usage: hôtel ~2192 €/m² (max multi-usages)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "connectivité 55",
+      "unit": "/100",
+      "value": 55
+     },
+     "pillar": "connectivite",
+     "subscore": 2.0,
+     "weight": 0.2,
+     "why": "connectivité 55/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "incitations 65",
+      "unit": "/100",
+      "value": 65.0
+     },
+     "pillar": "incitations",
+     "subscore": 65.0,
+     "weight": 0.15,
+     "why": "incitations 2026: IVA 6% construction abordable, exoneration IMT/IS sous plafonds, exoneration AIMI, contrats CIA"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque timing 40",
+      "unit": "/100 risque",
+      "value": 40
+     },
+     "pillar": "risque_timing",
+     "subscore": 60.0,
+     "weight": 0.15,
+     "why": "risque de timing réglementaire 40/100"
+    }
+   ],
+   "price_eur_m2": 1797.0,
+   "total": 19.7,
+   "verdict": "En attente",
+   "yoy_pct": 16.8,
+   "zone": "sandim,olival,leverecrestuma",
+   "zone_name": "União das freguesias de Sandim, Olival, Lever e Crestuma"
+  }
+ ],
+ "promotion": [
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2721,
+   "mode": "promotion",
+   "n_transactions": 778,
+   "native_indicator": {
+    "label": "marge 30% · 2.0 mois"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "base_median": 2721,
+      "construction": 1700,
+      "cost_total": 2804,
+      "finance": 180,
+      "land": 524,
+      "margin_pct": 30.0,
+      "net_sale": 3646,
+      "premium_over_median_pct": null,
+      "premium_pct": 34.0,
+      "realizable_sale": 3646,
+      "soft": 400,
+      "vat_pct": 0.0
+     },
+     "native": {
+      "label": "marge 30%",
+      "unit": "%",
+      "value": 30.0
+     },
+     "pillar": "marge",
+     "subscore": 91.3,
+     "weight": 0.3,
+     "why": "marge développeur 30% (prix neuf réalisable 3646 €/m² = médiane ancien 2721 +34% · foncier 524 €/m² (paramètre zone) · vente 3646 €/m² (hors TVA sur la vente), coût 2804 €/m² dont financement 180 €/m² à 4.5% × 3 ans × LTV 60%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "2.0 mois",
+      "unit": "mois",
+      "value": 2.03
+     },
+     "pillar": "absorption",
+     "subscore": 97.9,
+     "weight": 0.25,
+     "why": "absorption ~2.0 mois (DOM médian simulé), profondeur 778 ventes/an"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +15.2%",
+      "unit": "%",
+      "value": 15.2
+     },
+     "pillar": "momentum_prix",
+     "subscore": 67.3,
+     "weight": 0.2,
+     "why": "momentum prix +15.2%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "constructibilité 71",
+      "unit": "/100",
+      "value": 71
+     },
+     "pillar": "constructibilite",
+     "subscore": 98.0,
+     "weight": 0.15,
+     "why": "constructibilité 71/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque sortie 35",
+      "unit": "/100 risque",
+      "value": 35.0
+     },
+     "pillar": "risque_sortie",
+     "subscore": 64.8,
+     "weight": 0.1,
+     "why": "risque de sortie: concentration typologique 88%"
+    }
+   ],
+   "price_eur_m2": 2721.0,
+   "total": 86.5,
+   "verdict": "Go",
+   "yoy_pct": 15.2,
+   "zone": "santamarinhaesaopedrodaafurada",
+   "zone_name": "União das freguesias de Santa Marinha e São Pedro da Afurada"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2849,
+   "mode": "promotion",
+   "n_transactions": 337,
+   "native_indicator": {
+    "label": "marge 29% · 2.4 mois"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "base_median": 2849,
+      "construction": 1700,
+      "cost_total": 2893,
+      "finance": 186,
+      "land": 594,
+      "margin_pct": 29.0,
+      "net_sale": 3732,
+      "premium_over_median_pct": null,
+      "premium_pct": 31.0,
+      "realizable_sale": 3732,
+      "soft": 413,
+      "vat_pct": 0.0
+     },
+     "native": {
+      "label": "marge 29%",
+      "unit": "%",
+      "value": 29.0
+     },
+     "pillar": "marge",
+     "subscore": 89.5,
+     "weight": 0.3,
+     "why": "marge développeur 29% (prix neuf réalisable 3732 €/m² = médiane ancien 2849 +31% · foncier 594 €/m² (paramètre zone) · vente 3732 €/m² (hors TVA sur la vente), coût 2893 €/m² dont financement 186 €/m² à 4.5% × 3 ans × LTV 60%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "2.4 mois",
+      "unit": "mois",
+      "value": 2.43
+     },
+     "pillar": "absorption",
+     "subscore": 85.1,
+     "weight": 0.25,
+     "why": "absorption ~2.4 mois (DOM médian simulé), profondeur 337 ventes/an"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +22.5%",
+      "unit": "%",
+      "value": 22.5
+     },
+     "pillar": "momentum_prix",
+     "subscore": 72.7,
+     "weight": 0.2,
+     "why": "momentum prix +22.5% (écrêté: signe de surchauffe)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "constructibilité 67",
+      "unit": "/100",
+      "value": 67
+     },
+     "pillar": "constructibilite",
+     "subscore": 93.9,
+     "weight": 0.15,
+     "why": "constructibilité 67/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque sortie 35",
+      "unit": "/100 risque",
+      "value": 35.0
+     },
+     "pillar": "risque_sortie",
+     "subscore": 64.7,
+     "weight": 0.1,
+     "why": "risque de sortie: concentration typologique 88%"
+    }
+   ],
+   "price_eur_m2": 2849.0,
+   "total": 83.2,
+   "verdict": "Go",
+   "yoy_pct": 22.5,
+   "zone": "madalena",
+   "zone_name": "Madalena"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 3145,
+   "mode": "promotion",
+   "n_transactions": 834,
+   "native_indicator": {
+    "label": "marge 24% · 2.5 mois"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "base_median": 3145,
+      "construction": 1700,
+      "cost_total": 2992,
+      "finance": 192,
+      "land": 673,
+      "margin_pct": 24.0,
+      "net_sale": 3711,
+      "premium_over_median_pct": null,
+      "premium_pct": 18.0,
+      "realizable_sale": 3711,
+      "soft": 427,
+      "vat_pct": 0.0
+     },
+     "native": {
+      "label": "marge 24%",
+      "unit": "%",
+      "value": 24.0
+     },
+     "pillar": "marge",
+     "subscore": 79.2,
+     "weight": 0.3,
+     "why": "marge développeur 24% (prix neuf réalisable 3711 €/m² = médiane ancien 3145 +18% · foncier 673 €/m² (paramètre zone) · vente 3711 €/m² (hors TVA sur la vente), coût 2992 €/m² dont financement 192 €/m² à 4.5% × 3 ans × LTV 60%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "2.5 mois",
+      "unit": "mois",
+      "value": 2.53
+     },
+     "pillar": "absorption",
+     "subscore": 48.9,
+     "weight": 0.25,
+     "why": "absorption ~2.5 mois (DOM médian simulé), profondeur 834 ventes/an"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +25.8%",
+      "unit": "%",
+      "value": 25.8
+     },
+     "pillar": "momentum_prix",
+     "subscore": 73.6,
+     "weight": 0.2,
+     "why": "momentum prix +25.8% (écrêté: signe de surchauffe)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "constructibilité 69",
+      "unit": "/100",
+      "value": 69
+     },
+     "pillar": "constructibilite",
+     "subscore": 95.9,
+     "weight": 0.15,
+     "why": "constructibilité 69/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque sortie 35",
+      "unit": "/100 risque",
+      "value": 35.0
+     },
+     "pillar": "risque_sortie",
+     "subscore": 64.8,
+     "weight": 0.1,
+     "why": "risque de sortie: concentration typologique 88%"
+    }
+   ],
+   "price_eur_m2": 3145.0,
+   "total": 71.6,
+   "verdict": "Go",
+   "yoy_pct": 25.8,
+   "zone": "canidelo",
+   "zone_name": "Canidelo"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2286,
+   "mode": "promotion",
+   "n_transactions": 205,
+   "native_indicator": {
+    "label": "marge 7% · 2.4 mois"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "base_median": 2286,
+      "construction": 1700,
+      "cost_total": 2692,
+      "finance": 173,
+      "land": 435,
+      "margin_pct": 7.0,
+      "net_sale": 2880,
+      "premium_over_median_pct": null,
+      "premium_pct": 26.0,
+      "realizable_sale": 2880,
+      "soft": 384,
+      "vat_pct": 0.0
+     },
+     "native": {
+      "label": "marge 7%",
+      "unit": "%",
+      "value": 7.0
+     },
+     "pillar": "marge",
+     "subscore": 30.4,
+     "weight": 0.3,
+     "why": "marge développeur 7% (prix neuf réalisable 2880 €/m² = médiane ancien 2286 +26% · foncier 435 €/m² (paramètre zone) · vente 2880 €/m² (hors TVA sur la vente), coût 2692 €/m² dont financement 173 €/m² à 4.5% × 3 ans × LTV 60%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "2.4 mois",
+      "unit": "mois",
+      "value": 2.37
+     },
+     "pillar": "absorption",
+     "subscore": 95.7,
+     "weight": 0.25,
+     "why": "absorption ~2.4 mois (DOM médian simulé), profondeur 205 ventes/an"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +21.3%",
+      "unit": "%",
+      "value": 21.3
+     },
+     "pillar": "momentum_prix",
+     "subscore": 70.3,
+     "weight": 0.2,
+     "why": "momentum prix +21.3% (écrêté: signe de surchauffe)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "constructibilité 53",
+      "unit": "/100",
+      "value": 53
+     },
+     "pillar": "constructibilite",
+     "subscore": 79.6,
+     "weight": 0.15,
+     "why": "constructibilité 53/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque sortie 35",
+      "unit": "/100 risque",
+      "value": 35.0
+     },
+     "pillar": "risque_sortie",
+     "subscore": 64.9,
+     "weight": 0.1,
+     "why": "risque de sortie: concentration typologique 88%"
+    }
+   ],
+   "price_eur_m2": 2286.0,
+   "total": 65.5,
+   "verdict": "Conditionnel",
+   "yoy_pct": 21.3,
+   "zone": "arcozelo",
+   "zone_name": "Arcozelo"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2548,
+   "mode": "promotion",
+   "n_transactions": 1108,
+   "native_indicator": {
+    "label": "marge 19% · 2.6 mois"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "base_median": 2548,
+      "construction": 1700,
+      "cost_total": 2740,
+      "finance": 176,
+      "land": 473,
+      "margin_pct": 19.0,
+      "net_sale": 3261,
+      "premium_over_median_pct": null,
+      "premium_pct": 28.0,
+      "realizable_sale": 3261,
+      "soft": 391,
+      "vat_pct": 0.0
+     },
+     "native": {
+      "label": "marge 19%",
+      "unit": "%",
+      "value": 19.0
+     },
+     "pillar": "marge",
+     "subscore": 64.9,
+     "weight": 0.3,
+     "why": "marge développeur 19% (prix neuf réalisable 3261 €/m² = médiane ancien 2548 +28% · foncier 473 €/m² (paramètre zone) · vente 3261 €/m² (hors TVA sur la vente), coût 2740 €/m² dont financement 176 €/m² à 4.5% × 3 ans × LTV 60%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "2.6 mois",
+      "unit": "mois",
+      "value": 2.6
+     },
+     "pillar": "absorption",
+     "subscore": 44.7,
+     "weight": 0.25,
+     "why": "absorption ~2.6 mois (DOM médian simulé), profondeur 1108 ventes/an"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +13.6%",
+      "unit": "%",
+      "value": 13.6
+     },
+     "pillar": "momentum_prix",
+     "subscore": 59.2,
+     "weight": 0.2,
+     "why": "momentum prix +13.6%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "constructibilité 63",
+      "unit": "/100",
+      "value": 63
+     },
+     "pillar": "constructibilite",
+     "subscore": 87.8,
+     "weight": 0.15,
+     "why": "constructibilité 63/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque sortie 35",
+      "unit": "/100 risque",
+      "value": 35.0
+     },
+     "pillar": "risque_sortie",
+     "subscore": 64.8,
+     "weight": 0.1,
+     "why": "risque de sortie: concentration typologique 88%"
+    }
+   ],
+   "price_eur_m2": 2548.0,
+   "total": 62.1,
+   "verdict": "Conditionnel",
+   "yoy_pct": 13.6,
+   "zone": "mafamudeevilardoparaiso",
+   "zone_name": "União das freguesias de Mafamude e Vilar do Paraíso"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "municipio",
+   "median_eur_m2": 2474,
+   "mode": "promotion",
+   "n_transactions": 5494,
+   "native_indicator": {
+    "label": "marge 14%"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "base_median": 2474,
+      "construction": 1700,
+      "cost_total": 2736,
+      "finance": 176,
+      "land": 470,
+      "margin_pct": 13.9,
+      "net_sale": 3117,
+      "premium_over_median_pct": null,
+      "premium_pct": 26.0,
+      "realizable_sale": 3117,
+      "soft": 391,
+      "vat_pct": 0.0
+     },
+     "native": {
+      "label": "marge 14%",
+      "unit": "%",
+      "value": 13.9
+     },
+     "pillar": "marge",
+     "subscore": 50.8,
+     "weight": 0.4,
+     "why": "marge développeur 14% (prix neuf réalisable 3117 €/m² = médiane ancien 2474 +26% · foncier 470 €/m² (paramètre zone) · vente 3117 €/m² (hors TVA sur la vente), coût 2736 €/m² dont financement 176 €/m² à 4.5% × 3 ans × LTV 60%)"
+    },
+    {
+     "applicable": false,
+     "native": {
+      "label": "non pertinent ici",
+      "unit": "",
+      "value": null
+     },
+     "pillar": "absorption",
+     "subscore": null,
+     "weight": 0.0,
+     "why": "aucun bien simulé pour estimer l'absorption"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +16.3%",
+      "unit": "%",
+      "value": 16.3
+     },
+     "pillar": "momentum_prix",
+     "subscore": 71.4,
+     "weight": 0.267,
+     "why": "momentum prix +16.3%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "constructibilité 51",
+      "unit": "/100",
+      "value": 51
+     },
+     "pillar": "constructibilite",
+     "subscore": 75.5,
+     "weight": 0.2,
+     "why": "constructibilité 51/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque sortie 69",
+      "unit": "/100 risque",
+      "value": 69.0
+     },
+     "pillar": "risque_sortie",
+     "subscore": 31.3,
+     "weight": 0.133,
+     "why": "risque de sortie: prime étrangère 41%, concentration typologique 50%"
+    }
+   ],
+   "price_eur_m2": 2474.0,
+   "total": 58.6,
+   "verdict": "Conditionnel",
+   "yoy_pct": 16.3,
+   "zone": "vilanovadegaia",
+   "zone_name": "Vila Nova de Gaia"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2288,
+   "mode": "promotion",
+   "n_transactions": 549,
+   "native_indicator": {
+    "label": "marge 6% · 2.5 mois"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "base_median": 2288,
+      "construction": 1700,
+      "cost_total": 2699,
+      "finance": 173,
+      "land": 440,
+      "margin_pct": 6.0,
+      "net_sale": 2860,
+      "premium_over_median_pct": null,
+      "premium_pct": 25.0,
+      "realizable_sale": 2860,
+      "soft": 385,
+      "vat_pct": 0.0
+     },
+     "native": {
+      "label": "marge 6%",
+      "unit": "%",
+      "value": 6.0
+     },
+     "pillar": "marge",
+     "subscore": 27.1,
+     "weight": 0.3,
+     "why": "marge développeur 6% (prix neuf réalisable 2860 €/m² = médiane ancien 2288 +25% · foncier 440 €/m² (paramètre zone) · vente 2860 €/m² (hors TVA sur la vente), coût 2699 €/m² dont financement 173 €/m² à 4.5% × 3 ans × LTV 60%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "2.5 mois",
+      "unit": "mois",
+      "value": 2.5
+     },
+     "pillar": "absorption",
+     "subscore": 61.7,
+     "weight": 0.25,
+     "why": "absorption ~2.5 mois (DOM médian simulé), profondeur 549 ventes/an"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +3.6%",
+      "unit": "%",
+      "value": 3.6
+     },
+     "pillar": "momentum_prix",
+     "subscore": 46.9,
+     "weight": 0.2,
+     "why": "momentum prix +3.6%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "constructibilité 64",
+      "unit": "/100",
+      "value": 64
+     },
+     "pillar": "constructibilite",
+     "subscore": 89.8,
+     "weight": 0.15,
+     "why": "constructibilité 64/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque sortie 35",
+      "unit": "/100 risque",
+      "value": 35.0
+     },
+     "pillar": "risque_sortie",
+     "subscore": 64.8,
+     "weight": 0.1,
+     "why": "risque de sortie: concentration typologique 88%"
+    }
+   ],
+   "price_eur_m2": 2288.0,
+   "total": 52.9,
+   "verdict": "Conditionnel",
+   "yoy_pct": 3.6,
+   "zone": "oliveiradodouro",
+   "zone_name": "Oliveira do Douro"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2249,
+   "mode": "promotion",
+   "n_transactions": 296,
+   "native_indicator": {
+    "label": "marge 5% · 2.5 mois"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "base_median": 2249,
+      "construction": 1700,
+      "cost_total": 2677,
+      "finance": 172,
+      "land": 423,
+      "margin_pct": 5.0,
+      "net_sale": 2811,
+      "premium_over_median_pct": null,
+      "premium_pct": 25.0,
+      "realizable_sale": 2811,
+      "soft": 382,
+      "vat_pct": 0.0
+     },
+     "native": {
+      "label": "marge 5%",
+      "unit": "%",
+      "value": 5.0
+     },
+     "pillar": "marge",
+     "subscore": 24.0,
+     "weight": 0.3,
+     "why": "marge développeur 5% (prix neuf réalisable 2811 €/m² = médiane ancien 2249 +25% · foncier 423 €/m² (paramètre zone) · vente 2811 €/m² (hors TVA sur la vente), coût 2677 €/m² dont financement 172 €/m² à 4.5% × 3 ans × LTV 60%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "2.5 mois",
+      "unit": "mois",
+      "value": 2.53
+     },
+     "pillar": "absorption",
+     "subscore": 48.9,
+     "weight": 0.25,
+     "why": "absorption ~2.5 mois (DOM médian simulé), profondeur 296 ventes/an"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +14.9%",
+      "unit": "%",
+      "value": 14.9
+     },
+     "pillar": "momentum_prix",
+     "subscore": 65.3,
+     "weight": 0.2,
+     "why": "momentum prix +14.9%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "constructibilité 56",
+      "unit": "/100",
+      "value": 56
+     },
+     "pillar": "constructibilite",
+     "subscore": 85.7,
+     "weight": 0.15,
+     "why": "constructibilité 56/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque sortie 35",
+      "unit": "/100 risque",
+      "value": 35.0
+     },
+     "pillar": "risque_sortie",
+     "subscore": 64.9,
+     "weight": 0.1,
+     "why": "risque de sortie: concentration typologique 88%"
+    }
+   ],
+   "price_eur_m2": 2249.0,
+   "total": 51.8,
+   "verdict": "Conditionnel",
+   "yoy_pct": 14.9,
+   "zone": "gulpilharesevaladares",
+   "zone_name": "União das freguesias de Gulpilhares e Valadares"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2279,
+   "mode": "promotion",
+   "n_transactions": 176,
+   "native_indicator": {
+    "label": "marge 11% · 3.1 mois"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "base_median": 2279,
+      "construction": 1700,
+      "cost_total": 2504,
+      "finance": 161,
+      "land": 286,
+      "margin_pct": 11.0,
+      "net_sale": 2780,
+      "premium_over_median_pct": null,
+      "premium_pct": 22.0,
+      "realizable_sale": 2780,
+      "soft": 357,
+      "vat_pct": 0.0
+     },
+     "native": {
+      "label": "marge 11%",
+      "unit": "%",
+      "value": 11.0
+     },
+     "pillar": "marge",
+     "subscore": 42.8,
+     "weight": 0.3,
+     "why": "marge développeur 11% (prix neuf réalisable 2780 €/m² = médiane ancien 2279 +22% · foncier 286 €/m² (paramètre zone) · vente 2780 €/m² (hors TVA sur la vente), coût 2504 €/m² dont financement 161 €/m² à 4.5% × 3 ans × LTV 60%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "3.1 mois",
+      "unit": "mois",
+      "value": 3.07
+     },
+     "pillar": "absorption",
+     "subscore": 42.6,
+     "weight": 0.25,
+     "why": "absorption ~3.1 mois (DOM médian simulé), profondeur 176 ventes/an"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +13.6%",
+      "unit": "%",
+      "value": 13.6
+     },
+     "pillar": "momentum_prix",
+     "subscore": 59.2,
+     "weight": 0.2,
+     "why": "momentum prix +13.6%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "constructibilité 48",
+      "unit": "/100",
+      "value": 48
+     },
+     "pillar": "constructibilite",
+     "subscore": 53.1,
+     "weight": 0.15,
+     "why": "constructibilité 48/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque sortie 35",
+      "unit": "/100 risque",
+      "value": 35.0
+     },
+     "pillar": "risque_sortie",
+     "subscore": 64.8,
+     "weight": 0.1,
+     "why": "risque de sortie: concentration typologique 88%"
+    }
+   ],
+   "price_eur_m2": 2279.0,
+   "total": 49.8,
+   "verdict": "Passer",
+   "yoy_pct": 13.6,
+   "zone": "saofelixdamarinha",
+   "zone_name": "São Félix da Marinha"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2078,
+   "mode": "promotion",
+   "n_transactions": 218,
+   "native_indicator": {
+    "label": "marge 2% · 2.5 mois"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "base_median": 2078,
+      "construction": 1700,
+      "cost_total": 2485,
+      "finance": 160,
+      "land": 271,
+      "margin_pct": 2.0,
+      "net_sale": 2535,
+      "premium_over_median_pct": null,
+      "premium_pct": 22.0,
+      "realizable_sale": 2535,
+      "soft": 355,
+      "vat_pct": 0.0
+     },
+     "native": {
+      "label": "marge 2%",
+      "unit": "%",
+      "value": 2.0
+     },
+     "pillar": "marge",
+     "subscore": 14.4,
+     "weight": 0.3,
+     "why": "marge développeur 2% (prix neuf réalisable 2535 €/m² = médiane ancien 2078 +22% · foncier 271 €/m² (paramètre zone) · vente 2535 €/m² (hors TVA sur la vente), coût 2485 €/m² dont financement 160 €/m² à 4.5% × 3 ans × LTV 60%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "2.5 mois",
+      "unit": "mois",
+      "value": 2.53
+     },
+     "pillar": "absorption",
+     "subscore": 48.9,
+     "weight": 0.25,
+     "why": "absorption ~2.5 mois (DOM médian simulé), profondeur 218 ventes/an"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +28.5%",
+      "unit": "%",
+      "value": 28.5
+     },
+     "pillar": "momentum_prix",
+     "subscore": 74.4,
+     "weight": 0.2,
+     "why": "momentum prix +28.5% (écrêté: signe de surchauffe)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "constructibilité 51",
+      "unit": "/100",
+      "value": 51
+     },
+     "pillar": "constructibilite",
+     "subscore": 75.5,
+     "weight": 0.15,
+     "why": "constructibilité 51/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque sortie 35",
+      "unit": "/100 risque",
+      "value": 35.0
+     },
+     "pillar": "risque_sortie",
+     "subscore": 64.8,
+     "weight": 0.1,
+     "why": "risque de sortie: concentration typologique 88%"
+    }
+   ],
+   "price_eur_m2": 2078.0,
+   "total": 49.2,
+   "verdict": "Passer",
+   "yoy_pct": 28.5,
+   "zone": "vilardeandorinho",
+   "zone_name": "Vilar de Andorinho"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2058,
+   "mode": "promotion",
+   "n_transactions": 158,
+   "native_indicator": {
+    "label": "marge -1% · 2.5 mois"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "base_median": 2058,
+      "construction": 1700,
+      "cost_total": 2516,
+      "finance": 162,
+      "land": 295,
+      "margin_pct": -1.0,
+      "net_sale": 2490,
+      "premium_over_median_pct": null,
+      "premium_pct": 21.0,
+      "realizable_sale": 2490,
+      "soft": 359,
+      "vat_pct": 0.0
+     },
+     "native": {
+      "label": "marge -1%",
+      "unit": "%",
+      "value": -1.0
+     },
+     "pillar": "marge",
+     "subscore": 8.0,
+     "weight": 0.3,
+     "why": "marge développeur -1% (prix neuf réalisable 2490 €/m² = médiane ancien 2058 +21% · foncier 295 €/m² (paramètre zone) · vente 2490 €/m² (hors TVA sur la vente), coût 2516 €/m² dont financement 162 €/m² à 4.5% × 3 ans × LTV 60%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "2.5 mois",
+      "unit": "mois",
+      "value": 2.5
+     },
+     "pillar": "absorption",
+     "subscore": 61.7,
+     "weight": 0.25,
+     "why": "absorption ~2.5 mois (DOM médian simulé), profondeur 158 ventes/an"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +22.4%",
+      "unit": "%",
+      "value": 22.4
+     },
+     "pillar": "momentum_prix",
+     "subscore": 71.9,
+     "weight": 0.2,
+     "why": "momentum prix +22.4% (écrêté: signe de surchauffe)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "constructibilité 49",
+      "unit": "/100",
+      "value": 49
+     },
+     "pillar": "constructibilite",
+     "subscore": 55.1,
+     "weight": 0.15,
+     "why": "constructibilité 49/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque sortie 35",
+      "unit": "/100 risque",
+      "value": 35.0
+     },
+     "pillar": "risque_sortie",
+     "subscore": 64.8,
+     "weight": 0.1,
+     "why": "risque de sortie: concentration typologique 88%"
+    }
+   ],
+   "price_eur_m2": 2058.0,
+   "total": 47.0,
+   "verdict": "Passer",
+   "yoy_pct": 22.4,
+   "zone": "avintes",
+   "zone_name": "Avintes"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 1797,
+   "mode": "promotion",
+   "n_transactions": 136,
+   "native_indicator": {
+    "label": "marge -8% · 2.4 mois"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "base_median": 1797,
+      "construction": 1700,
+      "cost_total": 2305,
+      "finance": 148,
+      "land": 128,
+      "margin_pct": -8.0,
+      "net_sale": 2120,
+      "premium_over_median_pct": null,
+      "premium_pct": 18.0,
+      "realizable_sale": 2120,
+      "soft": 329,
+      "vat_pct": 0.0
+     },
+     "native": {
+      "label": "marge -8%",
+      "unit": "%",
+      "value": -8.0
+     },
+     "pillar": "marge",
+     "subscore": 8.0,
+     "weight": 0.3,
+     "why": "marge développeur -8% (prix neuf réalisable 2120 €/m² = médiane ancien 1797 +18% · foncier 128 €/m² (paramètre zone) · vente 2120 €/m² (hors TVA sur la vente), coût 2305 €/m² dont financement 148 €/m² à 4.5% × 3 ans × LTV 60%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "2.4 mois",
+      "unit": "mois",
+      "value": 2.42
+     },
+     "pillar": "absorption",
+     "subscore": 91.5,
+     "weight": 0.25,
+     "why": "absorption ~2.4 mois (DOM médian simulé), profondeur 136 ventes/an"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +16.8%",
+      "unit": "%",
+      "value": 16.8
+     },
+     "pillar": "momentum_prix",
+     "subscore": 73.5,
+     "weight": 0.2,
+     "why": "momentum prix +16.8%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "constructibilité 34",
+      "unit": "/100",
+      "value": 34
+     },
+     "pillar": "constructibilite",
+     "subscore": 2.0,
+     "weight": 0.15,
+     "why": "constructibilité 34/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque sortie 35",
+      "unit": "/100 risque",
+      "value": 35.0
+     },
+     "pillar": "risque_sortie",
+     "subscore": 64.7,
+     "weight": 0.1,
+     "why": "risque de sortie: concentration typologique 88%"
+    }
+   ],
+   "price_eur_m2": 1797.0,
+   "total": 46.7,
+   "verdict": "Passer",
+   "yoy_pct": 16.8,
+   "zone": "sandim,olival,leverecrestuma",
+   "zone_name": "União das freguesias de Sandim, Olival, Lever e Crestuma"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 2060,
+   "mode": "promotion",
+   "n_transactions": 191,
+   "native_indicator": {
+    "label": "marge -0% · 2.5 mois"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "base_median": 2060,
+      "construction": 1700,
+      "cost_total": 2493,
+      "finance": 160,
+      "land": 277,
+      "margin_pct": -0.0,
+      "net_sale": 2493,
+      "premium_over_median_pct": null,
+      "premium_pct": 21.0,
+      "realizable_sale": 2493,
+      "soft": 356,
+      "vat_pct": 0.0
+     },
+     "native": {
+      "label": "marge -0%",
+      "unit": "%",
+      "value": -0.0
+     },
+     "pillar": "marge",
+     "subscore": 8.0,
+     "weight": 0.3,
+     "why": "marge développeur -0% (prix neuf réalisable 2493 €/m² = médiane ancien 2060 +21% · foncier 277 €/m² (paramètre zone) · vente 2493 €/m² (hors TVA sur la vente), coût 2493 €/m² dont financement 160 €/m² à 4.5% × 3 ans × LTV 60%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "2.5 mois",
+      "unit": "mois",
+      "value": 2.53
+     },
+     "pillar": "absorption",
+     "subscore": 48.9,
+     "weight": 0.25,
+     "why": "absorption ~2.5 mois (DOM médian simulé), profondeur 191 ventes/an"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +18.1%",
+      "unit": "%",
+      "value": 18.1
+     },
+     "pillar": "momentum_prix",
+     "subscore": 79.6,
+     "weight": 0.2,
+     "why": "momentum prix +18.1%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "constructibilité 46",
+      "unit": "/100",
+      "value": 46
+     },
+     "pillar": "constructibilite",
+     "subscore": 51.0,
+     "weight": 0.15,
+     "why": "constructibilité 46/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque sortie 35",
+      "unit": "/100 risque",
+      "value": 35.0
+     },
+     "pillar": "risque_sortie",
+     "subscore": 64.8,
+     "weight": 0.1,
+     "why": "risque de sortie: concentration typologique 88%"
+    }
+   ],
+   "price_eur_m2": 2060.0,
+   "total": 44.7,
+   "verdict": "Passer",
+   "yoy_pct": 18.1,
+   "zone": "canelas",
+   "zone_name": "Canelas"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 1909,
+   "mode": "promotion",
+   "n_transactions": 123,
+   "native_indicator": {
+    "label": "marge -6% · 2.5 mois"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "base_median": 1909,
+      "construction": 1700,
+      "cost_total": 2417,
+      "finance": 155,
+      "land": 217,
+      "margin_pct": -6.0,
+      "net_sale": 2272,
+      "premium_over_median_pct": null,
+      "premium_pct": 19.0,
+      "realizable_sale": 2272,
+      "soft": 345,
+      "vat_pct": 0.0
+     },
+     "native": {
+      "label": "marge -6%",
+      "unit": "%",
+      "value": -6.0
+     },
+     "pillar": "marge",
+     "subscore": 8.0,
+     "weight": 0.3,
+     "why": "marge développeur -6% (prix neuf réalisable 2272 €/m² = médiane ancien 1909 +19% · foncier 217 €/m² (paramètre zone) · vente 2272 €/m² (hors TVA sur la vente), coût 2417 €/m² dont financement 155 €/m² à 4.5% × 3 ans × LTV 60%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "2.5 mois",
+      "unit": "mois",
+      "value": 2.47
+     },
+     "pillar": "absorption",
+     "subscore": 76.6,
+     "weight": 0.25,
+     "why": "absorption ~2.5 mois (DOM médian simulé), profondeur 123 ventes/an"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +14.2%",
+      "unit": "%",
+      "value": 14.2
+     },
+     "pillar": "momentum_prix",
+     "subscore": 63.3,
+     "weight": 0.2,
+     "why": "momentum prix +14.2%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "constructibilité 37",
+      "unit": "/100",
+      "value": 37
+     },
+     "pillar": "constructibilite",
+     "subscore": 4.1,
+     "weight": 0.15,
+     "why": "constructibilité 37/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque sortie 35",
+      "unit": "/100 risque",
+      "value": 35.0
+     },
+     "pillar": "risque_sortie",
+     "subscore": 64.9,
+     "weight": 0.1,
+     "why": "risque de sortie: concentration typologique 88%"
+    }
+   ],
+   "price_eur_m2": 1909.0,
+   "total": 41.3,
+   "verdict": "Passer",
+   "yoy_pct": 14.2,
+   "zone": "serzedoeperosinho",
+   "zone_name": "União das freguesias de Serzedo e Perosinho"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 1927,
+   "mode": "promotion",
+   "n_transactions": 139,
+   "native_indicator": {
+    "label": "marge -5% · 2.4 mois"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "base_median": 1927,
+      "construction": 1700,
+      "cost_total": 2414,
+      "finance": 155,
+      "land": 214,
+      "margin_pct": -5.0,
+      "net_sale": 2293,
+      "premium_over_median_pct": null,
+      "premium_pct": 19.0,
+      "realizable_sale": 2293,
+      "soft": 345,
+      "vat_pct": 0.0
+     },
+     "native": {
+      "label": "marge -5%",
+      "unit": "%",
+      "value": -5.0
+     },
+     "pillar": "marge",
+     "subscore": 8.0,
+     "weight": 0.3,
+     "why": "marge développeur -5% (prix neuf réalisable 2293 €/m² = médiane ancien 1927 +19% · foncier 214 €/m² (paramètre zone) · vente 2293 €/m² (hors TVA sur la vente), coût 2414 €/m² dont financement 155 €/m² à 4.5% × 3 ans × LTV 60%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "2.4 mois",
+      "unit": "mois",
+      "value": 2.43
+     },
+     "pillar": "absorption",
+     "subscore": 85.1,
+     "weight": 0.25,
+     "why": "absorption ~2.4 mois (DOM médian simulé), profondeur 139 ventes/an"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +4.8%",
+      "unit": "%",
+      "value": 4.8
+     },
+     "pillar": "momentum_prix",
+     "subscore": 49.0,
+     "weight": 0.2,
+     "why": "momentum prix +4.8%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "constructibilité 39",
+      "unit": "/100",
+      "value": 39
+     },
+     "pillar": "constructibilite",
+     "subscore": 6.1,
+     "weight": 0.15,
+     "why": "constructibilité 39/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque sortie 35",
+      "unit": "/100 risque",
+      "value": 35.0
+     },
+     "pillar": "risque_sortie",
+     "subscore": 64.9,
+     "weight": 0.1,
+     "why": "risque de sortie: concentration typologique 88%"
+    }
+   ],
+   "price_eur_m2": 1927.0,
+   "total": 40.9,
+   "verdict": "Passer",
+   "yoy_pct": 4.8,
+   "zone": "grijoesermonde",
+   "zone_name": "União das freguesias de Grijó e Sermonde"
+  },
+  {
+   "asset": null,
+   "asset_class": "residential",
+   "city": "gaia",
+   "country": "pt",
+   "level": "freguesia",
+   "median_eur_m2": 1964,
+   "mode": "promotion",
+   "n_transactions": 246,
+   "native_indicator": {
+    "label": "marge -3% · 2.5 mois"
+   },
+   "pillars": [
+    {
+     "applicable": true,
+     "breakdown": {
+      "base_median": 1964,
+      "construction": 1700,
+      "cost_total": 2430,
+      "finance": 156,
+      "land": 227,
+      "margin_pct": -3.0,
+      "net_sale": 2357,
+      "premium_over_median_pct": null,
+      "premium_pct": 20.0,
+      "realizable_sale": 2357,
+      "soft": 347,
+      "vat_pct": 0.0
+     },
+     "native": {
+      "label": "marge -3%",
+      "unit": "%",
+      "value": -3.0
+     },
+     "pillar": "marge",
+     "subscore": 8.0,
+     "weight": 0.3,
+     "why": "marge développeur -3% (prix neuf réalisable 2357 €/m² = médiane ancien 1964 +20% · foncier 227 €/m² (paramètre zone) · vente 2357 €/m² (hors TVA sur la vente), coût 2430 €/m² dont financement 156 €/m² à 4.5% × 3 ans × LTV 60%)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "2.5 mois",
+      "unit": "mois",
+      "value": 2.5
+     },
+     "pillar": "absorption",
+     "subscore": 61.7,
+     "weight": 0.25,
+     "why": "absorption ~2.5 mois (DOM médian simulé), profondeur 246 ventes/an"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "yoy +17.3%",
+      "unit": "%",
+      "value": 17.3
+     },
+     "pillar": "momentum_prix",
+     "subscore": 75.5,
+     "weight": 0.2,
+     "why": "momentum prix +17.3%"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "constructibilité 43",
+      "unit": "/100",
+      "value": 43
+     },
+     "pillar": "constructibilite",
+     "subscore": 8.2,
+     "weight": 0.15,
+     "why": "constructibilité 43/100 (percentile socle)"
+    },
+    {
+     "applicable": true,
+     "native": {
+      "label": "risque sortie 35",
+      "unit": "/100 risque",
+      "value": 35.0
+     },
+     "pillar": "risque_sortie",
+     "subscore": 64.9,
+     "weight": 0.1,
+     "why": "risque de sortie: concentration typologique 88%"
+    }
+   ],
+   "price_eur_m2": 1964.0,
+   "total": 40.6,
+   "verdict": "Passer",
+   "yoy_pct": 17.3,
+   "zone": "pedrosoeseixezelo",
+   "zone_name": "União das freguesias de Pedroso e Seixezelo"
+  }
+ ]
+}

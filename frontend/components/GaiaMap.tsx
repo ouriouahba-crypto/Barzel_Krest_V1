@@ -7,6 +7,8 @@ import { CircleMarker, GeoJSON, MapContainer, Tooltip, ZoomControl, useMap } fro
 import type { Layer, PathOptions, LeafletMouseEvent } from "leaflet";
 import { Mode, scoreColor } from "@/lib/scoring";
 import { normFreguesia } from "@/lib/normalize";
+import { cityBySlug } from "@/lib/cities";
+import { useCityStore } from "@/lib/cityStore";
 
 export interface ZoneScore {
   zoneId: string;
@@ -88,13 +90,14 @@ export default function GaiaMap({
   onHoverZone?: (zoneId: string | null) => void;
 }) {
   const [geo, setGeo] = useState<FeatureCollection | null>(null);
+  const geojsonUrl = cityBySlug(useCityStore((s) => s.slug)).geojson;
 
   useEffect(() => {
-    fetch("/geo/gaia_freguesias.geojson")
+    fetch(geojsonUrl)
       .then((r) => r.json())
       .then(setGeo)
       .catch(() => setGeo(null));
-  }, []);
+  }, [geojsonUrl]);
 
   const hayaFeature = useMemo(
     () => geo?.features.find((f) => normFreguesia((f.properties as any)?.freguesia) === hayaNorm),

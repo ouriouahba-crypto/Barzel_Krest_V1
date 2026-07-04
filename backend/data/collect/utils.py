@@ -41,9 +41,11 @@ except Exception:  # pragma: no cover - extremely defensive
 # repo_root/backend/data/collect/utils.py -> repo_root
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DATA_DIR = REPO_ROOT / "data"
+# Dataset par défaut du moteur (multi-villes lot 1) : backend/data/cities/gaia/
+CITY_DATA_DIR = REPO_ROOT / "backend" / "data" / "cities" / "gaia"
 RAW_DIR = DATA_DIR / "raw"
 BACKBONE_SCHEMA = REPO_ROOT / "barzel_data_backbone_v0.json"
-BACKBONE_OUT = DATA_DIR / "backbone.json"
+BACKBONE_OUT = CITY_DATA_DIR / "backbone.json"
 
 
 def ensure_dirs() -> None:

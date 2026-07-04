@@ -5,6 +5,11 @@
     GET /api/scoring/city?city=..&mode=..            -> ranked zone scores (choropleth)
     GET /api/scoring/asset?asset=..                  -> scores for a named KREST asset
     GET /api/scoring/modes                           -> the four mode keys
+
+Convention multi-villes : le slug voyage dans le paramètre `city` (défaut
+« gaia ») ; /zone et /asset l'acceptent en option pour choisir le dataset.
+Rétrocompat : sans slug, tout est servi par le dataset par défaut, identique
+aux réponses historiques.
 """
 
 from __future__ import annotations
@@ -51,12 +56,13 @@ def zone(
     mode: str | None = Query(None, description="promotion|detention|arbitrage|landbank; all if omitted"),
     asset_class: str | None = Query(None, alias="class", description="asset class override"),
     asset: str | None = Query(None, description="named KREST asset for asset-level inputs"),
+    city: str | None = Query(None, description="city slug owning the dataset (default gaia)"),
     debug: bool = Query(False, description="include internal confidence/source fields"),
 ) -> dict:
     try:
         if mode:
-            return _present(ms.score_mode(zone, mode, asset_class, asset), debug)
-        return _present({"zone": zone, "scores": ms.score_all_modes(zone, asset_class, asset)}, debug)
+            return _present(ms.score_mode(zone, mode, asset_class, asset, city=city), debug)
+        return _present({"zone": zone, "scores": ms.score_all_modes(zone, asset_class, asset, city=city)}, debug)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
     except ValueError as exc:
@@ -80,8 +86,9 @@ def city(
 
 @router.get("/asset")
 def asset(asset: str = Query(..., description="KREST asset name, e.g. haya, ktower, alcochete"),
+          city: str | None = Query(None, description="city slug owning the dataset (default gaia)"),
           debug: bool = Query(False, description="include internal confidence/source fields")) -> dict:
     try:
-        return _present(ms.score_asset(asset), debug)
+        return _present(ms.score_asset(asset, city=city), debug)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc))

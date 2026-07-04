@@ -1,7 +1,7 @@
 """Étape 1 : texture generator.
 
 Draws SIMULATED individual listings calibrated on each backbone zone's REAL
-distribution, and writes data/listings_sim.csv (same consumption logic as the
+distribution, and writes the city listings_sim.csv (same consumption logic as the
 old listings_v3.csv).
 
 Calibration, per country:
