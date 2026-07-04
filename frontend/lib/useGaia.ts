@@ -20,7 +20,9 @@ export function displayName(name: string) {
 }
 export function shortName(name: string) {
   const base = displayName(name).split(/ e |,/)[0].trim();
-  return base.length > 13 ? base.slice(0, 12) + "…" : base;
+  // Troncature propre : jamais d'espace traînant avant l'ellipse
+  // (« Santa Maria Maior » → « Santa Maria… », pas « Santa Maria  … »).
+  return base.length > 13 ? base.slice(0, 12).trimEnd() + "…" : base;
 }
 const fregOnly = (c?: CityResponse) => (c?.zones || []).filter((z) => z.level === "freguesia");
 const eur = (v: number | null | undefined) =>
@@ -28,6 +30,7 @@ const eur = (v: number | null | undefined) =>
 
 export function useGaia() {
   const citySlug = useCityStore((s) => s.slug);
+  const cityReady = useCityStore((s) => s.ready);
   const CITY = citySlug;
   const CITY_ZONE = cityBySlug(citySlug).cityZoneId;
   const [mode, setMode] = useState<Mode>("promotion");
@@ -41,7 +44,10 @@ export function useGaia() {
   const keyOf = (m: Mode, c: string) => `${m}|${c}`;
 
   // Prefetch the four modes for the current class (map + key figures + rendement).
+  // Gardé par cityReady : le slug persisté est hydraté AVANT le premier fetch
+  // (CityKey, layout effect) : jamais de rafale Gaia jetée au changement de ville.
   useEffect(() => {
+    if (!cityReady) return;
     MODES.forEach((m) => {
       const k = keyOf(m, assetClass);
       if (cityByKey[k]) return;
@@ -50,16 +56,18 @@ export function useGaia() {
         .then((c) => setCityByKey((p) => (p[k] ? p : { ...p, [k]: c })))
         .catch((e) => setError(String(e)));
     });
-  }, [assetClass, cityByKey]);
+  }, [cityReady, CITY, assetClass, cityByKey]);
 
   useEffect(() => {
+    if (!cityReady) return;
     api.asset("haya").then(setHaya).catch(() => {});
-  }, []);
+  }, [cityReady]);
 
   // Focus zone's four modes (for score cards + detail), reactive to class.
   useEffect(() => {
+    if (!cityReady) return;
     api.zone(focusZone, assetClass).then(setZoneAll).catch((e) => setError(String(e)));
-  }, [focusZone, assetClass]);
+  }, [cityReady, focusZone, assetClass]);
 
   const city = cityByKey[keyOf(mode, assetClass)];
   const detentionCity = cityByKey[keyOf("detention", assetClass)];

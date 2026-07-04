@@ -1391,6 +1391,36 @@ lisboète : V0 mécanique, hiérarchie en 2b.
    constructibilité/connectivité curées (métro, front de Tage, Web Summit…),
    arbitrage (spreads ~0 V0), QA 10 pages + captures complètes.
 
+### Correctifs post-2a : classement générique + persistance de la ville — **✅ Livré** (2026-07-04)
+1. **Classement (Vue d'ensemble) générique au nombre de zones** :
+   `OverviewRanking` possède sa hauteur (`ROW_H = 24` px/barre ; Gaia 15 × 24
+   = 360, la hauteur historique — pixel-identique) au lieu de la page ;
+   étiquettes de valeur via **`LabelList` explicite** (une par barre, jamais
+   décimé, contrairement à `label={{…}}` ; la prop `interval` n'existe pas sur
+   LabelList, qui ne décime pas — documenté en commentaire) ; `interval={0}`
+   sur l'axe. Troncature `shortName` propre : `trimEnd()` avant l'ellipse
+   (« Santa Maria Maior » → « Santa Maria… », plus d'espace traînant ;
+   micro-changement assumé sur Gaia : « Oliveira do … » → « Oliveira do… »).
+   Invariant committé **`shots/check_ranking_labels.js`** : noms = valeurs =
+   barres = zones pour CHAQUE ville du registre (15/15/15 et 24/24/24 ✓) +
+   troncature saine.
+2. **Persistance du choix de ville** (`localStorage` clé **`barzel_city`**,
+   validée contre le registre : slug inconnu → défaut). Séquence sans flash NI
+   divergence SSR : le premier rendu client reste le défaut (identique au HTML
+   serveur), les **fetchs de useGaia sont gardés par `ready`**, et CityKey
+   hydrate le slug persisté en `useLayoutEffect` (avant tout paint et tout
+   effet passif) puis lève `ready`. Vérifié en direct : reload persisté →
+   Lisbonne avec **0 fetch `city=gaia`** et **0 console.error** (les variantes
+   « init synchrone du module » et « hydratation en layout effect seule »
+   produisaient respectivement un mismatch d'hydratation React et une rafale
+   de 8 fetchs Gaia jetés — pièges documentés ici). CityKey (reset par
+   remontage) inchangé.
+3. **Vérifs** : matrice 10 pages × 2 villes × 2 navigateurs × 3 largeurs
+   **120/120** ; snapshot Gaia HTTP identique aux octets ; tests backend
+   26/27 inchangés (split env) ; `tsc` OK ; slug inconnu → défaut contrôlé à
+   l'écran ; capture `lisbonne_vue_ensemble.png` régénérée (24 barres
+   lisibles, valeurs rendues).
+
 ### État final du gabarit de page de mode
 Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,
 `rendement_net`, `spread`, `constructibilite`), InsightBanner + insight gradué à

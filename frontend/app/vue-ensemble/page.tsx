@@ -226,7 +226,7 @@ export default function VueEnsemble() {
                 <h3 className="font-display text-[16px] text-navy">Classement des freguesias</h3>
                 <span className="text-label text-muted">score {bm ? MODE_LABEL[bm].toLowerCase() : ""} · par verdict</span>
               </div>
-              <div style={{ height: Math.max(360, rankRows.length * 23) }}>{bm && rankRows.length ? <OverviewRanking rows={rankRows} mode={bm} /> : null}</div>
+              <div>{bm && rankRows.length ? <OverviewRanking rows={rankRows} mode={bm} /> : null}</div>
             </section>
 
             <section className="flex flex-col rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
