@@ -1479,10 +1479,19 @@ ajout moteur. Prix/yoy/transactions INE 2025-Q4 inchangés (réels).
    `risque_energie` backend alignés sur le parc (SMM 88 → PdN 12).
 5. **Fábrica Oriente** (actif vedette Prix & marge, gabarit Haya, HayaSlider
    strictement intouché) : reconversion de friche à Marvila, 14 000 m²
-   constructibles, curseur 4 800-6 200 pas 10, valeur centrale 5 400 →
-   **marge 20,5% affichée 21%** (coût = 1,261 × (2 210 coque+finitions +
-   1 343 foncier) = 4 480), 7,1% à 4 800 (fortement compressée), 38,4% à
-   6 200, bascule Go visible ~5 620. Backend : asset `fabrica` + bloc
+   constructibles, curseur 4 800-6 200 pas 10 ; **position par défaut 5 400
+   → score 66 Conditionnel, marge 20,5% affichée 21%** (le point où
+   total = baseTotal = 66,4 ; coût = 1,261 × (2 210 coque+finitions +
+   1 343 foncier) = 4 480), marge 7,1% à 4 800 (fortement compressée),
+   38,4% à 6 200. **Le prix médian de marché 5 029 ne sert que de base à la
+   prime (« prime / médiane »)** : au prix médian réel le score tombe vers
+   60, pas 66. **Bascule Conditionnel → Go confirmée à 5 590** (croisement
+   continu total = 70 à 5 588,17 ; la note « ~5 620 » était approximative,
+   aucun bug, résultat émergent du scoring, point clos). **Clamp d'affichage
+   (commit a83d64a)** : FabricaSlider plafonne le score AFFICHÉ sous 70 tant
+   que verdict n'est pas Go (Math.min(s, 69), cosmétique) pour lever la
+   contradiction score 70 / badge Conditionnel sur la fenêtre 5 570-5 580 ;
+   badge (sur total brut) et calibration inchangés. Backend : asset `fabrica` + bloc
    contexte analyste (miroir Haya). Frontend : `FABRICA` + `FabricaSlider`,
    **actif vedette par ville dans le registre** (`promoAsset` + slider +
    légende) : prix-marge focalise Marvila par défaut à Lisbonne, la carte
