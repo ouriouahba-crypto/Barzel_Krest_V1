@@ -1309,6 +1309,88 @@ scores, verdicts, textes ni HayaSlider.
    complète (marges cibles par classe, hiérarchie, verdicts, anomalies
    « naturelles ») + QA des 10 pages sur la nouvelle ville.
 
+### Lot 2a multi-villes : Lisbonne branchée mécaniquement (INE réel + V0) — **✅ Livré** (2026-07-04)
+Aucun changement aux données, scores ou textes de Gaia (snapshot HTTP aux
+octets vérifié avant/après chaque étape). Pas de calibration éditoriale
+lisboète : V0 mécanique, hiérarchie en 2b.
+1. **Extraction des témoins** → `backend/data/witness/` (params = copie
+   INTÉGRALE gelée de l'ancien params, backbone = 5 villes témoins ×33 zones,
+   listings 10 238). Le dataset gaia ne contient plus QUE Gaia (16 zones,
+   3 825 listings, params purgé des overrides/tables/actifs témoins).
+   **Piège majeur résolu : le socle de percentiles** poolait les 49 zones ;
+   le loader reconstruit désormais l'univers de socle = zones de la ville +
+   pool témoin (fusion ville-en-dernier, `_socle_universe`) → gaia
+   **identique aux octets**. Replis rétrocompat : zone inconnue → pool témoin
+   (`ixelles`, `parquedasnacoes` historique), actif inconnu → pool
+   (`ktower`), `city=bruxelles`… → dataset témoin ; `resolve_slug` passe
+   "witness" tel quel. ⚠️ Les scores STANDALONE des témoins bougent (socle
+   propre : ixelles 44→39,2) : aucun test ne fixait ces valeurs, rien de
+   visible produit.
+2. **Lisbonne, données réelles INE** (`backend/data/cities/lisbonne/`) :
+   collecte via le pipeline existant (harvest préfixe géocode **1A01106**,
+   le préfixe 1A0110 de la config ratissait toute la Grande Lisboa) —
+   **24/24 freguesias publiées, 2025-Q4** (0012234 total, 0012235
+   appartements, 0014363 nb ventes ; yoy dérivé t-4 vs 2024-Q4). Municipio
+   Lisboa 4 875 €/m², +12,3 %, 8 235 tx. Cache raw commité INTACT (collecte
+   en scratch). backbone.json au schéma zone exact de Gaia.
+3. **Params V0 génératifs** (`meta.note` le documente) : constructibilité/
+   connectivité en gradient prix+jitter md5 (conf hypothese) ; prime neuf
+   18-34 % croissante ; **foncier dérivé d'un gradient de marge mécanique
+   0→18 %** (équation moteur inversée, construction 1700) → fonciers
+   1 844-4 529 €/m² (49-66 % du prix, plausible centre lisboète), plancher 40,
+   anti-jumeaux par rang ; facteurs commerciaux par classe en gradient fin ;
+   classes/global/scoring repris de Gaia ; **pas d'actif vedette** (assets
+   vide) ; entrées explicites `lisboa` (municipio) prime 26 / foncier 2769
+   (le repli `gaia_default` du moteur est conditionné à city=="gaia").
+   Marges rés. V0 : **-1,6 → 15,5 %** (médiane 6,6). Verdicts V0 rés. :
+   promotion 18 Conditionnel / 6 Passer (municipio 56 Conditionnel) ;
+   détention 3 Conserver / 17 Surveiller / 4 Céder ; arbitrage 15 étroites /
+   9 fermées ; landbank 3 Prioritaire / 21 À phaser. Listings simulés via le
+   pipeline (seed 42) : 7 339.
+4. **Geojson** : `frontend/public/geo/lisbonne/freguesias.geojson` depuis
+   geoapi.pt (dérivé CAOP/DGT, WGS84), simplifié Douglas-Peucker (19,7 Ko,
+   props `freguesia`/`dicofre` comme Gaia) ; appariement 24/24 avec le
+   backbone, 24 tracés rendus.
+5. **Interpolation du nom de ville** : backend — contexte analyste
+   `# DONNÉES BARZEL · {VILLE}`, DÉNOMBREMENTS sur N freguesias (15/24),
+   prompts système par ville ({VILLE}/{NFREG}, périmètre), faits fiscaux PT
+   communs + énergie commune, **parc SCE simulé et bloc Haya = gaia
+   uniquement** ; mémo — mission, couverture, « Marché · {Ville} », fichier
+   `Barzel_Memo_{Ville}_…`. Frontend — `CityDef.texts` (marketLines des 8
+   pages, contexte promotion résidentiel, overrides fiscalité/énergie,
+   suggestions analyste par ville avec clés d'icônes), h1 + titre d'onglet
+   dynamiques (Header), `trendInsight/fiscalInsight/energieInsight` gagnent
+   `cityName` (défaut "Gaia" : rendu gaia inchangé au caractère),
+   `parcFor` : **parc SCE V0 déterministe par hash** pour les zones sans
+   données (les entrées Gaia priment ; 2b = ADENE réel),
+   `energieDefaultZone` par ville (Santa Maria Maior).
+6. **Sélecteur + reset d'état** : le CitySelector (charte, 0 cadratin) se
+   monte automatiquement à 2 villes ; **`components/CityKey.tsx`** dans le
+   layout remonte tout l'arbre `key={slug}` → chaque useState (useGaia,
+   conversation analyste, curseurs, tris) repart à zéro au changement de
+   ville. Vue d'ensemble : hauteur du classement dynamique (24 lignes
+   lisibles, gaia 15 inchangé).
+7. **Vérifs** : tests **26/27 framework** (+3 : invariants lisbonne
+   — 24+municipio ×4 modes, plancher/anti-jumeaux, bornes frais 2-4 %/délais
+   2-9 mois, garde-fous verdicts, scores mémo int triés — isolation
+   témoins/gaia, registre 2 villes ; le 27e = pytest.raises, split env
+   habituel) ; snapshot gaia HTTP **aux octets** re-vérifié en continu ;
+   `tsc` OK ; **matrice 10 pages × 2 villes × 2 navigateurs × 3 largeurs :
+   120/120** ; mémo Lisbonne bout en bout (5 pages, comptages exacts
+   18/6-3/17/4, 0 cadratin, `Barzel_Memo_Lisbonne_Residentiel`) ; analyste
+   lisbonne : comptages pré-calculés 24 corrects, chiffres moteur exacts, 0
+   cadratin ; captures `shots/lisbonne_{vue_ensemble,carte,prixmarge,
+   ia_analyste}.png` (+ script `capture_lisbonne.js`). ⚠️ uvicorn `--reload`
+   ne surveille pas params.json : après édition de données, `touch` d'un .py
+   ou restart (caches `_STATES`/lru par processus).
+8. **En attente de calibration 2b (Lisbonne)** : hiérarchie éditoriale des
+   marges/verdicts par classe (aucun Go V0 ; municipio Go≠freguesias sur
+   certains modes), loyers/économies commerciales lisboètes réels (classes
+   reprises de Gaia), parc SCE réel (ADENE), actif vedette + curseurs K-REST,
+   MARKET_LINEs et insights réécrits, note d'anomalie « naturelle »,
+   constructibilité/connectivité curées (métro, front de Tage, Web Summit…),
+   arbitrage (spreads ~0 V0), QA 10 pages + captures complètes.
+
 ### État final du gabarit de page de mode
 Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,
 `rendement_net`, `spread`, `constructibilite`), InsightBanner + insight gradué à

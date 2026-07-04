@@ -288,7 +288,39 @@
     "note": "Prime en % du neuf realisable sur la mediane de l'ancien (backbone), par zone_id. Le neuf se vend 20-40% plus cher que l'ancien; prime plus forte la ou le neuf est rare/recherche. Confiance hypothese (parametre). N'applique qu'au cas zone-sans-actif nomme.",
     "default": 30,
     "gaia_default": 26,
+    "parquedasnacoes": 20,
+    "marvila": 40,
     "santamarinhaesaopedrodaafurada": 34,
+    "santoantonio": 22,
+    "misericordia": 22,
+    "santamariamaior": 22,
+    "arroios": 30,
+    "penhafranca": 35,
+    "benfica": 28,
+    "carnide": 30,
+    "olivais": 32,
+    "alcochete": 30,
+    "loule": 28,
+    "ixelles": 22,
+    "uccle": 24,
+    "woluwe": 22,
+    "etterbeek": 24,
+    "woluwesaintlambert": 26,
+    "watermaelboitsfort": 26,
+    "auderghem": 28,
+    "saintgilles": 28,
+    "bxlville": 26,
+    "forest": 30,
+    "schaerbeek": 32,
+    "jette": 32,
+    "evere": 32,
+    "ganshoren": 32,
+    "berchemsainteagathe": 32,
+    "koekelberg": 34,
+    "saintjossetennoode": 34,
+    "molenbeeksaintjean": 36,
+    "anderlecht": 36,
+    "montsaintguibert": 30,
     "canidelo": 18,
     "madalena": 31,
     "mafamudeevilardoparaiso": 28,
@@ -308,7 +340,39 @@
     "note": "Cout du foncier en euros par m2 de surface vendable, par zone_id du backbone. Remplace l'estimation 18% du prix de vente (qui gonflait le foncier en zone chere). Confiance hypothese (parametre). N'applique qu'au cas zone-sans-actif nomme.",
     "default": 300,
     "gaia_default": 470,
+    "marvila": 1800,
     "santamarinhaesaopedrodaafurada": 524,
+    "penhafranca": 1175,
+    "olivais": 1075,
+    "arroios": 1250,
+    "carnide": 1200,
+    "benfica": 1125,
+    "parquedasnacoes": 2450,
+    "santoantonio": 2850,
+    "misericordia": 2000,
+    "santamariamaior": 1625,
+    "alcochete": 100,
+    "loule": 925,
+    "ixelles": 650,
+    "uccle": 600,
+    "woluwe": 620,
+    "etterbeek": 650,
+    "woluwesaintlambert": 520,
+    "watermaelboitsfort": 480,
+    "auderghem": 450,
+    "saintgilles": 400,
+    "bxlville": 380,
+    "forest": 300,
+    "schaerbeek": 280,
+    "jette": 240,
+    "evere": 240,
+    "ganshoren": 230,
+    "berchemsainteagathe": 230,
+    "koekelberg": 200,
+    "saintjossetennoode": 200,
+    "molenbeeksaintjean": 170,
+    "anderlecht": 170,
+    "montsaintguibert": 150,
     "madalena": 594,
     "canidelo": 673,
     "mafamudeevilardoparaiso": 473,
@@ -583,6 +647,37 @@
   },
   "zones": {
     "note": "Overrides par zone : constructibilite, connectivite, ajustement de cycle, overlays. 0-100 sauf indication. Cle = zone_id du backbone.",
+    "parquedasnacoes": {
+      "constructibility": {
+        "value": 45,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 90,
+        "conf": "rapport",
+        "src": "hub Oriente, metro, gare"
+      },
+      "cycle_momentum": {
+        "value": 60,
+        "conf": "hypothese"
+      }
+    },
+    "marvila": {
+      "constructibility": {
+        "value": 65,
+        "conf": "hypothese",
+        "src": "friches rehabilitables"
+      },
+      "connectivity": {
+        "value": 70,
+        "conf": "hypothese"
+      },
+      "cycle_momentum": {
+        "value": 75,
+        "conf": "rapport",
+        "src": "gentrification rapide"
+      }
+    },
     "santamarinhaesaopedrodaafurada": {
       "constructibility": {
         "value": 71,
@@ -597,6 +692,52 @@
         "value": 80,
         "conf": "rapport",
         "src": "Gaia +18-26% yoy INE"
+      }
+    },
+    "alcochete": {
+      "constructibility": {
+        "value": 30,
+        "conf": "rapport",
+        "src": "mesures preventives zone aeroport DR 2026, riverain moins contraint"
+      },
+      "connectivity": {
+        "value": 85,
+        "conf": "rapport",
+        "src": "futur aeroport Luis de Camoes + 3e traversee Tage"
+      },
+      "cycle_momentum": {
+        "value": 55,
+        "conf": "hypothese"
+      }
+    },
+    "loule": {
+      "constructibility": {
+        "value": 50,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 60,
+        "conf": "hypothese"
+      },
+      "cycle_momentum": {
+        "value": 70,
+        "conf": "rapport",
+        "src": "Algarve demande etrangere forte"
+      }
+    },
+    "montsaintguibert": {
+      "constructibility": {
+        "value": 55,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 50,
+        "conf": "hypothese",
+        "src": "Axis Parc, Brabant wallon"
+      },
+      "cycle_momentum": {
+        "value": 50,
+        "conf": "hypothese"
       }
     },
     "madalena": {
@@ -714,6 +855,37 @@
   },
   "assets": {
     "note": "Parametres au niveau actif KREST, pour les scores arbitrage/detention sur biens nommes.",
+    "k_tower": {
+      "city": "lisbonne",
+      "class": "office",
+      "build_cost_eur_m": {
+        "value": 55,
+        "unit": "M eur",
+        "conf": "rapport"
+      },
+      "exit_value_eur_m": {
+        "value": 90,
+        "unit": "M eur",
+        "conf": "rapport",
+        "src": "cession Real I.S. 2024, non divulgue"
+      },
+      "spread_pct": {
+        "value": 64,
+        "unit": "%",
+        "conf": "derive",
+        "src": "(90-55)/55"
+      },
+      "tenant_quality": {
+        "value": 90,
+        "unit": "0-100",
+        "conf": "rapport",
+        "src": "Critical TechWorks (JV BMW) + Spaces"
+      },
+      "certification": {
+        "value": "BREEAM Excellent",
+        "conf": "rapport"
+      }
+    },
     "haya_towers": {
       "city": "gaia",
       "zone": "santamarinhaesaopedrodaafurada",
@@ -756,6 +928,21 @@
         "unit": "eur/m2",
         "conf": "hypothese",
         "src": "foncier front de fleuve Afurada"
+      }
+    },
+    "alcochete_landbank": {
+      "city": "alcochete",
+      "class": "landbank",
+      "surface_m2": {
+        "value": 450000,
+        "unit": "m2",
+        "conf": "rapport",
+        "src": "Quinta da Coutadinha, riverain Tage"
+      },
+      "airport_overlay": {
+        "value": "Aeroport confirme Campo de Tiro, mesures preventives, ouverture ~2036-37",
+        "conf": "officiel",
+        "src": "RCM 66/2024 + DR 2026"
       }
     }
   },

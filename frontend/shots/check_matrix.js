@@ -5,6 +5,7 @@
 const PAGES = ["/gaia", "/vue-ensemble", "/comparer", "/prix-marge", "/rendement",
   "/arbitrage", "/foncier", "/fiscalite", "/energie", "/ia-analyste"];
 const WIDTHS = [1280, 1440, 1920];
+const CITIES = ["gaia", "lisbonne"];
 const RSC_NOISE = /_rsc=|access control checks|Failed to load resource|defaultProps/i;
 
 (async () => {
@@ -18,6 +19,7 @@ const RSC_NOISE = /_rsc=|access control checks|Failed to load resource|defaultPr
         ? await pw.chromium.launch({ channel: "chrome", headless: true })
         : await pw.webkit.launch({ headless: true });
     for (const w of WIDTHS) {
+      for (const citySlug of CITIES) {
       for (const route of PAGES) {
         const p = await browser.newPage({ viewport: { width: w, height: 950 } });
         const errs = [];
@@ -27,6 +29,10 @@ const RSC_NOISE = /_rsc=|access control checks|Failed to load resource|defaultPr
         });
         try {
           await p.goto("http://localhost:3000" + route, { waitUntil: "networkidle", timeout: 45000 });
+          await p.waitForTimeout(1600);
+          if (citySlug !== "gaia") {
+            await p.locator("header select").first().selectOption(citySlug);
+          }
           await p.waitForTimeout(2200);
           const m = await p.evaluate(() => ({
             textLen: document.body.innerText.length,
@@ -36,17 +42,18 @@ const RSC_NOISE = /_rsc=|access control checks|Failed to load resource|defaultPr
           if (m.textLen < 200) bad.push(`peu de contenu (${m.textLen})`);
           if (m.hOverflow > 1) bad.push(`débordement horizontal ${m.hOverflow}px`);
           bad.push(...errs.filter((e, i, a) => a.indexOf(e) === i).slice(0, 3));
-          if (bad.length) { failures++; console.log(`✗ ${engine} ${w} ${route}: ${bad.join(" | ")}`); }
-          else console.log(`✓ ${engine} ${w} ${route}`);
+          if (bad.length) { failures++; console.log(`✗ ${engine} ${w} ${citySlug} ${route}: ${bad.join(" | ")}`); }
+          else console.log(`✓ ${engine} ${w} ${citySlug} ${route}`);
         } catch (e) {
           failures++;
-          console.log(`✗ ${engine} ${w} ${route}: ${String(e).slice(0, 120)}`);
+          console.log(`✗ ${engine} ${w} ${citySlug} ${route}: ${String(e).slice(0, 120)}`);
         }
         await p.close();
+      }
       }
     }
     await browser.close();
   }
-  console.log(failures ? `\n${failures} échec(s)` : "\nMatrice 10 × 2 × 3 : tout est vert");
+  console.log(failures ? `\n${failures} échec(s)` : "\nMatrice 10 pages × 2 villes × 2 navigateurs × 3 largeurs : tout est vert");
   process.exit(failures ? 1 : 0);
 })().catch((e) => { console.error(e); process.exit(1); });

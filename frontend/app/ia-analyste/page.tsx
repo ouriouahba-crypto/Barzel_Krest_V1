@@ -6,18 +6,18 @@ import { Sidebar } from "@/components/Sidebar";
 import { api } from "@/lib/api";
 import { useGaia } from "@/lib/useGaia";
 import { classLabel } from "@/lib/scoring";
+import { AnalystIcon, cityBySlug } from "@/lib/cities";
+import { useCityStore } from "@/lib/cityStore";
 
-const MARKET_LINE =
-  "Posez vos questions sur Gaia : l'analyste répond à partir des scores, verdicts et cascades de la plateforme.";
-
-// Icône fine (trait 1.5) par question suggérée.
-const SUGGESTIONS: { q: string; icon: React.ReactNode }[] = [
-  { q: "Où lancer une promotion résidentielle à Gaia ?", icon: <IconPin /> },
-  { q: "Faut-il conserver ou céder un actif résidentiel à Madalena ?", icon: <IconBuilding /> },
-  { q: "Quel est le meilleur usage d'un terrain à Canidelo ?", icon: <IconLayers /> },
-  { q: "Quel impact la réglementation énergétique a-t-elle sur une détention à Santa Marinha ?", icon: <IconBolt /> },
-  { q: "Compare Santa Marinha et Madalena en bureaux.", icon: <IconCompare /> },
-];
+// Lignes et suggestions par ville : registre lib/cities.ts. Icône fine (trait
+// 1.5) par clé de suggestion.
+const ICONS: Record<AnalystIcon, React.ReactNode> = {
+  pin: <IconPin />,
+  building: <IconBuilding />,
+  layers: <IconLayers />,
+  bolt: <IconBolt />,
+  compare: <IconCompare />,
+};
 
 interface Msg {
   role: "user" | "assistant" | "error";
@@ -64,6 +64,9 @@ const now = () => new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minu
 
 export default function IaAnalystePage() {
   const g = useGaia();
+  const city = cityBySlug(useCityStore((s) => s.slug));
+  const SUGGESTIONS = city.texts.analystSuggestions.map(({ q, icon }) => ({ q, icon: ICONS[icon] }));
+  const cityShort = city.label === "Vila Nova de Gaia" ? "Gaia" : city.label;
   const [selected, setSelected] = useState<string[]>([]);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -96,7 +99,7 @@ export default function IaAnalystePage() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={MARKET_LINE}
+          marketLine={city.texts.marketLines.iaAnalyste}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}
@@ -119,7 +122,7 @@ export default function IaAnalystePage() {
                   IA Analyste · Barzel
                 </div>
                 <h2 className="mt-4 font-display text-[40px] leading-tight text-cream">
-                  Que voulez-vous savoir sur Gaia ?
+                  Que voulez-vous savoir sur {cityShort} ?
                 </h2>
                 <p className="mt-3 text-body text-cream/70">
                   Réponses en {classLabel(cls).toLowerCase()} : scores, verdicts, fiscalité et énergie de la plateforme.
@@ -136,7 +139,7 @@ export default function IaAnalystePage() {
                     <input
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
-                      placeholder="Votre question sur Gaia…"
+                      placeholder={`Votre question sur ${cityShort}…`}
                       className="min-w-0 flex-1 bg-transparent py-2 text-body text-ink outline-none placeholder:text-muted"
                     />
                     <button
@@ -223,7 +226,7 @@ export default function IaAnalystePage() {
                   <input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder={`Votre question sur Gaia (${classLabel(cls).toLowerCase()})…`}
+                    placeholder={`Votre question sur ${cityShort} (${classLabel(cls).toLowerCase()})…`}
                     className="min-w-0 flex-1 bg-transparent py-2 text-body text-ink outline-none placeholder:text-muted"
                   />
                   <button

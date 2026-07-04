@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Montserrat } from "next/font/google";
 import "./globals.css";
+import { CityKey } from "@/components/CityKey";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -16,14 +17,14 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "Barzel Analytics · Vila Nova de Gaia",
+  title: "Barzel Analytics",
   description: "Intelligence immobilière par mode d'investissement.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className={`${playfair.variable} ${montserrat.variable}`}>
-      <body>{children}</body>
+      <body><CityKey>{children}</CityKey></body>
     </html>
   );
 }

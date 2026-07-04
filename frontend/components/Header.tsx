@@ -2,8 +2,10 @@
 
 import { ASSET_CLASSES, MODES, MODE_LABEL, Mode } from "@/lib/scoring";
 import { MultiSelect, Segmented } from "./ui";
+import { useEffect } from "react";
 import { CitySelector } from "./CitySelector";
-import { CITIES } from "@/lib/cities";
+import { CITIES, cityBySlug } from "@/lib/cities";
+import { useCityStore } from "@/lib/cityStore";
 
 export function Header({
   marketLine,
@@ -30,13 +32,17 @@ export function Header({
   hideSearch?: boolean;
   hideClass?: boolean;
 }) {
+  const city = cityBySlug(useCityStore((s) => s.slug));
+  useEffect(() => {
+    document.title = `Barzel Analytics · ${city.label}`;
+  }, [city.label]);
   return (
     <header className="relative z-[1000] border-b border-navy/10 bg-cream/80 px-6 py-4 backdrop-blur">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
             <span className="inline-block h-6 w-1.5 rounded-full bg-gold" />
-            <h1 className="font-display text-[28px] leading-none text-navy">Vila Nova de Gaia</h1>
+            <h1 className="font-display text-[28px] leading-none text-navy">{city.label}</h1>
           </div>
           <p className="mt-1.5 max-w-2xl pl-[18px] text-body text-ink-soft">{marketLine}</p>
         </div>

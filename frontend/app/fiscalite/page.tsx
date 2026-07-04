@@ -44,9 +44,10 @@ export default function FiscalitePage() {
   // Banner sentence computed from the same engine-served rows as the mode pages.
   const pm = useMemo(() => pmRows(g.promoCity), [g.promoCity]);
   const rd = useMemo(() => rdRows(g.detentionCity), [g.detentionCity]);
+  const cityName = city.label === "Vila Nova de Gaia" ? "Gaia" : city.label;
   const sentence = useMemo(
-    () => F.fiscalInsight(residential ? "residential" : "commercial", pm, rd),
-    [F, residential, pm, rd]
+    () => F.fiscalInsight(residential ? "residential" : "commercial", pm, rd, cityName),
+    [F, residential, pm, rd, cityName]
   );
   const entryMax = F.entryMaxPct(residential);
 
@@ -55,7 +56,7 @@ export default function FiscalitePage() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={F.PAGE.marketLine}
+          marketLine={city.texts.fiscaliteMarketLine ?? F.PAGE.marketLine}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}

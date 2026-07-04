@@ -1,0 +1,741 @@
+{
+ "meta": {
+  "version": "0.1",
+  "generated": "2026-07-01",
+  "purpose": "Socle data hybride Barzel x KREST. Colonne vertebrale = agregats officiels reels par zone fine. Texture au niveau du bien = a generer par echantillonnage dans les quantiles reels (non inclus ici). Commercial = cure depuis rapports brokers.",
+  "confidence_levels": {
+   "officiel": "Valeur publiee par un institut statistique national sur transactions enregistrees (INE, Statbel).",
+   "derive": "Calcule a partir d une donnee officielle (ex. prix total / superficie = eur/m2).",
+   "rapport": "Extrait d un rapport professionnel gratuit (CBRE, JLL, Cushman, Savills, Colliers, barometres).",
+   "a_collecter": "Zone reelle mais valeur non encore extraite. Necessite l export be.STAT / base INE ou le rapport source."
+  },
+  "note_belgique": "Statbel publie un prix median TOTAL par type de bien, pas un eur/m2 direct. CONSTAT VERIFIE : les fichiers d'actes actuels (TF_IMMO_SECTOR par secteur NIS9, vastgoed_2010_9999 par commune) ne contiennent AUCUNE colonne de superficie, pour aucun type. Le eur/m2 n'en est donc pas derivable directement ; on conserve le prix total et ses quantiles P10-P90 en 'officiel'. La metrique residentielle belge NATIVE = median_total_eur + quantiles P10-P90 (officiel). median_eur_m2 reste NULL pour la Belgique (aucun prix du logement au m2 reel n'est derivable). La superficie de l'ancien fichier cadastral (immo_by_municipality) est une superficie CADASTRALE de TERRAIN, pas habitable : on ne l'expose donc que comme 'land_value_eur_m2_indicatif' (confidence 'derive', prix median / superficie parcelle), indicatif et jamais presente comme un prix du logement ; pour les maisons seulement (les appartements n'ont pas de parcelle propre). Le €/m2 logement reel n'existe qu'au Portugal. IBSA / opendata.brussels.be n'expose aucun eur/m2 ni loyer ouvert (seulement la geographie des quartiers et des rapports PDF).",
+  "note_portugal": "INE publie le prix median eur/m2 par freguesia et grille 500m pour Lisboa, Porto, V.N. Gaia (villes >100k), sur transactions enregistrees, trimestriel glissant 12 mois, minimum 33 ventes par categorie.",
+  "generated_at": "2026-07-01T15:24:10+00:00",
+  "pipeline": "backend.data.collect (ine_pt + statbel_be + statbel_surface + ibsa_bxl + normalize)",
+  "note": "Dataset Lisbonne, lot 2a : prix médians résidentiels RÉELS INE (0012234 total logements, 0012235 appartements, 0014363 nb ventes ; dernier trimestre publié 2025-Q4, yoy dérivé t-4 vs 2024-Q4). 24 freguesias officielles (réforme 2012) + municipio, moissonnées par préfixe géocode 1A01106 via le pipeline collect (2026-07-04)."
+ },
+ "sources": {
+  "ine_local": "INE - Estatisticas de Precos da Habitacao ao nivel local + plataforma Precos da Habitacao nas cidades (freguesia, grille 500m, typologie, domicile fiscal acheteur national/etranger, n transactions).",
+  "statbel_cadastre": "Statbel - Ventes de biens immobiliers selon la nature du bien (plan cadastral) par commune ET par secteur statistique NIS7/NIS9 : n transactions, prix total, superficie totale, prix moyen, quantiles P10/Q25/Q50/Q75/P90. Export be.STAT (xlsx/csv/json).",
+  "ibsa": "IBSA - Monitoring des Quartiers (Bruxelles) : prix et loyers par quartier ; Cahier n.16 geographie loyers et prix 2010-2024.",
+  "barometre_loyers_be": "Federia / CIB - Barometre des locations : loyers medians residentiels par type et region (exclut le commercial).",
+  "brokers": "CBRE, JLL, Cushman & Wakefield, Savills, Colliers - market outlooks Portugal et Belgique : yields prime, loyers prime, take-up, vacance (rapports gratuits, extraction manuelle).",
+  "overlays_officiels": "Diario da Republica (aeroport Alcochete, reforme 2026, mesures preventives), RNAL/ALEP (zones AL), regimes regionaux BE (droits, PEB, permis), OVAM (sol/PFAS).",
+  "statbel_surface": "Statbel - ancien cadastre 'Ventes ... par commune' (immo_by_municipality) : superficie totale + n transactions par commune et type -> surface mediane pour deriver un eur/m2. Surface cadastrale (terrain), approximation."
+ },
+ "cities": {
+  "lisbonne": {
+   "country": "pt",
+   "label": "Lisboa",
+   "residential_ref": {
+    "municipio_median_eur_m2": 4875,
+    "as_of": "2025-Q4",
+    "confidence": "officiel",
+    "source": "ine_local"
+   },
+   "zones": [
+    {
+     "id": "lisboa",
+     "name": "Lisboa",
+     "level": "municipio",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 4875,
+      "median_eur_m2_apartments": 4875,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 8235,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 12.3,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "santoantonio",
+     "name": "Santo António",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 6819,
+      "median_eur_m2_apartments": 6810,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 360,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 16.0,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "parquedasnacoes",
+     "name": "Parque das Nações",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 6317,
+      "median_eur_m2_apartments": 6328,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 410,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 22.2,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "campodeourique",
+     "name": "Campo de Ourique",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 5890,
+      "median_eur_m2_apartments": 5982,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 336,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 13.2,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "estrela",
+     "name": "Estrela",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 5629,
+      "median_eur_m2_apartments": 5633,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 470,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 2.8,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "misericordia",
+     "name": "Misericórdia",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 5569,
+      "median_eur_m2_apartments": 5565,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 364,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 3.0,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "avenidasnovas",
+     "name": "Avenidas Novas",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 5465,
+      "median_eur_m2_apartments": 5467,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 438,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 16.8,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "campolide",
+     "name": "Campolide",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 5346,
+      "median_eur_m2_apartments": 5430,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 273,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 12.0,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "belem",
+     "name": "Belém",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 5156,
+      "median_eur_m2_apartments": 4997,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 233,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 4.9,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "marvila",
+     "name": "Marvila",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 5029,
+      "median_eur_m2_apartments": 5049,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 106,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": -10.6,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "santamariamaior",
+     "name": "Santa Maria Maior",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 5000,
+      "median_eur_m2_apartments": 5000,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 320,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": -3.8,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "alvalade",
+     "name": "Alvalade",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 4922,
+      "median_eur_m2_apartments": 4911,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 301,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 5.9,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "saodomingosdebenfica",
+     "name": "São Domingos de Benfica",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 4883,
+      "median_eur_m2_apartments": 4875,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 426,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 16.3,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "ajuda",
+     "name": "Ajuda",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 4874,
+      "median_eur_m2_apartments": 4796,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 244,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 19.4,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "saovicente",
+     "name": "São Vicente",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 4787,
+      "median_eur_m2_apartments": 4800,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 363,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 3.2,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "alcantara",
+     "name": "Alcântara",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 4658,
+      "median_eur_m2_apartments": 4679,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 215,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 6.8,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "areeiro",
+     "name": "Areeiro",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 4552,
+      "median_eur_m2_apartments": 4552,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 257,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": -6.2,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "lumiar",
+     "name": "Lumiar",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 4548,
+      "median_eur_m2_apartments": 4541,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 602,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 17.1,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "arroios",
+     "name": "Arroios",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 4523,
+      "median_eur_m2_apartments": 4525,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 673,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 5.9,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "carnide",
+     "name": "Carnide",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 4436,
+      "median_eur_m2_apartments": 4537,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 111,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 5.7,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "benfica",
+     "name": "Benfica",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 4392,
+      "median_eur_m2_apartments": 4378,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 515,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 10.6,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "beato",
+     "name": "Beato",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 4348,
+      "median_eur_m2_apartments": 4429,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 193,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 9.2,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "penhadefranca",
+     "name": "Penha de França",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 4282,
+      "median_eur_m2_apartments": 4292,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 562,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 17.3,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "olivais",
+     "name": "Olivais",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 4238,
+      "median_eur_m2_apartments": 4179,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 331,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 20.3,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "santaclara",
+     "name": "Santa Clara",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 3727,
+      "median_eur_m2_apartments": 3764,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 132,
+      "n_transactions_confidence": "officiel",
+      "yoy_pct": 9.1,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    }
+   ]
+  }
+ }
+}

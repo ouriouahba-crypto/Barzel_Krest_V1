@@ -602,7 +602,8 @@ const PRICE_OF: Record<string, string> = {
 export function trendInsight(
   points: { t: string; price: number }[],
   yoyPct: number | null,
-  assetClass: string
+  assetClass: string,
+  cityName: string = "Gaia"
 ): string {
   if (points.length < 8 || yoyPct == null) return "Chargement de la trajectoire…";
   const of = PRICE_OF[assetClass] ?? assetClass;
@@ -614,5 +615,5 @@ export function trendInsight(
     h2 > h1 + 1 ? "accélération au second semestre"
     : h2 < h1 - 1 ? "le rythme se tasse en fin de période"
     : "à un rythme régulier sur l'année";
-  return `Le prix ${of} de Gaia ${move}, ${shape}.`;
+  return `Le prix ${of} de ${cityName} ${move}, ${shape}.`;
 }

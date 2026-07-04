@@ -10,13 +10,15 @@ import { ScoreDial, VerdictBadge } from "@/components/ui";
 import { useGaia } from "@/lib/useGaia";
 import { Mode, MODE_KPI } from "@/lib/scoring";
 import { ModeScore } from "@/lib/api";
+import { cityBySlug } from "@/lib/cities";
+import { useCityStore } from "@/lib/cityStore";
 
 const GaiaMap = dynamic(() => import("@/components/GaiaMap"), {
   ssr: false,
   loading: () => <div className="flex h-full items-center justify-center bg-navy text-body text-cream/70">Carte…</div>,
 });
 
-const MARKET_LINE = "Rive sud du Douro en forte progression, offre neuve rare côté fleuve.";
+// Ligne marché : registre des villes (lib/cities.ts).
 
 function detailFigures(score: ModeScore, mode: Mode): KeyFigure[] {
   const figs: KeyFigure[] = [];
@@ -28,6 +30,7 @@ function detailFigures(score: ModeScore, mode: Mode): KeyFigure[] {
 
 export default function CartePage() {
   const g = useGaia();
+  const city = cityBySlug(useCityStore((s) => s.slug));
   const [selected, setSelected] = useState<string[]>([]);
   const [hover, setHover] = useState<string | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -46,7 +49,7 @@ export default function CartePage() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={MARKET_LINE}
+          marketLine={city.texts.marketLines.carte}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}

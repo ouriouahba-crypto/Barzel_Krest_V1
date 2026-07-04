@@ -8,14 +8,15 @@ import { SpreadWaterfall } from "@/components/SpreadWaterfall";
 import { CaisSlider } from "@/components/CaisSlider";
 import { MarginBars } from "@/components/MarginBars";
 import { InsightBanner } from "@/components/InsightBanner";
+import { cityBySlug } from "@/lib/cities";
+import { useCityStore } from "@/lib/cityStore";
 import { useGaia } from "@/lib/useGaia";
 import { classLabel, verdictTone } from "@/lib/scoring";
 import { arbRows, arbSummary, ArbRow, pctSigned } from "@/lib/arbitrage";
 import { arbitrageInsight, anomalyNote } from "@/lib/insights";
 
 const SANTA = "santamarinhaesaopedrodaafurada";
-const MARKET_LINE =
-  "Rive sud du Douro : le cycle a monté vite. Céder se joue sur la fenêtre, le spread réalisable et la profondeur d'acheteurs.";
+// Ligne marché : registre des villes (lib/cities.ts).
 
 // Arbitrage economics, one line per class.
 const CONTEXT: Record<string, string> = {
@@ -33,6 +34,7 @@ const CONTEXT: Record<string, string> = {
 
 export default function ArbitragePage() {
   const g = useGaia();
+  const city = cityBySlug(useCityStore((s) => s.slug));
   const [selected, setSelected] = useState<string[]>([]);
 
   const cls = g.assetClass;
@@ -96,7 +98,7 @@ export default function ArbitragePage() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={MARKET_LINE}
+          marketLine={city.texts.marketLines.arbitrage}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}

@@ -12,15 +12,15 @@ import { useGaia } from "@/lib/useGaia";
 import { classLabel } from "@/lib/scoring";
 import { pmRows, pmSummary, eurM2 } from "@/lib/priceMargin";
 import { priceMarginInsight, anomalyNote } from "@/lib/insights";
+import { cityBySlug } from "@/lib/cities";
+import { useCityStore } from "@/lib/cityStore";
 
 const AFURADA = "santamarinhaesaopedrodaafurada";
-const MARKET_LINE =
-  "Rive sud du Douro : offre neuve rare côté fleuve, coûts de construction maîtrisés. La marge de promotion se joue freguesia par freguesia.";
+// Ligne marché et contexte résidentiel : registre des villes (lib/cities.ts).
 
 // Promotion economics, one line per class.
 const CONTEXT: Record<string, string> = {
-  residential:
-    "Le neuf se vend cher rive sud du Douro quand le foncier reste rare : la marge de promotion se décide surtout sur le coût du terrain, freguesia par freguesia.",
+
   office:
     "Bureaux : la marge repose sur le loyer de marché capitalisé et sur un foncier plus lourd dans la valeur. Le front de fleuve concentre la demande.",
   hotel:
@@ -33,6 +33,7 @@ const CONTEXT: Record<string, string> = {
 
 export default function PrixMargePage() {
   const g = useGaia();
+  const city = cityBySlug(useCityStore((s) => s.slug));
   const [selected, setSelected] = useState<string[]>([]);
 
   // Promotion module: default the selection to Afurada (the KREST asset's freguesia).
@@ -73,7 +74,7 @@ export default function PrixMargePage() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={MARKET_LINE}
+          marketLine={city.texts.marketLines.prixMarge}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}
@@ -101,7 +102,7 @@ export default function PrixMargePage() {
               </span>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
-              {CONTEXT[cls] ?? CONTEXT.residential}
+              {cls === "residential" ? city.texts.promoContextResidential : CONTEXT[cls] ?? city.texts.promoContextResidential}
             </p>
           </div>
 

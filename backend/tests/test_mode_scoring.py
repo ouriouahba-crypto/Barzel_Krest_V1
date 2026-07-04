@@ -361,11 +361,74 @@ def test_city_registry_and_default_dataset():
     from backend.services import cities as reg
 
     assert reg.default_slug() == "gaia"
-    assert reg.slugs() == {"gaia"}
+    assert reg.slugs() == {"gaia", "lisbonne"}
     assert reg.resolve_slug(None) == "gaia"
     assert reg.resolve_slug("gaia") == "gaia"
-    assert reg.resolve_slug("lisbonne") == "gaia"  # témoin, pas encore de dataset propre
-    assert ms.load("lisbonne") is ms.load()  # même State (cache par slug)
+    assert reg.resolve_slug("lisbonne") == "lisbonne"  # ville enregistrée (lot 2a)
+    assert reg.resolve_slug("bruxelles") == reg.WITNESS_SLUG  # témoin → pool
+    assert ms.load("lisbonne") is not ms.load()  # datasets distincts, caches par slug
+
+
+def test_lisbonne_v0_dataset_invariants():
+    # Lot 2a : dataset lisbonne mécanique (INE 2025-Q4 + params V0 génératifs).
+    # Les invariants génériques de Gaia s'appliquent : 24 freguesias + municipio,
+    # plancher foncier, anti-jumeaux (prix réalisable, foncier), bornes
+    # frais/délais d'arbitrage, garde-fous de verdict promotion, scores mémo
+    # entiers half-up triés comme les pages.
+    from backend.routers.memo import _tables
+
+    for mode in ms.MODES:
+        rs = ms.score_city("lisbonne", mode, "residential")
+        assert sum(1 for r in rs if r["level"] == "freguesia") == 24, mode
+        assert sum(1 for r in rs if r["level"] == "municipio") == 1, mode
+
+    for cls in ("residential", "office", "hotel", "logistics", "retail"):
+        seen = {}
+        for r in ms.score_city("lisbonne", "promotion", cls):
+            if r["level"] != "freguesia":
+                continue
+            marge = next(p for p in r["pillars"] if p["pillar"] == "marge")
+            b = marge["breakdown"]
+            assert b["land"] >= 40, (cls, r["zone"], b["land"])
+            key = (b["realizable_sale"], b["land"])
+            assert key not in seen, (cls, seen[key], r["zone"], key)
+            seen[key] = r["zone"]
+            # garde-fous verdict : marge < 0 → Passer ; < 8 → jamais Go
+            m = b["margin_pct"]
+            if m is not None and cls == "residential":
+                if m < 0:
+                    assert r["verdict"] == "Passer", (r["zone"], m, r["verdict"])
+                elif m < 8:
+                    assert r["verdict"] != "Go", (r["zone"], m, r["verdict"])
+
+    for cls in ("residential", "office"):
+        for r in ms.score_city("lisbonne", "arbitrage", cls):
+            sp = next((p for p in r["pillars"] if p["pillar"] == "spread"), None)
+            b = sp.get("breakdown") if sp else None
+            if not b:
+                continue
+            assert 2.0 <= b["frais_cession_pct"] <= 4.0, (r["zone"], cls, b)
+            if b["delai_cession_mois"] is not None:
+                assert 2.0 <= b["delai_cession_mois"] <= 9.0, (r["zone"], cls, b)
+
+    t = _tables("ville", "residential", list(ms.MODES), "lisbonne")
+    for mode, table in t["modes"].items():
+        scores = [r["score"] for r in table["rows"]]
+        assert all(isinstance(x, int) for x in scores), mode
+        assert scores == sorted(scores, reverse=True), (mode, scores)
+
+
+def test_witness_pool_and_gaia_isolation():
+    # Le pool témoin sert le socle et la rétrocompat ; le dataset gaia ne
+    # contient plus que Gaia (16 zones) et lisbonne que Lisbonne (25).
+    st_gaia = ms.load("gaia")
+    assert set(z["city"] for z in st_gaia.zones.values()) == {"gaia"}
+    st_lx = ms.load("lisbonne")
+    assert set(z["city"] for z in st_lx.zones.values()) == {"lisbonne"}
+    assert len(st_lx.zones) == 25
+    # zones et actifs témoins toujours servis (fallback pool)
+    assert ms.score_mode("ixelles", "detention")["zone"] == "ixelles"
+    assert ms.score_asset("ktower")["city"] == "lisbonne"
 
 
 if __name__ == "__main__":  # dependency-free smoke run
@@ -385,4 +448,6 @@ if __name__ == "__main__":  # dependency-free smoke run
     test_memo_em_dash_sanitized_everywhere()
     test_gaia_payload_snapshot_4_modes_residential()
     test_city_registry_and_default_dataset()
+    test_lisbonne_v0_dataset_invariants()
+    test_witness_pool_and_gaia_isolation()
     print("OK : all smoke checks passed")

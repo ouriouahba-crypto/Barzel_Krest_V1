@@ -7,6 +7,8 @@ import { FoncierTable } from "@/components/FoncierTable";
 import { MonteClaroSelector } from "@/components/MonteClaroSelector";
 import { MarginBars } from "@/components/MarginBars";
 import { InsightBanner } from "@/components/InsightBanner";
+import { cityBySlug } from "@/lib/cities";
+import { useCityStore } from "@/lib/cityStore";
 import { useGaia } from "@/lib/useGaia";
 import { verdictTone } from "@/lib/scoring";
 import { pctSigned } from "@/lib/arbitrage";
@@ -14,8 +16,7 @@ import { fcRows, fcSummary, FcRow } from "@/lib/foncier";
 import { landbankInsight, anomalyNote } from "@/lib/insights";
 
 const CANIDELO = "canidelo";
-const MARKET_LINE =
-  "Rive sud du Douro : le foncier bien desservi se raréfie. La réserve se juge à sa valeur résiduelle par usage et à son horizon d'activation.";
+// Ligne marché : registre des villes (lib/cities.ts).
 
 // Landbank reads the land itself, not an asset class: the residual value per
 // usage answers the class question: the class selector is hidden (hideClass)
@@ -26,6 +27,7 @@ const CONTEXT =
 
 export default function FoncierPage() {
   const g = useGaia();
+  const city = cityBySlug(useCityStore((s) => s.slug));
   const [selected, setSelected] = useState<string[]>([]);
 
   const allRows = useMemo(() => fcRows(g.landbankCity), [g.landbankCity]);
@@ -84,7 +86,7 @@ export default function FoncierPage() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={MARKET_LINE}
+          marketLine={city.texts.marketLines.foncier}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}

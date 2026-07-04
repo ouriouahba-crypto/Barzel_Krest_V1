@@ -46,11 +46,24 @@ const CLASS_EF_SHIFT: Record<string, number> = {
 };
 
 export function parcFor(zone: string, cls: string): ParcRow | null {
-  const base = PARC_SCE[zone];
+  const base = PARC_SCE[zone] ?? parcV0(zone);
   if (!base) return null;
   const k = CLASS_EF_SHIFT[cls] ?? 1.0;
   const ef = Math.round(base.ef * k);
   return { ab: base.ab, cd: 100 - base.ab - ef, ef };
+}
+
+// Parc V0 déterministe (hash du zone id) pour les villes sans répartition SCE
+// curée (Lisbonne, lot 2a) : ef 15-36, ab 14-33, bornes du parc Gaia. Remplacé
+// en 2b par des données réelles (ADENE / certificats).
+function parcV0(zone: string): ParcRow {
+  let h = 2166136261;
+  for (let i = 0; i < zone.length; i++) {
+    h = Math.imul(h ^ zone.charCodeAt(i), 16777619) >>> 0;
+  }
+  const ef = 15 + (h % 22);
+  const ab = 14 + ((h >> 5) % 20);
+  return { ab, cd: 100 - ab - ef, ef };
 }
 
 // Risque MEPS par freguesia : le pilier énergie du moteur (risque pays, natif
@@ -105,16 +118,16 @@ export function retrofitImpact(row: RdRow, capex: number) {
 }
 
 // Phrase déterministe par classe sur l'exposition du parc.
-export function energieInsight(cls: string, zones: string[]): string {
+export function energieInsight(cls: string, zones: string[], cityName: string = "Gaia"): string {
   const efs = zones
     .map((z) => parcFor(z, cls)?.ef)
     .filter((v): v is number => v != null);
   const x = median(efs);
   if (x == null) return "Chargement du parc…";
   if (cls === "residential") {
-    return `~${Math.round(x)}% du parc résidentiel de Gaia sous la classe D : la pression MEPS se concentre sur le centre historique, déjà pénalisé dans les verdicts de détention.`;
+    return `~${Math.round(x)}% du parc résidentiel de ${cityName} sous la classe D : la pression MEPS se concentre sur le centre historique, déjà pénalisé dans les verdicts de détention.`;
   }
-  return `~${Math.round(x)}% du parc ${classLabel(cls).toLowerCase()} de Gaia en classes E-F : les seuils MEPS imposent la rénovation des 16% les moins performants d'ici 2030 (26% en 2033), déjà compté dans les verdicts de détention.`;
+  return `~${Math.round(x)}% du parc ${classLabel(cls).toLowerCase()} de ${cityName} en classes E-F : les seuils MEPS imposent la rénovation des 16% les moins performants d'ici 2030 (26% en 2033), déjà compté dans les verdicts de détention.`;
 }
 
 // --------------------------------------------------------------------------- #

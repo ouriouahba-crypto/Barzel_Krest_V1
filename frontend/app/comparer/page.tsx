@@ -6,6 +6,8 @@ import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { InsightBanner } from "@/components/InsightBanner";
 import { ScoreDial, VerdictBadge } from "@/components/ui";
+import { cityBySlug } from "@/lib/cities";
+import { useCityStore } from "@/lib/cityStore";
 import { useGaia, displayName, shortName } from "@/lib/useGaia";
 import { LandbankBreakdown, ModeScore } from "@/lib/api";
 import { Mode, MODES, MODE_LABEL, MODE_ROUTE, classLabel, pillarValue } from "@/lib/scoring";
@@ -14,8 +16,7 @@ import { CompareColumn, CompareModeCell, compareInsight, compareSynthesis } from
 
 const SANTA = "santamarinhaesaopedrodaafurada";
 const MADALENA = "madalena";
-const MARKET_LINE =
-  "Rive sud du Douro : un même territoire, quatre lectures (promotion, détention, arbitrage, foncier), côte à côte.";
+// Ligne marché : registre des villes (lib/cities.ts).
 
 // Native metric of each mode, read from the same pillars as the mode pages.
 function cellFor(mode: Mode, z: ModeScore): CompareModeCell {
@@ -44,6 +45,7 @@ function metricDisplay(c: CompareModeCell): string {
 
 export default function ComparerPage() {
   const g = useGaia();
+  const city = cityBySlug(useCityStore((s) => s.slug));
   const [selected, setSelected] = useState<string[]>([]);
   // 2 or 3 comparison slots: first two prefilled, third starts empty.
   const [picks, setPicks] = useState<(string | null)[]>([SANTA, MADALENA, null]);
@@ -110,7 +112,7 @@ export default function ComparerPage() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={MARKET_LINE}
+          marketLine={city.texts.marketLines.comparer}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}

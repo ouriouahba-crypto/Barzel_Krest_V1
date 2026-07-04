@@ -89,11 +89,13 @@ def verdict_counts(asset_class: str, city: str = "gaia") -> dict:
 
 
 def _counts_block(asset_class: str, city: str = "gaia") -> list[str]:
-    lines = ["## DÉNOMBREMENTS (comptages exacts sur les 15 freguesias ; utilise UNIQUEMENT "
+    counts_by_mode = verdict_counts(asset_class, city)
+    n_freg = sum(next(iter(counts_by_mode.values())).values()) if counts_by_mode else 0
+    lines = [f"## DÉNOMBREMENTS (comptages exacts sur les {n_freg} freguesias ; utilise UNIQUEMENT "
              "ces comptages, ne recompte JAMAIS toi-même à partir des listes)"]
-    for mode, counts in verdict_counts(asset_class, city).items():
+    for mode, counts in counts_by_mode.items():
         parts = ", ".join(f"{_VERDICT_ACCENT.get(v, v)} {n}" for v, n in counts.items())
-        lines.append(f"- {_MODE_FR_CTX[mode]} : {parts}, total 15 freguesias")
+        lines.append(f"- {_MODE_FR_CTX[mode]} : {parts}, total {n_freg} freguesias")
     return lines
 
 
@@ -153,23 +155,33 @@ def _mode_block(mode: str, zones: list[dict]) -> list[str]:
 
 
 # Faits statiques : strictement ceux déjà publiés par les pages Fiscalité/Énergie.
-_FACTS = """## FISCALITÉ PORTUGAL 2026 (barèmes officiels, tels qu'affichés par la plateforme)
+_FACTS_FISCAL = """## FISCALITÉ PORTUGAL 2026 (barèmes officiels, tels qu'affichés par la plateforme)
 - Acquisition : IMT habitation (investisseur) barème progressif 1%→8%, taux uniques 6% (660 982 – 1 150 853 €) et 7,5% au-delà ; commercial et terrains à bâtir 6,5% ; Imposto do Selo 0,8%. Non-résidents (résidentiel, dès 01/09/2026) : taux fixe 7,5% (DL 97/2026), remboursable si résidence fiscale sous 2 ans ou location ≤ 2 300 €/mois.
 - Détention : IMI 0,30–0,45%/an sur la VPT (taux communal) ; AIMI 0,4% (patrimoine résidentiel en société) ; IRC sur loyers nets 19% (+ derramas).
 - Cession : plus-values en IRC 19% + derrama municipale (≤1,5%) et estadual → taux effectif ~21%, celui des verdicts de la plateforme.
-- Frais d'entrée type : ~5,6% à 400 k€, ~8,3% à 1,5 M€ (résidentiel investisseur) ; 7,3% en commercial.
+- Frais d'entrée type : ~5,6% à 400 k€, ~8,3% à 1,5 M€ (résidentiel investisseur) ; 7,3% en commercial."""
 
-## ÉNERGIE (EPBD (UE) 2024/1275 · SCE portugais DL 101-D/2020, classes A+ → F)
+_FACTS_ENERGY_COMMON = """## ÉNERGIE (EPBD (UE) 2024/1275 · SCE portugais DL 101-D/2020, classes A+ → F)
 - Échéances : transposition 29/05/2026 ; neuf public zéro émission 2028, tout le neuf 2030 ; non-résidentiel : les 16% les moins performants rénovés d'ici 2030, 26% d'ici 2033 ; résidentiel : énergie primaire moyenne −16% (2030), −20 à 22% (2035) ; sortie des chaudières fossiles 2040.
-- Parc résidentiel de Gaia en classes E-F (part la plus basse du parc, exposée aux MEPS) : Santa Marinha 38% (centre historique, la plus exposée), Oliveira do Douro 30%, Mafamude 28%, Avintes 26%, Grijó 26%, Sandim 26%, Serzedo 25%, Pedroso 24%, São Félix 24%, Arcozelo 22%, Gulpilhares 21%, Canelas 19%, Madalena 18%, Vilar de Andorinho 16%, Canidelo 14%.
-- Mise à niveau énergétique (coûts types, €/m² habitable) : F→C ~270 €/m², E→C ~200 €/m², C→B +180 €/m². Sur un actif type de Santa Marinha (2 725 €/m², loyer inchangé), F→C comprime le yield net d'environ 0,31 point la première décennie (3,49% → 3,18%).
 - Le risque énergétique est déjà compté dans les verdicts de détention (pilier énergie de la cascade Rendement)."""
+
+_FACTS_ENERGY_GAIA = """- Parc résidentiel de Gaia en classes E-F (part la plus basse du parc, exposée aux MEPS) : Santa Marinha 38% (centre historique, la plus exposée), Oliveira do Douro 30%, Mafamude 28%, Avintes 26%, Grijó 26%, Sandim 26%, Serzedo 25%, Pedroso 24%, São Félix 24%, Arcozelo 22%, Gulpilhares 21%, Canelas 19%, Madalena 18%, Vilar de Andorinho 16%, Canidelo 14%.
+- Mise à niveau énergétique (coûts types, €/m² habitable) : F→C ~270 €/m², E→C ~200 €/m², C→B +180 €/m². Sur un actif type de Santa Marinha (2 725 €/m², loyer inchangé), F→C comprime le yield net d'environ 0,31 point la première décennie (3,49% → 3,18%)."""
+
+
+def _facts_for(city: str) -> str:
+    """Faits statiques : fiscalité PT + énergie EPBD communes ; le parc SCE
+    simulé et l'exemple retrofit sont propres à Gaia (2b fournira Lisbonne)."""
+    if city == "gaia":
+        return "\n\n".join([_FACTS_FISCAL, _FACTS_ENERGY_COMMON, _FACTS_ENERGY_GAIA])
+    return "\n\n".join([_FACTS_FISCAL, _FACTS_ENERGY_COMMON])
 
 
 @lru_cache(maxsize=16)
 def _build_context(asset_class: str, city: str = "gaia") -> str:
+    from ..services.cities import label_for
     lines: list[str] = [
-        f"# DONNÉES BARZEL · VILA NOVA DE GAIA · CLASSE {_CLS_FR.get(asset_class, asset_class).upper()}",
+        f"# DONNÉES BARZEL · {label_for(city).upper()} · CLASSE {_CLS_FR.get(asset_class, asset_class).upper()}",
         "(scores /100 ; verdicts par mode : promotion Go/Conditionnel/Passer, détention Conserver/Surveiller/Céder, "
         "arbitrage Fenêtre ouverte/étroite/fermée, landbank Prioritaire/À phaser/En attente)",
     ]
@@ -180,7 +192,7 @@ def _build_context(asset_class: str, city: str = "gaia") -> str:
     lines += _counts_block(asset_class, city)
     if city == "gaia" and asset_class == "residential":
         lines.append(_haya_block())
-    lines.append(_FACTS)
+    lines.append(_facts_for(city))
     return "\n".join(lines)
 
 
@@ -200,14 +212,22 @@ def _haya_block() -> str:
         return ""
 
 
-_SYSTEM = """Tu es l'analyste de Barzel Analytics, plateforme d'intelligence immobilière couvrant Vila Nova de Gaia (Portugal) pour un investisseur institutionnel.
+def _system_for(city: str, asset_class: str) -> str:
+    from ..services.cities import label_for
+    label = label_for(city)
+    counts_by_mode = verdict_counts(asset_class, city)
+    n_freg = sum(next(iter(counts_by_mode.values())).values()) if counts_by_mode else 15
+    return _SYSTEM_TEMPLATE.replace("{VILLE}", label).replace("{NFREG}", str(n_freg))
+
+
+_SYSTEM_TEMPLATE = """Tu es l'analyste de Barzel Analytics, plateforme d'intelligence immobilière couvrant {VILLE} (Portugal) pour un investisseur institutionnel.
 
 RÈGLES ABSOLUES :
 - Tu réponds UNIQUEMENT à partir des données fournies dans le message (scores, verdicts, métriques, faits fiscaux et énergétiques). Tu n'inventes JAMAIS un chiffre : chaque nombre cité doit figurer tel quel dans les données.
 - Tu cites les freguesias par leur nom et les chiffres exacts (mêmes décimales que les données quand c'est utile). Exception : les scores se citent toujours en entiers (« 87/100 »), jamais avec décimale.
-- Vila Nova de Gaia compte 15 freguesias (la ligne « ville » est l'agrégat municipal, pas une 16e). Ces territoires s'appellent des freguesias ; n'emploie jamais d'autre terme (jamais « friches », « quartiers » ou « communes »).
+- {VILLE} compte {NFREG} freguesias (la ligne « ville » est l'agrégat municipal, pas une de plus). Ces territoires s'appellent des freguesias ; n'emploie jamais d'autre terme (jamais « friches », « quartiers » ou « communes »).
 - Tu ne mentionnes JAMAIS de niveau de confiance, de source de donnée, de méthodologie interne ni l'idée qu'une donnée serait simulée ou estimée. Si l'on t'interroge sur l'origine ou la nature des données : « la plateforme agrège des données de marché et son modèle propriétaire Barzel », sans autre détail.
-- Si la question sort de Vila Nova de Gaia ou du périmètre immobilier de la plateforme, réponds avec élégance que c'est hors du périmètre couvert par la plateforme sur Gaia, et propose ce que tu peux couvrir.
+- Si la question sort de Vila Nova de Gaia ou du périmètre immobilier de la plateforme, réponds avec élégance que c'est hors du périmètre couvert par la plateforme sur {VILLE}, et propose ce que tu peux couvrir.
 - Ponctuation : tu n'utilises JAMAIS le tiret cadratin (le tiret long, U+2014), ni seul ni encadré d'espaces ; articule avec deux-points, virgule, parenthèses ou une nouvelle phrase.
 - Ton sobre et professionnel, en français. Réponses courtes : 5 à 10 lignes, en texte simple, JAMAIS de markdown (pas de titres, pas de gras, pas de puces), des phrases.
 - Avant de conclure, vérifie la cohérence interne de ta réponse : n'affirme jamais qu'un territoire domine sur tous les axes si un seul axe s'inverse ; dans ce cas, nomme l'exception d'emblée.
@@ -244,7 +264,7 @@ def ask(payload: AskPayload) -> dict:
             model=_MODEL,
             max_tokens=_MAX_TOKENS,
             temperature=0.2,  # réponses stables en démo
-            system=_SYSTEM,
+            system=_system_for(city, asset_class),
             messages=[{
                 "role": "user",
                 "content": f"{_build_context(asset_class, city)}\n\n# QUESTION\n{question}",

@@ -13,9 +13,10 @@ import { ModeScore } from "@/lib/api";
 import { Mode, MODES, MODE_LABEL, MODE_KPI, MODE_ROUTE, classLabel, median, pillarValue, verdictColor, verdictTone } from "@/lib/scoring";
 import { OverviewByMode, bestMode, cityInsight, modeInsight, trendInsight } from "@/lib/insights";
 import { priceTrajectory, PricePoint } from "@/lib/priceHistory";
+import { cityBySlug } from "@/lib/cities";
+import { useCityStore } from "@/lib/cityStore";
 
-const MARKET_LINE =
-  "Rive sud du Douro : demande soutenue, offre neuve rare côté fleuve. Quatre lectures d'un même marché.";
+// Ligne marché : registre des villes (lib/cities.ts).
 
 // Short native-metric noun per mode for the podium.
 const KPI_NOUN: Record<Mode, string> = {
@@ -36,6 +37,7 @@ const kpiVal = (s: ModeScore, m: Mode) => {
 
 export default function VueEnsemble() {
   const g = useGaia();
+  const city = cityBySlug(useCityStore((s) => s.slug));
   const [selected, setSelected] = useState<string[]>([]);
   const cls = g.assetClass;
 
@@ -85,14 +87,14 @@ export default function VueEnsemble() {
     () => (nn(market.price) && nn(market.yoy) ? priceTrajectory(market.price, market.yoy, cls) : []),
     [market.price, market.yoy, cls]
   );
-  const trendLine = trendInsight(trajectory, market.yoy, cls);
+  const trendLine = trendInsight(trajectory, market.yoy, cls, city.label === "Vila Nova de Gaia" ? "Gaia" : city.label);
 
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={MARKET_LINE}
+          marketLine={city.texts.marketLines.vueEnsemble}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}
@@ -224,7 +226,7 @@ export default function VueEnsemble() {
                 <h3 className="font-display text-[16px] text-navy">Classement des freguesias</h3>
                 <span className="text-label text-muted">score {bm ? MODE_LABEL[bm].toLowerCase() : ""} · par verdict</span>
               </div>
-              <div className="h-[360px]">{bm && rankRows.length ? <OverviewRanking rows={rankRows} mode={bm} /> : null}</div>
+              <div style={{ height: Math.max(360, rankRows.length * 23) }}>{bm && rankRows.length ? <OverviewRanking rows={rankRows} mode={bm} /> : null}</div>
             </section>
 
             <section className="flex flex-col rounded-2xl border border-navy/10 bg-white p-5 shadow-card">

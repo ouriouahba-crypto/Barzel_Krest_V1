@@ -31,7 +31,7 @@ export default function EnergiePage() {
   const city = cityBySlug(useCityStore((s) => s.slug));
   const E = city.energie;
   const Retrofit = city.retrofitSimulator;
-  const DEFAULT_ZONE = E.PAGE.defaultZone;
+  const DEFAULT_ZONE = city.energieDefaultZone;
   const [selected, setSelected] = useState<string[]>([]);
   const cls = g.assetClass;
 
@@ -73,9 +73,10 @@ export default function EnergiePage() {
       .sort((a, b) => b.parc.ef - a.parc.ef);
   }, [E, g.detentionCity, cls]);
 
+  const cityName = city.label === "Vila Nova de Gaia" ? "Gaia" : city.label;
   const sentence = useMemo(
-    () => E.energieInsight(cls, rows.map((r) => r.zone)),
-    [E, cls, rows]
+    () => E.energieInsight(cls, rows.map((r) => r.zone), cityName),
+    [E, cls, rows, cityName]
   );
   const maxRow = rows[0];
 
@@ -84,7 +85,7 @@ export default function EnergiePage() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={E.PAGE.marketLine}
+          marketLine={city.texts.energieMarketLine ?? E.PAGE.marketLine}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}
@@ -106,7 +107,7 @@ export default function EnergiePage() {
               </span>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
-              {E.PAGE.intro}
+              {city.texts.energieIntro ?? E.PAGE.intro}
             </p>
           </div>
 

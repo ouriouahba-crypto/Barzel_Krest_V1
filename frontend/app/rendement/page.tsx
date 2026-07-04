@@ -8,6 +8,8 @@ import { YieldWaterfall } from "@/components/YieldWaterfall";
 import { RibeiraSlider } from "@/components/RibeiraSlider";
 import { MarginBars } from "@/components/MarginBars";
 import { InsightBanner } from "@/components/InsightBanner";
+import { cityBySlug } from "@/lib/cities";
+import { useCityStore } from "@/lib/cityStore";
 import { useGaia } from "@/lib/useGaia";
 import { classLabel, verdictTone } from "@/lib/scoring";
 import { eur0 } from "@/lib/priceMargin";
@@ -15,8 +17,7 @@ import { rdRows, rdSummary, RdRow } from "@/lib/rendement";
 import { detentionInsight, anomalyNote } from "@/lib/insights";
 
 const SANTA = "santamarinhaesaopedrodaafurada";
-const MARKET_LINE =
-  "Rive sud du Douro : demande locative réelle, loyers en rattrapage. Conserver ne se justifie qu'au rendement net, après charges et fiscalité.";
+// Ligne marché : registre des villes (lib/cities.ts).
 
 // Détention economics, one line per class.
 const CONTEXT: Record<string, string> = {
@@ -34,6 +35,7 @@ const CONTEXT: Record<string, string> = {
 
 export default function RendementPage() {
   const g = useGaia();
+  const city = cityBySlug(useCityStore((s) => s.slug));
   const [selected, setSelected] = useState<string[]>([]);
 
   const cls = g.assetClass;
@@ -94,7 +96,7 @@ export default function RendementPage() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={MARKET_LINE}
+          marketLine={city.texts.marketLines.rendement}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}

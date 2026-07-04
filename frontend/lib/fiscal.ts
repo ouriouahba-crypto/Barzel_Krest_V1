@@ -60,7 +60,7 @@ export function acquisitionTaxes(price: number, residential: boolean) {
 // computed from the same engine-served rows as the mode pages.
 const ENTRY_PCT = IMT_COMMERCIAL_PCT + SELO_PCT; // foncier / commercial : 7,3%
 
-export function fiscalInsight(cls: string, pm: PmRow[], rd: RdRow[]): string {
+export function fiscalInsight(cls: string, pm: PmRow[], rd: RdRow[], cityName: string = "Gaia"): string {
   if (cls === "residential") {
     // Cycle promotion : IMT+selo sur le foncier à l'entrée, IRC effectif sur la
     // marge à la sortie, en % du prix de sortie, médiane des freguesias viables.
@@ -73,7 +73,7 @@ export function fiscalInsight(cls: string, pm: PmRow[], rd: RdRow[]): string {
       });
     const x = median(xs);
     if (x == null) return "Chargement du cycle fiscal…";
-    return `Sur un cycle promotion résidentiel à Gaia, la fiscalité représente ~${x.toFixed(0)}% du prix de sortie, concentrée à l'acquisition du foncier et à la cession.`;
+    return `Sur un cycle promotion résidentiel à ${cityName}, la fiscalité représente ~${x.toFixed(0)}% du prix de sortie, concentrée à l'acquisition du foncier et à la cession.`;
   }
   // Cycle détention commercial : IMI (part fiscalité du loyer) + IRC sur les
   // loyers nets, en % du loyer annuel, médiane des freguesias viables.
@@ -82,7 +82,7 @@ export function fiscalInsight(cls: string, pm: PmRow[], rd: RdRow[]): string {
     .map((r) => r.fiscPctLoyer + (IRC_EFFECTIVE_PCT / 100) * (100 - r.chargesPctLoyer - r.fiscPctLoyer));
   const x = median(xs);
   if (x == null) return "Chargement du cycle fiscal…";
-  return `Sur un cycle détention ${classLabel(cls).toLowerCase()} à Gaia, la fiscalité absorbe ~${x.toFixed(0)}% du loyer annuel (IMI puis IRC sur les loyers nets), après ~${ENTRY_PCT.toLocaleString("fr-FR")}% du prix à l'entrée.`;
+  return `Sur un cycle détention ${classLabel(cls).toLowerCase()} à ${cityName}, la fiscalité absorbe ~${x.toFixed(0)}% du loyer annuel (IMI puis IRC sur les loyers nets), après ~${ENTRY_PCT.toLocaleString("fr-FR")}% du prix à l'entrée.`;
 }
 
 // --------------------------------------------------------------------------- #

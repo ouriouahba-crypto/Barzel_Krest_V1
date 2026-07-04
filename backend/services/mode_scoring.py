@@ -351,11 +351,56 @@ def load(city: str | None = None, force: bool = False) -> State:
     listings_by_zone = _load_listings_stats(slug)
 
     st = State(params=params, zones=zones, listings_by_zone=listings_by_zone)
-    st.socle = _build_socle(st)
+    # Socle de percentiles : les métriques de la ville sont classées dans un
+    # UNIVERS DE RÉFÉRENCE = zones de la ville + pool témoin partagé
+    # (backend/data/witness/). Pour gaia, l'univers reconstitué est exactement
+    # celui d'avant l'extraction des témoins (49 zones) : payloads identiques
+    # aux octets. Les valeurs de la ville priment sur le pool en cas de clé
+    # commune (fusion ville-en-dernier).
+    if slug != cities.WITNESS_SLUG and cities.witness_city_names():
+        st.socle = _build_socle(_socle_universe(raw, zones, listings_by_zone))
+    else:
+        st.socle = _build_socle(st)
     _STATES[slug] = st
     log.info("mode_scoring loaded [%s]: %d zones, %d zones with listings",
              slug, len(zones), len(listings_by_zone))
     return st
+
+
+def _witness_pool() -> tuple[dict, dict, dict]:
+    """(params bruts, zones, stats listings) du pool témoin, chargé une fois."""
+    global _WITNESS_POOL
+    if _WITNESS_POOL is None:
+        raw = json.loads(cities.params_path(cities.WITNESS_SLUG).read_text(encoding="utf-8"))
+        backbone = json.loads(cities.backbone_path(cities.WITNESS_SLUG).read_text(encoding="utf-8"))
+        zones: dict[str, dict] = {}
+        for city, cdata in backbone.get("cities", {}).items():
+            for z in cdata.get("zones", []):
+                zones[z["id"]] = {
+                    "id": z["id"], "name": z.get("name"), "city": city,
+                    "country": cdata.get("country"), "level": z.get("level"),
+                    "residential": z.get("residential", {}),
+                    "krest": z.get("krest"),
+                }
+        _WITNESS_POOL = (raw, zones, _load_listings_stats(cities.WITNESS_SLUG))
+    return _WITNESS_POOL
+
+
+_WITNESS_POOL: tuple[dict, dict, dict] | None = None
+
+
+def _socle_universe(city_raw: dict, city_zones: dict, city_stats: dict) -> "State":
+    """State jetable servant uniquement au socle : pool témoin + ville, la
+    ville l'emportant sur toute clé commune (tables par zone incluses)."""
+    w_raw, w_zones, w_stats = _witness_pool()
+    merged_raw = dict(w_raw)
+    merged_raw.update({k: v for k, v in city_raw.items()
+                       if k not in ("zones", "new_build_premium_by_zone", "land_cost_eur_m2_by_zone")})
+    for tbl in ("zones", "new_build_premium_by_zone", "land_cost_eur_m2_by_zone"):
+        merged_raw[tbl] = {**w_raw.get(tbl, {}), **city_raw.get(tbl, {})}
+    return State(params=_adapt_params(merged_raw),
+                 zones={**w_zones, **city_zones},
+                 listings_by_zone={**w_stats, **city_stats})
 
 
 def _load_listings_stats(slug: str) -> dict[str, dict]:
@@ -1298,6 +1343,11 @@ def score_mode(zone_id: str, mode: str, asset_class: str | None = None,
     if mode not in MODES:
         raise ValueError(f"unknown mode {mode!r}; expected one of {MODES}")
     z = st.zones.get(zone_id)
+    if z is None and cities.witness_city_names():
+        # zones témoins historiques (ixelles, parquedasnacoes…) : rétrocompat
+        wst = load(cities.WITNESS_SLUG)
+        if zone_id in wst.zones:
+            st, z = wst, wst.zones[zone_id]
     if z is None:
         raise KeyError(f"unknown zone {zone_id!r}")
 
@@ -1379,8 +1429,11 @@ def score_city(city: str, mode: str, asset_class: str | None = None) -> list[dic
 def score_asset(asset_name: str, city: str | None = None) -> dict:
     st = load(city)
     asset = st.params.get("krest_assets", {}).get(asset_name.lower())
-    if asset is None:
-        raise KeyError(f"unknown KREST asset {asset_name!r}")
+    if asset is None and cities.witness_city_names():
+        wst = load(cities.WITNESS_SLUG)
+        asset = wst.params.get("krest_assets", {}).get(asset_name.lower())
+        if asset is not None:
+            st = wst
     zone_id = asset["zone"]
     scores = {m: score_mode(zone_id, m, asset.get("class"), asset_name, city=city) for m in MODES}
     return {

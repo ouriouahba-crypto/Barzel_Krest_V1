@@ -8,7 +8,9 @@
       "rapport": "Chiffre de marche issu d un rapport professionnel (CBRE, JLL, Cushman, Savills, Colliers, INE, Banco de Portugal).",
       "hypothese": "Valeur de travail proposee par defaut, A VALIDER par Ouri (terrain metier)."
     },
-    "edit_note": "value = valeur ; unit = unite ; conf = confiance ; src = source. Ne pas supprimer les cles, corriger les valeurs."
+    "edit_note": "value = valeur ; unit = unite ; conf = confiance ; src = source. Ne pas supprimer les cles, corriger les valeurs.",
+    "city": "lisbonne",
+    "note": "Params V0 lisbonne (lot 2a) : générés mécaniquement depuis les prix INE 2025-Q4 (gradients + jitter déterministe + anti-jumeaux), SANS calibration éditoriale (2b)."
   },
   "global": {
     "cost_of_capital_pct": {
@@ -260,72 +262,68 @@
       }
     }
   },
-  "be_eur_m2_by_commune": {
-    "note": "eur/m2 appartements par commune belge (marche 2025-2026), ancre du socle belge. Cle = nom commune.",
-    "Ixelles": 4240,
-    "Etterbeek": 4300,
-    "Woluwe-Saint-Pierre": 4200,
-    "Uccle": 4050,
-    "Woluwe-Saint-Lambert": 3900,
-    "Watermael-Boitsfort": 3800,
-    "Auderghem": 3700,
-    "Saint-Gilles": 3600,
-    "Bruxelles-Ville": 3500,
-    "Bruxelles": 3500,
-    "Forest": 3300,
-    "Schaerbeek": 3200,
-    "Jette": 3100,
-    "Evere": 3100,
-    "Ganshoren": 3050,
-    "Berchem-Sainte-Agathe": 3050,
-    "Koekelberg": 3000,
-    "Saint-Josse-Ten-Noode": 3000,
-    "Molenbeek-Saint-Jean": 2900,
-    "Anderlecht": 2900,
-    "Mont-Saint-Guibert": 2700
-  },
   "new_build_premium_by_zone": {
     "note": "Prime en % du neuf realisable sur la mediane de l'ancien (backbone), par zone_id. Le neuf se vend 20-40% plus cher que l'ancien; prime plus forte la ou le neuf est rare/recherche. Confiance hypothese (parametre). N'applique qu'au cas zone-sans-actif nomme.",
     "default": 30,
     "gaia_default": 26,
-    "santamarinhaesaopedrodaafurada": 34,
-    "canidelo": 18,
-    "madalena": 31,
-    "mafamudeevilardoparaiso": 28,
-    "oliveiradodouro": 25,
-    "arcozelo": 26,
-    "saofelixdamarinha": 22,
-    "gulpilharesevaladares": 25,
-    "vilardeandorinho": 22,
-    "canelas": 21,
-    "avintes": 21,
-    "pedrosoeseixezelo": 20,
-    "grijoesermonde": 19,
-    "serzedoeperosinho": 19,
-    "sandim,olival,leverecrestuma": 18
+    "ajuda": 24,
+    "alcantara": 22,
+    "alvalade": 23,
+    "areeiro": 23,
+    "arroios": 21,
+    "avenidasnovas": 27,
+    "beato": 22,
+    "belem": 25,
+    "benfica": 21,
+    "campodeourique": 30,
+    "campolide": 26,
+    "carnide": 21,
+    "estrela": 27,
+    "lumiar": 23,
+    "marvila": 25,
+    "misericordia": 28,
+    "olivais": 22,
+    "parquedasnacoes": 31,
+    "penhadefranca": 20,
+    "santaclara": 18,
+    "santamariamaior": 25,
+    "santoantonio": 33,
+    "saodomingosdebenfica": 23,
+    "saovicente": 24,
+    "lisboa": 26
   },
   "land_cost_eur_m2_by_zone": {
-    "note": "Cout du foncier en euros par m2 de surface vendable, par zone_id du backbone. Remplace l'estimation 18% du prix de vente (qui gonflait le foncier en zone chere). Confiance hypothese (parametre). N'applique qu'au cas zone-sans-actif nomme.",
+    "note": "Cout du foncier en euros par m2 de surface vendable, par zone_id du backbone. Remplace l'estimation 18% du prix de vente (qui gonflait le foncier en zone chere). Confiance hypothese (parametre). N'applique qu'au cas zone-sans-actif nomme. V0 lisbonne (lot 2a) : foncier dérivé mécaniquement d'un gradient de marge 0-18% croissant avec le prix INE (jitter ±3 pts), équation moteur inversée (realisable/(1.261*(1+m)) - construction 1700). Niveaux 45-65% du prix, cohérents avec le foncier central lisboète ; hiérarchie NON calibrée (2b).",
     "default": 300,
-    "gaia_default": 470,
-    "santamarinhaesaopedrodaafurada": 524,
-    "madalena": 594,
-    "canidelo": 673,
-    "mafamudeevilardoparaiso": 473,
-    "saofelixdamarinha": 286,
-    "arcozelo": 435,
-    "oliveiradodouro": 440,
-    "gulpilharesevaladares": 423,
-    "vilardeandorinho": 271,
-    "canelas": 277,
-    "avintes": 295,
-    "pedrosoeseixezelo": 227,
-    "grijoesermonde": 214,
-    "serzedoeperosinho": 217,
-    "sandim,olival,leverecrestuma": 128
+    "gaia_default": 2769,
+    "santoantonio": 4529,
+    "parquedasnacoes": 4152,
+    "campodeourique": 3783,
+    "estrela": 3427,
+    "misericordia": 3306,
+    "avenidasnovas": 3333,
+    "campolide": 3143,
+    "belem": 2917,
+    "marvila": 2975,
+    "santamariamaior": 2981,
+    "alvalade": 2757,
+    "saodomingosdebenfica": 2851,
+    "ajuda": 2825,
+    "saovicente": 2629,
+    "alcantara": 2517,
+    "areeiro": 2600,
+    "lumiar": 2639,
+    "arroios": 2559,
+    "carnide": 2383,
+    "benfica": 2259,
+    "beato": 2371,
+    "penhadefranca": 2173,
+    "olivais": 2343,
+    "santaclara": 1844,
+    "lisboa": 2769
   },
   "commercial_gaia": {
-    "note": "Couche commerciale (bureaux/hotellerie/logistique/commerce) par freguesia de Gaia, ancres Porto/Gaia 2025-2026. prix €/m² = loyer×12/yield. Module par freguesia via zone_factors. Usage interne, jamais affiche comme simule.",
+    "note": "Clé legacy (nommage historique) : économies commerciales de la ville courante. V0 lisbonne lot 2a : classes reprises de Gaia, zone_factors mécaniques (2b calibrera).",
     "classes": {
       "office": {
         "yield_pct": 5.25,
@@ -360,101 +358,155 @@
         "logistics": 1.0,
         "retail": 1.0
       },
-      "vilanovadegaia": {
-        "office": 1.1,
-        "hotel": 1.08,
-        "logistics": 0.97,
+      "lisboa": {
+        "office": 1.12,
+        "hotel": 1.14,
+        "logistics": 0.9,
+        "retail": 1.02
+      },
+      "santoantonio": {
+        "office": 1.281,
+        "hotel": 1.303,
+        "logistics": 0.911,
+        "retail": 1.14
+      },
+      "parquedasnacoes": {
+        "office": 1.217,
+        "hotel": 1.22,
+        "logistics": 0.934,
+        "retail": 1.069
+      },
+      "campodeourique": {
+        "office": 1.153,
+        "hotel": 1.153,
+        "logistics": 0.954,
+        "retail": 1.03
+      },
+      "estrela": {
+        "office": 1.116,
+        "hotel": 1.101,
+        "logistics": 0.968,
+        "retail": 0.983
+      },
+      "misericordia": {
+        "office": 1.115,
+        "hotel": 1.092,
+        "logistics": 0.969,
+        "retail": 0.983
+      },
+      "avenidasnovas": {
+        "office": 1.087,
+        "hotel": 1.084,
+        "logistics": 0.976,
+        "retail": 0.958
+      },
+      "campolide": {
+        "office": 1.088,
+        "hotel": 1.069,
+        "logistics": 0.979,
+        "retail": 0.936
+      },
+      "belem": {
+        "office": 1.024,
+        "hotel": 1.036,
+        "logistics": 0.987,
+        "retail": 0.922
+      },
+      "marvila": {
+        "office": 1.028,
+        "hotel": 1.015,
+        "logistics": 0.987,
+        "retail": 0.915
+      },
+      "santamariamaior": {
+        "office": 1.019,
+        "hotel": 1.006,
+        "logistics": 0.991,
+        "retail": 0.924
+      },
+      "alvalade": {
+        "office": 1.018,
+        "hotel": 0.993,
+        "logistics": 0.983,
+        "retail": 0.9
+      },
+      "saodomingosdebenfica": {
+        "office": 1.003,
+        "hotel": 0.98,
+        "logistics": 0.989,
+        "retail": 0.904
+      },
+      "ajuda": {
+        "office": 1.013,
+        "hotel": 0.976,
+        "logistics": 0.98,
+        "retail": 0.877
+      },
+      "saovicente": {
+        "office": 0.971,
+        "hotel": 0.952,
+        "logistics": 1.006,
         "retail": 0.86
       },
-      "santamarinhaesaopedrodaafurada": {
-        "office": 1.2,
-        "hotel": 1.22,
-        "logistics": 0.94,
-        "retail": 1.05
-      },
-      "mafamudeevilardoparaiso": {
-        "office": 1.15,
-        "hotel": 1.085,
-        "logistics": 0.955,
-        "retail": 0.87
-      },
-      "canidelo": {
-        "office": 1.1,
-        "hotel": 1.165,
-        "logistics": 0.94,
-        "retail": 0.88
-      },
-      "madalena": {
-        "office": 1.05,
-        "hotel": 1.055,
-        "logistics": 0.97,
-        "retail": 1.0
-      },
-      "oliveiradodouro": {
-        "office": 1.0,
-        "hotel": 1.005,
-        "logistics": 0.985,
-        "retail": 0.88
-      },
-      "arcozelo": {
-        "office": 0.95,
-        "hotel": 1.03,
+      "alcantara": {
+        "office": 0.989,
+        "hotel": 0.951,
         "logistics": 1.0,
-        "retail": 0.78
+        "retail": 0.849
       },
-      "saofelixdamarinha": {
-        "office": 0.9,
-        "hotel": 0.98,
-        "logistics": 1.015,
-        "retail": 0.74
+      "areeiro": {
+        "office": 0.955,
+        "hotel": 0.936,
+        "logistics": 0.993,
+        "retail": 0.833
       },
-      "gulpilharesevaladares": {
-        "office": 0.95,
-        "hotel": 1.105,
-        "logistics": 0.985,
-        "retail": 0.78
+      "lumiar": {
+        "office": 0.955,
+        "hotel": 0.936,
+        "logistics": 1.012,
+        "retail": 0.853
       },
-      "serzedoeperosinho": {
-        "office": 0.8,
-        "hotel": 0.83,
-        "logistics": 1.045,
-        "retail": 0.51
+      "arroios": {
+        "office": 0.946,
+        "hotel": 0.915,
+        "logistics": 1.016,
+        "retail": 0.829
       },
-      "grijoesermonde": {
-        "office": 0.75,
-        "hotel": 0.805,
-        "logistics": 1.06,
-        "retail": 0.5
+      "carnide": {
+        "office": 0.956,
+        "hotel": 0.925,
+        "logistics": 1.022,
+        "retail": 0.816
       },
-      "pedrosoeseixezelo": {
-        "office": 0.8,
-        "hotel": 0.79,
-        "logistics": 1.045,
-        "retail": 0.52
+      "benfica": {
+        "office": 0.93,
+        "hotel": 0.905,
+        "logistics": 1.018,
+        "retail": 0.842
       },
-      "sandim,olival,leverecrestuma": {
-        "office": 0.7,
-        "hotel": 0.73,
-        "logistics": 1.06,
-        "retail": 0.47
+      "beato": {
+        "office": 0.942,
+        "hotel": 0.917,
+        "logistics": 1.001,
+        "retail": 0.808
       },
-      "avintes": {
-        "office": 0.85,
-        "hotel": 0.86,
+      "penhadefranca": {
+        "office": 0.932,
+        "hotel": 0.872,
+        "logistics": 1.019,
+        "retail": 0.809
+      },
+      "olivais": {
+        "office": 0.914,
+        "hotel": 0.896,
+        "logistics": 1.011,
+        "retail": 0.786
+      },
+      "santaclara": {
+        "office": 0.828,
+        "hotel": 0.806,
         "logistics": 1.03,
-        "retail": 0.53
-      },
-      "vilardeandorinho": {
-        "office": 0.85,
-        "hotel": 0.845,
-        "logistics": 1.03,
-        "retail": 0.54
-      },
-      "canelas": {
-        "office": 0.85,
-        "hotel": 0.895,
-        "logistics": 1.03,
-        "retail": 0.53
+        "retail": 0.722
       }
     }
   },
@@ -582,46 +634,70 @@
     }
   },
   "zones": {
-    "note": "Overrides par zone : constructibilite, connectivite, ajustement de cycle, overlays. 0-100 sauf indication. Cle = zone_id du backbone.",
-    "santamarinhaesaopedrodaafurada": {
+    "note": "Overrides par zone V0 (lot 2a, MÉCANIQUES : gradient prix/centralité + jitter, SANS hiérarchie éditoriale ; à calibrer en 2b). 0-100.",
+    "santoantonio": {
       "constructibility": {
-        "value": 71,
+        "value": 32,
         "conf": "hypothese"
       },
       "connectivity": {
-        "value": 75,
-        "conf": "rapport",
-        "src": "future ligne Rubi metro Gaia, Douro"
-      },
-      "cycle_momentum": {
-        "value": 80,
-        "conf": "rapport",
-        "src": "Gaia +18-26% yoy INE"
+        "value": 72,
+        "conf": "hypothese"
       }
     },
-    "madalena": {
+    "parquedasnacoes": {
       "constructibility": {
-        "value": 67,
+        "value": 46,
         "conf": "hypothese"
       },
       "connectivity": {
-        "value": 74,
+        "value": 68,
         "conf": "hypothese"
       }
     },
-    "mafamudeevilardoparaiso": {
+    "campodeourique": {
       "constructibility": {
-        "value": 63,
+        "value": 46,
         "conf": "hypothese"
       },
       "connectivity": {
-        "value": 62,
+        "value": 68,
         "conf": "hypothese"
       }
     },
-    "oliveiradodouro": {
+    "estrela": {
       "constructibility": {
+        "value": 51,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 66,
+        "conf": "hypothese"
+      }
+    },
+    "misericordia": {
+      "constructibility": {
+        "value": 48,
+        "conf": "hypothese"
+      },
+      "connectivity": {
         "value": 64,
+        "conf": "hypothese"
+      }
+    },
+    "avenidasnovas": {
+      "constructibility": {
+        "value": 48,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 66,
+        "conf": "hypothese"
+      }
+    },
+    "campolide": {
+      "constructibility": {
+        "value": 51,
         "conf": "hypothese"
       },
       "connectivity": {
@@ -629,29 +705,39 @@
         "conf": "hypothese"
       }
     },
-    "canidelo": {
+    "belem": {
       "constructibility": {
-        "value": 69,
+        "value": 56,
         "conf": "hypothese"
       },
       "connectivity": {
-        "value": 63,
+        "value": 62,
         "conf": "hypothese"
       }
     },
-    "arcozelo": {
+    "marvila": {
       "constructibility": {
-        "value": 53,
+        "value": 51,
         "conf": "hypothese"
       },
       "connectivity": {
-        "value": 58,
+        "value": 61,
         "conf": "hypothese"
       }
     },
-    "saofelixdamarinha": {
+    "santamariamaior": {
       "constructibility": {
-        "value": 48,
+        "value": 57,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 61,
+        "conf": "hypothese"
+      }
+    },
+    "alvalade": {
+      "constructibility": {
+        "value": 52,
         "conf": "hypothese"
       },
       "connectivity": {
@@ -659,7 +745,27 @@
         "conf": "hypothese"
       }
     },
-    "gulpilharesevaladares": {
+    "saodomingosdebenfica": {
+      "constructibility": {
+        "value": 51,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 56,
+        "conf": "hypothese"
+      }
+    },
+    "ajuda": {
+      "constructibility": {
+        "value": 54,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 57,
+        "conf": "hypothese"
+      }
+    },
+    "saovicente": {
       "constructibility": {
         "value": 56,
         "conf": "hypothese"
@@ -669,95 +775,109 @@
         "conf": "hypothese"
       }
     },
-    "vilardeandorinho": {
+    "alcantara": {
       "constructibility": {
+        "value": 54,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 57,
+        "conf": "hypothese"
+      }
+    },
+    "areeiro": {
+      "constructibility": {
+        "value": 57,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 56,
+        "conf": "hypothese"
+      }
+    },
+    "lumiar": {
+      "constructibility": {
+        "value": 61,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 56,
+        "conf": "hypothese"
+      }
+    },
+    "arroios": {
+      "constructibility": {
+        "value": 58,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 56,
+        "conf": "hypothese"
+      }
+    },
+    "carnide": {
+      "constructibility": {
+        "value": 58,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 53,
+        "conf": "hypothese"
+      }
+    },
+    "benfica": {
+      "constructibility": {
+        "value": 59,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 54,
+        "conf": "hypothese"
+      }
+    },
+    "beato": {
+      "constructibility": {
+        "value": 59,
+        "conf": "hypothese"
+      },
+      "connectivity": {
         "value": 51,
         "conf": "hypothese"
       }
     },
-    "canelas": {
+    "penhadefranca": {
       "constructibility": {
-        "value": 46,
+        "value": 57,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 56,
         "conf": "hypothese"
       }
     },
-    "avintes": {
+    "olivais": {
       "constructibility": {
+        "value": 63,
+        "conf": "hypothese"
+      },
+      "connectivity": {
+        "value": 51,
+        "conf": "hypothese"
+      }
+    },
+    "santaclara": {
+      "constructibility": {
+        "value": 67,
+        "conf": "hypothese"
+      },
+      "connectivity": {
         "value": 49,
-        "conf": "hypothese"
-      }
-    },
-    "sandim,olival,leverecrestuma": {
-      "constructibility": {
-        "value": 34,
-        "conf": "hypothese"
-      }
-    },
-    "grijoesermonde": {
-      "constructibility": {
-        "value": 39,
-        "conf": "hypothese"
-      }
-    },
-    "serzedoeperosinho": {
-      "constructibility": {
-        "value": 37,
-        "conf": "hypothese"
-      }
-    },
-    "pedrosoeseixezelo": {
-      "constructibility": {
-        "value": 43,
         "conf": "hypothese"
       }
     }
   },
   "assets": {
-    "note": "Parametres au niveau actif KREST, pour les scores arbitrage/detention sur biens nommes.",
-    "haya_towers": {
-      "city": "gaia",
-      "zone": "santamarinhaesaopedrodaafurada",
-      "class": "residential",
-      "units": {
-        "value": 361,
-        "conf": "rapport"
-      },
-      "budget_eur_m": {
-        "value": 150,
-        "unit": "M eur",
-        "conf": "rapport"
-      },
-      "target_price_eur_m2": {
-        "value": 5750,
-        "unit": "eur/m2",
-        "conf": "rapport",
-        "src": "annonce 5500-6000"
-      },
-      "freguesia_median_eur_m2": {
-        "value": 2721,
-        "unit": "eur/m2",
-        "conf": "officiel",
-        "src": "INE Q4 2025"
-      },
-      "premium_vs_freguesia_pct": {
-        "value": 111,
-        "unit": "%",
-        "conf": "derive",
-        "src": "5750/2721-1"
-      },
-      "construction_eur_m2": {
-        "value": 2065,
-        "unit": "eur/m2",
-        "conf": "hypothese",
-        "src": "NZEB trophee front de fleuve"
-      },
-      "land_cost_eur_m2": {
-        "value": 1300,
-        "unit": "eur/m2",
-        "conf": "hypothese",
-        "src": "foncier front de fleuve Afurada"
-      }
-    }
+    "note": "Pas d'actif K-REST vedette à Lisbonne en lot 2a (choix en 2b)."
   },
   "scoring": {
     "weights": {

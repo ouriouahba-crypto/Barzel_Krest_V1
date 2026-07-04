@@ -182,12 +182,19 @@ def _tables(scope: str, asset_class: str, modes: list[str], city: str = "gaia") 
 # LLM : narrative sections (same guardrails as the analyst)                    #
 # --------------------------------------------------------------------------- #
 
-_SYSTEM_MEMO = """Tu es l'analyste de Barzel Analytics, plateforme d'intelligence immobilière couvrant Vila Nova de Gaia (Portugal). Tu rédiges les sections narratives d'un mémo d'investissement institutionnel.
+def _system_memo_for(city: str, asset_class: str) -> str:
+    from ..services.cities import label_for
+    counts_by_mode = verdict_counts(asset_class, city)
+    n_freg = sum(next(iter(counts_by_mode.values())).values()) if counts_by_mode else 15
+    return _SYSTEM_MEMO_TEMPLATE.replace("{VILLE}", label_for(city)).replace("{NFREG}", str(n_freg))
+
+
+_SYSTEM_MEMO_TEMPLATE = """Tu es l'analyste de Barzel Analytics, plateforme d'intelligence immobilière couvrant {VILLE} (Portugal). Tu rédiges les sections narratives d'un mémo d'investissement institutionnel.
 
 RÈGLES ABSOLUES :
 - Tu rédiges UNIQUEMENT à partir des données fournies. Tu n'inventes JAMAIS un chiffre : chaque nombre cité doit figurer tel quel dans les données.
 - Tu ne mentionnes JAMAIS de niveau de confiance, de source de donnée, de méthodologie interne ni l'idée qu'une donnée serait simulée ou estimée.
-- Vila Nova de Gaia compte 15 freguesias ; ces territoires s'appellent des freguesias, jamais « friches », « quartiers » ou « communes ».
+- {VILLE} compte {NFREG} freguesias ; ces territoires s'appellent des freguesias, jamais « friches », « quartiers » ou « communes ».
 - Cohérence interne : n'affirme jamais qu'un territoire domine sur tous les axes si un seul axe s'inverse ; nomme l'exception d'emblée.
 - Pour tout comptage de freguesias (« N freguesias »), utilise UNIQUEMENT les comptages pré-calculés de la section DÉNOMBREMENTS ; ne recompte JAMAIS toi-même à partir des listes ; au moindre doute, formule sans compte. Ne cite un rang (« premier », « deuxième ») que s'il se lit directement dans l'ordre des données.
 - Tu cites les scores en entiers (« 87/100 »), jamais avec décimale.
@@ -226,11 +233,13 @@ def _llm_text(system: str, user: str, max_tokens: int) -> str:
         raise HTTPException(status_code=503, detail="rédacteur momentanément indisponible")
 
 
-async def _llm_text_async(client, user: str, max_tokens: int) -> str:
+async def _llm_text_async(client, user: str, max_tokens: int,
+                          system: str | None = None) -> str:
     try:
         message = await client.messages.create(
             model=_MODEL, max_tokens=max_tokens, temperature=0.2,
-            system=_SYSTEM_MEMO, messages=[{"role": "user", "content": user}],
+            system=system or _system_memo_for("gaia", "residential"),
+            messages=[{"role": "user", "content": user}],
         )
         return strip_em_dashes("".join(b.text for b in message.content if getattr(b, "type", "") == "text").strip())
     except Exception as exc:  # noqa: BLE001
@@ -275,9 +284,10 @@ def _validate(payload) -> tuple[str, str, list[str], str]:
 
 
 def _mission(scope: str, asset_class: str, modes: list[str], angle: str,
-             instructions: str | None, tables: dict) -> str:
+             instructions: str | None, tables: dict, city: str = "gaia") -> str:
+    from ..services.cities import label_for
     scope_txt = ("la ville entière" if scope == "ville"
-                 else f"la freguesia {tables.get('scope_name') or scope} (au sein du marché de Gaia)")
+                 else f"la freguesia {tables.get('scope_name') or scope} (au sein du marché de {label_for(city)})")
     lines = [
         "# MISSION",
         f"Angle du mémo : {_ANGLES.get(angle, _ANGLES['synthese'])}.",
@@ -308,7 +318,8 @@ def _section_brief(section: str) -> tuple[str, str, int]:
 
 
 async def _draft_section(client, base_prompt: str, section: str,
-                         counts: dict, modes: list[str]) -> str:
+                         counts: dict, modes: list[str],
+                         city: str = "gaia", asset_class: str = "residential") -> str:
     """One narrative section, with the count guardrail applied per section
     (2 attempts, corrective note on retry)."""
     label, brief, max_tokens = _section_brief(section)
@@ -317,7 +328,7 @@ async def _draft_section(client, base_prompt: str, section: str,
             f"l'affiche déjà (« {label} »). Réponds avec le texte seul, sans JSON ni markdown.")
     msg = user
     for attempt in (1, 2):
-        texte = await _llm_text_async(client, msg, max_tokens)
+        texte = await _llm_text_async(client, msg, max_tokens, system=_system_memo_for(city, asset_class))
         bad = _bad_counts({"t": texte}, counts, modes)
         if not bad:
             return texte
@@ -427,8 +438,8 @@ async def draft_section(payload: DraftSectionPayload) -> dict:
     section = payload.section if payload.section in {"executive_summary", "risques", "recommandation"} \
         or payload.section in ms.MODES else "executive_summary"
     tables = _tables(scope, asset_class, modes, city)
-    base = f"{_build_context(asset_class, city)}\n\n{_mission(scope, asset_class, modes, payload.angle, payload.instructions, tables)}"
-    texte = await _draft_section(_async_client(), base, section, verdict_counts(asset_class, city), modes)
+    base = f"{_build_context(asset_class, city)}\n\n{_mission(scope, asset_class, modes, payload.angle, payload.instructions, tables, city)}"
+    texte = await _draft_section(_async_client(), base, section, verdict_counts(asset_class, city), modes, city=city, asset_class=asset_class)
     return {"texte": texte}
 
 
@@ -439,10 +450,10 @@ async def draft(payload: DraftPayload) -> dict:
     asset_class, modes, scope, city = _validate(payload)
     tables = _tables(scope, asset_class, modes, city)
     counts = verdict_counts(asset_class, city)
-    base = f"{_build_context(asset_class, city)}\n\n{_mission(scope, asset_class, modes, payload.angle, payload.instructions, tables)}"
+    base = f"{_build_context(asset_class, city)}\n\n{_mission(scope, asset_class, modes, payload.angle, payload.instructions, tables, city)}"
     client = _async_client()
     section_ids = ["executive_summary", *modes, "risques", "recommandation"]
-    texts = await asyncio.gather(*[_draft_section(client, base, s, counts, modes) for s in section_ids])
+    texts = await asyncio.gather(*[_draft_section(client, base, s, counts, modes, city=city, asset_class=asset_class) for s in section_ids])
     by_id = dict(zip(section_ids, texts))
     sections = {
         "executive_summary": by_id["executive_summary"],
@@ -468,7 +479,7 @@ def revise(payload: RevisePayload) -> dict:
     )
     msg = user
     for attempt in (1, 2):
-        texte = _llm_text(_SYSTEM_MEMO, msg, max_tokens=700)
+        texte = _llm_text(_system_memo_for(city, asset_class), msg, max_tokens=700)
         bad = _bad_counts({"texte": texte}, counts, modes)
         if not bad or attempt == 2:
             if bad:
@@ -520,17 +531,26 @@ _FISCAL_FACTS = [
     ("Détention", "IMI 0,30–0,45 %/an (taux communal) ; AIMI 0,4 % (patrimoine résidentiel en société) ; IRC 19 % sur les loyers nets (+ derramas)."),
     ("Cession", "Plus-values en IRC 19 % + derramas → taux effectif ~21 %, celui des verdicts de la plateforme."),
 ]
-_ENERGY_FACTS = [
+_ENERGY_FACTS_COMMON = [
     ("Trajectoire EPBD", "Transposition 29/05/2026 ; non-résidentiel : rénovation des 16 % les moins performants d'ici 2030, 26 % d'ici 2033 ; résidentiel : énergie primaire moyenne −16 % (2030), −20 à 22 % (2035) ; sortie des chaudières fossiles 2040."),
+]
+_ENERGY_FACTS_GAIA = [
     ("Parc de Gaia", "Certificats SCE (A+ → F). Exposition la plus forte au centre historique (Santa Marinha : 38 % du parc en classes E-F) ; mise à niveau F→C ≈ 270 €/m², soit ≈ −0,31 point de yield net sur la première décennie pour un actif type."),
 ]
 
 
+def _facts_for_city(city: str) -> list:
+    """Faits fiscalité/énergie du mémo : le parc SCE simulé est propre à Gaia."""
+    return _FISCAL_FACTS + _ENERGY_FACTS_COMMON + (_ENERGY_FACTS_GAIA if city == "gaia" else [])
+
+
 def _html(sections: dict, tables: dict, scope: str, asset_class: str,
-          modes: list[str], angle: str, today: str) -> str:
+          modes: list[str], angle: str, today: str, city: str = "gaia") -> str:
+    from ..services.cities import label_for
+    city_label = label_for(city)
     cls_fr = _CLS_FR[asset_class]
-    scope_line = tables.get("scope_name") or "Vila Nova de Gaia"
-    title_scope = f"{scope_line} · {cls_fr}" if scope != "ville" else f"Vila Nova de Gaia · {cls_fr}"
+    scope_line = tables.get("scope_name") or city_label
+    title_scope = f"{scope_line} · {cls_fr}" if scope != "ville" else f"{city_label} · {cls_fr}"
     v = tables["ville"]
 
     # Two modes per page keeps the memo within 4-6 pages with all four modes.
@@ -570,7 +590,7 @@ def _html(sections: dict, tables: dict, scope: str, asset_class: str,
 
     facts_html = "".join(
         f'<div class="fact"><div class="fact-t">{k}</div><div class="fact-b">{_rich(t)}</div></div>'
-        for k, t in _FISCAL_FACTS + _ENERGY_FACTS
+        for k, t in _facts_for_city(city)
     )
 
     return f"""<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><style>
@@ -626,7 +646,7 @@ tr.scope td {{ background:rgba(201,168,106,.12); }}
   <div class="eyebrow">Synthèse</div>
   <h2>Synthèse exécutive</h2>
   <div class="narrative">{_paras(sections.get("executive_summary", ""))}</div>
-  <div class="eyebrow" style="margin-top:16px">Marché · Vila Nova de Gaia ({cls_fr})</div>
+  <div class="eyebrow" style="margin-top:16px">Marché · {city_label} ({cls_fr})</div>
   <div class="kpis">
     <div class="kpi"><div class="l">Prix médian ville</div><div class="v">{v["price"]} €/m²</div></div>
     <div class="kpi"><div class="l">Évolution 12 mois</div><div class="v">{v["yoy"]}</div></div>
@@ -688,12 +708,14 @@ def render(payload: RenderPayload):
     tables = _tables(scope, asset_class, modes, city)    # chiffres du moteur, jamais du client
     d = date.today()
     today = f"{d.day} {_MONTHS_FR[d.month - 1]} {d.year}"
-    html = _html(_sanitize_sections(payload.sections), tables, scope, asset_class, modes, payload.angle, today)
+    html = _html(_sanitize_sections(payload.sections), tables, scope, asset_class, modes, payload.angle, today, city)
     try:
         pdf = _pdf_bytes(html)
     except Exception as exc:  # noqa: BLE001
         log.warning("memo render failed: %s", type(exc).__name__)
         raise HTTPException(status_code=503, detail="rendu momentanément indisponible")
-    fname = f"Barzel_Memo_Gaia_{_CLS_FILE[asset_class]}_{d.isoformat()}.pdf"
+    from ..services.cities import label_for
+    city_file = "".join(ch for ch in label_for(city) if ch.isalnum())
+    fname = f"Barzel_Memo_{city_file}_{_CLS_FILE[asset_class]}_{d.isoformat()}.pdf"
     return StreamingResponse(io.BytesIO(pdf), media_type="application/pdf",
                              headers={"Content-Disposition": f'attachment; filename="{fname}"'})
