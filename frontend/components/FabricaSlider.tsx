@@ -5,6 +5,7 @@ import {
   FABRICA,
   fabricaMargin,
   fabricaPremium,
+  fmtSigned,
   margeSubscore,
   promotionVerdict,
   scoreTextColorDark,
@@ -60,7 +61,7 @@ export function FabricaSlider({ baseTotal, margeWeight }: { baseTotal: number; m
         <Metric label="Marge promoteur" value={`${margin.toFixed(0)}%`} color={scoreTextColorDark(margeSub)} />
         <Metric
           label="Prime / médiane"
-          value={`${premium >= 0 ? "+" : ""}${premium.toFixed(0)}%`}
+          value={`${fmtSigned(premium)}%`}
           sub={`médiane ${FABRICA.freguesiaMedian.toLocaleString("fr-FR")} €/m²`}
         />
         <Metric label="Score promotion" value={`${Math.round(total)}`} color={scoreTextColorDark(total)} />

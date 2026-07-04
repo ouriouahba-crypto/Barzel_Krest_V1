@@ -4,7 +4,7 @@
 // chart and the key figures.
 
 import { CityResponse, RendementBreakdown } from "./api";
-import { median, verdictTone } from "./scoring";
+import { fmtNum, median, verdictTone } from "./scoring";
 import { displayName, shortName } from "./useGaia";
 
 export interface RdRow {
@@ -84,4 +84,4 @@ export function rdSummary(rows: RdRow[]): RdSummary {
 }
 
 export const pct2 = (v: number | null | undefined) =>
-  v != null ? `${v.toFixed(2)}%` : "–";
+  v != null ? `${fmtNum(v, 2)}%` : "–";

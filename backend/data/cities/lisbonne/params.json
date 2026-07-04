@@ -323,7 +323,8 @@
     "lisboa": 2678
   },
   "commercial_gaia": {
-    "note": "Clé legacy (nommage historique) : économies commerciales de la ville courante. Lot 2b Lisbonne : bureaux prime CBD 30-32 €/m²/mois, PdN 22-24, secondaires 15-18 ; commerce Chiado en tête nationale (zone A ~100-120, dégradé rapide, courant 25-45) ; hôtellerie forte au centre historique ; logistique résiduelle intra-muros (jamais optimale).",
+    "city": "lisbonne",
+    "note": "Clé legacy (nommage historique) : économies commerciales de la ville courante, activées pour la ville déclarée par la clé city (défaut gaia : datasets historiques inchangés). Lot 2b Lisbonne : bureaux prime CBD 30-32 €/m²/mois, PdN 22-24, secondaires 15-18 ; commerce Chiado en tête nationale (zone A ~100-120, dégradé rapide, courant 25-45) ; hôtellerie forte au centre historique ; logistique résiduelle intra-muros (jamais optimale).",
     "classes": {
       "office": {
         "yield_pct": 4.75,
@@ -335,7 +336,7 @@
         "yield_pct": 5.5,
         "rent_eur_m2_month": 24,
         "construction_eur_m2": 2350,
-        "land_pct": 24
+        "land_pct": 30
       },
       "logistics": {
         "yield_pct": 6.0,
@@ -347,7 +348,7 @@
         "yield_pct": 5.5,
         "rent_eur_m2_month": 35,
         "construction_eur_m2": 1250,
-        "land_pct": 34
+        "land_pct": 60
       }
     },
     "cost_note": "construction €/m² par classe (hors TVA) ; foncier commercial = land_pct % du prix de la classe. land_pct calibre comme part realiste du foncier dans la valeur commerciale prime (34/21/48% bureaux/hotel/commerce, 12% logistique) pour des marges de promotion 15-25%. TVA commerciale recuperable (neutre pour le promoteur). Logistique construction ajustee 650->500 (cout entrepot realiste, sinon non rentable au prix marche).",
@@ -377,8 +378,8 @@
         "retail": 1.076
       },
       "campodeourique": {
-        "office": 1.023,
-        "hotel": 1.122,
+        "office": 0.9,
+        "hotel": 0.9,
         "logistics": 0.486,
         "retail": 1.186
       },
@@ -396,7 +397,7 @@
       },
       "avenidasnovas": {
         "office": 1.52,
-        "hotel": 1.221,
+        "hotel": 1.1,
         "logistics": 0.468,
         "retail": 1.336
       },
@@ -425,7 +426,7 @@
         "retail": 3.251
       },
       "alvalade": {
-        "office": 0.984,
+        "office": 0.93,
         "hotel": 0.94,
         "logistics": 0.528,
         "retail": 0.983
@@ -455,7 +456,7 @@
         "retail": 0.913
       },
       "areeiro": {
-        "office": 0.959,
+        "office": 0.88,
         "hotel": 0.922,
         "logistics": 0.515,
         "retail": 0.892
@@ -468,7 +469,7 @@
       },
       "arroios": {
         "office": 0.895,
-        "hotel": 1.042,
+        "hotel": 0.95,
         "logistics": 0.507,
         "retail": 1.012
       },
@@ -492,14 +493,14 @@
       },
       "penhadefranca": {
         "office": 0.778,
-        "hotel": 0.97,
+        "hotel": 0.9,
         "logistics": 0.512,
         "retail": 0.818
       },
       "olivais": {
         "office": 0.851,
         "hotel": 0.768,
-        "logistics": 0.957,
+        "logistics": 0.82,
         "retail": 0.758
       },
       "santaclara": {
@@ -1125,6 +1126,7 @@
     }
   },
   "scoring": {
+    "detention_net_floor_pct": {"value": 3.0, "unit": "%", "conf": "hypothese", "src": "plancher de rendement institutionnel : sous 3% net, la détention plafonne à Surveiller (doctrine de rotation, cf. fenêtre d'arbitrage PdN)"},
     "weights": {
       "note": "Poids par mode, ajustables par classe et ville via 'adjustments'. Somme = 1 par mode.",
       "promotion": {

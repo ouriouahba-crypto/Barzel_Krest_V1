@@ -3,7 +3,7 @@
 // Reused by the table, the margin waterfall, the bar chart and the key figures.
 
 import { CityResponse, MargeBreakdown } from "./api";
-import { median, verdictTone } from "./scoring";
+import { fmtNum, median, verdictTone } from "./scoring";
 import { displayName, shortName } from "./useGaia";
 
 export interface PmRow {
@@ -91,6 +91,6 @@ export const eurM2 = (v: number | null | undefined) =>
 export const eur0 = (v: number | null | undefined) =>
   v != null ? Math.round(v).toLocaleString("fr-FR") : "–";
 export const pct1 = (v: number | null | undefined) =>
-  v != null ? `${v >= 0 ? "" : ""}${v.toFixed(1)}%` : "–";
+  v != null ? `${fmtNum(v, 1)}%` : "–";
 export const pct0 = (v: number | null | undefined) =>
-  v != null ? `${Math.round(v)}%` : "–";
+  v != null ? `${fmtNum(v)}%` : "–";

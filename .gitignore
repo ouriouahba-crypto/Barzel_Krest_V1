@@ -25,6 +25,7 @@ Thumbs.db
 # Logs
 npm-debug.log*
 yarn-error.log*
+uvicorn.log
 
 # TypeScript incremental build cache
 *.tsbuildinfo

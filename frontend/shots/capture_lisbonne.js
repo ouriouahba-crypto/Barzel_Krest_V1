@@ -48,6 +48,11 @@ async function goCity(p, route) {
   await p.waitForSelector("table tbody tr", { timeout: 20000 });
   await fitAndShoot(p, "shots/lisbonne_arbitrage.png");
 
+  // Foncier : la carte des usages (facteurs commerciaux actifs, zéro logistique).
+  await goCity(p, "/foncier");
+  await p.waitForSelector("table tbody tr", { timeout: 20000 });
+  await fitAndShoot(p, "shots/lisbonne_foncier.png");
+
   await goCity(p, "/ia-analyste");
   await p.setViewportSize({ width: W, height: 1024 });
   await p.waitForTimeout(1000);

@@ -1,6 +1,6 @@
 "use client";
 
-import { Mode, scoreTextColor, verdictColor, verdictTextColor } from "@/lib/scoring";
+import { Mode, fmtNum, scoreTextColor, verdictColor, verdictTextColor } from "@/lib/scoring";
 import { PmRow, eur0, eurM2 } from "@/lib/priceMargin";
 import { Waterfall, WaterfallEmpty } from "./Waterfall";
 
@@ -35,7 +35,7 @@ export function MarginWaterfall({
       }
       mode={mode}
       verdict={row.verdict}
-      headline={`${row.marginPct.toFixed(1)}%`}
+      headline={`${fmtNum(row.marginPct, 1)}%`}
       accent={marginColor}
       accentText={inkVerdict}
       base={{ label: "Prix de vente", value: row.netSale }}

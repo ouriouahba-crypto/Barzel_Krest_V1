@@ -565,7 +565,7 @@
      "pillar": "spread",
      "subscore": 22.5,
      "weight": 0.3,
-     "why": "spread +0% (positionnement vs médiane ville)"
+     "why": "spread 0% (positionnement vs médiane ville)"
     },
     {
      "applicable": true,
@@ -1936,7 +1936,7 @@
    "mode": "detention",
    "n_transactions": 205,
    "native_indicator": {
-    "label": "yield net 3.8% · MEPS F/G ~2030-2033"
+    "label": "yield net 3.9% · MEPS F/G ~2030-2033"
    },
    "pillars": [
     {
@@ -1949,7 +1949,7 @@
       "yield_net_pct": 3.85
      },
      "native": {
-      "label": "yield net 3.8%",
+      "label": "yield net 3.9%",
       "unit": "%",
       "value": 3.85
      },
@@ -2336,7 +2336,7 @@
    "mode": "detention",
    "n_transactions": 218,
    "native_indicator": {
-    "label": "yield net 4.0% · MEPS F/G ~2030-2033"
+    "label": "yield net 4.1% · MEPS F/G ~2030-2033"
    },
    "pillars": [
     {
@@ -2349,7 +2349,7 @@
       "yield_net_pct": 4.05
      },
      "native": {
-      "label": "yield net 4.0%",
+      "label": "yield net 4.1%",
       "unit": "%",
       "value": 4.05
      },
@@ -6212,7 +6212,7 @@
    "mode": "promotion",
    "n_transactions": 191,
    "native_indicator": {
-    "label": "marge -0% · 2.5 mois"
+    "label": "marge 0% · 2.5 mois"
    },
    "pillars": [
     {
@@ -6232,14 +6232,14 @@
       "vat_pct": 0.0
      },
      "native": {
-      "label": "marge -0%",
+      "label": "marge 0%",
       "unit": "%",
       "value": -0.0
      },
      "pillar": "marge",
      "subscore": 8.0,
      "weight": 0.3,
-     "why": "marge développeur -0% (prix neuf réalisable 2493 €/m² = médiane ancien 2060 +21% · foncier 277 €/m² (paramètre zone) · vente 2493 €/m² (hors TVA sur la vente), coût 2493 €/m² dont financement 160 €/m² à 4.5% × 3 ans × LTV 60%)"
+     "why": "marge développeur 0% (prix neuf réalisable 2493 €/m² = médiane ancien 2060 +21% · foncier 277 €/m² (paramètre zone) · vente 2493 €/m² (hors TVA sur la vente), coût 2493 €/m² dont financement 160 €/m² à 4.5% × 3 ans × LTV 60%)"
     },
     {
      "applicable": true,

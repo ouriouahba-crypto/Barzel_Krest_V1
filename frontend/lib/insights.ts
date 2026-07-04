@@ -3,7 +3,7 @@
 // filler). Reused by the overview page and, later, the mode pages.
 
 import { MargeBreakdown, ModeScore } from "./api";
-import { Mode, MODES, MODE_LABEL, MODE_KPI, classLabel, median, pillarValue, verdictLabel, verdictTone } from "./scoring";
+import { Mode, MODES, MODE_LABEL, MODE_KPI, classLabel, fmtNum, median, pillarValue, verdictLabel, verdictTone } from "./scoring";
 import { displayName, shortName } from "./useGaia";
 import { PmRow } from "./priceMargin";
 import { RdRow } from "./rendement";
@@ -28,8 +28,10 @@ function cap(s: string): string {
   return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 }
 
+// Rendu half-up sans zéro négatif : le MÊME chiffre que le label natif backend
+// (une seule source de valeur formatée par carte de mode).
 function num(m: Mode, v: number): string {
-  return `${v.toFixed(MODE_KPI[m].digits)}${MODE_KPI[m].unit}`;
+  return `${fmtNum(v, MODE_KPI[m].digits)}${MODE_KPI[m].unit}`;
 }
 
 // The dominant investment mode = highest city (municipio) score.
@@ -71,8 +73,8 @@ function rangePhrase(m: Mode, lo: number, hi: number): string {
   const noun = { promotion: "marge", detention: "rendement net", arbitrage: "spread", landbank: "constructibilité" }[m];
   const d = MODE_KPI[m].digits;
   const u = MODE_KPI[m].unit;
-  if (Math.abs(hi - lo) < Math.pow(10, -d) / 2) return `${noun} ${hi.toFixed(d)}${u}`;
-  return `${noun}s de ${lo.toFixed(d)} à ${hi.toFixed(d)}${u}`;
+  if (Math.abs(hi - lo) < Math.pow(10, -d) / 2) return `${noun} ${fmtNum(hi, d)}${u}`;
+  return `${noun}s de ${fmtNum(lo, d)} à ${fmtNum(hi, d)}${u}`;
 }
 
 // A secondary driver clause (a second real number) where the data supports it.
@@ -183,19 +185,37 @@ const CLASS_ADJ_FR: Record<string, string> = {
 
 // "Name (30%)" list with a French final "et".
 function marginList(rows: PmRow[]): string {
-  const parts = rows.map((r) => `${r.name} (${Math.round(r.marginPct)}%)`);
+  const parts = rows.map((r) => `${r.name} (${fmtNum(r.marginPct)}%)`);
   if (parts.length <= 1) return parts.join("");
   return parts.slice(0, -1).join(", ") + " et " + parts[parts.length - 1];
 }
 
 // 1-2 sentences: how many freguesias carry promotion, the 2-3 best (with margin),
 // and why the rest doesn't pencil. Verb graded by the count of viable freguesias.
-export function priceMarginInsight(rows: PmRow[], assetClass: string): string {
+// `selectiveRest` : complément du gabarit « marché sélectif » (« de la capitale »
+// à Lisbonne), fourni par le registre des villes ; défaut « de la ville ».
+export function priceMarginInsight(rows: PmRow[], assetClass: string, selectiveRest?: string): string {
   const adj = CLASS_ADJ_FR[assetClass] ?? classLabel(assetClass).toLowerCase();
   const viable = rows
     .filter((r) => verdictTone("promotion", r.verdict) !== "low")
     .sort((a, b) => b.marginPct - a.marginPct);
   const n = viable.length;
+
+  // Gabarit « marché sélectif » : quand les Conditionnel dépassent la moitié
+  // des freguesias, « tient sur N » (Go + Conditionnel) serait mécaniquement
+  // exact mais contradictoire avec une ligne marché sélective ; on ne compte
+  // vraiment que les Go, le reste est sous conditions. Gaia (≤ 50% de
+  // Conditionnel sur les 5 classes) reste sur le gabarit historique.
+  const good = viable.filter((r) => verdictTone("promotion", r.verdict) === "good");
+  const midCount = viable.length - good.length;
+  if (good.length > 0 && midCount > rows.length / 2) {
+    const list = marginList(good.slice(0, 3));
+    const head =
+      good.length === 1
+        ? `La promotion ${adj} ne tient vraiment que sur une freguesia : ${list}.`
+        : `La promotion ${adj} ne tient vraiment que sur ${good.length} freguesias : ${list}.`;
+    return `${head} Le reste ${selectiveRest ?? "de la ville"} reste sous conditions, la marge écrasée par le foncier.`;
+  }
 
   if (n === 0) {
     const best = [...rows].sort((a, b) => b.marginPct - a.marginPct)[0];
@@ -236,7 +256,7 @@ const DET_CLAUSE: Record<string, string> = {
 
 // "Name (3.5%)" list with a French final "et".
 function yieldList(rows: RdRow[]): string {
-  const parts = rows.map((r) => `${r.name} (${r.yieldNet.toFixed(1)}%)`);
+  const parts = rows.map((r) => `${r.name} (${fmtNum(r.yieldNet, 1)}%)`);
   if (parts.length <= 1) return parts.join("");
   return parts.slice(0, -1).join(", ") + " et " + parts[parts.length - 1];
 }
@@ -253,13 +273,13 @@ export function detentionInsight(rows: RdRow[], assetClass: string, trapClause?:
   const maxY = rows.length ? rows.reduce((a, b) => (b.yieldNet > a.yieldNet ? b : a)) : null;
   const trap =
     maxY && verdictTone("detention", maxY.verdict) === "low"
-      ? ` ${trapClause ?? `Les yields les plus élevés (${maxY.short} ${maxY.yieldNet.toFixed(1)}%) sont des pièges de fragilité : marchés étroits, vacance longue.`}`
+      ? ` ${trapClause ?? `Les yields les plus élevés (${maxY.short} ${fmtNum(maxY.yieldNet, 1)}%) sont des pièges de fragilité : marchés étroits, vacance longue.`}`
       : "";
 
   if (n === 0) {
     if (trap) return `Aucune freguesia ne justifie de conserver${classSuffix(assetClass)} ce cycle.${trap}`;
     const best = [...rows].sort((a, b) => b.yieldNet - a.yieldNet)[0];
-    const tail = best ? ` : meilleur yield net ${best.yieldNet.toFixed(1)}% à ${best.short}` : "";
+    const tail = best ? ` : meilleur yield net ${fmtNum(best.yieldNet, 1)}% à ${best.short}` : "";
     return `Aucune freguesia ne justifie de conserver${classSuffix(assetClass)} ce cycle${tail}.`;
   }
   // Closing clause: the yield trap when it applies, else the most common weakest
@@ -433,8 +453,8 @@ const MODE_PROSE: Record<Mode, string> = {
 function cellMetricPhrase(c: CompareModeCell): string {
   if (c.metric == null) return verdictLabel(c.verdict);
   switch (c.mode) {
-    case "promotion": return `marge ${Math.round(c.metric)}%`;
-    case "detention": return `yield net ${c.metric.toFixed(1)}%`;
+    case "promotion": return `marge ${fmtNum(c.metric)}%`;
+    case "detention": return `yield net ${fmtNum(c.metric, 1)}%`;
     case "arbitrage": return `spread ${pctSigned(c.metric, 0)}`;
     default: return `uplift ${pctSigned(c.metric, 0)}`;
   }
@@ -461,8 +481,8 @@ function vsPhrase(mode: Mode, win: CompareModeCell, run: CompareModeCell): strin
   }
   if (win.metric == null || run.metric == null) return "";
   switch (mode) {
-    case "promotion": return ` (${Math.round(win.metric)}% vs ${Math.round(run.metric)}%)`;
-    case "detention": return ` (${win.metric.toFixed(1)}% vs ${run.metric.toFixed(1)}%)`;
+    case "promotion": return ` (${fmtNum(win.metric)}% vs ${fmtNum(run.metric)}%)`;
+    case "detention": return ` (${fmtNum(win.metric, 1)}% vs ${fmtNum(run.metric, 1)}%)`;
     default: return ` (${pctSigned(win.metric, 0)} vs ${pctSigned(run.metric, 0)})`;
   }
 }
@@ -576,8 +596,8 @@ export function anomalyNote(mode: Mode, scores: ModeScore[]): string | null {
     .sort((a, b) => (a.subscore ?? 100) - (b.subscore ?? 100))[0];
   const reason = weak ? PILLAR_REASON[weak.pillar] : "des fondamentaux trop faibles";
   const metric =
-    mode === "promotion" ? `${Math.round(v)}% de marge`
-    : mode === "detention" ? `${v.toFixed(1)}% de yield net`
+    mode === "promotion" ? `${fmtNum(v)}% de marge`
+    : mode === "detention" ? `${fmtNum(v, 1)}% de yield net`
     : mode === "arbitrage" ? `${pctSigned(v, 0)} de spread`
     : `une constructibilité de ${Math.round(v)}`;
   return `${displayName(s.zone_name)} affiche ${metric} mais ${reason} : verdict ${verdictLabel(s.verdict)}.`;

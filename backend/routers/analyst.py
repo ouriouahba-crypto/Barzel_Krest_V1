@@ -117,7 +117,11 @@ def _fmt(v, digits=1):
     if v is None:
         return "n/d"
     if isinstance(v, float):
-        return f"{v:.{digits}f}"
+        # Arrondi half-up de la plateforme, et jamais de zéro négatif (« -0.0 »).
+        r = math.floor(v * 10 ** digits + 0.5) / 10 ** digits
+        if r == 0:
+            r = 0.0
+        return f"{r:.{digits}f}"
     return str(v)
 
 
@@ -174,6 +178,9 @@ _FACTS_ENERGY_LISBONNE = """- Parc résidentiel de Lisbonne en classes E-F (expo
 _FACTS_AL_LISBONNE = """## LOCATION COURTE DURÉE (AL) · LISBONNE
 - Le centre historique (Santa Maria Maior, Misericórdia) est en zone de contention : la pression réglementaire municipale sur l'alojamento local rend le yield facial touristique non représentatif d'une détention institutionnelle. Les verdicts de détention de la plateforme intègrent cette fragilité (rotation lente, marché locatif contractuel étroit) : yields affichés élevés, verdict Céder."""
 
+_FACTS_FLOOR_LISBONNE = """## PLANCHER DE RENDEMENT INSTITUTIONNEL (détention) · LISBONNE
+- Sous 3,0% de yield net, la détention n'est plus justifiée, quelle que soit la profondeur du marché : le verdict plafonne à Surveiller même quand le score de marché reste élevé (c'est un plafond de doctrine, pas un malus de score). C'est le cas du produit récent au net comprimé, Parque das Nações et Avenidas Novas : le rendement ne justifie plus la détention. Quand la fenêtre d'arbitrage est ouverte au même endroit (voir le mode arbitrage, Parque das Nações), la lecture institutionnelle est une rotation : céder dans la fenêtre plutôt que détenir sous le plancher."""
+
 
 def _facts_for(city: str) -> str:
     """Faits statiques : fiscalité PT + énergie EPBD communes ; parc SCE et
@@ -182,7 +189,8 @@ def _facts_for(city: str) -> str:
     if city == "gaia":
         return "\n\n".join([_FACTS_FISCAL, _FACTS_ENERGY_COMMON, _FACTS_ENERGY_GAIA])
     if city == "lisbonne":
-        return "\n\n".join([_FACTS_FISCAL, _FACTS_ENERGY_COMMON, _FACTS_ENERGY_LISBONNE, _FACTS_AL_LISBONNE])
+        return "\n\n".join([_FACTS_FISCAL, _FACTS_ENERGY_COMMON, _FACTS_ENERGY_LISBONNE,
+                            _FACTS_AL_LISBONNE, _FACTS_FLOOR_LISBONNE])
     return "\n\n".join([_FACTS_FISCAL, _FACTS_ENERGY_COMMON])
 
 

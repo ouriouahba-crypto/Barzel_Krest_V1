@@ -25,6 +25,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import math
 import statistics
 from bisect import bisect_left
 from dataclasses import dataclass, field
@@ -50,6 +51,19 @@ OFFICIEL, DERIVE, RAPPORT, HYPOTHESE, NON_PERTINENT = (
     "officiel", "derive", "rapport", "hypothese", "non_pertinent")
 _SUPPORTED = {OFFICIEL, DERIVE, RAPPORT}
 _CONF_RANK = {OFFICIEL: 3, RAPPORT: 2, DERIVE: 1, HYPOTHESE: 0}
+
+
+def _fmt_num(v, digits: int = 0, signed: bool = False) -> str:
+    """Rendu numérique des labels natifs : l'arrondi half-up de la plateforme
+    (le Math.round du front, jamais le half-to-even de Python), appliqué à la
+    VALEUR SERVIE dans le payload pour qu'un même chiffre n'ait qu'un seul
+    rendu ; et jamais de zéro négatif : toute valeur qui tombe à zéro après
+    arrondi s'affiche « 0 », sans signe (« -0% » interdit partout)."""
+    q = 10 ** digits
+    r = math.floor(float(v) * q + 0.5) / q
+    if r == 0:
+        r = 0.0  # neutralise -0.0
+    return f"{r:+.{digits}f}" if signed and r != 0 else f"{r:.{digits}f}"
 
 
 def _worst_conf(confs) -> str:
@@ -316,6 +330,9 @@ def _adapt_params(raw: dict) -> dict:
         "data_confidence_index": {"eleve": 0.7, "moyen": 0.4,
                                   "labels": {"eleve": "eleve", "moyen": "moyen", "bas": "indicatif"}},
         "overheating_yoy_pct": 20.0, "cycle_peak_yoy_pct": 10.0,
+        # Plancher de rendement institutionnel (cap du verdict détention),
+        # optionnel par fichier ville ; None = pas de cap (gaia, témoin).
+        "detention_net_floor_pct": _pv(sc.get("detention_net_floor_pct")),
     }
     return P
 
@@ -598,10 +615,14 @@ def _band(st: State, metric: str, value: float) -> float:
 # --------------------------------------------------------------------------- #
 
 def _commercial(st: State, z: dict, cls: str) -> dict | None:
-    """Commercial economics {price, yield_pct, construction} for a Gaia zone+class."""
+    """Commercial economics {price, yield_pct, construction} for a zone+class.
+    La table commerciale d'un fichier ville déclare sa ville (clé "city",
+    défaut "gaia") : les params gaia et le pool témoin, sans cette clé, sont
+    servis à l'identique aux octets ; lisbonne porte "city": "lisbonne" (lot
+    2b : la table était calibrée mais dormante derrière l'ancien gate gaia)."""
     cg = st.params.get("commercial_gaia", {})
     classes = cg.get("classes") or {}
-    if z["city"] != "gaia" or cls not in classes:
+    if z["city"] != cg.get("city", "gaia") or cls not in classes:
         return None
     base = classes[cls]
     zf = cg.get("zone_factors", {})
@@ -800,7 +821,7 @@ def _promo_marge(st: State, z: dict, cls: str, asset: dict | None) -> Pillar:
         sale_txt = f"vente {sale:.0f} €/m² (TVA récupérable)"
     else:
         sale_txt = f"vente {sale:.0f} €/m² (hors TVA sur la vente)"
-    why = (f"marge développeur {margin_pct:.0f}% ({price_note}{land_note}{sale_txt}, "
+    why = (f"marge développeur {_fmt_num(round(margin_pct, 1))}% ({price_note}{land_note}{sale_txt}, "
            f"coût {cost_total:.0f} €/m² dont financement {finance:.0f} "
            f"€/m² à {debt_rate*100:.1f}% × {years} ans × LTV {ltv*100:.0f}%)"
            + (f" · prime {prime:.0f}% sur la médiane réelle" if prime is not None else ""))
@@ -821,8 +842,11 @@ def _promo_marge(st: State, z: dict, cls: str, asset: dict | None) -> Pillar:
         "margin_pct": round(margin_pct, 1),
         "premium_over_median_pct": round(prime, 1) if prime is not None else None,
     }
-    return Pillar("marge", sub, round(margin_pct, 1), "%",
-                  f"marge {margin_pct:.0f}%", why, conf, breakdown=breakdown)
+    # Label formaté depuis la valeur SERVIE (round 1 déc.), half-up : le front
+    # (modeInsight) rend le même chiffre depuis native.value, une seule source.
+    nv = round(margin_pct, 1)
+    return Pillar("marge", sub, nv, "%",
+                  f"marge {_fmt_num(nv)}%", why, conf, breakdown=breakdown)
 
 
 def _promo_absorption(st: State, z: dict) -> Pillar:
@@ -848,8 +872,10 @@ def _promo_momentum(st: State, z: dict) -> Pillar:
         sub = 60 + (sub - 60) * 0.4
         note = " (écrêté: signe de surchauffe)"
     conf = _derived_conf(z["residential"].get("yoy_confidence", DERIVE))
-    return Pillar("momentum_prix", sub, round(yoy, 1), "%",
-                  f"yoy {yoy:+.1f}%", f"momentum prix {yoy:+.1f}%{note}", conf)
+    nv = round(yoy, 1)
+    return Pillar("momentum_prix", sub, nv, "%",
+                  f"yoy {_fmt_num(nv, 1, signed=True)}%",
+                  f"momentum prix {_fmt_num(nv, 1, signed=True)}%{note}", conf)
 
 
 def _promo_constructibilite(st: State, z: dict) -> Pillar:
@@ -972,8 +998,9 @@ def _det_rendement(st: State, z: dict, cls: str) -> Pillar:
     if net is None:
         return _np("rendement_net", "pas de yield paramétré pour la classe/pays")
     sub = _band(st, "yield_net_pct", net)
-    return Pillar("rendement_net", sub, round(net, 2), "%",
-                  f"yield net {net:.1f}%", f"rendement net {net:.2f}% ({detail})", conf,
+    nv = round(net, 2)
+    return Pillar("rendement_net", sub, nv, "%",
+                  f"yield net {_fmt_num(nv, 1)}%", f"rendement net {net:.2f}% ({detail})", conf,
                   breakdown=breakdown)
 
 
@@ -1058,7 +1085,7 @@ def _arb_spread(st: State, z: dict, cls: str, asset: dict | None) -> Pillar:
     realizable: float | None = None  # value a disposal can fetch (market × (1+spread))
     if asset and asset.get("spread_pct") is not None:
         spread = float(asset["spread_pct"])
-        why = f"spread actif {spread:.0f}% (paramètre KREST)"
+        why = f"spread actif {_fmt_num(round(spread, 1))}% (paramètre KREST)"
         conf = _derived_conf(asset.get("confidence", RAPPORT))
         if med:
             market, realizable = float(med), float(med) * (1 + spread / 100.0)
@@ -1067,7 +1094,7 @@ def _arb_spread(st: State, z: dict, cls: str, asset: dict | None) -> Pillar:
         comp = zp.get("comparables_eur_m2")
         if comp and med:
             spread = (comp / med - 1) * 100
-            why = f"spread zone {spread:.0f}% (médiane {med:.0f} vs comparable {comp:.0f} €/m²)"
+            why = f"spread zone {_fmt_num(round(spread, 1))}% (médiane {med:.0f} vs comparable {comp:.0f} €/m²)"
             conf = _derived_conf(zp.get("comparables_eur_m2_conf", RAPPORT),
                                  z["residential"].get("confidence", DERIVE))
             market, realizable = float(med), float(comp)
@@ -1076,7 +1103,7 @@ def _arb_spread(st: State, z: dict, cls: str, asset: dict | None) -> Pillar:
             q50, q75 = q.get("q50"), q.get("q75")
             if q50 and q75:
                 spread = (q75 / q50 - 1) * 100
-                why = f"spread {spread:.0f}% (potentiel haut de gamme, dispersion Q75/Q50)"
+                why = f"spread {_fmt_num(round(spread, 1))}% (potentiel haut de gamme, dispersion Q75/Q50)"
                 conf = _derived_conf(z["residential"].get("confidence", DERIVE))
                 if med:
                     market, realizable = float(med), float(med) * (1 + spread / 100.0)
@@ -1087,11 +1114,12 @@ def _arb_spread(st: State, z: dict, cls: str, asset: dict | None) -> Pillar:
                 if not price or not ref:
                     return _np("spread", "pas de référence pour un spread")
                 spread = (price / ref - 1) * 100
-                why = f"spread {spread:+.0f}% (positionnement vs médiane ville)"
+                why = f"spread {_fmt_num(round(spread, 1), signed=True)}% (positionnement vs médiane ville)"
                 conf = DERIVE
                 market, realizable = float(ref), float(price)
     sub = _band(st, "spread_pct", spread)
-    return Pillar("spread", sub, round(spread, 1), "%", f"spread {spread:.0f}%", why, conf,
+    nv = round(spread, 1)
+    return Pillar("spread", sub, nv, "%", f"spread {_fmt_num(nv)}%", why, conf,
                   breakdown=_arb_breakdown(st, z, market, realizable, spread))
 
 
@@ -1114,15 +1142,16 @@ def _arb_momentum_cycle(st: State, z: dict) -> Pillar:
     if yoy is not None:
         # non-monotone: best near the cycle peak; penalise overheated AND declining
         parts.append(max(5.0, 95.0 - abs(yoy - peak) * 3.5))
-        why.append(f"yoy {yoy:+.1f}% vs pic ~{peak:.0f}%")
+        why.append(f"yoy {_fmt_num(round(yoy, 1), 1, signed=True)}% vs pic ~{peak:.0f}%")
     if cycle is not None:
         parts.append(float(cycle))
         why.append(f"momentum cycle paramétré {cycle}/100")
     sub = sum(parts) / len(parts)
     native = yoy if yoy is not None else cycle
     conf = DERIVE if yoy is not None else cconf
-    return Pillar("momentum_cycle", sub, round(native, 1), "%" if yoy is not None else "/100",
-                  f"yoy {yoy:+.1f}%" if yoy is not None else f"cycle {cycle}",
+    nv = round(native, 1)
+    return Pillar("momentum_cycle", sub, nv, "%" if yoy is not None else "/100",
+                  f"yoy {_fmt_num(nv, 1, signed=True)}%" if yoy is not None else f"cycle {cycle}",
                   "cycle (courbe non monotone): " + ", ".join(why), conf)
 
 
@@ -1342,6 +1371,24 @@ def _promotion_verdict_cap(st: State, verdict: str, marge: "Pillar | None") -> s
     return verdict
 
 
+def _detention_verdict_cap(st: State, verdict: str, rendement: "Pillar | None") -> str:
+    """Garde-fou du verdict détention par plancher de rendement institutionnel
+    (params scoring.detention_net_floor_pct, optionnel : absent des params gaia
+    et du pool témoin, datasets historiques inchangés). Miroir du cap promotion :
+    sous le plancher, le verdict plafonne au cran médian (Surveiller). Un marché
+    profond ne rachète pas un net qui ne rémunère plus la détention ; le net
+    affiché ne bouge pas, seul le verdict est plafonné."""
+    floor = st.params["scoring"].get("detention_net_floor_pct")
+    if floor is None or rendement is None or not rendement.applicable \
+            or not isinstance(rendement.native_value, (int, float)):
+        return verdict
+    if rendement.native_value >= floor:
+        return verdict
+    ladder = [v["label"] for v in st.params["scoring"]["verdicts"]["detention"]]  # best -> worst
+    rank = {lab: i for i, lab in enumerate(ladder)}
+    return ladder[1] if rank.get(verdict, 0) < 1 else verdict
+
+
 def _confidence_index(st: State, pillars: list[Pillar]) -> dict:
     applicable = [p for p in pillars if p.applicable]
     if not applicable:
@@ -1424,6 +1471,8 @@ def score_mode(zone_id: str, mode: str, asset_class: str | None = None,
     verdict = _verdict(st, mode, total)
     if mode == "promotion":
         verdict = _promotion_verdict_cap(st, verdict, by_key.get("marge"))
+    if mode == "detention":
+        verdict = _detention_verdict_cap(st, verdict, by_key.get("rendement_net"))
     if mode == "landbank":
         # Activation horizon: verdict-driven, refined by demand (rotation),
         # a priority reserve on a fast market activates immediately.

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { api, AssetResponse, CityResponse, ModeScore, ZoneAllModes } from "./api";
-import { Mode, MODES, MODE_KPI, MODE_LABEL, median, pillarValue } from "./scoring";
+import { Mode, MODES, MODE_KPI, MODE_LABEL, fmtNum, fmtSigned, median, pillarValue } from "./scoring";
 import { PARC_SCE, parcFor } from "./energie";
 import { setMemoDefaults } from "./session";
 import { normFreguesia } from "./normalize";
@@ -109,10 +109,10 @@ export function useGaia() {
       const medKpi = median(rows.map((z) => pillarValue(z.pillars, kpi.pillar) ?? NaN));
       return [
         { label: "Prix médian", value: eur(medPrice), sub: "freguesias" },
-        { label: "Croissance annuelle", value: medYoy != null ? `${medYoy >= 0 ? "+" : ""}${medYoy.toFixed(1)}%` : "–", sub: "sur 12 mois" },
-        { label: "Rendement net indicatif", value: medRend != null ? `${medRend.toFixed(1)}%` : "…", sub: MODE_LABEL[mode] === "Détention" ? "détention" : "indicatif" },
+        { label: "Croissance annuelle", value: medYoy != null ? `${fmtSigned(medYoy, 1)}%` : "–", sub: "sur 12 mois" },
+        { label: "Rendement net indicatif", value: medRend != null ? `${fmtNum(medRend, 1)}%` : "…", sub: MODE_LABEL[mode] === "Détention" ? "détention" : "indicatif" },
         { label: "Transactions / an", value: totalTx ? totalTx.toLocaleString("fr-FR") : "–", sub: "logements vendus" },
-        { label: `${kpi.label}`, value: medKpi != null ? `${medKpi.toFixed(kpi.digits)}${kpi.unit}` : "–", sub: "médiane freguesias" },
+        { label: `${kpi.label}`, value: medKpi != null ? `${fmtNum(medKpi, kpi.digits)}${kpi.unit}` : "–", sub: "médiane freguesias" },
       ];
     }
     // Focused freguesia
@@ -121,10 +121,10 @@ export function useGaia() {
     const kpiVal = r ? pillarValue(r.pillars, kpi.pillar) : null;
     return [
       { label: "Prix médian", value: eur(r?.price_eur_m2 ?? null), sub: "cette zone" },
-      { label: "Croissance annuelle", value: r?.yoy_pct != null ? `${r.yoy_pct >= 0 ? "+" : ""}${r.yoy_pct.toFixed(1)}%` : "–", sub: "sur 12 mois" },
-      { label: "Rendement net indicatif", value: rend != null ? `${rend.toFixed(1)}%` : "…", sub: "détention" },
+      { label: "Croissance annuelle", value: r?.yoy_pct != null ? `${fmtSigned(r.yoy_pct, 1)}%` : "–", sub: "sur 12 mois" },
+      { label: "Rendement net indicatif", value: rend != null ? `${fmtNum(rend, 1)}%` : "…", sub: "détention" },
       { label: "Transactions / an", value: r?.n_transactions != null ? r.n_transactions.toLocaleString("fr-FR") : "–", sub: "logements vendus" },
-      { label: kpi.label.replace(" médiane", "").replace(" méd.", ""), value: kpiVal != null ? `${kpiVal.toFixed(kpi.digits)}${kpi.unit}` : "–", sub: MODE_LABEL[mode] },
+      { label: kpi.label.replace(" médiane", "").replace(" méd.", ""), value: kpiVal != null ? `${fmtNum(kpiVal, kpi.digits)}${kpi.unit}` : "–", sub: MODE_LABEL[mode] },
     ];
   }, [city, detentionCity, mode, isCityView, focusRow, focusDetRow]);
 
@@ -192,7 +192,7 @@ export function useGaia() {
       extra = { label: "Parc E-F", value: ef != null ? `${Math.round(ef)}%` : "–" };
     } else {
       const rend = d ? pillarValue(d.pillars, "rendement_net") : null;
-      extra = { label: "Rendement net", value: rend != null ? `${rend.toFixed(1)}%` : "…" };
+      extra = { label: "Rendement net", value: rend != null ? `${fmtNum(rend, 1)}%` : "…" };
     }
     return {
       name: displayName(r.zone_name),
@@ -203,7 +203,7 @@ export function useGaia() {
       yoy: r.yoy_pct,
       extra,
       kpiLabel: kpi.label.replace(" médiane", "").replace(" méd.", ""),
-      kpiValue: kv != null ? `${kv.toFixed(kpi.digits)}${kpi.unit}` : null,
+      kpiValue: kv != null ? `${fmtNum(kv, kpi.digits)}${kpi.unit}` : null,
     };
   };
 

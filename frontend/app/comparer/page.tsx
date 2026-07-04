@@ -10,7 +10,7 @@ import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
 import { useGaia, displayName, shortName } from "@/lib/useGaia";
 import { LandbankBreakdown, ModeScore } from "@/lib/api";
-import { Mode, MODES, MODE_LABEL, MODE_ROUTE, classLabel, pillarValue } from "@/lib/scoring";
+import { Mode, MODES, MODE_LABEL, MODE_ROUTE, classLabel, fmtNum, fmtSigned, pillarValue } from "@/lib/scoring";
 import { pctSigned } from "@/lib/arbitrage";
 import { CompareColumn, CompareModeCell, compareInsight, compareSynthesis } from "@/lib/insights";
 
@@ -36,8 +36,8 @@ function cellFor(mode: Mode, z: ModeScore): CompareModeCell {
 function metricDisplay(c: CompareModeCell): string {
   if (c.metric == null) return "–";
   switch (c.mode) {
-    case "promotion": return `marge ${c.metric.toFixed(1)}%`;
-    case "detention": return `yield net ${c.metric.toFixed(2)}%`;
+    case "promotion": return `marge ${fmtNum(c.metric, 1)}%`;
+    case "detention": return `yield net ${fmtNum(c.metric, 2)}%`;
     case "arbitrage": return `spread ${pctSigned(c.metric)}`;
     default: return `uplift ${pctSigned(c.metric)}`;
   }
@@ -185,7 +185,7 @@ export default function ComparerPage() {
                 {/* a) carte d'identité */}
                 <div className="mt-3 grid grid-cols-3 gap-2">
                   <Ident label="Prix médian" value={col.price != null ? `${Math.round(col.price).toLocaleString("fr-FR")} €/m²` : "–"} />
-                  <Ident label="Sur 12 mois" value={col.yoy != null ? `${col.yoy >= 0 ? "+" : ""}${col.yoy.toFixed(1)}%` : "–"} />
+                  <Ident label="Sur 12 mois" value={col.yoy != null ? `${fmtSigned(col.yoy, 1)}%` : "–"} />
                   <Ident label="Transactions" value={col.tx != null ? `${col.tx.toLocaleString("fr-FR")} / an` : "–"} sub="tous segments" />
                 </div>
 
