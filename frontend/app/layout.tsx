@@ -16,7 +16,7 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "Barzel Analytics — Vila Nova de Gaia",
+  title: "Barzel Analytics · Vila Nova de Gaia",
   description: "Intelligence immobilière par mode d'investissement.",
 };
 

@@ -74,6 +74,15 @@ non migrés — à convertir s'ils sont réutilisés.
 - **Jamais** afficher : « simulation », « confiance », les sources, ni les
   paramètres bruts de `backend/data/params.json`. Le backend `_clean()` retire
   déjà `data_confidence_index`, `confidence`, `source`, `krest`, etc.
+- **Jamais de tiret cadratin (U+2014) dans quoi que ce soit de visible**
+  (titres, insights, textes, tooltips, contexte `_clean`, template PDF,
+  sorties IA) : ponctuation adaptée (deux-points, virgule, point, parenthèses ;
+  middot `·` pour les séparateurs de libellés déjà dans la charte). Placeholder
+  de valeur absente : en-dash `–` (U+2013, toléré). Sorties IA : interdiction
+  dans les prompts système **et** filet `strip_em_dashes()`
+  (`backend/routers/analyst.py`, appliqué aux réponses analyste, aux sections
+  du mémo via `_llm_text*` et aux sections au rendu PDF) ; invariants
+  `test_no_em_dash_in_clean_texts` + `test_memo_em_dash_sanitized_everywhere`.
 - Là où la donnée manque, on simule du réaliste — sans le dire.
 - Les **économies dérivées par freguesia** (marge, coût de revient, foncier,
   prix neuf réalisable) *sont* le sujet des pages de module : elles s'affichent.
@@ -1184,6 +1193,46 @@ côté backend). Détail des règles gravées en charte (échelle + contraste) c
    classement (Recharts décimait les 15 étiquettes à 12px), marge gauche de
    la trajectoire (1er libellé rogné). HayaSlider et blocs K-REST intacts
    fonctionnellement, `_clean` inchangé, .env non commité.
+
+### Lot « zéro cadratin » — ponctuation + garde-fous IA — **✅ Livré** (2026-07-04)
+Exigence produit avant duplication multi-villes : plus aucun tiret cadratin
+(U+2014) visible. Aucun changement de données/scores/verdicts (contrôlé :
+payloads identiques, label natif municipio inchangé au caractère près).
+1. **Inventaire → réécriture manuelle** : 383 cadratins dans 66 fichiers
+   (frontend + backend, sources) → **0**. Chaque occurrence réécrite selon le
+   contexte : deux-points/virgule/point/parenthèses en prose (MARKET_LINE,
+   CONTEXT par classe, insights, prompts), middot `·` pour les séparateurs de
+   libellés (titres de cascades « Décomposition … · <freguesia> », lignes
+   IMT/IMI de /fiscalite, « Vue ville … · <native> » du PDF), en-dash `–` pour
+   le placeholder de valeur absente (~59 occurrences converties). Titre
+   d'onglet « Barzel Analytics · Vila Nova de Gaia ». Les textes du contexte
+   `_clean` (labels natifs, lignes DÉNOMBREMENTS, bloc Haya, `_FACTS`) et le
+   `_fmt` du contexte analyste (`n/d` au lieu du cadratin) sont nettoyés aussi.
+2. **Sorties IA live** : interdiction explicite du cadratin dans les prompts
+   système analyste ET mémo (formulée « U+2014 » sans le glyphe, pour tenir le
+   grep des sources à zéro) + **filet `strip_em_dashes()`** (analyst.py,
+   partagé) : « espace cadratin espace » → virgule, puis tout U+2014 résiduel
+   → virgule. Appliqué : réponse `/api/analyst/ask`, `_llm_text` et
+   `_llm_text_async` du mémo (draft, draft_section, revise), et
+   `_sanitize_sections()` au rendu PDF (les textes reviennent du client via la
+   relecture éditable). Le filet passe AVANT les validations existantes
+   (`_bad_counts` reçoit du texte déjà propre) ; sanitize, jamais de rejet.
+3. **Tests permanents** (+2 → **23**) : `test_no_em_dash_in_clean_texts`
+   (payloads `_clean` 4 modes × residential/office + `_build_context`) et
+   `test_memo_em_dash_sanitized_everywhere` (comportement du filet + HTML du
+   mémo rendu depuis des sections piégées, cadratins construits via `—`
+   pour ne jamais mettre le glyphe dans les sources).
+4. **Vérifs** : `tsc` OK ; tests 23/23 (même split d'environnement documenté :
+   22/23 sous python3 framework, le test pytest.raises passe sous anaconda) ;
+   **grep final = 0** sur frontend/ + backend/ (sources ; seuls les snapshots
+   `shots/audit_*.json` historiques en contiennent — `audit_apres.json`
+   régénéré : **0 cadratin vu à l'écran sur les 10 pages**) ; mémo
+   ville·résidentiel·synthèse régénéré : draft IA 0, HTML 0, **PDF 5 pages 0**
+   (texte extrait pypdf) ; réponse analyste live 0 (chiffres 87/83/72, 30,0 %,
+   3 646 €/m² inchangés) ; `check_matrix` **60/60** ; captures standard
+   régénérées (les 10 pages + carte ×2 + ia_analyste). En-dashes (U+2013,
+   informatif) : 6 préexistants non touchés (fiscalite 3, analyst 2, memo 1) ;
+   65 au total après lot (les +59 sont la conversion du placeholder).
 
 ### État final du gabarit de page de mode
 Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,

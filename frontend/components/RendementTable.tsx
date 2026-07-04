@@ -6,7 +6,7 @@ import { eur0 } from "@/lib/priceMargin";
 import { RdRow, pct2 } from "@/lib/rendement";
 import { VerdictBadge } from "./ui";
 
-// Détention table — same visual codes as PriceMarginTable (score liseré, verdict
+// Détention table: same visual codes as PriceMarginTable (score liseré, verdict
 // badge, sortable columns). Default grouping: Conserver/Surveiller above an
 // "À céder" separator, net yield desc in each group; any user sort goes global.
 
@@ -84,7 +84,7 @@ export function RendementTable({
             <tr className="border-b border-navy/10">
               {COLS.map((c) => {
                 // Before any user sort the table is grouped by verdict (score
-                // desc) — no column carries the ordering, so no arrow lights up.
+                // desc): no column carries the ordering, so no arrow lights up.
                 const active = userSorted && sort.key === c.key;
                 return (
                   <th

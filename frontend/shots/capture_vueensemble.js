@@ -10,7 +10,7 @@ async function ready(p) {
   await p.waitForTimeout(1600);
 }
 
-// App scrolls inside <main>, not the document — grow the viewport to full content.
+// App scrolls inside <main>, not the document: grow the viewport to full content.
 async function fitAndShoot(p, path) {
   const h = await p.evaluate(() => {
     const header = document.querySelector("header");
@@ -42,7 +42,7 @@ async function fitAndShoot(p, path) {
   console.log("shot bureaux done");
   await p2.close();
 
-  // Hôtellerie — degraded arbitrage (no top-verdict freguesia)
+  // Hôtellerie : degraded arbitrage (no top-verdict freguesia)
   const p3 = await b.newPage({ viewport: { width: W, height: 900 }, deviceScaleFactor: 2 });
   await p3.goto(URL, { waitUntil: "networkidle" });
   await ready(p3);

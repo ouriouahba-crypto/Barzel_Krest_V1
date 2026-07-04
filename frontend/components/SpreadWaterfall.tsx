@@ -27,7 +27,7 @@ export function SpreadWaterfall({
 
   return (
     <Waterfall
-      title={`Décomposition de la cession — ${row.name}`}
+      title={`Décomposition de la cession · ${row.name}`}
       subtitle={`Médiane Gaia ${eurM2(row.prixMarche)} · spread ${pctSigned(row.spreadPct)} · ${classLabel}`}
       mode={mode}
       verdict={row.verdict}
@@ -44,7 +44,7 @@ export function SpreadWaterfall({
       fmt={eur0}
       stats={[
         { label: "Produit net", value: eurM2(produitNet) },
-        { label: "Délai de cession", value: row.delaiMois != null ? `${row.delaiMois.toFixed(1)} mois` : "—" },
+        { label: "Délai de cession", value: row.delaiMois != null ? `${row.delaiMois.toFixed(1)} mois` : "–" },
         { label: "Score arbitrage", value: `${Math.round(row.total)}`, accent: scoreTextColor(row.total) },
       ]}
     />

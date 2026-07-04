@@ -50,7 +50,7 @@ function FitBounds({ data }: { data: FeatureCollection }) {
     };
     fit();
     // Leaflet fires 'resize' after it has updated its own size (incl. window
-    // trackResize) — refitting here is safe (renderer already valid).
+    // trackResize) ; refitting here is safe (renderer already valid).
     map.on("resize", fit);
     return () => {
       map.off("resize", fit);
@@ -126,7 +126,7 @@ export default function GaiaMap({
     const zs = scoresByNorm[norm];
     const isFocus = !!focusZoneId && zs?.zoneId === focusZoneId;
     const name = zs?.zoneName || (feature.properties as any)?.freguesia;
-    const scoreTxt = zs ? `${Math.round(zs.total)}/100 · ${zs.verdict}` : "—";
+    const scoreTxt = zs ? `${Math.round(zs.total)}/100 · ${zs.verdict}` : "–";
     layer.bindTooltip(
       `<div style="font-weight:600">${name}</div><div style="color:#C9A86A">${scoreTxt}</div>`,
       { sticky: true, className: "freg-tooltip", direction: "top", opacity: 1 }

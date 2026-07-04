@@ -1,16 +1,16 @@
-"""Collector 2b/2 — Belgium / IBSA (Bruxelles).
+"""Collector 2b/2 : Belgium / IBSA (Bruxelles).
 
 IBSA / opendata.brussels.be exposes NO open dataset with eur/m2, dwelling
 surface, or rents by quartier/commune (the price figures it publishes are
 Statbel/AGDP-derived; rents exist only as PDF observatory reports). The one
-machine-readable, CC0 dataset is the Monitoring des Quartiers GEOGRAPHY —
-i.e. the quartier ↔ commune mapping — which we ingest here as an enrichment.
+machine-readable, CC0 dataset is the Monitoring des Quartiers GEOGRAPHY,
+i.e. the quartier ↔ commune mapping, which we ingest here as an enrichment.
 
 Consequence, recorded honestly: Brussels eur/m2 is DERIVED from Statbel surface
 (see statbel_surface.py), not taken from IBSA, because no official free source
 publishes a quartier eur/m2.
 
-Output: data/raw/ibsa_bxl.csv — one row per quartier (quartier, commune).
+Output: data/raw/ibsa_bxl.csv, one row per quartier (quartier, commune).
 
 Run:  python -m backend.data.collect.ibsa_bxl  [--force]
 """
@@ -89,7 +89,7 @@ def collect(force: bool = False) -> list[dict]:
     distinct = len({r["commune_name"] for r in rows})
     if distinct < 15:
         log.warning("IBSA quartier->commune field maps to only %d communes and is "
-                    "known unreliable (mislabeled) — kept as a raw artifact, NOT "
+                    "known unreliable (mislabeled) ; kept as a raw artifact, NOT "
                     "injected into the backbone. A spatial join on geo_shape would "
                     "be needed for a trustworthy quartier->commune assignment.", distinct)
     return rows

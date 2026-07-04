@@ -1,13 +1,13 @@
-"""Étape 1 — texture generator.
+"""Étape 1 : texture generator.
 
 Draws SIMULATED individual listings calibrated on each backbone zone's REAL
 distribution, and writes data/listings_sim.csv (same consumption logic as the
 old listings_v3.csv).
 
 Calibration, per country:
-  * Belgium — sample a TOTAL price from the real quantiles P10/Q25/Q50/Q75/P90
+  * Belgium : sample a TOTAL price from the real quantiles P10/Q25/Q50/Q75/P90
     (piecewise-linear inverse CDF). No BE €/m² is ever fabricated.
-  * Portugal — sample a built €/m² around the real median (lognormal, national
+  * Portugal : sample a built €/m² around the real median (lognormal, national
     dispersion proxy), draw a habitable surface by typology, total = €/m² ×
     surface. Foreign/national price premium taken from the real fiscal split.
 
@@ -80,7 +80,7 @@ def _stratified_u(rng: random.Random, n: int) -> list[float]:
 
     Stratification slashes the variance of the sample quantiles, so the
     reconstructed distribution matches the real quantiles tightly even at
-    moderate n — essential for the ±2 % fidelity check.
+    moderate n, essential for the ±2 % fidelity check.
     """
     us = [(i + rng.random()) / n for i in range(n)]
     rng.shuffle(us)  # decorrelate listing order from price

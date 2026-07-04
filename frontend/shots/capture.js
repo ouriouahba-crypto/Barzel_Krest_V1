@@ -18,7 +18,7 @@ const { chromium } = require("playwright-core");
   await page.screenshot({ path: "shots/gaia_promotion.png", fullPage: true });
   console.log("shot 1 (promotion, full page) done");
 
-  // Detail panel (Haya) — preserved, capture for reference
+  // Detail panel (Haya), preserved, capture for reference
   await page.locator('button:has-text("Santa Marinha")').first().click();
   await page.waitForTimeout(1400);
   await page.screenshot({ path: "shots/gaia_detail.png", fullPage: true });

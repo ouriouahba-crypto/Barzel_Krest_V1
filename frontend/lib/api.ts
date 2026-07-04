@@ -1,5 +1,5 @@
 // Thin client for the Barzel scoring API. Display responses carry no source /
-// confidence fields (backend strips them) — the front never surfaces them.
+// confidence fields (backend strips them): the front never surfaces them.
 
 import type { Mode } from "./scoring";
 

@@ -16,18 +16,18 @@ import { detentionInsight, anomalyNote } from "@/lib/insights";
 
 const SANTA = "santamarinhaesaopedrodaafurada";
 const MARKET_LINE =
-  "Rive sud du Douro : demande locative réelle, loyers en rattrapage — conserver ne se justifie qu'au rendement net, après charges et fiscalité.";
+  "Rive sud du Douro : demande locative réelle, loyers en rattrapage. Conserver ne se justifie qu'au rendement net, après charges et fiscalité.";
 
 // Détention economics, one line per class.
 const CONTEXT: Record<string, string> = {
   residential:
-    "Les prix ont couru plus vite que les loyers : le rendement net se joue sur les charges, la vacance et l'IMI — et la pression énergétique (MEPS) pèsera d'abord sur le parc ancien.",
+    "Les prix ont couru plus vite que les loyers : le rendement net se joue sur les charges, la vacance et l'IMI, et la pression énergétique (MEPS) pèsera d'abord sur le parc ancien.",
   office:
     "Bureaux : loyers stables mais demande concentrée sur le front de fleuve ; charges plus lourdes, et l'obsolescence énergétique guette les plateaux anciens.",
   hotel:
-    "Hôtellerie : le loyer suit la fréquentation touristique ; charges d'exploitation élevées — le net ne récompense que les murs les mieux placés.",
+    "Hôtellerie : le loyer suit la fréquentation touristique ; charges d'exploitation élevées. Le net ne récompense que les murs les mieux placés.",
   logistics:
-    "Logistique : loyers modestes mais réguliers et charges contenues — le rendement net résiste mieux qu'ailleurs à la vacance.",
+    "Logistique : loyers modestes mais réguliers et charges contenues. Le rendement net résiste mieux qu'ailleurs à la vacance.",
   retail:
     "Commerce : loyers prime élevés en pied d'immeuble mais vacance sensible à la conjoncture ; le net dépend de l'emplacement plus que du m².",
 };
@@ -65,7 +65,7 @@ export default function RendementPage() {
   // Conclusion layer: page insight + banner right block + anomaly note.
   const rdLine = useMemo(() => detentionInsight(allRows, cls), [allRows, cls]);
   // Banner right block: the best-held freguesia (top-score Conserver, else top
-  // viable) — never a global yield max that would contradict the sentence.
+  // viable), never a global yield max that would contradict the sentence.
   const bestHold: RdRow | null = useMemo(() => {
     const keep = allRows.filter((r) => verdictTone("detention", r.verdict) === "good");
     const pool = keep.length ? keep : allRows.filter((r) => verdictTone("detention", r.verdict) !== "low");
@@ -78,7 +78,7 @@ export default function RendementPage() {
   );
   const note = useMemo(() => anomalyNote("detention", fregScores), [fregScores]);
 
-  // K-REST featured asset (Ribeira Sul) — shown for Santa Marinha / résidentiel,
+  // K-REST featured asset (Ribeira Sul), shown for Santa Marinha / résidentiel,
   // fed by the freguesia's own rates, market rent and score.
   const assetProps = useMemo(() => {
     const row = allRows.find((r) => r.zone === SANTA);
@@ -107,7 +107,7 @@ export default function RendementPage() {
 
         {g.error && (
           <div className="mx-6 mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-body text-red-700">
-            Backend injoignable — lancez l'API (uvicorn backend.main:app). {g.error}
+            Backend injoignable : lancez l'API (uvicorn backend.main:app). {g.error}
           </div>
         )}
 
@@ -140,31 +140,31 @@ export default function RendementPage() {
             }
           />
 
-          {/* 4 key figures — medians on viable freguesias (Conserver/Surveiller) */}
+          {/* 4 key figures: medians on viable freguesias (Conserver/Surveiller) */}
           <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
             <Kpi
               label="Yield net médian"
-              value={summary.medianYieldNet != null ? `${summary.medianYieldNet.toFixed(1)}%` : "—"}
+              value={summary.medianYieldNet != null ? `${summary.medianYieldNet.toFixed(1)}%` : "–"}
               sub={scopeLabel}
             />
             <Kpi
               label="Yield brut médian"
-              value={summary.medianYieldBrut != null ? `${summary.medianYieldBrut.toFixed(1)}%` : "—"}
+              value={summary.medianYieldBrut != null ? `${summary.medianYieldBrut.toFixed(1)}%` : "–"}
               sub={scopeLabel}
             />
             <Kpi
               label="Loyer de marché médian"
-              value={summary.medianLoyer != null ? `${eur0(summary.medianLoyer)} €/m²/an` : "—"}
+              value={summary.medianLoyer != null ? `${eur0(summary.medianLoyer)} €/m²/an` : "–"}
               sub={scopeLabel}
             />
             <Kpi
               label="À céder"
-              value={summary.totalCount ? `${summary.cederCount} / ${summary.totalCount}` : "—"}
+              value={summary.totalCount ? `${summary.cederCount} / ${summary.totalCount}` : "–"}
               sub="freguesias au verdict Céder"
             />
           </div>
 
-          {/* Table — core of the page */}
+          {/* Table: core of the page */}
           <RendementTable
             rows={rows}
             mode="detention"
@@ -172,7 +172,7 @@ export default function RendementPage() {
             onSelect={g.setFocusZone}
           />
 
-          {/* Analysis note — the most telling exception (if any) */}
+          {/* Analysis note: the most telling exception (if any) */}
           {note && (
             <div className="-mt-2 shrink-0 pl-1 text-body leading-snug text-ink-soft">
               <span className="text-label font-semibold uppercase tracking-widest text-gold-700">Note d'analyse</span>

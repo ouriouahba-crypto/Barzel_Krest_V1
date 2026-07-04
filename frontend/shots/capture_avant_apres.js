@@ -1,5 +1,5 @@
 // Captures avant/après du lot design final : vue-ensemble, rendement,
-// ia-analyste (état vide + état conversation — vrai appel API).
+// ia-analyste (état vide + état conversation, vrai appel API).
 // Usage : node shots/capture_avant_apres.js avant|apres
 const { chromium } = require("playwright-core");
 
@@ -36,14 +36,14 @@ async function fitAndShoot(p, path) {
   await fitAndShoot(p2, `shots/${PREFIX}_rendement.png`);
   await p2.close();
 
-  // 3) IA Analyste — état vide
+  // 3) IA Analyste : état vide
   const p3 = await b.newPage({ viewport: { width: W, height: 1024 }, deviceScaleFactor: 2 });
   await p3.goto("http://localhost:3000/ia-analyste", { waitUntil: "networkidle" });
   await p3.waitForTimeout(1500);
   await p3.screenshot({ path: `shots/${PREFIX}_ia_analyste_vide.png` });
   console.log(`shots/${PREFIX}_ia_analyste_vide.png ok`);
 
-  // 4) IA Analyste — état conversation (vrai appel : 1re question suggérée)
+  // 4) IA Analyste : état conversation (vrai appel, 1re question suggérée)
   await p3.locator("button", { hasText: "Où lancer une promotion résidentielle" }).first().click();
   await p3.waitForFunction(
     () => document.body.innerText.includes("ANALYSTE BARZEL") || document.body.innerText.toLowerCase().includes("analyste barzel"),

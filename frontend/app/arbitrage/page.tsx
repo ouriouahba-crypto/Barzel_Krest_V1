@@ -15,18 +15,18 @@ import { arbitrageInsight, anomalyNote } from "@/lib/insights";
 
 const SANTA = "santamarinhaesaopedrodaafurada";
 const MARKET_LINE =
-  "Rive sud du Douro : le cycle a monté vite — céder se joue sur la fenêtre, le spread réalisable et la profondeur d'acheteurs.";
+  "Rive sud du Douro : le cycle a monté vite. Céder se joue sur la fenêtre, le spread réalisable et la profondeur d'acheteurs.";
 
 // Arbitrage economics, one line per class.
 const CONTEXT: Record<string, string> = {
   residential:
-    "Le résidentiel a couru : les écarts face à la médiane sont réels, mais l'acheteur institutionnel reste rare — la fenêtre de cession se juge freguesia par freguesia.",
+    "Le résidentiel a couru : les écarts face à la médiane sont réels, mais l'acheteur institutionnel reste rare. La fenêtre de cession se juge freguesia par freguesia.",
   office:
-    "Bureaux : appétit institutionnel soutenu et offre prime rare — les meilleurs actifs trouvent preneur, le reste attend son cycle.",
+    "Bureaux : appétit institutionnel soutenu et offre prime rare. Les meilleurs actifs trouvent preneur, le reste attend son cycle.",
   hotel:
-    "Hôtellerie : appétit fort porté par la fréquentation, mais peu d'actifs de taille institutionnelle — la fenêtre dépend de l'emplacement.",
+    "Hôtellerie : appétit fort porté par la fréquentation, mais peu d'actifs de taille institutionnelle. La fenêtre dépend de l'emplacement.",
   logistics:
-    "Logistique : demande investisseurs profonde mais spreads minces face à la médiane — céder vite, à prix serré.",
+    "Logistique : demande investisseurs profonde mais spreads minces face à la médiane. Céder vite, à prix serré.",
   retail:
     "Commerce : acheteurs sélectifs et valeurs dispersées ; la fenêtre ne s'ouvre que sur les emplacements n°1.",
 };
@@ -66,7 +66,7 @@ export default function ArbitragePage() {
 
   // Conclusion layer: page insight + banner right block + anomaly note.
   const arbLine = useMemo(() => arbitrageInsight(allRows, cls), [allRows, cls]);
-  // Banner right block: the best window (top-score open, else top viable) —
+  // Banner right block: the best window (top-score open, else top viable),
   // never a global spread max that would contradict the sentence.
   const bestWindow: ArbRow | null = useMemo(() => {
     const open = allRows.filter((r) => verdictTone("arbitrage", r.verdict) === "good");
@@ -80,7 +80,7 @@ export default function ArbitragePage() {
   );
   const note = useMemo(() => anomalyNote("arbitrage", fregScores), [fregScores]);
 
-  // K-REST featured asset (Cais Poente) — shown for Santa Marinha / résidentiel,
+  // K-REST featured asset (Cais Poente), shown for Santa Marinha / résidentiel,
   // fed by the freguesia's own médiane, realizable value, rotation and score.
   const assetProps = useMemo(() => {
     const row = allRows.find((r) => r.zone === SANTA);
@@ -109,7 +109,7 @@ export default function ArbitragePage() {
 
         {g.error && (
           <div className="mx-6 mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-body text-red-700">
-            Backend injoignable — lancez l'API (uvicorn backend.main:app). {g.error}
+            Backend injoignable : lancez l'API (uvicorn backend.main:app). {g.error}
           </div>
         )}
 
@@ -142,31 +142,31 @@ export default function ArbitragePage() {
             }
           />
 
-          {/* 4 key figures — medians on viable freguesias (ouverte/étroite) */}
+          {/* 4 key figures: medians on viable freguesias (ouverte/étroite) */}
           <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
             <Kpi
               label="Spread médian"
-              value={summary.medianSpread != null ? pctSigned(summary.medianSpread, 0) : "—"}
+              value={summary.medianSpread != null ? pctSigned(summary.medianSpread, 0) : "–"}
               sub={scopeLabel}
             />
             <Kpi
               label="Délai de cession médian"
-              value={summary.medianDelai != null ? `${summary.medianDelai.toFixed(1)} mois` : "—"}
+              value={summary.medianDelai != null ? `${summary.medianDelai.toFixed(1)} mois` : "–"}
               sub={scopeLabel}
             />
             <Kpi
               label="Appétit dominant"
-              value={summary.appetit ? summary.appetit.charAt(0).toUpperCase() + summary.appetit.slice(1) : "—"}
+              value={summary.appetit ? summary.appetit.charAt(0).toUpperCase() + summary.appetit.slice(1) : "–"}
               sub="appétit institutionnel"
             />
             <Kpi
               label="Fenêtres ouvertes"
-              value={summary.totalCount ? `${summary.openCount} / ${summary.totalCount}` : "—"}
+              value={summary.totalCount ? `${summary.openCount} / ${summary.totalCount}` : "–"}
               sub="verdict Fenêtre ouverte"
             />
           </div>
 
-          {/* Table — core of the page */}
+          {/* Table: core of the page */}
           <ArbitrageTable
             rows={rows}
             mode="arbitrage"
@@ -174,7 +174,7 @@ export default function ArbitragePage() {
             onSelect={g.setFocusZone}
           />
 
-          {/* Analysis note — the most telling exception (if any) */}
+          {/* Analysis note: the most telling exception (if any) */}
           {note && (
             <div className="-mt-2 shrink-0 pl-1 text-body leading-snug text-ink-soft">
               <span className="text-label font-semibold uppercase tracking-widest text-gold-700">Note d'analyse</span>

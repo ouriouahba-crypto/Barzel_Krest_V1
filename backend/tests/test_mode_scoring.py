@@ -182,7 +182,7 @@ def test_krest_featured_asset_defaults():
 def test_landbank_breakdown_invariants():
     # Residual land economics: uplift bounded to realism, displayed residual
     # reconciled with foncier × (1 + uplift) (hence never negative), horizon in
-    # vocabulary — and a Prioritaire always carries a positive residual value.
+    # vocabulary ; and a Prioritaire always carries a positive residual value.
     for r in ms.score_city("gaia", "landbank", "residential"):
         cp = next((p for p in r["pillars"] if p["pillar"] == "constructibilite"), None)
         b = cp.get("breakdown") if cp else None
@@ -238,7 +238,7 @@ def test_landbank_best_use_land_cap():
 
 def test_no_twin_price_land_pairs():
     # No two freguesias may share strictly identical (realizable price, land)
-    # pairs, in any class — twin rows read as a formula, not a market.
+    # pairs, in any class : twin rows read as a formula, not a market.
     for cls in ("residential", "office", "hotel", "logistics", "retail"):
         seen = {}
         for r in ms.score_city("gaia", "promotion", cls):
@@ -262,7 +262,7 @@ def test_unknown_zone_and_mode_raise():
 def test_memo_scores_half_up_and_sorted_like_pages():
     # One score rounding everywhere: half-up integers (the platform's
     # Math.round), never Python's half-to-even ; memo tables follow the mode
-    # pages' order — rounded score desc, native metric desc on rounded ties.
+    # pages' order : rounded score desc, native metric desc on rounded ties.
     from backend.routers.analyst import _ri
     from backend.routers.memo import _tables
 
@@ -300,6 +300,44 @@ def test_memo_count_guard():
     assert "16 freguesias" in bad and "9 En attente" in bad and "seize freguesias" in bad
 
 
+def test_no_em_dash_in_clean_texts():
+    # Zéro cadratin (U+2014) dans les payloads _clean (affichés et injectés
+    # dans les prompts IA) ni dans le contexte analyste/mémo complet.
+    import json
+    from backend.routers.analyst import _build_context
+    from backend.routers.scoring import _clean
+
+    for asset_class in ("residential", "office"):
+        for mode in ms.MODES:
+            payload = _clean(ms.score_city("gaia", mode, asset_class))
+            assert "\u2014" not in json.dumps(payload, ensure_ascii=False), (mode, asset_class)
+    assert "\u2014" not in _build_context("residential")
+
+
+def test_memo_em_dash_sanitized_everywhere():
+    # Le filet strip_em_dashes (sanitize, jamais de rejet) : « espace cadratin
+    # espace » et cadratin collé deviennent une virgule ; le HTML du mémo
+    # (sections passées au filet + chiffres moteur + template) n'en garde aucun.
+    from backend.routers.analyst import strip_em_dashes
+    from backend.routers.memo import _html, _sanitize_sections, _tables
+
+    em = "\u2014"  # le glyphe n'apparaît jamais en clair dans les sources
+    assert strip_em_dashes(f"marge solide {em} verdict Go") == "marge solide, verdict Go"
+    assert strip_em_dashes(f"marge{em}verdict") == "marge, verdict"
+    assert strip_em_dashes("sans tiret long") == "sans tiret long"
+
+    modes = list(ms.MODES)
+    t = _tables("ville", "residential", modes)
+    sections = _sanitize_sections({
+        "executive_summary": f"Synthèse {em} un cadratin à neutraliser avant rendu.",
+        "lecture_par_mode": {m: f"Lecture {m} {em} texte de contrôle." for m in modes},
+        "risques": f"Risques {em} fiscalité et énergie.",
+        "recommandation": f"Recommandation {em} verdict actionnable.",
+    })
+    html = _html(sections, t, "ville", "residential", modes, "synthese", "4 juillet 2026")
+    assert "\u2014" not in html
+
+
 if __name__ == "__main__":  # dependency-free smoke run
     ms.load()
     test_four_distinct_modes()
@@ -313,4 +351,6 @@ if __name__ == "__main__":  # dependency-free smoke run
     test_promotion_city_verdicts_respect_margin()
     test_memo_scores_half_up_and_sorted_like_pages()
     test_memo_count_guard()
-    print("OK — all smoke checks passed")
+    test_no_em_dash_in_clean_texts()
+    test_memo_em_dash_sanitized_everywhere()
+    print("OK : all smoke checks passed")

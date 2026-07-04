@@ -1,12 +1,12 @@
-"""Collector 2/2 — Belgium / Statbel.
+"""Collector 2/2 : Belgium / Statbel.
 
 Downloads Statbel's open cadastral real-estate datasets and keeps the
 requested Belgian geographies:
-  * per statistical sector (NIS9)  — file ``TF_IMMO_SECTOR``
-  * per commune (NIS5)             — file ``vastgoed_2010_9999``
+  * per statistical sector (NIS9)  : file ``TF_IMMO_SECTOR``
+  * per commune (NIS5)             : file ``vastgoed_2010_9999``
 
 For every (geography, property type) it captures: number of transactions,
-price quantiles (P10/Q25/Q50/Q75/P90 — whichever the release publishes), and,
+price quantiles (P10/Q25/Q50/Q75/P90, whichever the release publishes), and,
 when the file exposes total price AND total surface, a DERIVED eur/m2.
 
 Filter: communes of the Brussels-Capital Region (NIS5 prefix 21) plus
@@ -16,7 +16,7 @@ Output: data/raw/statbel_be.csv.
 
 Honesty contract:
   * Statbel serves these files behind a JS bot-challenge; a plain GET can return
-    an HTML page instead of the ZIP. We detect that and DO NOT parse garbage —
+    an HTML page instead of the ZIP. We detect that and DO NOT parse garbage ;
     the affected targets are written a_collecter with a clear log line.
   * eur/m2 is only emitted when total price AND total surface are present. The
     current sector file has neither, so its rows carry the published price
@@ -230,7 +230,7 @@ def _decode(raw: bytes) -> str:
 def _shape_rows(raw_rows: list[dict], url: str, level: str, keep_below: bool) -> list[dict]:
     """Turn Statbel rows into backbone-oriented rows, latest year, residential.
 
-    ``keep_below`` — when True, a below-threshold target is still emitted as an
+    ``keep_below`` : when True, a below-threshold target is still emitted as an
     a_collecter row (used for commune-level targets so they stay visible). When
     False (sector level), thin sectors are skipped and only counted in the log,
     so the CSV is not flooded with hundreds of empty micro-sectors.
@@ -300,7 +300,7 @@ def _shape_rows(raw_rows: list[dict], url: str, level: str, keep_below: bool) ->
         total_surface = _num(r.get(col["total_surface"])) if col["total_surface"] else None
         q = {k: (_num(r.get(col[k])) if col[k] else None) for k in ("p10", "q25", "q50", "q75", "p90")}
 
-        # Threshold gate — never publish a thin cell as a number.
+        # Threshold gate : never publish a thin cell as a number.
         below = n_tx is not None and n_tx < C.STATBEL_MIN_TRANSACTIONS
         has_value = any(v is not None for v in q.values()) or total_price is not None
         if below or not has_value:
@@ -347,7 +347,7 @@ def _shape_rows(raw_rows: list[dict], url: str, level: str, keep_below: bool) ->
             }
         )
     if skipped_thin:
-        log.info("Statbel %s: skipped %d thin/empty %s cells (< %d tx) — not written",
+        log.info("Statbel %s: skipped %d thin/empty %s cells (< %d tx), not written",
                  url, skipped_thin, level, C.STATBEL_MIN_TRANSACTIONS)
     return out
 
@@ -369,7 +369,7 @@ def _sector_name(nis9: str, r: dict, col: dict) -> str:
 
 def _empty_row(city: str, geo: str, nis5: str, nis9: str, level: str,
                type_label: str, period: int, reason: str) -> dict:
-    log.warning("a_collecter: %s %s (%s) — %s", geo, type_label, level, reason)
+    log.warning("a_collecter: %s %s (%s) : %s", geo, type_label, level, reason)
     return {
         "city": city,
         "zone_id": _slug(geo) or geo,

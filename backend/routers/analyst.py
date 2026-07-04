@@ -1,9 +1,9 @@
-"""IA Analyste — POST /api/analyst/ask.
+"""IA Analyste : POST /api/analyst/ask.
 
 SÉCURITÉ ABSOLUE : le contexte envoyé au modèle est construit EXCLUSIVEMENT à
-partir des payloads passés par _clean() (les mêmes que les endpoints publics) —
+partir des payloads passés par _clean() (les mêmes que les endpoints publics),
 jamais params.json, jamais les indices de confiance, jamais la notion de
-simulation — plus les faits statiques déjà publiés par les pages Fiscalité et
+simulation, plus les faits statiques déjà publiés par les pages Fiscalité et
 Énergie. La clé Anthropic est lue de backend/.env (jamais commitée).
 """
 
@@ -46,7 +46,7 @@ def _api_key() -> str | None:
 
 
 # --------------------------------------------------------------------------- #
-# Context — cleaned scoring payloads compacted into terse tables               #
+# Context : cleaned scoring payloads compacted into terse tables               #
 # --------------------------------------------------------------------------- #
 
 def _pillar(z: dict, key: str) -> dict:
@@ -54,7 +54,7 @@ def _pillar(z: dict, key: str) -> dict:
 
 
 def _ri(v) -> int:
-    """Half-up integer rounding — the platform's score convention (Math.round).
+    """Half-up integer rounding, the platform's score convention (Math.round).
     Python's round() half-to-even would turn 86.5 into 86 while every page
     shows 87 ; scores are quoted as integers everywhere, this is the one way."""
     return int(math.floor(float(v) + 0.5))
@@ -89,17 +89,31 @@ def verdict_counts(asset_class: str) -> dict:
 
 
 def _counts_block(asset_class: str) -> list[str]:
-    lines = ["## DÉNOMBREMENTS (comptages exacts sur les 15 freguesias — utilise UNIQUEMENT "
+    lines = ["## DÉNOMBREMENTS (comptages exacts sur les 15 freguesias ; utilise UNIQUEMENT "
              "ces comptages, ne recompte JAMAIS toi-même à partir des listes)"]
     for mode, counts in verdict_counts(asset_class).items():
         parts = ", ".join(f"{_VERDICT_ACCENT.get(v, v)} {n}" for v, n in counts.items())
-        lines.append(f"- {_MODE_FR_CTX[mode]} : {parts} — total 15 freguesias")
+        lines.append(f"- {_MODE_FR_CTX[mode]} : {parts}, total 15 freguesias")
     return lines
+
+
+_EM_DASH = "\u2014"
+
+
+def strip_em_dashes(text: str) -> str:
+    """Filet anti-cadratin sur les sorties IA (analyste + mémo) : « espace,
+    cadratin, espace » devient une virgule, puis tout U+2014 résiduel aussi.
+    L'interdiction figure déjà dans les prompts système ; ceci est le filet,
+    appliqué avant tout affichage ou rendu PDF (sanitize, jamais de rejet)."""
+    if not text or _EM_DASH not in text:
+        return text
+    text = text.replace(f" {_EM_DASH} ", ", ").replace(_EM_DASH, ", ")
+    return text.replace("  ", " ")
 
 
 def _fmt(v, digits=1):
     if v is None:
-        return "—"
+        return "n/d"
     if isinstance(v, float):
         return f"{v:.{digits}f}"
     return str(v)
@@ -132,13 +146,13 @@ def _mode_block(mode: str, zones: list[dict]) -> list[str]:
         else:  # landbank
             b = _pillar(z, "constructibilite").get("breakdown") or {}
             out.append(head + f", constructibilité {_fmt(b.get('constructibilite'), 0)}/100, "
-                              f"meilleur usage {b.get('meilleur_usage', '—')}, valeur résiduelle {_fmt(b.get('valeur_residuelle_eur_m2'), 0)} €/m² "
+                              f"meilleur usage {b.get('meilleur_usage', 'n/d')}, valeur résiduelle {_fmt(b.get('valeur_residuelle_eur_m2'), 0)} €/m² "
                               f"vs foncier marché {_fmt(b.get('foncier_marche_eur_m2'), 0)} €/m² (uplift {_fmt(b.get('uplift_pct'))}%), "
-                              f"horizon d'activation : {b.get('horizon_activation', '—')}")
+                              f"horizon d'activation : {b.get('horizon_activation', 'n/d')}")
     return out
 
 
-# Faits statiques — strictement ceux déjà publiés par les pages Fiscalité/Énergie.
+# Faits statiques : strictement ceux déjà publiés par les pages Fiscalité/Énergie.
 _FACTS = """## FISCALITÉ PORTUGAL 2026 (barèmes officiels, tels qu'affichés par la plateforme)
 - Acquisition : IMT habitation (investisseur) barème progressif 1%→8%, taux uniques 6% (660 982 – 1 150 853 €) et 7,5% au-delà ; commercial et terrains à bâtir 6,5% ; Imposto do Selo 0,8%. Non-résidents (résidentiel, dès 01/09/2026) : taux fixe 7,5% (DL 97/2026), remboursable si résidence fiscale sous 2 ans ou location ≤ 2 300 €/mois.
 - Détention : IMI 0,30–0,45%/an sur la VPT (taux communal) ; AIMI 0,4% (patrimoine résidentiel en société) ; IRC sur loyers nets 19% (+ derramas).
@@ -155,7 +169,7 @@ _FACTS = """## FISCALITÉ PORTUGAL 2026 (barèmes officiels, tels qu'affichés p
 @lru_cache(maxsize=8)
 def _build_context(asset_class: str) -> str:
     lines: list[str] = [
-        f"# DONNÉES BARZEL — VILA NOVA DE GAIA · CLASSE {_CLS_FR.get(asset_class, asset_class).upper()}",
+        f"# DONNÉES BARZEL · VILA NOVA DE GAIA · CLASSE {_CLS_FR.get(asset_class, asset_class).upper()}",
         "(scores /100 ; verdicts par mode : promotion Go/Conditionnel/Passer, détention Conserver/Surveiller/Céder, "
         "arbitrage Fenêtre ouverte/étroite/fermée, landbank Prioritaire/À phaser/En attente)",
     ]
@@ -177,12 +191,12 @@ def _haya_block() -> str:
         a = _clean(ms.score_asset("haya"))
         promo = a["scores"]["promotion"]
         b = next(p for p in promo["pillars"] if p["pillar"] == "marge").get("breakdown") or {}
-        return ("## ACTIF K-REST — HAYA TOWERS (Santa Marinha e São Pedro da Afurada, résidentiel, promotion)\n"
+        return ("## ACTIF K-REST · HAYA TOWERS (Santa Marinha e São Pedro da Afurada, résidentiel, promotion)\n"
                 f"- Prix de vente réalisable {b.get('realizable_sale')} €/m² "
                 f"(prime +{round(b.get('premium_over_median_pct') or 0)}% sur la médiane réelle de la freguesia), "
                 f"construction {b.get('construction')} €/m², foncier {b.get('land')} €/m², "
                 f"marge promoteur {b.get('margin_pct')}%, score promotion {_ri(promo['total'])}/100, verdict {promo['verdict']}.")
-    except Exception:  # noqa: BLE001 — l'actif est optionnel dans le contexte
+    except Exception:  # noqa: BLE001 ; l'actif est optionnel dans le contexte
         return ""
 
 
@@ -191,12 +205,13 @@ _SYSTEM = """Tu es l'analyste de Barzel Analytics, plateforme d'intelligence imm
 RÈGLES ABSOLUES :
 - Tu réponds UNIQUEMENT à partir des données fournies dans le message (scores, verdicts, métriques, faits fiscaux et énergétiques). Tu n'inventes JAMAIS un chiffre : chaque nombre cité doit figurer tel quel dans les données.
 - Tu cites les freguesias par leur nom et les chiffres exacts (mêmes décimales que les données quand c'est utile). Exception : les scores se citent toujours en entiers (« 87/100 »), jamais avec décimale.
-- Vila Nova de Gaia compte 15 freguesias (la ligne « ville » est l'agrégat municipal, pas une 16e). Ces territoires s'appellent des freguesias — n'emploie jamais d'autre terme (jamais « friches », « quartiers » ou « communes »).
+- Vila Nova de Gaia compte 15 freguesias (la ligne « ville » est l'agrégat municipal, pas une 16e). Ces territoires s'appellent des freguesias ; n'emploie jamais d'autre terme (jamais « friches », « quartiers » ou « communes »).
 - Tu ne mentionnes JAMAIS de niveau de confiance, de source de donnée, de méthodologie interne ni l'idée qu'une donnée serait simulée ou estimée. Si l'on t'interroge sur l'origine ou la nature des données : « la plateforme agrège des données de marché et son modèle propriétaire Barzel », sans autre détail.
 - Si la question sort de Vila Nova de Gaia ou du périmètre immobilier de la plateforme, réponds avec élégance que c'est hors du périmètre couvert par la plateforme sur Gaia, et propose ce que tu peux couvrir.
-- Ton sobre et professionnel, en français. Réponses courtes : 5 à 10 lignes, en texte simple — JAMAIS de markdown (pas de titres, pas de gras, pas de puces), des phrases.
+- Ponctuation : tu n'utilises JAMAIS le tiret cadratin (le tiret long, U+2014), ni seul ni encadré d'espaces ; articule avec deux-points, virgule, parenthèses ou une nouvelle phrase.
+- Ton sobre et professionnel, en français. Réponses courtes : 5 à 10 lignes, en texte simple, JAMAIS de markdown (pas de titres, pas de gras, pas de puces), des phrases.
 - Avant de conclure, vérifie la cohérence interne de ta réponse : n'affirme jamais qu'un territoire domine sur tous les axes si un seul axe s'inverse ; dans ce cas, nomme l'exception d'emblée.
-- Pour tout comptage de freguesias (« N freguesias »), utilise UNIQUEMENT les comptages pré-calculés de la section DÉNOMBREMENTS — ne recompte JAMAIS toi-même à partir des listes ; au moindre doute, formule sans compte. Ne cite un rang (« premier », « deuxième ») que s'il se lit directement dans l'ordre des données.
+- Pour tout comptage de freguesias (« N freguesias »), utilise UNIQUEMENT les comptages pré-calculés de la section DÉNOMBREMENTS ; ne recompte JAMAIS toi-même à partir des listes ; au moindre doute, formule sans compte. Ne cite un rang (« premier », « deuxième ») que s'il se lit directement dans l'ordre des données.
 - Quand la question s'y prête, conclus par un verdict actionnable en une phrase (celui des données : Go/Conditionnel/Passer, Conserver/Surveiller/Céder, Fenêtre ouverte/étroite/fermée, Prioritaire/À phaser/En attente)."""
 
 
@@ -233,9 +248,9 @@ def ask(payload: AskPayload) -> dict:
             }],
         )
         answer = "".join(b.text for b in message.content if getattr(b, "type", "") == "text").strip()
-        return {"answer": answer, "asset_class": asset_class}
+        return {"answer": strip_em_dashes(answer), "asset_class": asset_class}
     except HTTPException:
         raise
-    except Exception as exc:  # noqa: BLE001 — sober failure, never leak internals
+    except Exception as exc:  # noqa: BLE001 ; sober failure, never leak internals
         log.warning("analyst call failed: %s", type(exc).__name__)
         raise HTTPException(status_code=503, detail="analyste momentanément indisponible")

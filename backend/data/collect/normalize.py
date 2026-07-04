@@ -1,4 +1,4 @@
-"""Merge step — build data/backbone.json from the two raw collector CSVs.
+"""Merge step : build data/backbone.json from the two raw collector CSVs.
 
 Reads data/raw/ine_pt.csv and data/raw/statbel_be.csv and produces
 data/backbone.json, which respects barzel_data_backbone_v0.json:
@@ -95,7 +95,7 @@ def _load_be_eur_m2() -> dict[str, float]:
     """normalized commune name -> curated €/m² anchor (from params.json)."""
     params_path = BACKBONE_SCHEMA.parent / "backend" / "data" / "params.json"
     if not params_path.exists():
-        log.warning("params.json not found (%s) — BE €/m² anchors unavailable", params_path)
+        log.warning("params.json not found (%s) : BE €/m² anchors unavailable", params_path)
         return {}
     table = json.loads(params_path.read_text(encoding="utf-8")).get("be_eur_m2_by_commune", {})
     out: dict[str, float] = {}
@@ -244,7 +244,7 @@ def _be_residential(rows: list[dict], surface_by_class: dict | None = None,
 
     res = {
         "status": C.STATUS_REAL,
-        # Housing €/m² — curated commune anchor (BE now symmetric to PT).
+        # Housing €/m² : curated commune anchor (BE now symmetric to PT).
         "median_eur_m2": eur_m2_anchor,
         "n_transactions": _num(primary.get("n_transactions")),
         "yoy_pct": yoy,
@@ -417,7 +417,7 @@ def build_backbone() -> dict:
         used: set[int] = set()
 
         zones_out: list[dict] = []
-        # 1) Contract zones first — overlay collected residential, keep editorial.
+        # 1) Contract zones first : overlay collected residential, keep editorial.
         for cz in base.get("zones", []):
             name = cz.get("name", cz.get("id", ""))
             hit = _match(name, city_collected)
@@ -484,7 +484,7 @@ def main(argv: list[str] | None = None) -> int:
         log.exception("normalize crashed: %s", exc)
         return 1
     write_json(Path(args.out), backbone)
-    log.info("wrote %s — %s", args.out, _summary(backbone))
+    log.info("wrote %s : %s", args.out, _summary(backbone))
     log.info("=== normalize done ===")
     return 0
 

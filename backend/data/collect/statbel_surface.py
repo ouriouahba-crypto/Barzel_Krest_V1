@@ -1,4 +1,4 @@
-"""Collector 1b/2 — Belgium / Statbel SURFACE (for the derived eur/m2).
+"""Collector 1b/2 : Belgium / Statbel SURFACE (for the derived eur/m2).
 
 The current Statbel transaction files (TF_IMMO_SECTOR, vastgoed_2010_9999)
 publish price quantiles and transaction counts but NO surface, so eur/m2 is not
@@ -11,7 +11,7 @@ and dwelling class from the OLDER cadastral commune file
 Surface is structurally stable, so the (older) surface year is recorded as
 ``surface_as_of`` and later applied to current prices in normalize.py.
 
-Output: data/raw/statbel_surface.csv — one row per (commune, class ∈
+Output: data/raw/statbel_surface.csv, one row per (commune, class ∈
 {apartment, house}). No fabrication: a commune/class without a usable surface
 cell is simply absent (normalize leaves its eur/m2 null → a_collecter).
 

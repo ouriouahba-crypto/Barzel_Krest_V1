@@ -1,17 +1,17 @@
-"""Mémo d'investissement — POST /api/memo/{draft,tables,draft_section,render,revise}.
+"""Mémo d'investissement : POST /api/memo/{draft,tables,draft_section,render,revise}.
 
 Architecture (mêmes garde-fous que l'IA analyste) :
 - /draft : contexte construit EXCLUSIVEMENT des payloads passés par _clean()
   (celui de l'analyste), claude-sonnet-4-6 (temperature 0.2) rédige les
   sections narratives EN PARALLÈLE (asyncio.gather, un appel court par
-  section — temps total ≈ la plus longue section). Aucun chiffre inventé,
+  section ; temps total ≈ la plus longue section). Aucun chiffre inventé,
   jamais confiance/simulation ; garde-fous comptages/arrondi PAR section.
 - /tables + /draft_section : mêmes briques exposées séparément pour la
   progression réelle de la modal (une coche par section terminée).
 - /render : les CHIFFRES sont injectés DÉTERMINISTIQUEMENT (KPI, tableaux,
-  verdicts lus du moteur via _clean — jamais du texte IA) dans un template
+  verdicts lus du moteur via _clean, jamais du texte IA) dans un template
   HTML de marque (polices embarquées en base64), rendu PDF via Playwright
-  (Chrome système, canal "chrome" — fallback documenté : playwright install
+  (Chrome système, canal "chrome" ; fallback documenté : playwright install
   chromium).
 - /revise : régénère une seule section narrative avec une consigne.
 """
@@ -32,7 +32,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from ..services import mode_scoring as ms
-from .analyst import _api_key, _build_context, _ri, verdict_counts
+from .analyst import _api_key, _build_context, _ri, strip_em_dashes, verdict_counts
 from .scoring import _clean
 
 log = logging.getLogger("routers.memo")
@@ -73,15 +73,15 @@ def _font_css() -> str:
 
 
 # --------------------------------------------------------------------------- #
-# Deterministic figures — read from the engine through _clean, never from IA   #
+# Deterministic figures : read from the engine through _clean, never from IA   #
 # --------------------------------------------------------------------------- #
 
 def _f0(v):
-    return f"{round(v):,}".replace(",", " ") if v is not None else "—"
+    return f"{round(v):,}".replace(",", " ") if v is not None else "–"
 
 
 def _f1(v):
-    return f"{v:.1f}".replace(".", ",") if v is not None else "—"
+    return f"{v:.1f}".replace(".", ",") if v is not None else "–"
 
 
 def _pillar_bd(z: dict, key: str) -> dict:
@@ -107,7 +107,7 @@ def _mode_cols(mode: str, z: dict) -> list[str]:
     b = _pillar_bd(z, "constructibilite")
     up = b.get("uplift_pct")
     return [f"{'+' if (up or 0) >= 0 else ''}{_f1(up)} %", f"{_f0(b.get('valeur_residuelle_eur_m2'))} €/m²",
-            f"{b.get('meilleur_usage', '—')} · {b.get('horizon_activation', '—')}"]
+            f"{b.get('meilleur_usage', '–')} · {b.get('horizon_activation', '–')}"]
 
 
 _MODE_HEADERS = {
@@ -137,7 +137,7 @@ def _native_metric(mode: str, z: dict) -> float:
 def _tables(scope: str, asset_class: str, modes: list[str]) -> dict:
     """All deterministic figures for the memo, from cleaned engine payloads.
     Scores are half-up integers (the platform convention) ; rows follow the mode
-    pages' order — rounded score desc, native metric desc on rounded ties."""
+    pages' order : rounded score desc, native metric desc on rounded ties."""
     out: dict = {"modes": {}}
     muni_seen = None
     for mode in modes:
@@ -169,17 +169,17 @@ def _tables(scope: str, asset_class: str, modes: list[str]) -> dict:
                 scope_name = _short(m["zone_name"])
                 break
     out["ville"] = {
-        "price": _f0(muni_seen.get("price_eur_m2")) if muni_seen else "—",
+        "price": _f0(muni_seen.get("price_eur_m2")) if muni_seen else "–",
         "yoy": (f"{'+' if (muni_seen.get('yoy_pct') or 0) >= 0 else ''}{_f1(muni_seen.get('yoy_pct'))} %"
-                if muni_seen else "—"),
-        "tx": _f0(muni_seen.get("n_transactions")) if muni_seen else "—",
+                if muni_seen else "–"),
+        "tx": _f0(muni_seen.get("n_transactions")) if muni_seen else "–",
     }
     out["scope_name"] = scope_name
     return out
 
 
 # --------------------------------------------------------------------------- #
-# LLM — narrative sections (same guardrails as the analyst)                    #
+# LLM : narrative sections (same guardrails as the analyst)                    #
 # --------------------------------------------------------------------------- #
 
 _SYSTEM_MEMO = """Tu es l'analyste de Barzel Analytics, plateforme d'intelligence immobilière couvrant Vila Nova de Gaia (Portugal). Tu rédiges les sections narratives d'un mémo d'investissement institutionnel.
@@ -187,10 +187,11 @@ _SYSTEM_MEMO = """Tu es l'analyste de Barzel Analytics, plateforme d'intelligenc
 RÈGLES ABSOLUES :
 - Tu rédiges UNIQUEMENT à partir des données fournies. Tu n'inventes JAMAIS un chiffre : chaque nombre cité doit figurer tel quel dans les données.
 - Tu ne mentionnes JAMAIS de niveau de confiance, de source de donnée, de méthodologie interne ni l'idée qu'une donnée serait simulée ou estimée.
-- Vila Nova de Gaia compte 15 freguesias — ces territoires s'appellent des freguesias, jamais « friches », « quartiers » ou « communes ».
+- Vila Nova de Gaia compte 15 freguesias ; ces territoires s'appellent des freguesias, jamais « friches », « quartiers » ou « communes ».
 - Cohérence interne : n'affirme jamais qu'un territoire domine sur tous les axes si un seul axe s'inverse ; nomme l'exception d'emblée.
-- Pour tout comptage de freguesias (« N freguesias »), utilise UNIQUEMENT les comptages pré-calculés de la section DÉNOMBREMENTS — ne recompte JAMAIS toi-même à partir des listes ; au moindre doute, formule sans compte. Ne cite un rang (« premier », « deuxième ») que s'il se lit directement dans l'ordre des données.
+- Pour tout comptage de freguesias (« N freguesias »), utilise UNIQUEMENT les comptages pré-calculés de la section DÉNOMBREMENTS ; ne recompte JAMAIS toi-même à partir des listes ; au moindre doute, formule sans compte. Ne cite un rang (« premier », « deuxième ») que s'il se lit directement dans l'ordre des données.
 - Tu cites les scores en entiers (« 87/100 »), jamais avec décimale.
+- Ponctuation : tu n'utilises JAMAIS le tiret cadratin (le tiret long, U+2014), ni seul ni encadré d'espaces ; articule avec deux-points, virgule, parenthèses ou une nouvelle phrase.
 - Français sobre et professionnel, phrases complètes, aucun markdown dans les textes.
 - Longueurs : executive_summary 120-170 mots ; chaque lecture de mode 70-110 mots ; risques 80-120 mots ; recommandation 50-90 mots, conclue par un verdict actionnable."""
 
@@ -217,7 +218,7 @@ def _llm_text(system: str, user: str, max_tokens: int) -> str:
             model=_MODEL, max_tokens=max_tokens, temperature=0.2,
             system=system, messages=[{"role": "user", "content": user}],
         )
-        return "".join(b.text for b in message.content if getattr(b, "type", "") == "text").strip()
+        return strip_em_dashes("".join(b.text for b in message.content if getattr(b, "type", "") == "text").strip())
     except HTTPException:
         raise
     except Exception as exc:  # noqa: BLE001
@@ -231,7 +232,7 @@ async def _llm_text_async(client, user: str, max_tokens: int) -> str:
             model=_MODEL, max_tokens=max_tokens, temperature=0.2,
             system=_SYSTEM_MEMO, messages=[{"role": "user", "content": user}],
         )
-        return "".join(b.text for b in message.content if getattr(b, "type", "") == "text").strip()
+        return strip_em_dashes("".join(b.text for b in message.content if getattr(b, "type", "") == "text").strip())
     except Exception as exc:  # noqa: BLE001
         log.warning("memo LLM call failed: %s", type(exc).__name__)
         raise HTTPException(status_code=503, detail="rédacteur momentanément indisponible")
@@ -283,7 +284,7 @@ def _mission(scope: str, asset_class: str, modes: list[str], angle: str,
     return "\n".join(lines)
 
 
-# Per-section briefs — each section is drafted by its own short parallel call.
+# Per-section briefs : each section is drafted by its own short parallel call.
 _SECTION_BRIEF = {
     "executive_summary": ("Synthèse exécutive", "la synthèse exécutive du mémo (120-170 mots), qui pose le "
                           "verdict d'ensemble en couvrant les modes du mémo", 650),
@@ -325,11 +326,11 @@ async def _draft_section(client, base_prompt: str, section: str,
 
 
 # Post-generation count check, two nets:
-# 1. "N freguesias" — N must be an injected count, a within-mode sum of them
+# 1. "N freguesias" : N must be an injected count, a within-mode sum of them
 #    (e.g. "7 viables" = Go + Conditionnel), or the total 15. Within-mode sums
 #    never exceed 15, so a phantom "16 freguesias" can never pass.
-# 2. "N <verdict>" (e.g. "9 En attente" — the exact shape of the observed
-#    error) — N must equal that verdict's injected count for its own mode.
+# 2. "N <verdict>" (e.g. "9 En attente", the exact shape of the observed
+#    error) : N must equal that verdict's injected count for its own mode.
 _FR_NUM = {"un": 1, "une": 1, "deux": 2, "trois": 3, "quatre": 4, "cinq": 5,
            "six": 6, "sept": 7, "huit": 8, "neuf": 9, "dix": 10, "onze": 11,
            "douze": 12, "treize": 13, "quatorze": 14, "quinze": 15, "seize": 16,
@@ -369,6 +370,14 @@ def _allowed_counts(counts: dict, modes: list[str]) -> set[int]:
     return allowed
 
 
+def _sanitize_sections(sections):
+    """Applique le filet anti-cadratin à toutes les chaînes d'un arbre de
+    sections (les textes reviennent du client au rendu : relecture éditable)."""
+    if isinstance(sections, dict):
+        return {k: _sanitize_sections(v) for k, v in sections.items()}
+    return strip_em_dashes(sections) if isinstance(sections, str) else sections
+
+
 def _walk_texts(sections) -> list[str]:
     if isinstance(sections, dict):
         return [t for v in sections.values() for t in _walk_texts(v)]
@@ -394,7 +403,7 @@ def _bad_counts(sections: dict, counts: dict, modes: list[str]) -> list[str]:
 
 @router.post("/tables")
 def tables_only(payload: DraftPayload) -> dict:
-    """Deterministic figures + meta, instantly — first step of the modal's
+    """Deterministic figures + meta, instantly : first step of the modal's
     progressive draft ("Analyse des N modes")."""
     asset_class, modes, scope = _validate(payload)
     return {"tables": _tables(scope, asset_class, modes),
@@ -407,7 +416,7 @@ class DraftSectionPayload(DraftPayload):
 
 @router.post("/draft_section")
 async def draft_section(payload: DraftSectionPayload) -> dict:
-    """One narrative section — the modal fires these in parallel and checks a
+    """One narrative section : the modal fires these in parallel and checks a
     progress step off as each one lands."""
     asset_class, modes, scope = _validate(payload)
     section = payload.section if payload.section in {"executive_summary", "risques", "recommandation"} \
@@ -420,7 +429,7 @@ async def draft_section(payload: DraftSectionPayload) -> dict:
 
 @router.post("/draft")
 async def draft(payload: DraftPayload) -> dict:
-    """Full draft — all sections written in parallel (asyncio.gather) : wall
+    """Full draft : all sections written in parallel (asyncio.gather) ; wall
     time ≈ the longest single section instead of the sum of seven."""
     asset_class, modes, scope = _validate(payload)
     tables = _tables(scope, asset_class, modes)
@@ -466,7 +475,7 @@ def revise(payload: RevisePayload) -> dict:
 
 
 # --------------------------------------------------------------------------- #
-# Render — branded HTML → PDF (Playwright, system Chrome channel)              #
+# Render : branded HTML → PDF (Playwright, system Chrome channel)              #
 # --------------------------------------------------------------------------- #
 
 _VERDICT_TONE = {
@@ -532,7 +541,7 @@ def _html(sections: dict, tables: dict, scope: str, asset_class: str,
         )
         muni = t["municipio"]
         muni_line = (f"Vue ville : score {muni['score']}/100, {_VERDICT_FR.get(muni['verdict'], muni['verdict'])}"
-                     + (f" — {_esc(muni['native'])}" if muni.get("native") else "")) if muni else ""
+                     + (f" · {_esc(muni['native'])}" if muni.get("native") else "")) if muni else ""
         mode_blocks.append(f"""
   <div class="modeblock">
     <h3 class="modetitle">{_MODE_FR[m]}</h3>
@@ -621,8 +630,8 @@ tr.scope td {{ background:rgba(201,168,106,.12); }}
   <table>
     <thead><tr><th>Mode</th><th>Score ville</th><th>Verdict</th><th>Indicateur</th></tr></thead>
     <tbody>{"".join(
-        f"<tr><td>{_MODE_FR[m]}</td><td class=val>{tables['modes'][m]['municipio']['score'] if tables['modes'][m]['municipio'] else '—'}</td>"
-        f"<td>{_badge(tables['modes'][m]['municipio']['verdict']) if tables['modes'][m]['municipio'] else '—'}</td>"
+        f"<tr><td>{_MODE_FR[m]}</td><td class=val>{tables['modes'][m]['municipio']['score'] if tables['modes'][m]['municipio'] else '–'}</td>"
+        f"<td>{_badge(tables['modes'][m]['municipio']['verdict']) if tables['modes'][m]['municipio'] else '–'}</td>"
         f"<td>{_esc(tables['modes'][m]['municipio'].get('native', '')) if tables['modes'][m]['municipio'] else ''}</td></tr>"
         for m in modes)}</tbody>
   </table>
@@ -674,7 +683,7 @@ def render(payload: RenderPayload):
     tables = _tables(scope, asset_class, modes)          # chiffres du moteur, jamais du client
     d = date.today()
     today = f"{d.day} {_MONTHS_FR[d.month - 1]} {d.year}"
-    html = _html(payload.sections, tables, scope, asset_class, modes, payload.angle, today)
+    html = _html(_sanitize_sections(payload.sections), tables, scope, asset_class, modes, payload.angle, today)
     try:
         pdf = _pdf_bytes(html)
     except Exception as exc:  # noqa: BLE001

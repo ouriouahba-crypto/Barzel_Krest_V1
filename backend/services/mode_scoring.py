@@ -1,20 +1,20 @@
 """Mode-based scoring engine.
 
-Replaces Dubai's single Barzel Score with FOUR scores — one per investment mode
+Replaces Dubai's single Barzel Score with FOUR scores, one per investment mode
 (promotion, detention, arbitrage, landbank). Each is on 100, decomposed into
 readable pillars, with a verdict and a data-confidence index.
 
 Inputs (loaded once at startup):
-  * backend/data/params.json     — curated params (weights, bands, verdicts,
+  * backend/data/params.json     : curated params (weights, bands, verdicts,
                                     fiscalité, yields, zone attributes, KREST).
-  * data/backbone.json           — official real aggregates per zone.
-  * data/listings_sim.csv        — simulated listings (density; DOM/mix proxies).
+  * data/backbone.json           : official real aggregates per zone.
+  * data/listings_sim.csv        : simulated listings (density; DOM/mix proxies).
 
 Contract honoured:
   * Hybrid normalisation: absolute bands for business-sense metrics (marge %,
     yield net %, spread %); percentile over the socle for positioning metrics.
   * No fabrication: a pillar with no input returns 'non_pertinent' and is
-    dropped from the total with reweighting — never an invented number.
+    dropped from the total with reweighting, never an invented number.
   * Every output value carries its confidence.
 """
 
@@ -359,7 +359,7 @@ def _load_listings_stats() -> dict[str, dict]:
     """Per-zone DOM median, listing count, dominant-class share (from sim CSV)."""
     stats: dict[str, dict] = {}
     if not LISTINGS_PATH.exists():
-        log.warning("listings_sim.csv missing — absorption pillar will be limited")
+        log.warning("listings_sim.csv missing: absorption pillar will be limited")
         return stats
     import csv
     doms: dict[str, list] = {}
@@ -437,7 +437,7 @@ def _best_use_value(st: State, z: dict) -> tuple[float | None, str | None]:
 
 
 def _res_market_rent(st: State, z: dict) -> float | None:
-    """Residential market rent €/m²/year (price × zone-adjusted gross yield) —
+    """Residential market rent €/m²/year (price × zone-adjusted gross yield) ;
     the depth proxy for rental demand, whatever the asset class studied."""
     gross = _p(st, "city_yields", z["city"], "residential") \
         or _p(st, "yields_prime_pct", z["country"], "residential")
@@ -587,7 +587,7 @@ def _new_build_premium(st: State, z: dict) -> float:
 
 
 def _land_cost_eur_m2(st: State, z: dict) -> float:
-    """Zone land cost (€/m² of sellable area), like a developer reasons — replaces
+    """Zone land cost (€/m² of sellable area), like a developer reasons ; replaces
     the 18%-of-sale estimate. Zone table -> Gaia default -> global default.
     Curated parameter (confidence hypothese); zone-without-asset case only."""
     tbl = st.params.get("land_cost_eur_m2_by_zone", {})
@@ -613,7 +613,7 @@ def _commercial_land(st: State, cls: str, zone_id: str, sale: float) -> float:
     deterministic jitter on the land share (the class was never finely
     calibrated). The other commercial classes keep their flat share; only
     PRICE-TWIN zones (same class factor, hence same price) get a +0/+1/+2 €
-    rank offset — enough to guarantee distinct rounded land values, far too
+    rank offset : enough to guarantee distinct rounded land values, far too
     small (≤0.06 pt of margin) to move any verdict, and zones without a twin
     stay bit-identical."""
     lp = _p(st, "commercial_gaia", "classes", cls, "land_pct", default=12.0)
@@ -645,7 +645,7 @@ def _promo_marge(st: State, z: dict, cls: str, asset: dict | None) -> Pillar:
     is_asset = bool(asset and asset.get("achievable_sale_eur_m2"))
     # Residential zone: realizable NEW-build price = existing-stock median + a
     # curated new-build premium. Commercial classes already price at market, and
-    # a named asset keeps its own price — no premium in either case.
+    # a named asset keeps its own price (no premium in either case).
     premium = None
     base_median = None
     if not is_asset and cls == "residential":
@@ -797,7 +797,7 @@ def _risque_sortie(st: State, z: dict) -> Pillar:
 
 def _split_jitter_pct(zone_id: str) -> float:
     """Deterministic per-zone redistribution (±1.5 pts of rent) between the
-    charges and fiscalité shares of the yield stack — older condominiums carry
+    charges and fiscalité shares of the yield stack : older condominiums carry
     heavier charges, effective IMI varies with taxable value vs market rent.
     The SUM charges+fiscalité is untouched, so gross and net yields never move."""
     h = int(hashlib.md5(zone_id.encode("utf-8")).hexdigest(), 16)
@@ -807,7 +807,7 @@ def _split_jitter_pct(zone_id: str) -> float:
 def _det_profondeur(st: State, z: dict) -> Pillar:
     """Depth of the rental market: rental demand (market rent level), park size /
     liquidity (transactions), rotation (DOM). An institution holds where the
-    letting market is deep — not where the facial yield is highest."""
+    letting market is deep, not where the facial yield is highest."""
     rent = _res_market_rent(st, z)
     n = z["residential"].get("n_transactions")
     months = _absorption_months(st, z["id"])
@@ -853,7 +853,7 @@ def _net_yield_pct(st: State, z: dict, cls: str) -> tuple[float | None, str, str
     net = gross - det_tax - charges - gross * vac / 100.0
     # Per-freguesia split of the stack between charges and fiscalité (±1.5 pts of
     # rent, deterministic): effective IMI and condo charges vary locally, their
-    # sum does not — gross and net are strictly unchanged.
+    # sum does not ; gross and net are strictly unchanged.
     delta = _split_jitter_pct(z["id"])
     det_tax_eff = det_tax + delta * gross / 100.0
     charges_eff = charges - delta * gross / 100.0
@@ -936,7 +936,7 @@ def _portage(st: State, z: dict) -> Pillar:
 def _arb_breakdown(st: State, z: dict, market: float | None, realizable: float | None,
                    spread: float) -> dict:
     """Structured disposal economics for the "Arbitrage" module (derived only).
-    Realism bounds: selling costs 2-4% of value, disposal time 2-9 months —
+    Realism bounds: selling costs 2-4% of value, disposal time 2-9 months ;
     both driven by market liquidity (deep park sells faster and cheaper), the
     negotiation discount grows with the expected time on market."""
     months = _absorption_months(st, z["id"])
@@ -1057,7 +1057,7 @@ _LAND_NORMATIVE_MARGIN = 0.15   # marge promoteur normative de la valeur résidu
 
 
 def _land_usage_econ(st: State, z: dict, cls: str) -> tuple[float, float, float] | None:
-    """(sale, build, land) — the promotion economics of one usage of the zone's
+    """(sale, build, land) : the promotion economics of one usage of the zone's
     land: realizable sale price, construction cost, and the land market price
     the promotion module uses for that usage."""
     price = _class_price(st, z, cls)
@@ -1080,7 +1080,7 @@ def _land_constructibilite(st: State, z: dict) -> Pillar:
     if not p.applicable:
         return p
     # Residual land value per usage: what a developer can pay for the plot at a
-    # normative 15% margin — sale / (1,15 × pile de coûts) − construction —
+    # normative 15% margin : sale / (1,15 × pile de coûts) − construction,
     # compared with the promotion land market. Realism bounds: uplift clamped
     # to [-40, +80]% and the displayed residual reconciled with it (never
     # negative, since land floors at 40 €/m²).
@@ -1227,7 +1227,7 @@ def _verdict(st: State, mode: str, total: float) -> str:
 
 def _promotion_verdict_cap(st: State, verdict: str, marge: "Pillar | None") -> str:
     """Guardrail on the promotion verdict by developer margin: a losing deal caps
-    at 'Passer', a thin margin (0 <= marge < 8%) caps at the middle verdict — a
+    at 'Passer', a thin margin (0 <= marge < 8%) caps at the middle verdict : a
     strong location can't rescue economics that don't pencil."""
     if marge is None or not marge.applicable or not isinstance(marge.native_value, (int, float)):
         return verdict
@@ -1285,7 +1285,7 @@ def _native_indicator(mode: str, pillars: dict) -> dict:
     }[mode]
     # Never surface an empty / "n/a" segment.
     kept = [p for p in parts if p and p != "n/a"]
-    return {"label": " · ".join(kept) if kept else "—"}
+    return {"label": " · ".join(kept) if kept else "–"}
 
 
 def score_mode(zone_id: str, mode: str, asset_class: str | None = None,
@@ -1323,7 +1323,7 @@ def score_mode(zone_id: str, mode: str, asset_class: str | None = None,
     if mode == "promotion":
         verdict = _promotion_verdict_cap(st, verdict, by_key.get("marge"))
     if mode == "landbank":
-        # Activation horizon: verdict-driven, refined by demand (rotation) —
+        # Activation horizon: verdict-driven, refined by demand (rotation),
         # a priority reserve on a fast market activates immediately.
         cp = by_key.get("constructibilite")
         if cp is not None and cp.breakdown is not None:

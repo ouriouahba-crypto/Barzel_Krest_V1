@@ -4,7 +4,7 @@
 
 :root {
   color-scheme: light;
-  /* Cream de fond — source unique (Tailwind `cream` la consomme en RGB).
+  /* Cream de fond : source unique (Tailwind `cream` la consomme en RGB).
      Éclairci #F3EEE3 → #F8F5EE (validation client) ; ajuster ici seulement. */
   --cream: 248 245 238;
 }
@@ -49,7 +49,7 @@ h3,
   display: none;
 }
 
-/* Range slider — gold on navy */
+/* Range slider : gold on navy */
 input[type="range"].haya-range {
   -webkit-appearance: none;
   appearance: none;

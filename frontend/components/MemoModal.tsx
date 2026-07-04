@@ -72,7 +72,7 @@ export function MemoModal({ open, onClose }: { open: boolean; onClose: () => voi
     setModes((cur) => (cur.includes(m) ? (cur.length > 1 ? cur.filter((x) => x !== m) : cur) : [...MODES].filter((x) => cur.includes(x) || x === m)));
 
   // Progressive draft: deterministic tables first, then every narrative section
-  // in parallel — each step is checked off when its response actually lands.
+  // in parallel; each step is checked off when its response actually lands.
   const doDraft = async () => {
     setBusy("draft");
     setError(null);
@@ -196,7 +196,7 @@ export function MemoModal({ open, onClose }: { open: boolean; onClose: () => voi
             <div className="flex flex-col gap-5">
               <Field label="Périmètre">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Choice on={scope === "ville"} onClick={() => setScope("ville")} label="Ville entière — Vila Nova de Gaia" />
+                  <Choice on={scope === "ville"} onClick={() => setScope("ville")} label="Ville entière · Vila Nova de Gaia" />
                   <select
                     value={scope === "ville" ? "" : scope}
                     onChange={(e) => setScope(e.target.value || "ville")}
@@ -247,7 +247,7 @@ export function MemoModal({ open, onClose }: { open: boolean; onClose: () => voi
               {busy === "draft" && steps.length > 0 && (
                 <div className="rounded-2xl border border-gold/30 bg-white p-4 shadow-card">
                   <div className="mb-2 text-label font-semibold uppercase tracking-widest text-gold-700">
-                    Rédaction — {steps.filter((s) => s.done).length} / {steps.length}
+                    Rédaction · {steps.filter((s) => s.done).length} / {steps.length}
                   </div>
                   <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">
                     {steps.map((s) => (
@@ -269,7 +269,7 @@ export function MemoModal({ open, onClose }: { open: boolean; onClose: () => voi
           {step === "review" && draft && (
             <div className="flex flex-col gap-5">
               <p className="text-caption text-ink-soft">
-                Relisez et ajustez les textes — les chiffres, tableaux et verdicts sont injectés
+                Relisez et ajustez les textes : les chiffres, tableaux et verdicts sont injectés
                 directement du moteur au rendu et ne sont pas modifiables.
               </p>
 
@@ -423,7 +423,7 @@ function ModeTable({ draft, mode }: { draft: MemoDraft; mode: string }) {
           ))}
         </tbody>
       </table>
-      <div className="px-3 py-1.5 text-label italic text-muted">Chiffres du moteur — non éditables, réinjectés au rendu.</div>
+      <div className="px-3 py-1.5 text-label italic text-muted">Chiffres du moteur : non éditables, réinjectés au rendu.</div>
     </div>
   );
 }

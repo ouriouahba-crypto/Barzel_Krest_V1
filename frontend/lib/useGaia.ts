@@ -22,7 +22,7 @@ export function shortName(name: string) {
 }
 const fregOnly = (c?: CityResponse) => (c?.zones || []).filter((z) => z.level === "freguesia");
 const eur = (v: number | null | undefined) =>
-  v != null ? `${Math.round(v).toLocaleString("fr-FR")} €/m²` : "—";
+  v != null ? `${Math.round(v).toLocaleString("fr-FR")} €/m²` : "–";
 
 export function useGaia() {
   const [mode, setMode] = useState<Mode>("promotion");
@@ -60,10 +60,10 @@ export function useGaia() {
   const detentionCity = cityByKey[keyOf("detention", assetClass)];
   const arbitrageCity = cityByKey[keyOf("arbitrage", assetClass)];
   const landbankCity = cityByKey[keyOf("landbank", assetClass)];
-  // Promotion city for the current class, independent of the header mode — used by
+  // Promotion city for the current class, independent of the header mode, used by
   // the promotion-pinned "Prix & marge" module so it stays promotion-centric.
   const promoCity = cityByKey[keyOf("promotion", assetClass)];
-  // All four modes for the current class — the overview shows them side by side.
+  // All four modes for the current class: the overview shows them side by side.
   const citiesByMode = useMemo(() => {
     const out: Partial<Record<Mode, CityResponse>> = {};
     for (const m of MODES) out[m] = cityByKey[keyOf(m, assetClass)];
@@ -95,10 +95,10 @@ export function useGaia() {
       const medKpi = median(rows.map((z) => pillarValue(z.pillars, kpi.pillar) ?? NaN));
       return [
         { label: "Prix médian", value: eur(medPrice), sub: "freguesias" },
-        { label: "Croissance annuelle", value: medYoy != null ? `${medYoy >= 0 ? "+" : ""}${medYoy.toFixed(1)}%` : "—", sub: "sur 12 mois" },
+        { label: "Croissance annuelle", value: medYoy != null ? `${medYoy >= 0 ? "+" : ""}${medYoy.toFixed(1)}%` : "–", sub: "sur 12 mois" },
         { label: "Rendement net indicatif", value: medRend != null ? `${medRend.toFixed(1)}%` : "…", sub: MODE_LABEL[mode] === "Détention" ? "détention" : "indicatif" },
-        { label: "Transactions / an", value: totalTx ? totalTx.toLocaleString("fr-FR") : "—", sub: "logements vendus" },
-        { label: `${kpi.label}`, value: medKpi != null ? `${medKpi.toFixed(kpi.digits)}${kpi.unit}` : "—", sub: "médiane freguesias" },
+        { label: "Transactions / an", value: totalTx ? totalTx.toLocaleString("fr-FR") : "–", sub: "logements vendus" },
+        { label: `${kpi.label}`, value: medKpi != null ? `${medKpi.toFixed(kpi.digits)}${kpi.unit}` : "–", sub: "médiane freguesias" },
       ];
     }
     // Focused freguesia
@@ -107,10 +107,10 @@ export function useGaia() {
     const kpiVal = r ? pillarValue(r.pillars, kpi.pillar) : null;
     return [
       { label: "Prix médian", value: eur(r?.price_eur_m2 ?? null), sub: "cette zone" },
-      { label: "Croissance annuelle", value: r?.yoy_pct != null ? `${r.yoy_pct >= 0 ? "+" : ""}${r.yoy_pct.toFixed(1)}%` : "—", sub: "sur 12 mois" },
+      { label: "Croissance annuelle", value: r?.yoy_pct != null ? `${r.yoy_pct >= 0 ? "+" : ""}${r.yoy_pct.toFixed(1)}%` : "–", sub: "sur 12 mois" },
       { label: "Rendement net indicatif", value: rend != null ? `${rend.toFixed(1)}%` : "…", sub: "détention" },
-      { label: "Transactions / an", value: r?.n_transactions != null ? r.n_transactions.toLocaleString("fr-FR") : "—", sub: "logements vendus" },
-      { label: kpi.label.replace(" médiane", "").replace(" méd.", ""), value: kpiVal != null ? `${kpiVal.toFixed(kpi.digits)}${kpi.unit}` : "—", sub: MODE_LABEL[mode] },
+      { label: "Transactions / an", value: r?.n_transactions != null ? r.n_transactions.toLocaleString("fr-FR") : "–", sub: "logements vendus" },
+      { label: kpi.label.replace(" médiane", "").replace(" méd.", ""), value: kpiVal != null ? `${kpiVal.toFixed(kpi.digits)}${kpi.unit}` : "–", sub: MODE_LABEL[mode] },
     ];
   }, [city, detentionCity, mode, isCityView, focusRow, focusDetRow]);
 
@@ -161,7 +161,7 @@ export function useGaia() {
   const focusName = zoneAll ? displayName(zoneAll.scores[mode].zone_name) : "…";
 
   // Quick per-zone snapshot for the map's compact panel (from prefetched data).
-  // The generic third tile is the net yield — except in détention mode, where it
+  // The generic third tile is the net yield, except in détention mode, where it
   // would duplicate the mode KPI: it becomes the E-F share of the stock instead.
   const quickFor = (zoneId: string) => {
     const r = city?.zones.find((z) => z.zone === zoneId);
@@ -175,7 +175,7 @@ export function useGaia() {
         r.level === "municipio"
           ? median(Object.keys(PARC_SCE).map((z) => parcFor(z, assetClass)?.ef ?? NaN))
           : parcFor(zoneId, assetClass)?.ef ?? null;
-      extra = { label: "Parc E-F", value: ef != null ? `${Math.round(ef)}%` : "—" };
+      extra = { label: "Parc E-F", value: ef != null ? `${Math.round(ef)}%` : "–" };
     } else {
       const rend = d ? pillarValue(d.pillars, "rendement_net") : null;
       extra = { label: "Rendement net", value: rend != null ? `${rend.toFixed(1)}%` : "…" };

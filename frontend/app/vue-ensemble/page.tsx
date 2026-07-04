@@ -25,13 +25,13 @@ const KPI_NOUN: Record<Mode, string> = {
   landbank: "constructibilité",
 };
 
-// Every mode now has its page (MODE_ROUTE) — no "Bientôt" left on the overview.
+// Every mode now has its page (MODE_ROUTE): no "Bientôt" left on the overview.
 
 const nn = (v: number | null | undefined): v is number => v != null && !Number.isNaN(v);
-const eur = (v: number | null | undefined) => (nn(v) ? `${Math.round(v).toLocaleString("fr-FR")} €/m²` : "—");
+const eur = (v: number | null | undefined) => (nn(v) ? `${Math.round(v).toLocaleString("fr-FR")} €/m²` : "–");
 const kpiVal = (s: ModeScore, m: Mode) => {
   const v = pillarValue(s.pillars, MODE_KPI[m].pillar);
-  return v != null ? `${v.toFixed(MODE_KPI[m].digits)}${MODE_KPI[m].unit}` : "—";
+  return v != null ? `${v.toFixed(MODE_KPI[m].digits)}${MODE_KPI[m].unit}` : "–";
 };
 
 export default function VueEnsemble() {
@@ -58,7 +58,7 @@ export default function VueEnsemble() {
   const bmFreg = (bm && overview.freg[bm]) || [];
   const podium = useMemo(() => [...bmFreg].sort((a, b) => b.total - a.total).slice(0, 3), [bmFreg]);
   // Banner: the dominant mode's best opportunity (top-scoring freguesia), unless no
-  // freguesia clears the top verdict — then fall back to the municipal score.
+  // freguesia clears the top verdict; then fall back to the municipal score.
   const hasGood = !!bm && bmFreg.some((z) => verdictTone(bm, z.verdict) === "good");
   const topOpp = hasGood ? podium[0] : null;
   const rankRows = useMemo(
@@ -66,7 +66,7 @@ export default function VueEnsemble() {
     [bmFreg]
   );
 
-  // Market context — the engine's municipio zone (transaction-weighted city
+  // Market context: the engine's municipio zone (transaction-weighted city
   // figures), the SAME source as the Carte page. Never a recomputed median.
   const market = useMemo(() => {
     const muni = (bm && overview.scores[bm]) || overview.scores.promotion;
@@ -79,7 +79,7 @@ export default function VueEnsemble() {
     };
   }, [bm, overview.scores, bmFreg, overview.freg.promotion]);
 
-  // Price trajectory (8 quarters) — generated from the same city price + yoy,
+  // Price trajectory (8 quarters), generated from the same city price + yoy,
   // so the line lands exactly on the figures shown in the context bar.
   const trajectory = useMemo<PricePoint[]>(
     () => (nn(market.price) && nn(market.yoy) ? priceTrajectory(market.price, market.yoy, cls) : []),
@@ -106,7 +106,7 @@ export default function VueEnsemble() {
 
         {g.error && (
           <div className="mx-6 mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-body text-red-700">
-            Backend injoignable — lancez l’API (uvicorn backend.main:app). {g.error}
+            Backend injoignable : lancez l’API (uvicorn backend.main:app). {g.error}
           </div>
         )}
 
@@ -189,13 +189,13 @@ export default function VueEnsemble() {
             })}
           </div>
 
-          {/* c) "Où" — podium + ranking + price trajectory. Natural heights, in
+          {/* c) "Où" : podium + ranking + price trajectory. Natural heights, in
               normal flow: the page scrolls in <main> when the viewport is short
               (a compressed flex row let the chart overflow onto the context bar). */}
           <div className="grid shrink-0 grid-cols-1 gap-3 xl:grid-cols-[1fr_1.35fr_1fr]">
             <section className="flex flex-col rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
               <div className="mb-3 flex items-baseline justify-between">
-                <h3 className="font-display text-[16px] text-navy">Où — top 3 freguesias</h3>
+                <h3 className="font-display text-[16px] text-navy">Où : top 3 freguesias</h3>
                 <span className="text-label text-muted">{bm ? MODE_LABEL[bm] : ""}</span>
               </div>
               <div className="flex flex-col gap-2.5">
@@ -239,13 +239,13 @@ export default function VueEnsemble() {
             </section>
           </div>
 
-          {/* d) Market context — one discrete line */}
+          {/* d) Market context: one discrete line */}
           <div className="shrink-0 rounded-xl border border-navy/10 bg-cream-200 px-4 py-2.5 text-caption text-ink-soft">
             <span className="font-medium text-ink">Contexte marché</span>
             <span className="mx-2 text-navy/20">·</span>
             Prix médian {eur(market.price)}
             <span className="mx-2 text-navy/20">·</span>
-            évolution {nn(market.yoy) ? `${market.yoy >= 0 ? "+" : ""}${market.yoy.toFixed(1)}%` : "—"} sur 12 mois
+            évolution {nn(market.yoy) ? `${market.yoy >= 0 ? "+" : ""}${market.yoy.toFixed(1)}%` : "–"} sur 12 mois
             <span className="mx-2 text-navy/20">·</span>
             {market.tx.toLocaleString("fr-FR")} transactions / an
             <span className="mx-2 text-navy/20">·</span>

@@ -40,7 +40,7 @@ export function CityCharts({ rows, mode, classLabel }: { rows: ChartRow[]; mode:
   const priceRows = rows.filter((r) => r.price != null);
   return (
     <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
-      <Panel title={`Score ${MODE_LABEL[mode]} par freguesia — ${classLabel}`}>
+      <Panel title={`Score ${MODE_LABEL[mode]} par freguesia · ${classLabel}`}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={rows} margin={{ top: 4, right: 6, left: -6, bottom: 28 }}>
             <XAxis dataKey="short" tick={axis} interval={0} angle={-38} textAnchor="end" tickLine={false} axisLine={{ stroke: "#E3DCCB" }} />
@@ -55,7 +55,7 @@ export function CityCharts({ rows, mode, classLabel }: { rows: ChartRow[]; mode:
         </ResponsiveContainer>
       </Panel>
 
-      <Panel title={`Prix médian €/m² par freguesia — ${classLabel}`}>
+      <Panel title={`Prix médian €/m² par freguesia · ${classLabel}`}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={priceRows} margin={{ top: 4, right: 6, left: -6, bottom: 28 }}>
             <XAxis dataKey="short" tick={axis} interval={0} angle={-38} textAnchor="end" tickLine={false} axisLine={{ stroke: "#E3DCCB" }} />

@@ -4,7 +4,7 @@ import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YA
 import { PricePoint } from "@/lib/priceHistory";
 
 // Sober city-price trajectory (8 quarters) : one navy 2px line on white, gold
-// final dot, recessive grid, direct labels on first & last points only — the
+// final dot, recessive grid, direct labels on first & last points only: the
 // third "Où" panel of the overview. Single series → no legend, the title names it.
 
 function TrendTooltip({ active, payload }: any) {

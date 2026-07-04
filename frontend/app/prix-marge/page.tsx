@@ -15,14 +15,14 @@ import { priceMarginInsight, anomalyNote } from "@/lib/insights";
 
 const AFURADA = "santamarinhaesaopedrodaafurada";
 const MARKET_LINE =
-  "Rive sud du Douro : offre neuve rare côté fleuve, coûts de construction maîtrisés — la marge de promotion se joue freguesia par freguesia.";
+  "Rive sud du Douro : offre neuve rare côté fleuve, coûts de construction maîtrisés. La marge de promotion se joue freguesia par freguesia.";
 
 // Promotion economics, one line per class.
 const CONTEXT: Record<string, string> = {
   residential:
     "Le neuf se vend cher rive sud du Douro quand le foncier reste rare : la marge de promotion se décide surtout sur le coût du terrain, freguesia par freguesia.",
   office:
-    "Bureaux : la marge repose sur le loyer de marché capitalisé et sur un foncier plus lourd dans la valeur — le front de fleuve concentre la demande.",
+    "Bureaux : la marge repose sur le loyer de marché capitalisé et sur un foncier plus lourd dans la valeur. Le front de fleuve concentre la demande.",
   hotel:
     "Hôtellerie : prix de sortie élevés côté fleuve, mais construction et foncier plus lourds ; la marge récompense les emplacements à forte fréquentation.",
   logistics:
@@ -86,7 +86,7 @@ export default function PrixMargePage() {
 
         {g.error && (
           <div className="mx-6 mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-body text-red-700">
-            Backend injoignable — lancez l’API (uvicorn backend.main:app). {g.error}
+            Backend injoignable : lancez l’API (uvicorn backend.main:app). {g.error}
           </div>
         )}
 
@@ -119,17 +119,17 @@ export default function PrixMargePage() {
             }
           />
 
-          {/* 4 key figures — medians on viable freguesias (Go/Conditionnel) */}
+          {/* 4 key figures: medians on viable freguesias (Go/Conditionnel) */}
           <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
             <Kpi
               label="Marge médiane"
-              value={summary.medianMargin != null ? `${summary.medianMargin.toFixed(1)}%` : "—"}
+              value={summary.medianMargin != null ? `${summary.medianMargin.toFixed(1)}%` : "–"}
               sub={scopeLabel}
             />
             {cls === "residential" ? (
               <Kpi
                 label="Prime neuf médiane"
-                value={summary.medianPremium != null ? `${Math.round(summary.medianPremium)}%` : "—"}
+                value={summary.medianPremium != null ? `${Math.round(summary.medianPremium)}%` : "–"}
                 sub={scopeLabel}
               />
             ) : (
@@ -147,7 +147,7 @@ export default function PrixMargePage() {
             />
           </div>
 
-          {/* Table — core of the page */}
+          {/* Table: core of the page */}
           <PriceMarginTable
             rows={rows}
             mode="promotion"
@@ -156,7 +156,7 @@ export default function PrixMargePage() {
             onSelect={g.setFocusZone}
           />
 
-          {/* Analysis note — the most telling exception (if any) */}
+          {/* Analysis note: the most telling exception (if any) */}
           {note && (
             <div className="-mt-2 shrink-0 pl-1 text-body leading-snug text-ink-soft">
               <span className="text-label font-semibold uppercase tracking-widest text-gold-700">Note d’analyse</span>

@@ -1,6 +1,6 @@
 // Shared shaping for the "Rendement" module: turn a detention CityResponse into
 // per-freguesia rows carrying the rendement_net pillar's structured yield stack.
-// Mirrors lib/priceMargin.ts — reused by the table, the yield waterfall, the bar
+// Mirrors lib/priceMargin.ts ; reused by the table, the yield waterfall, the bar
 // chart and the key figures.
 
 import { CityResponse, RendementBreakdown } from "./api";
@@ -84,4 +84,4 @@ export function rdSummary(rows: RdRow[]): RdSummary {
 }
 
 export const pct2 = (v: number | null | undefined) =>
-  v != null ? `${v.toFixed(2)}%` : "—";
+  v != null ? `${v.toFixed(2)}%` : "–";

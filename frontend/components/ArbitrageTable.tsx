@@ -6,7 +6,7 @@ import { eur0 } from "@/lib/priceMargin";
 import { ArbRow, pctSigned } from "@/lib/arbitrage";
 import { VerdictBadge } from "./ui";
 
-// Arbitrage table — same visual codes as the other mode tables. Default:
+// Arbitrage table: same visual codes as the other mode tables. Default:
 // open/narrow windows above a "Fenêtre fermée" separator, best score first in
 // each group; any user sort goes global (no separator, arrow lights up).
 
@@ -36,7 +36,7 @@ export function ArbitrageTable({
   onSelect: (zone: string) => void;
 }) {
   const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "spreadPct", dir: "desc" });
-  // Until the user sorts: verdict groups, best arbitrage score first in each —
+  // Until the user sorts: verdict groups, best arbitrage score first in each;
   // no column carries the ordering, so no arrow lights up.
   const [userSorted, setUserSorted] = useState(false);
 
@@ -156,7 +156,7 @@ export function ArbitrageTable({
                     </span>
                   </td>
                   <td className="px-3 py-2 text-right tabular-nums text-ink/80">
-                    {r.delaiMois != null ? r.delaiMois.toFixed(1) : "—"}
+                    {r.delaiMois != null ? r.delaiMois.toFixed(1) : "–"}
                   </td>
                   <td className="px-3 py-2">
                     <VerdictBadge mode={mode} verdict={r.verdict} />

@@ -29,7 +29,7 @@ async function fitAndShoot(p, path) {
   const b = await chromium.launch({ channel: "chrome", headless: true });
 
   // Une seule capture : le landbank est class-indépendant et /foncier masque le
-  // sélecteur de classe (hideClass) — l'ancienne variante « Bureaux » n'existe plus.
+  // sélecteur de classe (hideClass) ; l'ancienne variante « Bureaux » n'existe plus.
   const p1 = await b.newPage({ viewport: { width: W, height: 1024 }, deviceScaleFactor: 2 });
   await p1.goto(URL, { waitUntil: "networkidle" });
   await ready(p1);

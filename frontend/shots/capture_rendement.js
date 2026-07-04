@@ -28,7 +28,7 @@ async function fitAndShoot(p, path) {
 (async () => {
   const b = await chromium.launch({ channel: "chrome", headless: true });
 
-  // 1) Résidentiel (défaut) — hero Conserver sélectionné
+  // 1) Résidentiel (défaut) : hero Conserver sélectionné
   const p1 = await b.newPage({ viewport: { width: W, height: 1024 }, deviceScaleFactor: 2 });
   await p1.goto(URL, { waitUntil: "networkidle" });
   await ready(p1);

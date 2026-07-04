@@ -1,4 +1,4 @@
-"""Étape 2 — fidelity validation.
+"""Étape 2 : fidelity validation.
 
 Re-aggregates the simulated listings by zone and checks that the reconstructed
 median (and, for Belgium, the quantiles P10-P90) fall back onto the REAL
@@ -122,7 +122,7 @@ def _write_report(results: list[dict]) -> None:
     passed = [r for r in results if r["flag"] == "PASS"]
     failed = [r for r in results if r["flag"] == "FAIL"]
     lines = [
-        "# FIDELITY_REPORT — texture simulée vs backbone officiel",
+        "# FIDELITY_REPORT : texture simulée vs backbone officiel",
         "",
         f"Généré le {today_iso()} · seed={S.SEED} · tolérance {S.FIDELITY_TOL*100:.0f}% "
         f"(±{S.FIDELITY_TOL_SMALL*100:.0f}% si n<{S.FIDELITY_SMALL_N}).",
@@ -166,7 +166,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         _results, fails = validate()
     except FileNotFoundError as exc:
-        log.error("missing input (%s) — run generate_listings first", exc)
+        log.error("missing input (%s) : run generate_listings first", exc)
         return 1
     except Exception as exc:  # noqa: BLE001
         log.exception("validation crashed: %s", exc)

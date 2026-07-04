@@ -28,9 +28,9 @@ export function appetitQual(v: number | null): string | null {
   return v >= 0.7 ? "soutenu" : v >= 0.4 ? "modéré" : "faible";
 }
 
-// Signed percentage — spreads read as premiums/discounts vs the median.
+// Signed percentage: spreads read as premiums/discounts vs the median.
 export const pctSigned = (v: number | null | undefined, digits = 1) =>
-  v != null ? `${v >= 0 ? "+" : ""}${v.toFixed(digits)}%` : "—";
+  v != null ? `${v >= 0 ? "+" : ""}${v.toFixed(digits)}%` : "–";
 
 function toRow(z: CityResponse["zones"][number]): ArbRow | null {
   const sp = z.pillars.find((p) => p.pillar === "spread");

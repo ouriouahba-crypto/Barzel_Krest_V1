@@ -21,7 +21,7 @@ async function clickHayaMarker(page) {
 (async () => {
   const browser = await chromium.launch({ channel: "chrome", headless: true });
 
-  // 1) VUE D'ENSEMBLE — Bureaux, mode Promotion
+  // 1) VUE D'ENSEMBLE : Bureaux, mode Promotion
   const p1 = await browser.newPage({ viewport: { width: 1440, height: 1460 }, deviceScaleFactor: 1 });
   await p1.goto("http://localhost:3000/vue-ensemble", { waitUntil: "networkidle" });
   await p1.getByText("Classement des freguesias").waitFor();
@@ -31,7 +31,7 @@ async function clickHayaMarker(page) {
   console.log("shot vue-ensemble bureaux done");
   await p1.close();
 
-  // 2) CARTE — Commerce, freguesia centrale (Afurada) sélectionnée
+  // 2) CARTE : Commerce, freguesia centrale (Afurada) sélectionnée
   const p2 = await browser.newPage({ viewport: { width: 1440, height: 980 }, deviceScaleFactor: 1 });
   await p2.goto("http://localhost:3000/gaia", { waitUntil: "networkidle" });
   await p2.waitForTimeout(2500);

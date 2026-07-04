@@ -24,7 +24,7 @@ import {
 } from "@/lib/fiscal";
 
 const MARKET_LINE =
-  "Portugal, rive sud du Douro : ce que le fisc prend à chaque étape — et comment c'est déjà intégré dans nos verdicts.";
+  "Portugal, rive sud du Douro : ce que le fisc prend à chaque étape, et comment c'est déjà intégré dans nos verdicts.";
 
 const eur = (v: number) => `${Math.round(v).toLocaleString("fr-FR")} €`;
 const pct = (v: number, d = 1) => `${v.toLocaleString("fr-FR", { minimumFractionDigits: d, maximumFractionDigits: d })}%`;
@@ -78,7 +78,7 @@ export default function FiscalitePage() {
         />
 
         <main className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-6">
-          {/* Module header — page-local fiscal regime toggle (PT law only splits
+          {/* Module header: page-local fiscal regime toggle (PT law only splits
               résidentiel / commercial ; a 5-class selector changed nothing here) */}
           <div>
             <div className="flex flex-wrap items-center gap-3">
@@ -115,17 +115,17 @@ export default function FiscalitePage() {
           <div className="grid shrink-0 grid-cols-1 gap-4 xl:grid-cols-3">
             <Volet title="Acquérir" eyebrow="À la signature">
               <Row
-                label="IMT — habitation (investisseur)"
+                label="IMT · habitation (investisseur)"
                 value="1% → 8%"
                 sub={`barème progressif ; taux uniques 6% (${(660_982).toLocaleString("fr-FR")} – ${(1_150_853).toLocaleString("fr-FR")} €) et 7,5% au-delà`}
               />
               <Row
-                label="IMT — commercial & terrains à bâtir"
+                label="IMT · commercial & terrains à bâtir"
                 value={pct(IMT_COMMERCIAL_PCT)}
                 sub="prédios não habitacionais : taux unique"
               />
               <Row
-                label="Non-résidents — résidentiel (dès 01/09/2026)"
+                label="Non-résidents · résidentiel (dès 01/09/2026)"
                 value={pct(7.5)}
                 sub="taux fixe (DL 97/2026) ; remboursable si résidence fiscale sous 2 ans ou location à loyer modéré (≤ 2 300 €/mois)"
               />
@@ -135,12 +135,12 @@ export default function FiscalitePage() {
 
             <Volet title="Détenir" eyebrow="Chaque année">
               <Row
-                label="IMI — prédios urbains"
+                label="IMI · prédios urbains"
                 value={`${pct(IMI_MIN_PCT, 2)} – ${pct(IMI_MAX_PCT, 2)}`}
                 sub="par an sur la VPT, taux fixé par la commune"
               />
               <Row
-                label="AIMI — véhicule société"
+                label="AIMI · véhicule société"
                 value={pct(AIMI_COMPANY_PCT)}
                 sub="par an sur le patrimoine résidentiel détenu en société"
               />
@@ -166,7 +166,7 @@ export default function FiscalitePage() {
               <Row
                 label="Taux effectif retenu"
                 value={`~${pct(IRC_EFFECTIVE_PCT, 0)}`}
-                sub="IRC + derramas — celui des verdicts de la plateforme"
+                sub="IRC + derramas, celui des verdicts de la plateforme"
               />
               <Platform to="/arbitrage" label="intégré aux frictions de sortie d'Arbitrage (et à la marge nette de Promotion)" />
             </Volet>
@@ -176,7 +176,7 @@ export default function FiscalitePage() {
           <div className="grid shrink-0 grid-cols-1 gap-4 xl:grid-cols-[1.35fr_1fr]">
             <section className="rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
               <h3 className="font-display text-[16px] leading-tight text-navy">
-                Points de contrôle — {residential ? "habitation (investisseur)" : "commercial"}
+                Points de contrôle · {residential ? "habitation (investisseur)" : "commercial"}
               </h3>
               <p className="mt-0.5 text-label text-muted">
                 Mêmes formules que le simulateur ; chaque ligne est vérifiable sur le barème officiel.
@@ -228,7 +228,7 @@ export default function FiscalitePage() {
 
           {/* Discreet source line */}
           <p className="shrink-0 pl-1 text-label text-muted">
-            Barèmes officiels PT 2026 — IMT (CIMT art. 17, tables du 06-01-2026), Imposto do Selo,
+            Barèmes officiels PT 2026 : IMT (CIMT art. 17, tables du 06-01-2026), Imposto do Selo,
             IMI/AIMI, IRC (OE 2026), non-résidents (DL 97/2026, du 20 mai).
           </p>
         </main>

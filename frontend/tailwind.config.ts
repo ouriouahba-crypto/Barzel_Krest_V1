@@ -6,17 +6,17 @@ const config: Config = {
     extend: {
       colors: {
         navy: { DEFAULT: "#0A1628", 800: "#0F1E36", 700: "#16294A", 600: "#1E3559" },
-        // gold.700 : or lisible sur fond clair (≥ 4.5:1 sur blanc et cream) —
+        // gold.700 : or lisible sur fond clair (≥ 4.5:1 sur blanc et cream) ;
         // l'or brut C9A86A/B8965A est réservé aux fonds navy et au décoratif.
         gold: { DEFAULT: "#C9A86A", 600: "#B8965A", 700: "#85683A", 300: "#E0CBA0" },
-        // DEFAULT reads the global CSS variable (app/globals.css) — one source.
+        // DEFAULT reads the global CSS variable (app/globals.css), one source.
         cream: { DEFAULT: "rgb(var(--cream) / <alpha-value>)", 200: "#FBF9F4" },
-        // ink.soft : contenu secondaire sur fond clair (8.8:1 sur blanc) —
+        // ink.soft : contenu secondaire sur fond clair (8.8:1 sur blanc) ;
         // muted (#6B7A8D) est réservé aux étiquettes.
         ink: { DEFAULT: "#243447", soft: "#3D4C5F" },
         muted: "#6B7A8D",
       },
-      // Échelle typographique Barzel — plancher absolu 12px (cf. CLAUDE.md charte).
+      // Échelle typographique Barzel : plancher absolu 12px (cf. CLAUDE.md charte).
       fontSize: {
         label: ["12px", { lineHeight: "1.35" }], // étiquettes, eyebrows, unités
         th: ["12.5px", { lineHeight: "1.35" }], // en-têtes de tableaux

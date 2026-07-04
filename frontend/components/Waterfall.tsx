@@ -5,7 +5,7 @@ import { Mode } from "@/lib/scoring";
 import { VerdictBadge } from "./ui";
 
 // Generic floating-bar cascade: a base bar (revenue, gross yield…) minus ordered
-// deductions, stepping down to a computed result — or a dedicated loss state when
+// deductions, stepping down to a computed result, or a dedicated loss state when
 // the result is negative. MarginWaterfall (promotion) and YieldWaterfall
 // (détention) are thin wrappers around this.
 
@@ -89,7 +89,7 @@ export function Waterfall({
             fmt={fmt}
           />
         ))}
-        {/* Result — or a dedicated loss state when the economics don't pencil */}
+        {/* Result, or a dedicated loss state when the economics don't pencil */}
         <div className="mt-1 border-t border-dashed border-navy/15 pt-2">
           {result >= 0 ? (
             <WaterRow

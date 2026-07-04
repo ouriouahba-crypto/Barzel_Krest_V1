@@ -15,7 +15,7 @@ import { CompareColumn, CompareModeCell, compareInsight, compareSynthesis } from
 const SANTA = "santamarinhaesaopedrodaafurada";
 const MADALENA = "madalena";
 const MARKET_LINE =
-  "Rive sud du Douro : un même territoire, quatre lectures — promotion, détention, arbitrage, foncier, côte à côte.";
+  "Rive sud du Douro : un même territoire, quatre lectures (promotion, détention, arbitrage, foncier), côte à côte.";
 
 // Native metric of each mode, read from the same pillars as the mode pages.
 function cellFor(mode: Mode, z: ModeScore): CompareModeCell {
@@ -33,7 +33,7 @@ function cellFor(mode: Mode, z: ModeScore): CompareModeCell {
 }
 
 function metricDisplay(c: CompareModeCell): string {
-  if (c.metric == null) return "—";
+  if (c.metric == null) return "–";
   switch (c.mode) {
     case "promotion": return `marge ${c.metric.toFixed(1)}%`;
     case "detention": return `yield net ${c.metric.toFixed(2)}%`;
@@ -45,7 +45,7 @@ function metricDisplay(c: CompareModeCell): string {
 export default function ComparerPage() {
   const g = useGaia();
   const [selected, setSelected] = useState<string[]>([]);
-  // 2 or 3 comparison slots — first two prefilled, third starts empty.
+  // 2 or 3 comparison slots: first two prefilled, third starts empty.
   const [picks, setPicks] = useState<(string | null)[]>([SANTA, MADALENA, null]);
 
   const cls = g.assetClass;
@@ -124,7 +124,7 @@ export default function ComparerPage() {
 
         {g.error && (
           <div className="mx-6 mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-body text-red-700">
-            Backend injoignable — lancez l'API (uvicorn backend.main:app). {g.error}
+            Backend injoignable : lancez l'API (uvicorn backend.main:app). {g.error}
           </div>
         )}
 
@@ -139,12 +139,12 @@ export default function ComparerPage() {
               </span>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
-              Deux ou trois freguesias côte à côte, à travers les quatre lectures du même marché —
+              Deux ou trois freguesias côte à côte, à travers les quatre lectures du même marché :
               la couche de décision avant d'entrer dans chaque module.
             </p>
           </div>
 
-          {/* Selection slots — always three, the third starts empty */}
+          {/* Selection slots: always three, the third starts empty */}
           <div className="grid shrink-0 grid-cols-1 gap-4 xl:grid-cols-3">
             {[0, 1, 2].map((slot) => {
               const value = picks[slot] ?? "";
@@ -160,7 +160,7 @@ export default function ComparerPage() {
                   }`}
                 >
                   {slot === 2 ? (
-                    <option value="">{value ? "— Retirer —" : "+ Ajouter une freguesia"}</option>
+                    <option value="">{value ? "– Retirer –" : "+ Ajouter une freguesia"}</option>
                   ) : (
                     !value && <option value="">Choisir une freguesia…</option>
                   )}
@@ -182,9 +182,9 @@ export default function ComparerPage() {
 
                 {/* a) carte d'identité */}
                 <div className="mt-3 grid grid-cols-3 gap-2">
-                  <Ident label="Prix médian" value={col.price != null ? `${Math.round(col.price).toLocaleString("fr-FR")} €/m²` : "—"} />
-                  <Ident label="Sur 12 mois" value={col.yoy != null ? `${col.yoy >= 0 ? "+" : ""}${col.yoy.toFixed(1)}%` : "—"} />
-                  <Ident label="Transactions" value={col.tx != null ? `${col.tx.toLocaleString("fr-FR")} / an` : "—"} sub="tous segments" />
+                  <Ident label="Prix médian" value={col.price != null ? `${Math.round(col.price).toLocaleString("fr-FR")} €/m²` : "–"} />
+                  <Ident label="Sur 12 mois" value={col.yoy != null ? `${col.yoy >= 0 ? "+" : ""}${col.yoy.toFixed(1)}%` : "–"} />
+                  <Ident label="Transactions" value={col.tx != null ? `${col.tx.toLocaleString("fr-FR")} / an` : "–"} sub="tous segments" />
                 </div>
 
                 {/* b) les 4 modes empilés */}

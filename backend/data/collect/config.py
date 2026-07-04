@@ -46,7 +46,7 @@ CONF_A_COLLECTER = "a_collecter"  # real zone, value not yet extractable
 STATUS_REAL = "real"
 STATUS_TODO = "a_collecter"
 
-# Source keys — must exist in the backbone "sources" registry.
+# Source keys : must exist in the backbone "sources" registry.
 SRC_INE = "ine_local"
 SRC_STATBEL = "statbel_cadastre"
 SRC_STATBEL_SURFACE = "statbel_surface"   # old cadastral file (surface for eur/m2)
@@ -68,12 +68,12 @@ INE_META_ENDPOINT = f"{INE_API_BASE}/pindicaMeta.jsp"
 INE_DATA_ENDPOINT = f"{INE_API_BASE}/pindica.jsp"
 INE_LANG = "PT"
 
-# Indicator codes — confirmed against the live INE JSON API. Override via env.
+# Indicator codes, confirmed against the live INE JSON API. Override via env.
 #   0012234  Valor mediano das vendas de alojamentos familiares (12m, €/m2),
 #            by NUTS-2024 geography + Categoria (Dim3: H1=Total/H11=Novos/H12=Existentes)
 #   0012235  ...em apartamentos (€/m2), by geography (no Dim3)
 #   0012231  ...by geography + Domicílio fiscal do comprador (Dim3: 1=nacional,
-#            2=estrangeiro) — ONLY the 8 cities >100k, with their own geo codes.
+#            2=estrangeiro) ; ONLY the 8 cities >100k, with their own geo codes.
 INE_INDICATOR_TOTAL = os.environ.get("INE_INDICATOR_TOTAL", "0012234").strip()
 INE_INDICATOR_APARTMENTS = os.environ.get("INE_INDICATOR_APARTMENTS", "0012235").strip()
 INE_INDICATOR_FISCAL = os.environ.get("INE_INDICATOR_FISCAL", "0012231").strip()
@@ -91,7 +91,7 @@ INE_YOY_FROM_TMINUS4 = os.environ.get("INE_YOY_FROM_TMINUS4", "1").strip() not i
 # hand. Value = the parent município geocode prefix.
 INE_HARVEST_FREGUESIAS = {"gaia": "11A1317"}
 
-# Freguesia geocodes are only unique WITHIN a município — several parishes share
+# Freguesia geocodes are only unique WITHIN a município ; several parishes share
 # a name across Portugal (e.g. "Santo António" exists in Lisboa AND Funchal). We
 # therefore constrain a freguesia name-match to its parent município's geocode
 # prefix. Lisboa freguesias = 1A0110xx, V.N. Gaia freguesias = 11A1317xx.
@@ -104,8 +104,8 @@ INE_FISCAL_NATIONAL = "1"
 INE_FISCAL_FOREIGN = "2"
 
 # INE rule for local prices: a category is only published with >= 33 sales.
-# (n transactions itself is NOT exposed by these API indicators — only in the
-# quarterly press-release Excel — so we never fabricate a count.)
+# (n transactions itself is NOT exposed by these API indicators, only in the
+# quarterly press-release Excel, so we never fabricate a count.)
 INE_MIN_TRANSACTIONS = 33
 
 
@@ -125,7 +125,7 @@ class IneTarget:
 # Município codes are pinned (matched by code, unambiguous); freguesias are
 # matched by their (prefix-stripped) name against the all-geography response.
 INE_TARGETS: tuple[IneTarget, ...] = (
-    # Lisboa — município (carries the buyer fiscal-domicile split) + freguesias.
+    # Lisboa : município (carries the buyer fiscal-domicile split) + freguesias.
     IneTarget("lisbonne", "Lisboa", "municipio", geo_code="1A01106", fiscal_geo="1A00068"),
     IneTarget("lisbonne", "Arroios", "freguesia"),
     IneTarget("lisbonne", "Carnide", "freguesia"),
@@ -137,10 +137,10 @@ INE_TARGETS: tuple[IneTarget, ...] = (
     IneTarget("lisbonne", "Santa Maria Maior", "freguesia"),
     IneTarget("lisbonne", "Misericórdia", "freguesia", aliases=("Misericordia",)),
     IneTarget("lisbonne", "Santo António", "freguesia", aliases=("Santo Antonio",)),
-    # Vila Nova de Gaia — município (+ fiscal split). All 15 freguesias are
+    # Vila Nova de Gaia : município (+ fiscal split). All 15 freguesias are
     # harvested automatically (see INE_HARVEST_FREGUESIAS).
     IneTarget("gaia", "Vila Nova de Gaia", "municipio", geo_code="11A1317", fiscal_geo="11A0021"),
-    # Algarve + Setúbal — município level (no fiscal split published; <100k hab).
+    # Algarve + Setúbal : município level (no fiscal split published; <100k hab).
     IneTarget("loule", "Loulé", "municipio", geo_code="1500808", aliases=("Loule",)),
     IneTarget("alcochete", "Alcochete", "municipio", geo_code="1B01502"),
 )
@@ -161,7 +161,7 @@ CITY_META = {
 # --------------------------------------------------------------------------- #
 
 # Statbel open-data real-estate files (confirmed URLs, July 2026).
-# NIS9 statistical-sector file — "Real estate sales ... Statistical sectors":
+# NIS9 statistical-sector file, "Real estate sales ... Statistical sectors":
 #   landing: https://statbel.fgov.be/en/open-data/real-estate-sales-according-
 #            nature-property-deed-sale-statistical-sectors-nis7-and-nis9
 #   columns: CD_STAT_SECTOR, CD_YEAR, CD_TYPE(_NL/_FR), MS_TRANSACTIONS,
@@ -171,7 +171,7 @@ STATBEL_SECTOR_URL = os.environ.get(
     "https://statbel.fgov.be/sites/default/files/files/opendata/"
     "Immo%20sector/TF_IMMO_SECTOR.zip",
 ).strip()
-# NIS5 commune/Belgium file — "Real estate sales ... Belgium" — carries the
+# NIS5 commune/Belgium file, "Real estate sales ... Belgium", carries the
 # fuller P10/Q25/Q50/Q75/P90 set + transaction counts, keyed on CD_REFNIS.
 STATBEL_COMMUNE_URL = os.environ.get(
     "STATBEL_COMMUNE_URL",
@@ -200,7 +200,7 @@ STATBEL_COLUMNS = {
     "property_type": ("CD_TYPE_FR", "CD_TYPE_NL", "CD_TYPE", "building_type"),
     "refnis_level": ("CD_niveau_refnis", "CD_NIVEAU_REFNIS", "cd_niveau_refnis"),
     "period_year": ("CD_YEAR", "cd_year", "year"),
-    # Sub-year period (Q1..Q4/S1/S2/Y) — present in the commune file only.
+    # Sub-year period (Q1..Q4/S1/S2/Y), present in the commune file only.
     "period_part": ("CD_PERIOD", "cd_period"),
     "surface_class": ("CD_CLASS_SURFACE", "cd_class_surface"),
     "n_transactions": ("MS_TRANSACTIONS", "MS_TOTAL_TRANSACTIONS", "ms_transactions", "nb_transactions"),
@@ -261,7 +261,7 @@ STATBEL_RESIDENTIAL_TYPES = (
 
 
 # --------------------------------------------------------------------------- #
-# Belgium / Statbel — SURFACE (for the derived eur/m2)                          #
+# Belgium / Statbel : SURFACE (for the derived eur/m2)                          #
 # --------------------------------------------------------------------------- #
 
 # The current transaction files carry NO surface, so eur/m2 is derived using a
@@ -310,7 +310,7 @@ STATBEL_SURFACE_MIN_TX = 20
 
 
 # --------------------------------------------------------------------------- #
-# Belgium / IBSA — quartier geography (opendata.brussels.be, Opendatasoft)      #
+# Belgium / IBSA : quartier geography (opendata.brussels.be, Opendatasoft)      #
 # --------------------------------------------------------------------------- #
 
 # IBSA / opendata.brussels.be exposes NO open eur/m2 or rents dataset (only PDF

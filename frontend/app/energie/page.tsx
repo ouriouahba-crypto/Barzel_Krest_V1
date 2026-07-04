@@ -13,7 +13,7 @@ import { energieInsight, energyVerdict, parcFor, riskMeps } from "@/lib/energie"
 
 const SANTA = "santamarinhaesaopedrodaafurada";
 const MARKET_LINE =
-  "Rive sud du Douro : ce que la réglementation énergétique va coûter au parc, où — et comment c'est déjà compté dans nos verdicts.";
+  "Rive sud du Douro : ce que la réglementation énergétique va coûter au parc, où, et comment c'est déjà compté dans nos verdicts.";
 
 // Verified regulatory milestones (EPBD (UE) 2024/1275 ; SCE DL 101-D/2020).
 const TIMELINE: { when: string; what: string }[] = [
@@ -27,7 +27,7 @@ const TIMELINE: { when: string; what: string }[] = [
 ];
 
 // Encres AA pour le texte sur fond clair (pivot or assombri) + pilules de
-// verdict sur le modèle VerdictBadge (fond sombre, texte clair — jamais de
+// verdict sur le modèle VerdictBadge (fond sombre, texte clair : jamais de
 // blanc sur or, 2.26:1).
 const toneTextColor = { good: "#2F6B3D", mid: "#85683A", low: "#9E5B5B" } as const;
 const tonePill = {
@@ -137,7 +137,7 @@ export default function EnergiePage() {
           <div className="grid shrink-0 grid-cols-1 gap-4 xl:grid-cols-[1.35fr_1fr]">
             <section className="rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
               <h3 className="font-display text-[16px] leading-tight text-navy">Trajectoire réglementaire</h3>
-              <p className="mt-0.5 text-label text-muted">EPBD (UE) 2024/1275 — échéances applicables au parc existant et au neuf.</p>
+              <p className="mt-0.5 text-label text-muted">EPBD (UE) 2024/1275 : échéances applicables au parc existant et au neuf.</p>
               <div className="mt-3 flex flex-col">
                 {TIMELINE.map((t) => (
                   <div key={t.when} className="flex gap-3 border-l-2 border-gold/30 pb-3 pl-4 last:pb-0">
@@ -231,7 +231,7 @@ export default function EnergiePage() {
 
           {/* Discreet source line */}
           <p className="shrink-0 pl-1 text-label text-muted">
-            Directive EPBD (UE) 2024/1275 · SCE — DL 101-D/2020 (classes A+ → F) · coûts de
+            Directive EPBD (UE) 2024/1275 · SCE (DL 101-D/2020, classes A+ → F) · coûts de
             rénovation : ordres de grandeur ADENE / marché 2026. Répartition du parc par freguesia :
             estimation Barzel.
           </p>

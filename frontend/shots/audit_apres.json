@@ -1631,7 +1631,7 @@
    {
     "tag": "h3",
     "cls": "font-display text-[16px] text-navy",
-    "text": "Où — top 3 freguesias",
+    "text": "Où : top 3 freguesias",
     "size": 16,
     "weight": 400,
     "svg": false,
@@ -2608,7 +2608,7 @@
    {
     "tag": "p",
     "cls": "mt-1.5 max-w-2xl pl-[18px] text-body text-ink-soft",
-    "text": "Rive sud du Douro : un même territoire, quatre lectures — pr",
+    "text": "Rive sud du Douro : un même territoire, quatre lectures (pro",
     "size": 14,
     "weight": 400,
     "svg": false,
@@ -6484,7 +6484,7 @@
    {
     "tag": "h3",
     "cls": "font-display text-[16px] leading-tight text-navy",
-    "text": "Décomposition de la marge — Santa Marinha e São Pedro da Afu",
+    "text": "Décomposition de la marge · Santa Marinha e São Pedro da Afu",
     "size": 16,
     "weight": 400,
     "svg": false,
@@ -9684,7 +9684,7 @@
    {
     "tag": "h3",
     "cls": "font-display text-[16px] leading-tight text-navy",
-    "text": "Décomposition du rendement — Santa Marinha e São Pedro da Af",
+    "text": "Décomposition du rendement · Santa Marinha e São Pedro da Af",
     "size": 16,
     "weight": 400,
     "svg": false,
@@ -10100,7 +10100,7 @@
    {
     "tag": "p",
     "cls": "mt-4 text-caption leading-relaxed text-cream/85",
-    "text": "Immeuble de rapport à Santa Marinha —",
+    "text": "Immeuble de rapport à Santa Marinha :",
     "size": 13,
     "weight": 400,
     "svg": false,
@@ -10648,7 +10648,7 @@
    {
     "tag": "p",
     "cls": "mt-1.5 max-w-2xl pl-[18px] text-body text-ink-soft",
-    "text": "Rive sud du Douro : le cycle a monté vite — céder se joue su",
+    "text": "Rive sud du Douro : le cycle a monté vite. Céder se joue sur",
     "size": 14,
     "weight": 400,
     "svg": false,
@@ -12312,7 +12312,7 @@
    {
     "tag": "h3",
     "cls": "font-display text-[16px] leading-tight text-navy",
-    "text": "Décomposition de la cession — Santa Marinha e São Pedro da A",
+    "text": "Décomposition de la cession · Santa Marinha e São Pedro da A",
     "size": 16,
     "weight": 400,
     "svg": false,
@@ -13289,7 +13289,7 @@
    {
     "tag": "p",
     "cls": "mt-1.5 max-w-2xl pl-[18px] text-body text-ink-soft",
-    "text": "Rive sud du Douro : le foncier bien desservi se raréfie — la",
+    "text": "Rive sud du Douro : le foncier bien desservi se raréfie. La ",
     "size": 14,
     "weight": 400,
     "svg": false,
@@ -16606,7 +16606,7 @@
    {
     "tag": "div",
     "cls": "text-body font-medium leading-snug text-ink",
-    "text": "IMT — habitation (investisseur)",
+    "text": "IMT · habitation (investisseur)",
     "size": 14,
     "weight": 500,
     "svg": false,
@@ -16645,7 +16645,7 @@
    {
     "tag": "div",
     "cls": "text-body font-medium leading-snug text-ink",
-    "text": "IMT — commercial & terrains à bâtir",
+    "text": "IMT · commercial & terrains à bâtir",
     "size": 14,
     "weight": 500,
     "svg": false,
@@ -16684,7 +16684,7 @@
    {
     "tag": "div",
     "cls": "text-body font-medium leading-snug text-ink",
-    "text": "Non-résidents — résidentiel (dès 01/09/2026)",
+    "text": "Non-résidents · résidentiel (dès 01/09/2026)",
     "size": 14,
     "weight": 500,
     "svg": false,
@@ -16814,7 +16814,7 @@
    {
     "tag": "div",
     "cls": "text-body font-medium leading-snug text-ink",
-    "text": "IMI — prédios urbains",
+    "text": "IMI · prédios urbains",
     "size": 14,
     "weight": 500,
     "svg": false,
@@ -16853,7 +16853,7 @@
    {
     "tag": "div",
     "cls": "text-body font-medium leading-snug text-ink",
-    "text": "AIMI — véhicule société",
+    "text": "AIMI · véhicule société",
     "size": 14,
     "weight": 500,
     "svg": false,
@@ -17074,7 +17074,7 @@
    {
     "tag": "div",
     "cls": "text-caption leading-snug text-ink-soft",
-    "text": "IRC + derramas — celui des verdicts de la plateforme",
+    "text": "IRC + derramas, celui des verdicts de la plateforme",
     "size": 13,
     "weight": 400,
     "svg": false,
@@ -17126,7 +17126,7 @@
    {
     "tag": "h3",
     "cls": "font-display text-[16px] leading-tight text-navy",
-    "text": "Points de contrôle —",
+    "text": "Points de contrôle ·",
     "size": 16,
     "weight": 400,
     "svg": false,
@@ -17659,7 +17659,7 @@
    {
     "tag": "p",
     "cls": "shrink-0 pl-1 text-label text-muted",
-    "text": "Barèmes officiels PT 2026 — IMT (CIMT art. 17, tables du 06-",
+    "text": "Barèmes officiels PT 2026 : IMT (CIMT art. 17, tables du 06-",
     "size": 12,
     "weight": 400,
     "svg": false,
@@ -18090,7 +18090,7 @@
    {
     "tag": "p",
     "cls": "mt-0.5 text-label text-muted",
-    "text": "EPBD (UE) 2024/1275 — échéances applicables au parc existant",
+    "text": "EPBD (UE) 2024/1275 : échéances applicables au parc existant",
     "size": 12,
     "weight": 400,
     "svg": false,
@@ -19858,7 +19858,7 @@
    {
     "tag": "p",
     "cls": "shrink-0 pl-1 text-label text-muted",
-    "text": "Directive EPBD (UE) 2024/1275 · SCE — DL 101-D/2020 (classes",
+    "text": "Directive EPBD (UE) 2024/1275 · SCE (DL 101-D/2020, classes ",
     "size": 12,
     "weight": 400,
     "svg": false,

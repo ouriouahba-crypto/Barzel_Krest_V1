@@ -1,7 +1,7 @@
 const { chromium } = require("playwright-core");
 
 async function clickHayaMarker(page) {
-  // The Haya CircleMarker is the smallest SVG path in the map — find + click it.
+  // The Haya CircleMarker is the smallest SVG path in the map: find + click it.
   const box = await page.evaluate(() => {
     const paths = [...document.querySelectorAll(".leaflet-container path")];
     let best = null, area = Infinity;
@@ -22,7 +22,7 @@ async function clickHayaMarker(page) {
 (async () => {
   const browser = await chromium.launch({ channel: "chrome", headless: true });
 
-  // 1) CARTE — bureaux, Afurada selected
+  // 1) CARTE : bureaux, Afurada selected
   const p1 = await browser.newPage({ viewport: { width: 1440, height: 980 }, deviceScaleFactor: 1 });
   await p1.goto("http://localhost:3000/gaia", { waitUntil: "networkidle" });
   await p1.waitForTimeout(2500);
@@ -38,7 +38,7 @@ async function clickHayaMarker(page) {
   console.log("shot carte done");
   await p1.close();
 
-  // 2) VUE D'ENSEMBLE — résidentiel (default)
+  // 2) VUE D'ENSEMBLE : résidentiel (default)
   const p2 = await browser.newPage({ viewport: { width: 1440, height: 1460 }, deviceScaleFactor: 1 });
   await p2.goto("http://localhost:3000/vue-ensemble", { waitUntil: "networkidle" });
   await p2.getByText("Classement des freguesias").waitFor();

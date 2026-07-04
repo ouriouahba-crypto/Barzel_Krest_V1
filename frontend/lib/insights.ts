@@ -1,4 +1,4 @@
-// Deterministic insight generator — no AI. Pure functions that compose French
+// Deterministic insight generator (no AI). Pure functions that compose French
 // sentences from real scoring data (templates + actual numbers, never generic
 // filler). Reused by the overview page and, later, the mode pages.
 
@@ -115,7 +115,7 @@ export function cityInsight(data: OverviewByMode, assetClass: string): string {
   const good = goFreg(rows, bm);
   const suffix = classSuffix(assetClass);
 
-  // Degraded: no freguesia clears the top verdict — cite the single best, not a range.
+  // Degraded: no freguesia clears the top verdict; cite the single best, not a range.
   if (!good.length) {
     const top = rows
       .map((r) => ({ r, v: pillarValue(r.pillars, MODE_KPI[bm].pillar) }))
@@ -164,12 +164,12 @@ export function modeInsight(score: ModeScore, assetClass: string): string {
       return `Réserve foncière à activer : ${verdictLabel(score.verdict)}.`;
     }
     default:
-      return `${score.verdict} — ${v}.`;
+      return `${score.verdict} : ${v}.`;
   }
 }
 
 // ---------------------------------------------------------------------------
-// Mode pages — page-level insights (Prix & marge, Rendement) + anomaly note.
+// Mode pages: page-level insights (Prix & marge, Rendement) + anomaly note.
 // ---------------------------------------------------------------------------
 
 // "la promotion <X>" / "la détention <X>" with gender/agreement per class.
@@ -222,7 +222,7 @@ export function priceMarginInsight(rows: PmRow[], assetClass: string): string {
 }
 
 // 1-2 sentences for the Rendement page: how many freguesias justify holding, the
-// 2-3 best (with net yield), and why the rest doesn't hold — computed from the
+// 2-3 best (with net yield), and why the rest doesn't hold, computed from the
 // most common weakest pillar of the non-Conserver set. Same graded spirit as
 // priceMarginInsight.
 const DET_CLAUSE: Record<string, string> = {
@@ -311,7 +311,7 @@ export function arbitrageInsight(rows: ArbRow[], assetClass: string): string {
   const n = open.length;
 
   // Signature message of the page: when the widest spread sits outside the open
-  // windows, it is a paper spread — no institutional buyer, no window.
+  // windows, it is a paper spread: no institutional buyer, no window.
   const maxS = rows.length ? rows.reduce((a, b) => (b.spreadPct > a.spreadPct ? b : a)) : null;
   const trap =
     maxS && verdictTone("arbitrage", maxS.verdict) !== "good"
@@ -405,7 +405,7 @@ export function landbankInsight(rows: FcRow[]): string {
 }
 
 // ---------------------------------------------------------------------------
-// Comparer — per-freguesia dominant signal + cross-freguesia synthesis.
+// Comparer: per-freguesia dominant signal + cross-freguesia synthesis.
 // Pure recomposition of the mode scores; no new business computation.
 // ---------------------------------------------------------------------------
 
@@ -483,7 +483,7 @@ export function compareSynthesis(cols: CompareColumn[]): string {
   if (cols.length < 2) return "";
   // Winner per mode (by score); the value pair compares the winner with the
   // BEST of the other selected freguesias on the compared value itself
-  // (residual for landbank, native metric otherwise) — not the 2nd by score.
+  // (residual for landbank, native metric otherwise), not the 2nd by score.
   const wins = new Map<number, { mode: Mode; win: CompareModeCell; run: CompareModeCell }[]>();
   for (const m of MODES) {
     const entries = cols
@@ -540,15 +540,15 @@ const PILLAR_REASON: Record<string, string> = {
 };
 
 // The most striking exception, per mode: a freguesia whose native KPI looks fine
-// but whose verdict is the low one — named by its weakest other pillar, or null
+// but whose verdict is the low one, named by its weakest other pillar, or null
 // when no freguesia qualifies (nothing is displayed then; never forced).
 //  - promotion: marge >= 8% (the verdict-cap threshold) but verdict Passer.
 //  - detention: yield net >= the lowest yield among kept/watched freguesias, but
-//    verdict Céder — it earns as much as places we keep, something else disqualifies it.
-//  - arbitrage: spread >= 10% (the "faible" band edge) but verdict Fenêtre fermée —
+//    verdict Céder : it earns as much as places we keep, something else disqualifies it.
+//  - arbitrage: spread >= 10% (the "faible" band edge) but verdict Fenêtre fermée,
 //    a real premium the market cannot exit.
 //  - landbank: constructibilité >= 50 (above the country default) but verdict
-//    En attente — buildable land whose market is not there yet.
+//    En attente : buildable land whose market is not there yet.
 export function anomalyNote(mode: Mode, scores: ModeScore[]): string | null {
   const kpi = MODE_KPI[mode].pillar;
   const isLow = (s: ModeScore) => verdictTone(mode, s.verdict) === "low";
@@ -584,10 +584,10 @@ export function anomalyNote(mode: Mode, scores: ModeScore[]): string | null {
 }
 
 /* ------------------------------------------------------------------ */
-/* Trajectoire des prix (Vue d'ensemble) — insight déterministe        */
+/* Trajectoire des prix (Vue d'ensemble) : insight déterministe        */
 /* ------------------------------------------------------------------ */
 
-// "Le prix <classe> de Gaia…" — noun-complement per class (masculine "prix").
+// "Le prix <classe> de Gaia…" : noun-complement per class (masculine "prix").
 const PRICE_OF: Record<string, string> = {
   residential: "résidentiel",
   office: "des bureaux",
@@ -598,7 +598,7 @@ const PRICE_OF: Record<string, string> = {
 
 // One sentence under the trajectory title: 12-month move + shape of the recent
 // year (second-half acceleration / steady / easing), computed from the series
-// itself — no free text. Pure, no JSX.
+// itself, no free text. Pure, no JSX.
 export function trendInsight(
   points: { t: string; price: number }[],
   yoyPct: number | null,

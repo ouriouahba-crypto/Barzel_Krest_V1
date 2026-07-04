@@ -15,14 +15,14 @@ import { landbankInsight, anomalyNote } from "@/lib/insights";
 
 const CANIDELO = "canidelo";
 const MARKET_LINE =
-  "Rive sud du Douro : le foncier bien desservi se raréfie — la réserve se juge à sa valeur résiduelle par usage et à son horizon d'activation.";
+  "Rive sud du Douro : le foncier bien desservi se raréfie. La réserve se juge à sa valeur résiduelle par usage et à son horizon d'activation.";
 
 // Landbank reads the land itself, not an asset class: the residual value per
-// usage answers the class question — the class selector is hidden (hideClass)
+// usage answers the class question: the class selector is hidden (hideClass)
 // and the context line says why. Monte Claro's usage selector stays fully live.
 const CONTEXT =
   "Le foncier ne vaut que par ce qu'on peut y construire : valeur résiduelle par usage (marge promoteur normative 15 %), uplift face au foncier de marché, horizon d'activation. " +
-  "Le foncier est analysé tous usages confondus — la colonne meilleur usage arbitre entre les cinq classes.";
+  "Le foncier est analysé tous usages confondus : la colonne meilleur usage arbitre entre les cinq classes.";
 
 export default function FoncierPage() {
   const g = useGaia();
@@ -69,7 +69,7 @@ export default function FoncierPage() {
   );
   const note = useMemo(() => anomalyNote("landbank", fregScores), [fregScores]);
 
-  // K-REST featured asset (Monte Claro) — fed by Canidelo's real per-usage
+  // K-REST featured asset (Monte Claro), fed by Canidelo's real per-usage
   // residual table and score.
   const assetProps = useMemo(() => {
     const row = allRows.find((r) => r.zone === CANIDELO);
@@ -98,7 +98,7 @@ export default function FoncierPage() {
 
         {g.error && (
           <div className="mx-6 mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-body text-red-700">
-            Backend injoignable — lancez l'API (uvicorn backend.main:app). {g.error}
+            Backend injoignable : lancez l'API (uvicorn backend.main:app). {g.error}
           </div>
         )}
 
@@ -129,31 +129,31 @@ export default function FoncierPage() {
             }
           />
 
-          {/* 4 key figures — medians on viable freguesias (Prioritaire/À phaser) */}
+          {/* 4 key figures: medians on viable freguesias (Prioritaire/À phaser) */}
           <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
             <Kpi
               label="Uplift médian"
-              value={summary.medianUplift != null ? pctSigned(summary.medianUplift, 0) : "—"}
+              value={summary.medianUplift != null ? pctSigned(summary.medianUplift, 0) : "–"}
               sub={scopeLabel}
             />
             <Kpi
               label="Constructibilité médiane"
-              value={summary.medianConstructibilite != null ? `${Math.round(summary.medianConstructibilite)}` : "—"}
+              value={summary.medianConstructibilite != null ? `${Math.round(summary.medianConstructibilite)}` : "–"}
               sub={scopeLabel}
             />
             <Kpi
               label="Meilleur usage dominant"
-              value={summary.usageDominant ? summary.usageDominant.charAt(0).toUpperCase() + summary.usageDominant.slice(1) : "—"}
+              value={summary.usageDominant ? summary.usageDominant.charAt(0).toUpperCase() + summary.usageDominant.slice(1) : "–"}
               sub={scopeLabel}
             />
             <Kpi
               label="Prioritaires"
-              value={summary.totalCount ? `${summary.prioCount} / ${summary.totalCount}` : "—"}
+              value={summary.totalCount ? `${summary.prioCount} / ${summary.totalCount}` : "–"}
               sub="verdict Prioritaire"
             />
           </div>
 
-          {/* Table — core of the page */}
+          {/* Table: core of the page */}
           <FoncierTable
             rows={rows}
             mode="landbank"
@@ -161,7 +161,7 @@ export default function FoncierPage() {
             onSelect={g.setFocusZone}
           />
 
-          {/* Analysis note — the most telling exception (if any) */}
+          {/* Analysis note: the most telling exception (if any) */}
           {note && (
             <div className="-mt-2 shrink-0 pl-1 text-body leading-snug text-ink-soft">
               <span className="text-label font-semibold uppercase tracking-widest text-gold-700">Note d'analyse</span>

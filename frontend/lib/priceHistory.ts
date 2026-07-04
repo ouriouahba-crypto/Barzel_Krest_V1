@@ -1,10 +1,10 @@
-// Quarterly price trajectory for the overview panel — 8 quarters ending "now"
+// Quarterly price trajectory for the overview panel: 8 quarters ending "now"
 // (T2 2026). Pure and deterministic: the series is generated FROM the engine's
 // city figures (median price €/m² + yoy %), so it is exactly coherent with the
-// values displayed everywhere else (résidentiel : 2 474 €/m², +16,3 % — the
+// values displayed everywhere else (résidentiel : 2 474 €/m², +16,3 %, the
 // INE-anchored engine anchors). Shape: calmer prior year, growth concentrated
 // on the recent second half. Other classes share the same mechanic with a tiny
-// per-class deterministic wiggle. ⚠️ Simulated history — to be replaced by the
+// per-class deterministic wiggle. ⚠️ Simulated history, to be replaced by the
 // client's real per-class price series (see CLAUDE.md §1).
 
 export interface PricePoint {
@@ -14,7 +14,7 @@ export interface PricePoint {
 
 export const QUARTER_LABELS = ["T3 24", "T4 24", "T1 25", "T2 25", "T3 25", "T4 25", "T1 26", "T2 26"];
 
-// Recent-year log-growth split (sums to 1) — back-loaded: the second half of the
+// Recent-year log-growth split (sums to 1), back-loaded: the second half of the
 // last 12 months carries ~58 % of the annual move ("accélération au 2d semestre").
 const RECENT_W = [0.18, 0.24, 0.28, 0.30];
 // Prior year runs at 45 % of the current yoy, mildly accelerating too.

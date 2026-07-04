@@ -11,7 +11,7 @@ const USAGE_ORDER = ["residential", "office", "hotel", "logistics", "retail"];
 // Live, client-side recompute for the K-REST landbank asset (Monte Claro,
 // réserve foncière à Canidelo). Instead of a slider: a 5-usage selector that
 // recomputes the plot's residual value, its uplift vs the zone land market and
-// the verdict — reading the freguesia's real per-usage residual table.
+// the verdict, reading the freguesia's real per-usage residual table.
 export function MonteClaroSelector({
   row,
   baseTotal,

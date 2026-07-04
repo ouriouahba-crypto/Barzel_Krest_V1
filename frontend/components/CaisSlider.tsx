@@ -72,7 +72,7 @@ export function CaisSlider({
         />
         <Metric
           label="Délai estimé"
-          value={delai != null ? `${delai.toFixed(1)} mois` : "—"}
+          value={delai != null ? `${delai.toFixed(1)} mois` : "–"}
           sub={row.valeurRealisable ? `réalisable ${row.valeurRealisable.toLocaleString("fr-FR")} €/m²` : undefined}
         />
         <Metric label="Score arbitrage" value={`${Math.round(total)}`} color={scoreTextColorDark(total)} />

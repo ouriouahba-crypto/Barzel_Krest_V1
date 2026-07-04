@@ -1,4 +1,4 @@
-// Audit de contraste WCAG + tailles de police — 10 pages.
+// Audit de contraste WCAG + tailles de police : 10 pages.
 // Usage : node shots/audit_contrast.js shots/audit_avant.json
 // Pour chaque élément portant du texte direct : couleur effective (fill pour les
 // <text> SVG, color sinon), fond effectif (composition alpha en remontant le DOM,
@@ -146,7 +146,7 @@ const EXTRACT = () => {
   console.log("\nPires ratios (dédupliqués) :");
   for (const w of worst.slice(0, 25))
     console.log(
-      ` ${w.ratio.toFixed(2)}:1 (requis ${w.need}) ${w.page} <${w.tag}> ${w.size}px ${w.fg} sur ${w.bg} — "${w.text.slice(0, 45)}"`
+      ` ${w.ratio.toFixed(2)}:1 (requis ${w.need}) ${w.page} <${w.tag}> ${w.size}px ${w.fg} sur ${w.bg} : "${w.text.slice(0, 45)}"`
     );
   const sizeDist = {};
   for (const f of flat) sizeDist[f.size] = (sizeDist[f.size] || 0) + 1;

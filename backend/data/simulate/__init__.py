@@ -1,4 +1,4 @@
-"""Barzel texture layer — SIMULATED individual listings calibrated on the real
+"""Barzel texture layer : SIMULATED individual listings calibrated on the real
 zone-level distributions in data/backbone.json.
 
 Nothing here invents market truth: simulated listings only restore per-property

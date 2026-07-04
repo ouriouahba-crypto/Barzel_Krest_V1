@@ -7,7 +7,7 @@ import { pctSigned } from "@/lib/arbitrage";
 import { FcRow } from "@/lib/foncier";
 import { VerdictBadge } from "./ui";
 
-// Landbank table — same visual codes as the other mode tables. Default:
+// Landbank table: same visual codes as the other mode tables. Default:
 // Prioritaire/À phaser above an "En attente" separator, best score first in
 // each group; any user sort goes global (no separator, arrow lights up).
 
@@ -38,7 +38,7 @@ export function FoncierTable({
   onSelect: (zone: string) => void;
 }) {
   const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "upliftPct", dir: "desc" });
-  // Until the user sorts: verdict groups, best landbank score first in each —
+  // Until the user sorts: verdict groups, best landbank score first in each;
   // no column carries the ordering, so no arrow lights up.
   const [userSorted, setUserSorted] = useState(false);
 

@@ -26,7 +26,7 @@ interface Msg {
 }
 
 // Mise en évidence des chiffres (or lisible) et des verdicts (badge discret)
-// dans la prose de l'analyste — purement présentationnel.
+// dans la prose de l'analyste, purement présentationnel.
 const VERDICT_WORDS =
   /(Fenêtre ouverte|Fenêtre étroite|Fenêtre fermée|Fenetre ouverte|Fenetre etroite|Fenetre fermee|À phaser|A phaser|En attente|Prioritaire|Conserver|Surveiller|Céder|Ceder|Conditionnel|Passer|Go)(?![\wà-ÿ])/g;
 
@@ -110,7 +110,7 @@ export default function IaAnalystePage() {
 
         {empty ? (
           /* ---- État vide : toile navy centrée, accroche Playfair cream, une
-                 saisie en pilule, cinq suggestions en cartes — rien d'autre. */
+                 saisie en pilule, cinq suggestions en cartes, rien d'autre. */
           <main className="min-h-0 flex-1 overflow-y-auto p-6">
             <section className="flex min-h-full flex-col items-center justify-center rounded-2xl bg-navy px-6 py-14 shadow-card">
               <div className="mx-auto flex w-full max-w-3xl flex-col items-center text-center">
@@ -122,7 +122,7 @@ export default function IaAnalystePage() {
                   Que voulez-vous savoir sur Gaia ?
                 </h2>
                 <p className="mt-3 text-body text-cream/70">
-                  Réponses en {classLabel(cls).toLowerCase()} — scores, verdicts, fiscalité et énergie de la plateforme.
+                  Réponses en {classLabel(cls).toLowerCase()} : scores, verdicts, fiscalité et énergie de la plateforme.
                 </p>
 
                 <form

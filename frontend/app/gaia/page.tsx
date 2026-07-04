@@ -90,10 +90,10 @@ export default function CartePage() {
                 <VerdictBadge mode={g.mode} verdict={q.verdict} />
               </div>
               <div className="mt-3 grid grid-cols-2 gap-2">
-                <Stat label="Prix médian" value={q.price != null ? `${Math.round(q.price).toLocaleString("fr-FR")} €/m²` : "—"} />
-                <Stat label="Croissance" value={q.yoy != null ? `${q.yoy >= 0 ? "+" : ""}${q.yoy.toFixed(1)}%` : "—"} />
+                <Stat label="Prix médian" value={q.price != null ? `${Math.round(q.price).toLocaleString("fr-FR")} €/m²` : "–"} />
+                <Stat label="Croissance" value={q.yoy != null ? `${q.yoy >= 0 ? "+" : ""}${q.yoy.toFixed(1)}%` : "–"} />
                 <Stat label={q.extra.label} value={q.extra.value} />
-                <Stat label={q.kpiLabel} value={q.kpiValue ?? "—"} />
+                <Stat label={q.kpiLabel} value={q.kpiValue ?? "–"} />
               </div>
               <div className="mt-3 text-label text-cream/60">Survolez une freguesia · cliquez pour le détail</div>
             </div>

@@ -7,7 +7,7 @@ const MIN = 200_000;
 const MAX = 5_000_000;
 const eur = (v: number) => `${Math.round(v).toLocaleString("fr-FR")} €`;
 
-// Live acquisition-tax simulator on the official 2026 Portuguese scales —
+// Live acquisition-tax simulator on the official 2026 Portuguese scales,
 // neutral labelling (not a K-REST asset). The class drives the applicable IMT:
 // residential = progressive "habitação secundária" table, commercial = 6,5%.
 export function AcquisitionSimulator({ residential }: { residential: boolean }) {

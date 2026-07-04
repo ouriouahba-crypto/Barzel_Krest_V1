@@ -27,7 +27,7 @@ export function YieldWaterfall({
 
   return (
     <Waterfall
-      title={`Décomposition du rendement — ${row.name}`}
+      title={`Décomposition du rendement · ${row.name}`}
       subtitle={
         row.loyer != null
           ? `Loyer de marché ${eur0(row.loyer)} €/m²/an · yield brut ${pct2(row.yieldBrut)} · ${classLabel}`
@@ -47,7 +47,7 @@ export function YieldWaterfall({
       lossLabel="= Rendement négatif"
       fmt={pct2}
       stats={[
-        { label: "Loyer de marché", value: row.loyer != null ? `${eur0(row.loyer)} €/m²/an` : "—" },
+        { label: "Loyer de marché", value: row.loyer != null ? `${eur0(row.loyer)} €/m²/an` : "–" },
         { label: "Yield net", value: pct2(row.yieldNet), accent: inkVerdict },
         { label: "Score détention", value: `${Math.round(row.total)}`, accent: scoreTextColor(row.total) },
       ]}

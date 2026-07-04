@@ -1,4 +1,4 @@
-"""Barzel Analytics — FastAPI application entrypoint.
+"""Barzel Analytics : FastAPI application entrypoint.
 
 Wires the mode-based scoring router. Params / backbone / listings are loaded once
 at startup (fail fast if a data file is missing). The legacy Dubai barzel_score

@@ -68,14 +68,14 @@ export function RibeiraSlider({
         <Metric label="Yield net" value={`${net.toFixed(2)}%`} color={scoreTextColorDark(yieldNetSubscore(net))} />
         <Metric
           label="Loyer vs marché"
-          value={vsMarket != null ? `${vsMarket >= 0 ? "+" : ""}${vsMarket.toFixed(0)}%` : "—"}
+          value={vsMarket != null ? `${vsMarket >= 0 ? "+" : ""}${vsMarket.toFixed(0)}%` : "–"}
           sub={row.loyer ? `marché ${row.loyer.toLocaleString("fr-FR")} €/m²/an` : undefined}
         />
         <Metric label="Score détention" value={`${Math.round(total)}`} color={scoreTextColorDark(total)} />
       </div>
 
       <p className="mt-4 text-caption leading-relaxed text-cream/85">
-        Immeuble de rapport à Santa Marinha — {RIBEIRA.lots} lots, {RIBEIRA.surface.toLocaleString("fr-FR")} m²,
+        Immeuble de rapport à Santa Marinha : {RIBEIRA.lots} lots, {RIBEIRA.surface.toLocaleString("fr-FR")} m²,
         acquis {RIBEIRA.acquisition.toLocaleString("fr-FR")} €/m² + {RIBEIRA.travaux} €/m² de travaux.
         Yield et verdict recalculés en direct (net = brut × (1 − charges − fiscalité), taux de la freguesia).
       </p>

@@ -7,7 +7,7 @@ import { SCE_SCALE, SceGrade, capexPerM2, retrofitImpact } from "@/lib/energie";
 const CURRENT: SceGrade[] = ["F", "E", "D"];
 const TARGET: SceGrade[] = ["D", "C", "B"];
 
-// Live retrofit simulator — neutral labelling. Picks a current and a target SCE
+// Live retrofit simulator, neutral labelling. Picks a current and a target SCE
 // class (Portuguese scale, A+ → F), shows the estimated CAPEX per m² and its
 // impact on the net yield of a typical asset of the given freguesia (CAPEX
 // added to the value base, rent unchanged). The header selector drives which
@@ -40,7 +40,7 @@ export function RetrofitSimulator({ row, placeLabel, efShare }: { row: RdRow; pl
           <div className="font-display text-lg">Rénovation énergétique (SCE)</div>
           <div className="mt-0.5 text-caption text-cream/85">
             actif type à {placeLabel}
-            {value != null ? ` — ${Math.round(value).toLocaleString("fr-FR")} €/m²` : ""}
+            {value != null ? ` · ${Math.round(value).toLocaleString("fr-FR")} €/m²` : ""}
             {efShare != null ? ` · parc E-F ${efShare}%` : ""}
           </div>
         </div>
@@ -73,17 +73,17 @@ export function RetrofitSimulator({ row, placeLabel, efShare }: { row: RdRow; pl
       <div className="mt-4 grid grid-cols-3 gap-3">
         <Metric
           label="CAPEX estimé"
-          value={capex != null ? `~${capex} €/m²` : "—"}
+          value={capex != null ? `~${capex} €/m²` : "–"}
           sub="isolation, menuiseries, PAC"
         />
         <Metric
           label="Yield net après"
-          value={impact ? `${impact.netAfter.toFixed(2)}%` : "—"}
+          value={impact ? `${impact.netAfter.toFixed(2)}%` : "–"}
           sub={impact ? `avant ${impact.netBefore.toFixed(2)}%` : undefined}
         />
         <Metric
           label="Compression"
-          value={impact ? `−${impact.compression.toFixed(2)} pt` : "—"}
+          value={impact ? `−${impact.compression.toFixed(2)} pt` : "–"}
           sub="première décennie"
           color="#E0CBA0"
         />
@@ -92,7 +92,7 @@ export function RetrofitSimulator({ row, placeLabel, efShare }: { row: RdRow; pl
       {capex != null && impact && (
         <p className="mt-4 text-caption leading-relaxed text-cream/85">
           La mise à niveau {from}→{to} coûte ~{capex} €/m² et comprime le yield net de{" "}
-          {impact.compression.toFixed(2).replace(".", ",")} point la première décennie — loyer
+          {impact.compression.toFixed(2).replace(".", ",")} point la première décennie. Loyer
           inchangé, actif type à {placeLabel} ({Math.round(impact.value).toLocaleString("fr-FR")} €/m²).
         </p>
       )}

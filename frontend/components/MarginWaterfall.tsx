@@ -22,12 +22,12 @@ export function MarginWaterfall({
   const inkVerdict = verdictTextColor(mode, row.verdict);
   // The backend rounds each cost component separately, so their sum can drift
   // from costTotal by ±1-2 € : the soft-cost slice takes the residual so the
-  // cascade lands exactly on netSale − costTotal — the "Marge / m²" tile value.
+  // cascade lands exactly on netSale − costTotal, the "Marge / m²" tile value.
   const soft = row.costTotal - row.construction - row.land - row.finance;
 
   return (
     <Waterfall
-      title={`Décomposition de la marge — ${row.name}`}
+      title={`Décomposition de la marge · ${row.name}`}
       subtitle={
         row.baseMedian != null && row.premiumPct != null
           ? `Prix neuf réalisable ${eurM2(row.realizable)} = médiane ancien ${eur0(row.baseMedian)} +${Math.round(row.premiumPct)}% · ${classLabel}`

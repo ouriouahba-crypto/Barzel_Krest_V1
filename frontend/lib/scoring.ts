@@ -76,7 +76,7 @@ export function verdictLabel(verdict: string): string {
   return VERDICT_LABEL[verdict] ?? verdict;
 }
 
-// Solid charte colour for a verdict (chart bars, accents) — matches the score ramp.
+// Solid charte colour for a verdict (chart bars, accents); matches the score ramp.
 const VERDICT_COLOR: Record<"good" | "mid" | "low", string> = {
   good: "#2F6B3D", // deep green
   mid: "#C9A86A",  // gold
@@ -97,7 +97,7 @@ export function verdictTextColor(mode: Mode, verdict: string): string {
   return VERDICT_TEXT_COLOR[verdictTone(mode, verdict)];
 }
 // Rampe de score pour du TEXTE sur fond clair : mêmes bornes rouge/vert (déjà
-// AA) mais pivot or assombri (#85683A) — miroir texte de scoreColor.
+// AA) mais pivot or assombri (#85683A), miroir texte de scoreColor.
 const GOLD_TEXT = [133, 104, 58]; // #85683A
 export function scoreTextColor(score: number | null | undefined): string {
   if (score == null || Number.isNaN(score)) return "#3D4C5F";
@@ -157,7 +157,7 @@ export function nativeHint(mode: Mode): string {
 }
 
 // ---------------------------------------------------------------------------
-// Haya — client-side margin recompute (formula identical to the backend).
+// Haya : client-side margin recompute (formula identical to the backend).
 // Portugal residential: no VAT on the sale. cost = 1.261 × (construction +
 // foncier); marge = (prix de vente − coût) / coût. Trophy front-de-fleuve
 // economics (construction 2065 NZEB, foncier 1300) → ~35.5% at the 5750 base.
@@ -244,7 +244,7 @@ export function promotionVerdict(total: number): string {
   return "Passer";
 }
 
-// detention / arbitrage verdict ladders (params.scoring.verdicts — 65 / 45)
+// detention / arbitrage verdict ladders (params.scoring.verdicts : 65 / 45)
 export function detentionVerdict(total: number): string {
   if (total >= 65) return "Conserver";
   if (total >= 45) return "Surveiller";
@@ -281,7 +281,7 @@ export function upliftSubscore(upliftPct: number): number {
 // rent, median, realizable value, rotation) is read live from the freguesia
 // row so the asset stays aligned with the zone by construction.
 // ---------------------------------------------------------------------------
-// Ribeira Sul — immeuble de rapport, Santa Marinha (détention résidentiel).
+// Ribeira Sul : immeuble de rapport, Santa Marinha (détention résidentiel).
 export const RIBEIRA = {
   surface: 1800,       // m² locatifs
   lots: 24,
@@ -292,14 +292,14 @@ export const RIBEIRA = {
   rentMax: 16,
   rentDefault: 11.5,   // €/m²/mois ≈ loyer de marché de la freguesia (139 €/m²/an)
 };
-// Cais Poente — actif trophée front de fleuve, Santa Marinha (arbitrage).
+// Cais Poente : actif trophée front de fleuve, Santa Marinha (arbitrage).
 export const CAIS = {
   priceMin: 2100,
   priceMax: 3400,
-  priceDefault: 2520,  // €/m² — spread ~+12% vs médiane Gaia
+  priceDefault: 2520,  // €/m², spread ~+12% vs médiane Gaia
   delayExp: 4,         // délai = rotation zone × (prix / valeur réalisable)^exp
 };
-// Monte Claro — réserve foncière, Canidelo (landbank). Le sélecteur d'usages lit
+// Monte Claro : réserve foncière, Canidelo (landbank). Le sélecteur d'usages lit
 // la table `usages` du breakdown de la freguesia (valeurs résiduelles réelles).
 export const MONTE = {
   surface: 12000,      // m² de terrain

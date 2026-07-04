@@ -1,5 +1,5 @@
-// Page Énergie — faits réglementaires vérifiés (EPBD 2024/1275, SCE portugais
-// DL 101-D/2020 : échelle A+ → F, F = pire classe — il n'y a PAS de classe G au
+// Page Énergie : faits réglementaires vérifiés (EPBD 2024/1275, SCE portugais
+// DL 101-D/2020 : échelle A+ → F, F = pire classe (il n'y a PAS de classe G au
 // Portugal) + données de parc par freguesia SIMULÉES réalistes (part des
 // classes basses plus élevée dans le bâti ancien : centre historique haut,
 // neuf littoral/périurbain bas). À remplacer par les certificats énergétiques
@@ -10,7 +10,7 @@ import { median } from "./scoring";
 import { classLabel } from "./scoring";
 
 // Répartition simulée du parc résidentiel par classes SCE (A+-B / C-D / E-F),
-// en % — somme 100, gradient âge du bâti (aucun multiple de 5 systématique).
+// en % : somme 100, gradient âge du bâti (aucun multiple de 5 systématique).
 export interface ParcRow {
   ab: number;   // A+ à B
   cd: number;   // C à D
@@ -54,7 +54,7 @@ export function parcFor(zone: string, cls: string): ParcRow | null {
 }
 
 // Risque MEPS par freguesia : le pilier énergie du moteur (risque pays, natif
-// /100) modulé par l'exposition du parc — plus de classes basses, plus de
+// /100) modulé par l'exposition du parc : plus de classes basses, plus de
 // risque de mise à niveau forcée.
 export function riskMeps(engineRisk: number, ef: number, efMax: number): number {
   return Math.round(engineRisk * (0.5 + 0.5 * (ef / Math.max(1, efMax))));
@@ -66,7 +66,7 @@ export function energyVerdict(risk: number): { label: string; tone: "good" | "mi
 }
 
 // ---------------------------------------------------------------------------
-// Simulateur de mise à niveau — coûts de rénovation énergétique PT, ordres de
+// Simulateur de mise à niveau : coûts de rénovation énergétique PT, ordres de
 // grandeur ADENE/marché 2026 (ETICS 30-80 €/m² de façade, toiture 20-60 €/m²,
 // menuiseries ~2 k€/logement, PAC 6-7,5 k€) ramenés au m² habitable, par saut
 // de classe SCE.
@@ -114,5 +114,5 @@ export function energieInsight(cls: string, zones: string[]): string {
   if (cls === "residential") {
     return `~${Math.round(x)}% du parc résidentiel de Gaia sous la classe D : la pression MEPS se concentre sur le centre historique, déjà pénalisé dans les verdicts de détention.`;
   }
-  return `~${Math.round(x)}% du parc ${classLabel(cls).toLowerCase()} de Gaia en classes E-F : les seuils MEPS imposent la rénovation des 16% les moins performants d'ici 2030 (26% en 2033) — déjà compté dans les verdicts de détention.`;
+  return `~${Math.round(x)}% du parc ${classLabel(cls).toLowerCase()} de Gaia en classes E-F : les seuils MEPS imposent la rénovation des 16% les moins performants d'ici 2030 (26% en 2033), déjà compté dans les verdicts de détention.`;
 }

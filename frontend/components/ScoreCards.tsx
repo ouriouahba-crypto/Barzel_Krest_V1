@@ -21,7 +21,7 @@ export function ScoreCards({
     <div>
       <div className="mb-2 flex items-baseline gap-2">
         <h2 className="font-display text-[15px] text-navy">Scores par mode</h2>
-        <span className="text-[12px] text-muted">— {zoneName}</span>
+        <span className="text-[12px] text-muted">· {zoneName}</span>
         {classLabel && (
           <span className="ml-auto rounded-full border border-gold/40 bg-gold/10 px-2.5 py-0.5 text-[11px] font-medium text-gold-600">
             {classLabel}

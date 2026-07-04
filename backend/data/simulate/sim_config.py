@@ -4,7 +4,7 @@ All non-official parameters (dispersions, typology mixes, dwelling surfaces,
 yields, days-on-market, centroids) are PROXIES used only to give simulated
 listings realistic secondary attributes. They are documented here, versioned,
 and every field they feed is labelled with confidence 'simule' (or 'rapport'
-for broker-derived proxies) in the output — never 'officiel'/'derive'.
+for broker-derived proxies) in the output, never 'officiel'/'derive'.
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ BACKBONE = BACKBONE_OUT
 LISTINGS_OUT = DATA_DIR / "listings_sim.csv"
 FIDELITY_REPORT = Path(__file__).resolve().parent / "FIDELITY_REPORT.md"
 
-# Master seed — the run is fully reproducible. Each zone/type stream also gets a
+# Master seed : the run is fully reproducible. Each zone/type stream also gets a
 # deterministic sub-seed derived from this + its id, so output is idempotent.
 SEED = int(os.environ.get("BARZEL_SIM_SEED", "42"))
 
@@ -32,7 +32,7 @@ CAP = int(os.environ.get("BARZEL_SIM_CAP", "400"))
 CAP_NO_N = int(os.environ.get("BARZEL_SIM_CAP_NO_N", "40"))
 
 # --------------------------------------------------------------------------- #
-# Portugal — €/m² dispersion + typology + surface proxies                      #
+# Portugal : €/m² dispersion + typology + surface proxies                      #
 # --------------------------------------------------------------------------- #
 
 # INE publishes only a median €/m² per freguesia (no per-zone quantiles), so the
@@ -59,7 +59,7 @@ PT_FOREIGN_SHARE = {"lisbonne": 0.18, "gaia": 0.10, "loule": 0.35, "alcochete": 
 PT_FOREIGN_SHARE_DEFAULT = 0.12
 
 # --------------------------------------------------------------------------- #
-# Belgium — bedroom mix + (display-only) surface proxies                        #
+# Belgium : bedroom mix + (display-only) surface proxies                        #
 # --------------------------------------------------------------------------- #
 
 # BE price is sampled from the REAL total-price quantiles. We do NOT fabricate a
@@ -76,7 +76,7 @@ BE_HOUSE_EUR_M2_FACTOR = 0.90       # houses slightly cheaper per m² than apart
 
 # --------------------------------------------------------------------------- #
 # Yield / days-on-market proxies (calibrated on free broker outlooks)          #
-# confidence 'rapport' — indicative, not a per-property truth.                  #
+# confidence 'rapport' : indicative, not a per-property truth.                 #
 # --------------------------------------------------------------------------- #
 
 # gross residential yield % (median, sigma) and DOM days (median, log-sigma).

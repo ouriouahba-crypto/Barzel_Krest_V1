@@ -32,7 +32,7 @@ def main(argv: list[str] | None = None) -> int:
                      ("ibsa_bxl", lambda: ibsa_bxl.collect(force=args.force))):
         try:
             fn()
-        except Exception as exc:  # noqa: BLE001 — a collector must not kill the run
+        except Exception as exc:  # noqa: BLE001 ; a collector must not kill the run
             log.exception("collector %s failed: %s", name, exc)
             rc = 1
 

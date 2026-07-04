@@ -1,4 +1,4 @@
-"""Collector 1/2 — Portugal / INE.
+"""Collector 1/2 : Portugal / INE.
 
 Downloads "Valor mediano das vendas de alojamentos familiares (€/m2)" from
 Statistics Portugal's open JSON API (Base de Dados), for the requested
@@ -6,18 +6,18 @@ freguesias (Lisboa, and ALL freguesias of V.N. Gaia) and municípios (Loulé,
 Alcochete).
 
 Indicators (confirmed live):
-  * 0012234 — median €/m2, TOTAL dwellings (Dim3=H1)
-  * 0012235 — median €/m2, APARTMENTS
-  * 0012231 — split by buyer fiscal domicile (national vs foreign)
-  * INE_INDICATOR_NSALES (optional) — number of dwellings sold (n transactions)
+  * 0012234 : median €/m2, TOTAL dwellings (Dim3=H1)
+  * 0012235 : median €/m2, APARTMENTS
+  * 0012231 : split by buyer fiscal domicile (national vs foreign)
+  * INE_INDICATOR_NSALES (optional) : number of dwellings sold (n transactions)
 
 Enrichments:
-  * n_transactions — joined from the number-of-sales indicator when configured
+  * n_transactions : joined from the number-of-sales indicator when configured
     (confidence officiel); left empty otherwise (never fabricated).
-  * yoy_pct — computed from the same quarter one year earlier (t vs t-4),
+  * yoy_pct : computed from the same quarter one year earlier (t vs t-4),
     confidence derive; unless an official homologous series is configured.
 
-Output: data/raw/ine_pt.csv — one row per target geography.
+Output: data/raw/ine_pt.csv, one row per target geography.
 
 Run:  python -m backend.data.collect.ine_pt  [--force]
 """
@@ -211,7 +211,7 @@ def _harvest_targets(total_cells: dict[str, dict]) -> list[C.IneTarget]:
 # --------------------------------------------------------------------------- #
 
 def _empty_row(t: C.IneTarget, reason: str) -> dict:
-    log.warning("a_collecter: %s (%s) — %s", t.name, t.level, reason)
+    log.warning("a_collecter: %s (%s) : %s", t.name, t.level, reason)
     return {
         "city": t.city, "zone_id": _slug(t.name), "zone_name": t.name,
         "level": t.level, "geo_code": t.geo_code, "as_of": "",
@@ -258,7 +258,7 @@ def collect(force: bool = False) -> list[dict]:
                 prev_cells, _ = fetch_all_geo(
                     session, C.INE_INDICATOR_TOTAL, prev_code, dim3=C.INE_CAT_TOTAL, force=force)
             except (requests.RequestException, ValueError) as exc:
-                log.warning("YoY unavailable — t-4 fetch failed (%s)", exc)
+                log.warning("YoY unavailable : t-4 fetch failed (%s)", exc)
 
     # Optional: number of dwellings sold (transaction count).
     nsales_cells: dict[str, dict] = {}
@@ -267,11 +267,11 @@ def collect(force: bool = False) -> list[dict]:
             nsales_cells, _ = fetch_all_geo(
                 session, C.INE_INDICATOR_NSALES, period_code, force=force)
         except (requests.RequestException, ValueError) as exc:
-            log.warning("n_transactions unavailable — n-sales fetch failed (%s)", exc)
+            log.warning("n_transactions unavailable : n-sales fetch failed (%s)", exc)
     else:
-        log.info("INE_INDICATOR_NSALES not set — n_transactions left empty (not fabricated).")
+        log.info("INE_INDICATOR_NSALES not set : n_transactions left empty (not fabricated).")
 
-    # Buyer fiscal-domicile split — fetched once per distinct fiscal geo.
+    # Buyer fiscal-domicile split, fetched once per distinct fiscal geo.
     fiscal_cache: dict[str, dict[str, float | None]] = {}
 
     def fiscal_split(geo: str) -> dict[str, float | None]:

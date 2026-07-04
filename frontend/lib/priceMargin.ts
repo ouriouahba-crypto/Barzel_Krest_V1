@@ -62,7 +62,7 @@ export interface PmSummary {
   medianRealizable: number | null;
   medianCost: number | null;
   medianPremium: number | null;       // prime neuf médiane (viables ; null en commercial)
-  medianLand: number | null;          // foncier médian (viables) — KPI commercial
+  medianLand: number | null;          // foncier médian (viables), KPI commercial
   best: PmRow | null;                 // most profitable freguesia (over all)
   scope: "viables" | "toutes";        // basis of the medians
 }
@@ -87,10 +87,10 @@ export function pmSummary(rows: PmRow[]): PmSummary {
 }
 
 export const eurM2 = (v: number | null | undefined) =>
-  v != null ? `${Math.round(v).toLocaleString("fr-FR")} €/m²` : "—";
+  v != null ? `${Math.round(v).toLocaleString("fr-FR")} €/m²` : "–";
 export const eur0 = (v: number | null | undefined) =>
-  v != null ? Math.round(v).toLocaleString("fr-FR") : "—";
+  v != null ? Math.round(v).toLocaleString("fr-FR") : "–";
 export const pct1 = (v: number | null | undefined) =>
-  v != null ? `${v >= 0 ? "" : ""}${v.toFixed(1)}%` : "—";
+  v != null ? `${v >= 0 ? "" : ""}${v.toFixed(1)}%` : "–";
 export const pct0 = (v: number | null | undefined) =>
-  v != null ? `${Math.round(v)}%` : "—";
+  v != null ? `${Math.round(v)}%` : "–";

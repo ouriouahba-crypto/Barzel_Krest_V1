@@ -11,7 +11,7 @@ import {
 } from "@/lib/scoring";
 import { VerdictBadge } from "./ui";
 
-// Live, client-side recompute — formula identical to the backend.
+// Live, client-side recompute: formula identical to the backend.
 export function HayaSlider({ baseTotal, margeWeight }: { baseTotal: number; margeWeight: number }) {
   const [sale, setSale] = useState<number>(HAYA.baseSale);
 
