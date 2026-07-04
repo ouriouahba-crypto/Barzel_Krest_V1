@@ -8,6 +8,7 @@ import {
   fmtSigned,
   margeSubscore,
   promotionVerdict,
+  roundHalfUp,
   scoreTextColorDark,
 } from "@/lib/scoring";
 import { VerdictBadge } from "./ui";
@@ -24,6 +25,13 @@ export function FabricaSlider({ baseTotal, margeWeight }: { baseTotal: number; m
   const margeSub = margeSubscore(margin);
   const total = Math.max(0, Math.min(100, baseTotal + margeWeight * (margeSub - baseMargeSub)));
   const verdict = promotionVerdict(total);
+  // Clamp d'AFFICHAGE seulement (artefact de frontière) : entre 5570 et 5580 le
+  // total brut (~69,8) s'arrondit à 70 alors que le verdict reste Conditionnel
+  // (< 70). On plafonne le score affiché sous 70 tant que le verdict n'est pas
+  // Go, pour ne pas contredire le badge. Le badge, lui, reste calculé sur le
+  // total brut (déjà correct) ; aucune constante FABRICA ni marge touchée.
+  const s = roundHalfUp(total); // chemin d'arrondi unique (helper half-up)
+  const scoreAffiche = verdict === "Go" ? s : Math.min(s, 69);
   const pct = ((sale - FABRICA.saleMin) / (FABRICA.saleMax - FABRICA.saleMin)) * 100;
 
   return (
@@ -64,7 +72,7 @@ export function FabricaSlider({ baseTotal, margeWeight }: { baseTotal: number; m
           value={`${fmtSigned(premium)}%`}
           sub={`médiane ${FABRICA.freguesiaMedian.toLocaleString("fr-FR")} €/m²`}
         />
-        <Metric label="Score promotion" value={`${Math.round(total)}`} color={scoreTextColorDark(total)} />
+        <Metric label="Score promotion" value={`${scoreAffiche}`} color={scoreTextColorDark(total)} />
       </div>
 
       <p className="mt-4 text-caption leading-relaxed text-cream/85">
