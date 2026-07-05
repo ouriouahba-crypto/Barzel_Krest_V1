@@ -3,7 +3,7 @@
 // Mirrors lib/priceMargin.ts and lib/rendement.ts.
 
 import { ArbitrageBreakdown, CityResponse } from "./api";
-import { median, pillarValue, verdictTone } from "./scoring";
+import { fmtSigned, median, pillarValue, verdictTone } from "./scoring";
 import { displayName, shortName } from "./useGaia";
 
 export interface ArbRow {
@@ -29,8 +29,9 @@ export function appetitQual(v: number | null): string | null {
 }
 
 // Signed percentage: spreads read as premiums/discounts vs the median.
+// Half-up de plateforme, jamais de zéro signé ni négatif (« -0% » interdit).
 export const pctSigned = (v: number | null | undefined, digits = 1) =>
-  v != null ? `${v >= 0 ? "+" : ""}${v.toFixed(digits)}%` : "–";
+  v != null ? `${fmtSigned(v, digits)}%` : "–";
 
 function toRow(z: CityResponse["zones"][number]): ArbRow | null {
   const sp = z.pillars.find((p) => p.pillar === "spread");

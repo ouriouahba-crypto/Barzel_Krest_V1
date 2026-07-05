@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { RIBEIRA, detentionVerdict, scoreTextColorDark, yieldNetSubscore } from "@/lib/scoring";
+import { RIBEIRA, detentionVerdict, fmtSigned, scoreTextColorDark, yieldNetSubscore } from "@/lib/scoring";
 import { RdRow } from "@/lib/rendement";
 import { VerdictBadge } from "./ui";
 
@@ -68,7 +68,7 @@ export function RibeiraSlider({
         <Metric label="Yield net" value={`${net.toFixed(2)}%`} color={scoreTextColorDark(yieldNetSubscore(net))} />
         <Metric
           label="Loyer vs marché"
-          value={vsMarket != null ? `${vsMarket >= 0 ? "+" : ""}${vsMarket.toFixed(0)}%` : "–"}
+          value={vsMarket != null ? `${fmtSigned(vsMarket)}%` : "–"}
           sub={row.loyer ? `marché ${row.loyer.toLocaleString("fr-FR")} €/m²/an` : undefined}
         />
         <Metric label="Score détention" value={`${Math.round(total)}`} color={scoreTextColorDark(total)} />

@@ -81,7 +81,20 @@ def _f0(v):
 
 
 def _f1(v):
-    return f"{v:.1f}".replace(".", ",") if v is not None else "–"
+    if v is None:
+        return "–"
+    # Arrondi half-up de la plateforme, jamais de zéro négatif (« -0,0 »).
+    r = _ri(float(v) * 10) / 10
+    if r == 0:
+        r = 0.0
+    return f"{r:.1f}".replace(".", ",")
+
+
+def _f1s(v):
+    """Variante signée : « + » sur le positif strict, jamais de zéro signé."""
+    if v is None:
+        return "–"
+    return ("+" if _ri(float(v) * 10) > 0 else "") + _f1(v)
 
 
 def _pillar_bd(z: dict, key: str) -> dict:
@@ -101,12 +114,10 @@ def _mode_cols(mode: str, z: dict) -> list[str]:
                 f"{_f1((b.get('charges_pct_loyer') or 0) + (b.get('fiscalite_pct_loyer') or 0))} % du loyer"]
     if mode == "arbitrage":
         b = _pillar_bd(z, "spread")
-        sp = b.get("spread_pct")
-        return [f"{'+' if (sp or 0) >= 0 else ''}{_f1(sp)} %", f"{_f0(b.get('valeur_realisable_eur_m2'))} €/m²",
+        return [f"{_f1s(b.get('spread_pct'))} %", f"{_f0(b.get('valeur_realisable_eur_m2'))} €/m²",
                 f"{_f1(b.get('delai_cession_mois'))} mois"]
     b = _pillar_bd(z, "constructibilite")
-    up = b.get("uplift_pct")
-    return [f"{'+' if (up or 0) >= 0 else ''}{_f1(up)} %", f"{_f0(b.get('valeur_residuelle_eur_m2'))} €/m²",
+    return [f"{_f1s(b.get('uplift_pct'))} %", f"{_f0(b.get('valeur_residuelle_eur_m2'))} €/m²",
             f"{b.get('meilleur_usage', '–')} · {b.get('horizon_activation', '–')}"]
 
 
@@ -170,8 +181,7 @@ def _tables(scope: str, asset_class: str, modes: list[str], city: str = "gaia") 
                 break
     out["ville"] = {
         "price": _f0(muni_seen.get("price_eur_m2")) if muni_seen else "–",
-        "yoy": (f"{'+' if (muni_seen.get('yoy_pct') or 0) >= 0 else ''}{_f1(muni_seen.get('yoy_pct'))} %"
-                if muni_seen else "–"),
+        "yoy": f"{_f1s(muni_seen.get('yoy_pct'))} %" if muni_seen else "–",
         "tx": _f0(muni_seen.get("n_transactions")) if muni_seen else "–",
     }
     out["scope_name"] = scope_name

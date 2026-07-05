@@ -45,6 +45,15 @@ def _present(payload, debug: bool):
     return payload if debug else _clean(payload)
 
 
+def _check_class(asset_class: str | None) -> None:
+    """Validation symétrique au mode : class absent OU vide -> défaut résidentiel
+    (comportement historique préservé, `"" or "residential"`) ; class NON VIDE
+    hors des 5 classes canoniques -> 400 (au lieu d'un scoring dégénéré
+    silencieux). Le vocabulaire canonique est celui du moteur (ms.CLASSES)."""
+    if asset_class and asset_class not in ms.CLASSES:
+        raise HTTPException(status_code=400, detail=f"unknown class {asset_class!r}")
+
+
 @router.get("/modes")
 def modes() -> dict:
     return {"modes": list(ms.MODES)}
@@ -59,6 +68,7 @@ def zone(
     city: str | None = Query(None, description="city slug owning the dataset (default gaia)"),
     debug: bool = Query(False, description="include internal confidence/source fields"),
 ) -> dict:
+    _check_class(asset_class)
     try:
         if mode:
             return _present(ms.score_mode(zone, mode, asset_class, asset, city=city), debug)
@@ -78,6 +88,7 @@ def city(
 ) -> dict:
     if mode not in ms.MODES:
         raise HTTPException(status_code=400, detail=f"unknown mode {mode!r}")
+    _check_class(asset_class)
     results = ms.score_city(city, mode, asset_class)
     if not results:
         raise HTTPException(status_code=404, detail=f"no zones for city {city!r}")

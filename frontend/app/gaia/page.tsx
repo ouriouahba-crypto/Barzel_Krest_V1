@@ -8,7 +8,7 @@ import { DetailPanel, KeyFigure } from "@/components/DetailPanel";
 import { MapLegendBar } from "@/components/CityBits";
 import { ScoreDial, VerdictBadge } from "@/components/ui";
 import { useGaia } from "@/lib/useGaia";
-import { Mode, MODE_KPI } from "@/lib/scoring";
+import { Mode, MODE_KPI, fmtSigned } from "@/lib/scoring";
 import { ModeScore } from "@/lib/api";
 import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
@@ -99,7 +99,7 @@ export default function CartePage() {
               </div>
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <Stat label="Prix médian" value={q.price != null ? `${Math.round(q.price).toLocaleString("fr-FR")} €/m²` : "–"} />
-                <Stat label="Croissance" value={q.yoy != null ? `${q.yoy >= 0 ? "+" : ""}${q.yoy.toFixed(1)}%` : "–"} />
+                <Stat label="Croissance" value={q.yoy != null ? `${fmtSigned(q.yoy, 1)}%` : "–"} />
                 <Stat label={q.extra.label} value={q.extra.value} />
                 <Stat label={q.kpiLabel} value={q.kpiValue ?? "–"} />
               </div>

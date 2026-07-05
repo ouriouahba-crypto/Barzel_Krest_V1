@@ -259,14 +259,52 @@ def test_unknown_zone_and_mode_raise():
         ms.score_mode(WITNESS, "not-a-mode")
 
 
+def test_class_guard_400():
+    # /city and /zone validate `class` symmetrically to `mode` : the 5 canonical
+    # classes -> 200, an absent class -> 200 (defaults residential, preserved),
+    # a non-empty non-canonical class -> 400 (not a silent degenerate scoring).
+    from fastapi import HTTPException
+    from backend.routers import scoring as sc
+
+    def status(fn):
+        try:
+            fn()
+            return 200
+        except HTTPException as e:
+            return e.status_code
+
+    for c in ms.CLASSES:  # canonical -> 200 on both routes
+        assert status(lambda c=c: sc.city(city="gaia", mode="promotion", asset_class=c, debug=False)) == 200, c
+        assert status(lambda c=c: sc.zone(zone=WITNESS, mode="landbank", asset_class=c, asset=None, city="gaia", debug=False)) == 200, c
+    # class absent OR empty -> 200, defaults residential (behaviour preserved)
+    for empty in (None, ""):
+        assert sc.city(city="gaia", mode="promotion", asset_class=empty, debug=False)["class"] == "residential", repr(empty)
+        assert status(lambda e=empty: sc.zone(zone=WITNESS, mode="promotion", asset_class=e, asset=None, city="gaia", debug=False)) == 200, repr(empty)
+    for bad in ("bureaux", "offices", "xyz", "residentiel", "living"):  # non-canonical -> 400
+        assert status(lambda b=bad: sc.city(city="gaia", mode="promotion", asset_class=b, debug=False)) == 400, bad
+        assert status(lambda b=bad: sc.zone(zone=WITNESS, mode="landbank", asset_class=b, asset=None, city="gaia", debug=False)) == 400, bad
+    # mode still validated on /city (unchanged)
+    assert status(lambda: sc.city(city="gaia", mode="not-a-mode", asset_class=None, debug=False)) == 400
+
+
 def test_memo_scores_half_up_and_sorted_like_pages():
     # One score rounding everywhere: half-up integers (the platform's
     # Math.round), never Python's half-to-even ; memo tables follow the mode
     # pages' order : rounded score desc, native metric desc on rounded ties.
     from backend.routers.analyst import _ri
-    from backend.routers.memo import _tables
+    from backend.routers.memo import _f1, _f1s, _tables
 
     assert _ri(86.5) == 87 and _ri(44.7) == 45 and _ri(86.4) == 86
+    # Formatage zéro négatif : après arrondi half-up, une valeur qui tombe à
+    # zéro s'affiche « 0 » sans signe, à tous les étages (labels moteur _fmt_num,
+    # tables mémo _f1/_f1s). « -0% » est interdit partout.
+    assert ms._fmt_num(-0.1) == "0" and ms._fmt_num(-0.4) == "0"
+    assert ms._fmt_num(-0.04, 1) == "0.0" and ms._fmt_num(-0.0, 1) == "0.0"
+    assert ms._fmt_num(9.5) == "10" and ms._fmt_num(-9.5) == "-9"      # Math.round
+    assert ms._fmt_num(0.0, 1, signed=True) == "0.0"                   # zéro jamais signé
+    assert ms._fmt_num(-0.02, 1, signed=True) == "0.0"
+    assert ms._fmt_num(12.35, 1, signed=True) == "+12.4"
+    assert _f1(-0.04) == "0,0" and _f1s(-0.04) == "0,0" and _f1s(0.06) == "+0,1"
     t = _tables("ville", "residential", ["promotion", "landbank"])
     for mode, table in t["modes"].items():
         for r in table["rows"]:
@@ -298,6 +336,59 @@ def test_memo_count_guard():
     assert _bad_counts(ok, counts, modes) == []
     bad = _bad_counts({"t": "16 freguesias dont 9 En attente et seize freguesias"}, counts, modes)
     assert "16 freguesias" in bad and "9 En attente" in bad and "seize freguesias" in bad
+
+
+import re as _re
+
+_MINUS_ZERO = _re.compile(r"-0([.,]0+)?\s*%")
+
+
+def test_native_labels_single_rounding_no_minus_zero():
+    # Une seule source de valeur formatée par carte : le nombre du label natif
+    # (sous-titre des cartes de mode) est EXACTEMENT le rendu half-up de la
+    # valeur servie (celui que le front recalcule via fmtNum/Math.round), et
+    # « -0% » n'apparaît dans aucun label ni why, sur les deux villes.
+    lead = {"promotion": (_re.compile(r"marge (-?[\d.]+)%"), "marge", 0),
+            "detention": (_re.compile(r"yield net (-?[\d.]+)%"), "rendement_net", 1),
+            "arbitrage": (_re.compile(r"spread (-?[\d.]+)%"), "spread", 0)}
+    for city in ("gaia", "lisbonne"):
+        for cls in ("residential", "office", "hotel", "logistics", "retail"):
+            for mode in ms.MODES:
+                for r in ms.score_city(city, mode, cls):
+                    texts = [r["native_indicator"]["label"]]
+                    for p in r["pillars"]:
+                        texts += [p["native"]["label"] or "", p["why"]]
+                    for t in texts:
+                        assert not _MINUS_ZERO.search(t), (city, cls, mode, r["zone"], t)
+                    if mode in lead:
+                        rx, pillar, digits = lead[mode]
+                        m = rx.search(r["native_indicator"]["label"])
+                        p = next((p for p in r["pillars"] if p["pillar"] == pillar and p["applicable"]), None)
+                        if m and p is not None:
+                            assert m.group(1) == ms._fmt_num(p["native"]["value"], digits), \
+                                (city, cls, mode, r["zone"], m.group(1), p["native"]["value"])
+
+
+def test_detention_verdict_cap_rule():
+    # Plancher de rendement institutionnel : sous le plancher (params ville,
+    # lisbonne 3.0), le verdict détention plafonne à Surveiller quel que soit le
+    # score ; à Gaia (pas de clé), aucun cap, payloads identiques aux octets.
+    st_lx = ms.load("lisbonne")
+    keep, watch, sell = (v["label"] for v in st_lx.params["scoring"]["verdicts"]["detention"])
+
+    def rn(net):
+        return ms.Pillar("rendement_net", 40.0, net, "%", "", "", ms.RAPPORT)
+
+    assert ms._detention_verdict_cap(st_lx, keep, rn(2.22)) == watch
+    assert ms._detention_verdict_cap(st_lx, keep, rn(2.93)) == watch
+    assert ms._detention_verdict_cap(st_lx, keep, rn(3.0)) == keep     # au plancher : intouché
+    assert ms._detention_verdict_cap(st_lx, keep, rn(3.47)) == keep
+    assert ms._detention_verdict_cap(st_lx, watch, rn(2.0)) == watch   # déjà au plafond
+    assert ms._detention_verdict_cap(st_lx, sell, rn(2.0)) == sell     # déjà pire : intouché
+    assert ms._detention_verdict_cap(st_lx, keep, None) == keep
+    st_gaia = ms.load("gaia")
+    assert st_gaia.params["scoring"].get("detention_net_floor_pct") is None
+    assert ms._detention_verdict_cap(st_gaia, keep, rn(1.5)) == keep   # pas de plancher à Gaia
 
 
 def test_no_em_dash_in_clean_texts():
@@ -453,10 +544,51 @@ def test_lisbonne_calibration_2b():
         # (verdicts Conditionnel sous momentum INE négatif) ; documenté.
         assert 0.45 <= share <= 0.75, (z, share)
 
-    # Détention : Conserver mené par Arroios ; clause AL = SMM/Misericórdia en
-    # Céder avec les loyers faciaux les plus hauts de la ville.
+    # Différenciation des classes en promotion : les facteurs commerciaux 2b
+    # (prix/coûts/foncier par classe) se propagent enfin au pilier marge, donc
+    # chaque classe déploie SA hiérarchie, distincte du résidentiel et l'une de
+    # l'autre. Signature : bureaux Go au CBD (Avenidas Novas), hôtellerie Go au
+    # centre (Santo António), logistique/commerce résiduels intra-muros (0 Go :
+    # le centre patrimonial où le commerce vaut le plus est écrasé par le
+    # momentum INE réel, non curable, écart documenté comme en résidentiel).
+    from collections import Counter as _C
+
+    def _go(cls):
+        return sorted(r["zone"] for r in ms.score_city("lisbonne", "promotion", cls)
+                      if r["level"] == "freguesia" and r["verdict"] == "Go")
+
+    def _dist(cls):
+        c = _C(r["verdict"] for r in ms.score_city("lisbonne", "promotion", cls) if r["level"] == "freguesia")
+        return (c["Go"], c["Conditionnel"], c["Passer"])
+
+    res_go = _go("residential")
+    assert res_go == ["beato", "lumiar", "marvila"]
+    office_go, hotel_go, logi_go, retail_go = _go("office"), _go("hotel"), _go("logistics"), _go("retail")
+    assert "avenidasnovas" in office_go and office_go != res_go       # bureaux : CBD
+    assert hotel_go == ["santoantonio"]                               # hôtellerie : centre
+    assert logi_go == [] and retail_go == []                         # résiduels intra-muros
+    for g in (office_go, hotel_go, logi_go, retail_go):
+        assert g != res_go, g                                        # aucune ne calque le résidentiel
+    dists = [_dist(c) for c in ("residential", "office", "hotel", "logistics", "retail")]
+    assert len(set(dists)) == 5, dists                                # 5 comptages tous distincts
+
+    # Détention : Conserver mené par Arroios, tous au-dessus du plancher de
+    # rendement (3,0%) ; PdN et Avenidas Novas plafonnés Surveiller PAR LE
+    # PLANCHER (scores >= 65, nets < 3 : cohérence croisée avec la fenêtre
+    # d'arbitrage ouverte de PdN) ; clause AL = SMM/Misericórdia en Céder avec
+    # les loyers faciaux les plus hauts de la ville.
     dt = {r["zone"]: r for r in ms.score_city("lisbonne", "detention", "residential") if r["level"] == "freguesia"}
     assert [dt[z]["verdict"] for z in ("arroios", "alvalade", "areeiro")] == ["Conserver"] * 3
+    assert sum(1 for r in dt.values() if r["verdict"] == "Conserver") == 3
+
+    def _net(z):
+        return next(p for p in dt[z]["pillars"] if p["pillar"] == "rendement_net")["breakdown"]["yield_net_pct"]
+
+    for z in ("parquedasnacoes", "avenidasnovas"):
+        assert dt[z]["verdict"] == "Surveiller", (z, dt[z]["verdict"])
+        assert dt[z]["total"] >= 65 and _net(z) < 3.0, (z, dt[z]["total"], _net(z))  # cap, pas score
+    for z in ("arroios", "alvalade", "areeiro"):
+        assert _net(z) >= 3.0, (z, _net(z))  # aucun Conserver sous le plancher
     assert dt["arroios"]["total"] == max(r["total"] for r in dt.values())
     assert dt["santamariamaior"]["verdict"] == "Ceder" and dt["misericordia"]["verdict"] == "Ceder"
     assert dt["santamariamaior"]["total"] < dt["misericordia"]["total"]
@@ -474,12 +606,37 @@ def test_lisbonne_calibration_2b():
     assert ar["marvila"]["verdict"] == "Fenetre fermee"
 
     # Landbank : Prioritaires = Marvila (#1), Beato, Lumiar ; Belém À phaser
-    # (contraintes patrimoniales).
+    # (contraintes patrimoniales). Carte des usages (facteurs commerciaux
+    # actifs) : la logistique n'est JAMAIS optimale intra-muros ; les
+    # Prioritaires de l'arc oriental et les quartiers résidentiels (Areeiro,
+    # Campo de Ourique) sortent résidentiel ; Belém sort hôtel (patrimoine,
+    # tourisme) ; aucun uplift de tête écrêté aux bornes ±40/+80.
     lb = {r["zone"]: r for r in ms.score_city("lisbonne", "landbank", "residential") if r["level"] == "freguesia"}
     prio = [z for z, r in lb.items() if r["verdict"] == "Prioritaire"]
     assert sorted(prio) == ["beato", "lumiar", "marvila"]
     assert lb["marvila"]["total"] == max(lb[z]["total"] for z in prio)
     assert lb["belem"]["verdict"] == "A phaser"
+
+    def _bd(z):
+        return next(p for p in lb[z]["pillars"] if p["pillar"] == "constructibilite")["breakdown"]
+
+    # Carte des usages rééquilibrée : résidentiel dominant (arc oriental +
+    # quartiers), hôtel réservé au centre historique à profondeur touristique,
+    # bureaux au CBD, logistique NULLE PART. Invariants : 0 logistique, aucun
+    # hôtel hors du centre historique, Marvila/Beato/Lumiar (Prioritaires)
+    # obligatoirement résidentiel, uplifts jamais écrêtés aux bornes.
+    CENTRE_HOTEL = {"santamariamaior", "misericordia", "saovicente",
+                    "santoantonio", "alcantara", "belem"}
+    usages = _C(_bd(z)["meilleur_usage"] for z in lb)
+    for z in lb:
+        assert _bd(z)["meilleur_usage"] != "logistique", (z, _bd(z))
+        assert -40.0 < _bd(z)["uplift_pct"] < 80.0, (z, _bd(z)["uplift_pct"])
+        if _bd(z)["meilleur_usage"] == "hôtel":
+            assert z in CENTRE_HOTEL, (z, "hôtel hors centre historique")
+    for z in ("marvila", "beato", "lumiar", "areeiro", "campodeourique"):
+        assert _bd(z)["meilleur_usage"] == "résidentiel", (z, _bd(z)["meilleur_usage"])
+    assert _bd("belem")["meilleur_usage"] == "hôtel"
+    assert usages["résidentiel"] >= 12 and 4 <= usages["hôtel"] <= 7 and usages["bureaux"] >= 3
 
     # Actif vedette Fábrica Oriente : marge 20,5% à 5 400 (affichée 21%).
     a = ms.score_asset("fabrica", city="lisbonne")
@@ -501,6 +658,9 @@ if __name__ == "__main__":  # dependency-free smoke run
     test_promotion_city_verdicts_respect_margin()
     test_memo_scores_half_up_and_sorted_like_pages()
     test_memo_count_guard()
+    test_native_labels_single_rounding_no_minus_zero()
+    test_class_guard_400()
+    test_detention_verdict_cap_rule()
     test_no_em_dash_in_clean_texts()
     test_memo_em_dash_sanitized_everywhere()
     test_gaia_payload_snapshot_4_modes_residential()

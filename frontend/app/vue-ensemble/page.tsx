@@ -10,7 +10,7 @@ import { InsightBanner } from "@/components/InsightBanner";
 import { PriceTrend } from "@/components/PriceTrend";
 import { useGaia, displayName, shortName } from "@/lib/useGaia";
 import { ModeScore } from "@/lib/api";
-import { Mode, MODES, MODE_LABEL, MODE_KPI, MODE_ROUTE, classLabel, median, pillarValue, verdictColor, verdictTone } from "@/lib/scoring";
+import { Mode, MODES, MODE_LABEL, MODE_KPI, MODE_ROUTE, classLabel, fmtNum, fmtSigned, median, pillarValue, verdictColor, verdictTone } from "@/lib/scoring";
 import { OverviewByMode, bestMode, cityInsight, modeInsight, trendInsight } from "@/lib/insights";
 import { priceTrajectory, PricePoint } from "@/lib/priceHistory";
 import { cityBySlug } from "@/lib/cities";
@@ -32,7 +32,7 @@ const nn = (v: number | null | undefined): v is number => v != null && !Number.i
 const eur = (v: number | null | undefined) => (nn(v) ? `${Math.round(v).toLocaleString("fr-FR")} €/m²` : "–");
 const kpiVal = (s: ModeScore, m: Mode) => {
   const v = pillarValue(s.pillars, MODE_KPI[m].pillar);
-  return v != null ? `${v.toFixed(MODE_KPI[m].digits)}${MODE_KPI[m].unit}` : "–";
+  return v != null ? `${fmtNum(v, MODE_KPI[m].digits)}${MODE_KPI[m].unit}` : "–";
 };
 
 export default function VueEnsemble() {
@@ -247,7 +247,7 @@ export default function VueEnsemble() {
             <span className="mx-2 text-navy/20">·</span>
             Prix médian {eur(market.price)}
             <span className="mx-2 text-navy/20">·</span>
-            évolution {nn(market.yoy) ? `${market.yoy >= 0 ? "+" : ""}${market.yoy.toFixed(1)}%` : "–"} sur 12 mois
+            évolution {nn(market.yoy) ? `${fmtSigned(market.yoy, 1)}%` : "–"} sur 12 mois
             <span className="mx-2 text-navy/20">·</span>
             {market.tx.toLocaleString("fr-FR")} transactions / an
             <span className="mx-2 text-navy/20">·</span>

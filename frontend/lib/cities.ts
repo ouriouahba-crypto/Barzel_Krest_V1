@@ -30,6 +30,9 @@ export interface CityTexts {
   analystSuggestions: { q: string; icon: AnalystIcon }[];
   /** légende du curseur d'actif vedette (page Prix & marge) */
   promoAssetCaption: string;
+  /** complément du gabarit « marché sélectif » de la bannière Prix & marge
+   *  (« de la capitale » à Lisbonne) ; absent = « de la ville » */
+  promoSelectiveRest?: string;
   /** clause signature du piège du yield (insight détention) */
   yieldTrapClause?: string;
   /** note d'analyse dédiée sous le tableau Rendement (prioritaire sur l'auto) */
@@ -135,10 +138,11 @@ export const CITIES: CityDef[] = [
         "Le foncier de marché du centre absorbe 60 à 70% du prix de sortie et écrase la marge : la promotion se décide à l'arc oriental (Marvila, Beato) et sur les réserves du nord, là où le terrain reste accessible.",
       promoAssetCaption:
         "Curseur temps réel sur l'actif K-REST à Marvila : ajustez le prix de sortie de la reconversion pour voir la marge et le verdict se recalculer.",
+      promoSelectiveRest: "de la capitale",
       yieldTrapClause:
         "Les yields faciaux les plus élevés (Santa Maria Maior, Misericórdia) sont touristiques : en zone de contention AL, ils ne sont pas représentatifs d'une détention institutionnelle.",
       detentionNote:
-        "Santa Maria Maior et Misericórdia affichent les loyers faciaux les plus hauts de la ville mais un verdict Céder : la pression réglementaire municipale sur la location courte durée (zones de contention AL) rend le yield facial touristique non représentatif d'une détention institutionnelle.",
+        "Santa Maria Maior et Misericórdia affichent les loyers faciaux les plus hauts de la ville mais un verdict Céder : la pression réglementaire municipale sur la location courte durée (zones de contention AL) rend le yield facial touristique non représentatif d'une détention institutionnelle. À l'autre bout du spectre, Parque das Nações et Avenidas Novas gardent des marchés profonds mais un yield net sous le plancher institutionnel de 3% : le rendement ne justifie plus la détention, et la fenêtre de cession est ouverte à Parque das Nações.",
       fiscaliteMarketLine:
         "Portugal, rive nord du Tage : ce que le fisc prend à chaque étape, et comment c'est déjà intégré dans nos verdicts.",
       energieMarketLine:

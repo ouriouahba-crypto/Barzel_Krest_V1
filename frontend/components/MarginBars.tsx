@@ -1,7 +1,7 @@
 "use client";
 
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Mode, verdictColor, verdictLabel } from "@/lib/scoring";
+import { Mode, fmtNum, verdictColor, verdictLabel } from "@/lib/scoring";
 
 // Verdict-coloured bars per freguesia, parameterised by metric + labels so each
 // mode page reuses it (promotion: marge %, détention: yield net %, …). Defaults
@@ -56,7 +56,7 @@ export function MarginBars<T extends BarRowBase>({
       <div className="rounded-lg border border-gold/40 bg-navy px-3 py-2 text-cream shadow-card">
         <div className="text-label font-semibold">{d.name}</div>
         <div className="text-label text-gold">
-          {metricLabel} {d.__value.toFixed(digits)}% · {verdictLabel(d.verdict)}
+          {metricLabel} {fmtNum(d.__value, digits)}% · {verdictLabel(d.verdict)}
         </div>
       </div>
     );

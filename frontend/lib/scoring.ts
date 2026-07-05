@@ -116,6 +116,26 @@ export function scoreTextColorDark(score: number | null | undefined): string {
   return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
 }
 
+// ---------------------------------------------------------------------------
+// Formatage numérique de plateforme : arrondi half-up au digit (le Math.round
+// des scores, identique au _fmt_num du backend qui produit les labels natifs)
+// et jamais de zéro négatif : toute valeur qui tombe à zéro après arrondi
+// s'affiche « 0 », sans signe (« -0% » interdit partout).
+// ---------------------------------------------------------------------------
+export function roundHalfUp(v: number, digits = 0): number {
+  const q = Math.pow(10, digits);
+  const r = Math.round(v * q) / q;
+  return r === 0 ? 0 : r; // -0 → 0
+}
+export function fmtNum(v: number, digits = 0): string {
+  return roundHalfUp(v, digits).toFixed(digits);
+}
+// Variante signée : « + » sur le positif strict, jamais de zéro signé.
+export function fmtSigned(v: number, digits = 0): string {
+  const r = roundHalfUp(v, digits);
+  return `${r > 0 ? "+" : ""}${r.toFixed(digits)}`;
+}
+
 export function median(vals: number[]): number | null {
   const a = vals.filter((v) => v != null && !Number.isNaN(v)).sort((x, y) => x - y);
   if (!a.length) return null;
@@ -152,8 +172,19 @@ export function nativeHint(mode: Mode): string {
     promotion: "marge % · absorption",
     detention: "rendement net % · énergie",
     arbitrage: "spread % · appétit",
-    landbank: "constructibilité · meilleur usage",
+    landbank: "constructibilité · valorisation max",
   }[mode];
+}
+
+// Displayed title for a pillar key. Default humanises the key; overrides give a
+// clearer wording. "valeur_meilleur_usage" is the max multi-usage VALUATION, not
+// the Foncier destination reco (which keeps "meilleur usage") : titled
+// "valorisation max" to lift the client-visible term collision.
+const PILLAR_TITLE: Record<string, string> = {
+  valeur_meilleur_usage: "valorisation max",
+};
+export function pillarTitle(key: string): string {
+  return PILLAR_TITLE[key] ?? key.replace(/_/g, " ");
 }
 
 // ---------------------------------------------------------------------------

@@ -1479,10 +1479,19 @@ ajout moteur. Prix/yoy/transactions INE 2025-Q4 inchangés (réels).
    `risque_energie` backend alignés sur le parc (SMM 88 → PdN 12).
 5. **Fábrica Oriente** (actif vedette Prix & marge, gabarit Haya, HayaSlider
    strictement intouché) : reconversion de friche à Marvila, 14 000 m²
-   constructibles, curseur 4 800-6 200 pas 10, valeur centrale 5 400 →
-   **marge 20,5% affichée 21%** (coût = 1,261 × (2 210 coque+finitions +
-   1 343 foncier) = 4 480), 7,1% à 4 800 (fortement compressée), 38,4% à
-   6 200, bascule Go visible ~5 620. Backend : asset `fabrica` + bloc
+   constructibles, curseur 4 800-6 200 pas 10 ; **position par défaut 5 400
+   → score 66 Conditionnel, marge 20,5% affichée 21%** (le point où
+   total = baseTotal = 66,4 ; coût = 1,261 × (2 210 coque+finitions +
+   1 343 foncier) = 4 480), marge 7,1% à 4 800 (fortement compressée),
+   38,4% à 6 200. **Le prix médian de marché 5 029 ne sert que de base à la
+   prime (« prime / médiane »)** : au prix médian réel le score tombe vers
+   60, pas 66. **Bascule Conditionnel → Go confirmée à 5 590** (croisement
+   continu total = 70 à 5 588,17 ; la note « ~5 620 » était approximative,
+   aucun bug, résultat émergent du scoring, point clos). **Clamp d'affichage
+   (commit a83d64a)** : FabricaSlider plafonne le score AFFICHÉ sous 70 tant
+   que verdict n'est pas Go (Math.min(s, 69), cosmétique) pour lever la
+   contradiction score 70 / badge Conditionnel sur la fenêtre 5 570-5 580 ;
+   badge (sur total brut) et calibration inchangés. Backend : asset `fabrica` + bloc
    contexte analyste (miroir Haya). Frontend : `FABRICA` + `FabricaSlider`,
    **actif vedette par ville dans le registre** (`promoAsset` + slider +
    légende) : prix-marge focalise Marvila par défaut à Lisbonne, la carte
@@ -1511,6 +1520,165 @@ ajout moteur. Prix/yoy/transactions INE 2025-Q4 inchangés (réels).
    exacts (4,85/3,82, 43/100), trio Go 73/71/70, Fábrica 66 Conditionnel
    nuancé ; captures `lisbonne_{vue_ensemble,carte,prixmarge,rendement,
    arbitrage,ia_analyste}.png` ; matrice 120 relancée.
+
+### Six correctifs post-2b : zéro négatif, arrondi unique, bannière sélective, usages foncier, plancher détention — **✅ Livré** (2026-07-04)
+Issus de la passe œil expert sur Lisbonne. Données Gaia inchangées (le snapshot
+n'a bougé que sur 8 chaînes cosmétiques régénérées et auditées, voir #1 ;
+scores, verdicts et valeurs aux octets).
+1. **Formatage zéro négatif + arrondi unique** : helper backend **`_fmt_num`**
+   (mode_scoring.py : half-up = Math.round, jamais « -0 » : toute valeur qui
+   tombe à zéro s'affiche « 0 » sans signe) appliqué aux labels natifs
+   marge/spread/yield/yoy, désormais formatés **depuis la valeur SERVIE**
+   (round 1-2 déc.) : sous-titre de carte de mode et description
+   (`modeInsight`) rendent le même chiffre par construction (fin du
+   « marge 9% » vs « Marge de 10% » : municipio Lisbonne 9,46 → servi 9,5 →
+   « marge 10% » partout ; « spread -0% » → « spread 0% »). Miroirs front
+   **`roundHalfUp`/`fmtNum`/`fmtSigned`** (lib/scoring.ts) substitués à tous
+   les `toFixed`/signes manuels négatifs-capables (num(), kpiVal, pctSigned,
+   pct1/pct2, useGaia figures/quickFor, comparer, curseurs Fábrica/Ribeira,
+   MarginBars/Waterfall ; **HayaSlider intact**, valeurs jamais près de zéro).
+   `_fmt` analyste et `_f1`/`_f1s` mémo blindés aussi. ⚠️ **Fixture snapshot
+   Gaia régénérée pour 8 chaînes cosmétiques auditées** (aucune valeur, aucun
+   score, aucun verdict) : Canelas « marge -0% »→« 0% » (le bug interdit
+   existait à Gaia), Gulpilhares why « spread +0% »→« 0% », Arcozelo « yield
+   net 3.8% »→« 3.9% » et Vilar de Andorinho « 4.0% »→« 4.1% » (valeurs
+   servies 3,85/4,05 : l'ancien label half-even du brut contredisait le rendu
+   front, l'objet même du correctif). Tests : cas -0/half-up ajoutés à
+   `test_memo_scores_half_up…`, nouveau
+   **`test_native_labels_single_rounding_no_minus_zero`** (2 villes × 5
+   classes × 4 modes : nombre du label == `_fmt_num(valeur servie)` = rendu
+   front, regex `-0([.,]0+)?%` interdite dans labels et whys), script committé
+   **`shots/check_no_minus_zero.js`** (52 vues DOM : 10 pages × 2 villes +
+   4 pages denses × 4 classes = **0 zéro négatif rendu**).
+2. **Bannière « marché sélectif » (Prix & marge)** : variante de
+   `priceMarginInsight` quand **Conditionnel > 50 % des freguesias ET ≥ 1
+   Go** : « La promotion résidentielle ne tient vraiment que sur 3
+   freguesias : Marvila (29%), Beato (19%) et Lumiar (18%). Le reste de la
+   capitale reste sous conditions, la marge écrasée par le foncier. »
+   (« de la capitale » = `texts.promoSelectiveRest` du registre, défaut
+   « de la ville »). Ne se déclenche que sur Lisbonne résidentiel (67 % de
+   Conditionnel) ; **Gaia jamais** (27/33/40/27 % ; logistique 100 % mais
+   0 Go → gabarit dégradé conservé) — bannière Gaia vérifiée au mot près à
+   l'écran. Autres modes : leurs insights ne comptent que le verdict haut
+   (jamais Go+Conditionnel), aucun cas identique n'existe.
+3. **Usages foncier Lisbonne — cause racine : facteurs commerciaux dormants.**
+   `_commercial` était codé `city != "gaia"` : toutes les classes
+   commerciales lisboètes étaient pricées à la médiane résidentielle (TVA
+   23 % appliquée à tort au commercial en plus), et la logistique (land_pct
+   22, le plus bas) sortait « meilleur usage » sur **20 des 24 freguesias**
+   (+63,6 % à Belém). Le gate devient paramétrable : `commercial_gaia.city`
+   (défaut "gaia" → params gaia et pool témoin inchangés aux octets),
+   lisbonne déclarée. Calibration : **land_pct commerce 34→60, hôtel 24→30**
+   (la part foncière des usages prime porte la valeur d'emplacement ; fin des
+   uplifts écrêtés +80), facteurs retouchés (Areeiro bureaux 0,88, Alvalade
+   0,93, Campo de Ourique bureaux/hôtel 0,90, Avenidas hôtel 1,10, Penha de
+   França hôtel 0,90, Olivais logistique 0,82). **Carte des usages** :
+   logistique optimale NULLE PART ; résidentiel sur l'arc oriental (Marvila
+   +21 > Beato +6 > Lumiar +5, cohérent promotion) et les quartiers
+   résidentiels (Areeiro −11,2, Campo de Ourique −5,0, Ajuda, Penha…) ; hôtel
+   au centre historique (SMM +30,5, Misericórdia +22,5, São Vicente, Santo
+   António, Alcântara) et **Belém +3,7** ; bureaux au CBD (Avenidas +24,9,
+   PdN +7,7, Estrela). Scores/verdicts landbank inchangés (breakdown
+   display-only). **Retombées classes commerciales lisboètes (la calibration
+   2b enfin vivante)** : bureaux 2 Go CBD (marges 33-34 %), hôtel 1 Go,
+   commerce Chiado plafonné ~22 %, logistique résiduelle (3 Conditionnel,
+   Marvila en tête) ; détention/arbitrage commerciaux repricés ; résidentiel
+   strictement intact (trio Go 72,5/71,2/70,2, 2 fenêtres). Invariants au
+   test 2b : aucun usage logistique, Belém hôtel, Areeiro/CdO résidentiel,
+   aucun uplift de tête aux bornes ±40/+80.
+4. **Plancher de rendement institutionnel (détention)** :
+   `_detention_verdict_cap` (miroir du cap promotion), piloté par
+   `scoring.detention_net_floor_pct` du fichier ville (**absent de
+   gaia/témoin → aucun cap, bytes identiques ; lisbonne 3.0**) : net < 3 % →
+   verdict plafonné **Surveiller**, net affiché inchangé. Résultat : **PdN
+   70,3 Surveiller (net 2,22)** et **Avenidas Novas 68,2 Surveiller (2,93 <
+   3,0 : la règle du contrôle demandé)** ; Conserver = Arroios 71,1 /
+   Alvalade 67,6 / Areeiro 65,1 (nets ≥ 3,33) → détention résidentielle
+   **3/17/4** (DÉNOMBREMENTS recalculés automatiquement). Bureaux : Avenidas
+   plafonnée aussi (cohérence de doctrine). ⚠️ Écart documenté au « ~64 »
+   demandé : baisser le score par le pilier rendement seul est impossible
+   (plancher de bande 8 → −3 pts max) et tout offset de loyer en euros aurait
+   changé le net affiché (interdit) ou exigé un loyer PdN invraisemblable
+   (~11 €/m²/mois) pour −6 pts via la profondeur ; le cap de verdict est le
+   précédent établi (PdN promotion « Conditionnel par le cap de marge »,
+   score haut assumé). Narration : note d'analyse lisboète étendue (page
+   Rendement), fact analyste `_FACTS_FLOOR_LISBONNE` (« céder dans la fenêtre
+   plutôt que détenir sous le plancher »). Analyste live vérifié : explique
+   70/100 Surveiller par le plancher, cite +8 %/3,7 mois, conclut rotation.
+   Tests : `test_detention_verdict_cap_rule` + calibration 2b (PdN/AvNovas
+   Surveiller avec total ≥ 65 = preuve du cap, aucun Conserver sous 3 %).
+5. **Vérifs** : tests **31** au smoke framework (le `pytest.raises` vérifié à
+   la main ; ⚠️ le pytest anaconda a PERDU fastapi depuis le dernier lot → 6
+   échecs d'import d'environnement, pas de code) ; `tsc` OK ; snapshot Gaia
+   OK ; **matrice 10 pages × 2 villes × 2 navigateurs × 3 largeurs : 120/120** ;
+   `check_no_minus_zero` 52 vues = 0 ; mémo tables 2 villes sans -0 (PdN 70
+   Surveiller visible, landbank « résidentiel · immédiat ») ; captures
+   lisbonne régénérées + **`lisbonne_foncier.png`** (nouvelle, script
+   complété). Signalé non traité (préexistant, déjà dans les captures Gaia
+   committées) : l'axe Y du graphe `MarginBars` affiche « 0% » sur tous ses
+   ticks.
+
+### Reprise correctif « réveil commercial Lisbonne » : différenciation des classes en promotion + meilleur usage rééquilibré — **✅ Livré** (2026-07-04)
+Le réveil de la calibration commerciale (gate `commercial_gaia.city`, correctif
+issu du lot des six) avait tué la logistique parasite mais laissait deux points.
+À la reprise, l'essentiel était déjà dans l'arbre de travail (gate ouvert →
+classes différenciées ; carte des usages rééquilibrée 14 rés / 7 hôtel / 3
+bureaux / 0 log) ; ce correctif finit le travail et le verrouille par tests.
+Aucun changement Gaia (snapshot aux octets) ni résidentiel Lisbonne.
+1. **Régression reproduite** (fidèle, en scratch, sans toucher le fichier) : gate
+   ouvert sur les params HEAD → un usage commercial inonde tout. Selon
+   l'intermédiaire : **commerce 23/24** (foncier retail 34 %, uplift dopé) ou
+   **hôtel ~12-18/24** (foncier hôtel resté à 24 %) en meilleur usage, **et**
+   promotion inondée (retail 14 Go / hôtel 3 Go). Les facteurs commerciaux par
+   classe n'étaient PAS lus par le pilier marge tant que le gate restait fermé
+   (`z["city"] != "gaia"` litéral, corrigé en `cg.get("city", "gaia")`).
+2. **Meilleur usage rééquilibré** (parts foncières par classe + facteurs de zone,
+   pas de liste en dur) : hôtel land_pct 24→**30** et retail 34→**60** (la part
+   foncière des usages prime porte la valeur d'emplacement → hôtel réservé au
+   centre, commerce non parasite), + facteurs de zone retouchés
+   (campodeourique/avenidasnovas/alvalade/areeiro/penhadefranca hôtel-bureaux,
+   olivais logistique). **Correctif de ce lot** : `arroios` hôtel 1.042→**0.95**
+   (quartier résidentiel dense, pas un marché hôtelier ; c'était le SEUL hôtel
+   hors centre). Carte finale : **résidentiel 15 / hôtel 6 / bureaux 3 /
+   logistique 0**, hôtel exclusivement au centre historique (Santa Maria Maior,
+   Misericórdia, São Vicente, Santo António, Alcântara, Belém), bureaux au CBD
+   (Avenidas Novas, Parque das Nações, Estrela), Marvila/Beato/Lumiar
+   résidentiel (portent le Go résidentiel + Prioritaire landbank).
+3. **Différenciation des classes en promotion** (via le gate ouvert) : chaque
+   classe déploie SA hiérarchie, 5 distributions Go/Cond/Passer toutes
+   distinctes — résidentiel **3/16/5** (Go arc oriental Marvila/Beato/Lumiar),
+   bureaux **2/11/11** (Go CBD Avenidas Novas + Santo António), hôtellerie
+   **1/9/14** (Go centre Santo António), logistique **0/3/21** (résiduelle),
+   commerce **0/7/17**.
+4. **Écarts documentés (non forcés, doctrine projet)** : commerce 0 Go et PdN
+   bureaux non-Go. La promotion partage 4 piliers sur 5 avec le résidentiel
+   (absorption, momentum, constructibilité, risque de sortie) ; seul `marge`
+   varie par classe. Le commerce vaut le plus au centre patrimonial (Chiado :
+   SMM/Misericórdia marges retail 21-22 %) MAIS ces zones sont écrasées par le
+   momentum INE réel (sous-score momentum SMM = 4,2, non curable, même mur que
+   le résidentiel en 2b) → plafonnées Conditionnel (SMM 62,5, Miser 62,1). PdN
+   bureaux (65,2 Cond) est bloqué par sa constructibilité basse (bâti Expo 98) :
+   c'est une **fenêtre d'arbitrage**, pas une promotion (cohérent avec la
+   signature 2b PdN). Les forcer exigerait des marges invraisemblables ou
+   contredirait la signature ; documenté plutôt que forcé.
+5. **Tests** : `test_lisbonne_calibration_2b` étendu — (a) **différenciation
+   commerciale** (Go bureaux ⊇ Avenidas Novas, Go hôtel == Santo António,
+   logistique/commerce 0 Go, 5 distributions toutes distinctes, aucune ne calque
+   le résidentiel) ; (b) **« aucun hôtel hors centre »** (set `CENTRE_HOTEL`) +
+   parts d'usages (rés ≥ 12, hôtel 4-7, bureaux ≥ 3). Résidentiel/Gaia inchangés.
+6. **Vérifs** : smoke framework OK (tous tests dont snapshot Gaia aux octets et
+   invariants 2b résidentiels) ; sweep **40 payloads** (2 villes × 5 classes ×
+   4 modes) 0 cadratin ; unknown zone/mode → KeyError/ValueError ; **analyste
+   live bureaux + hôtellerie** cohérents (bureaux : Go Avenidas Novas 75 /
+   Santo António 72, marges 33,3/34,3 % ; hôtellerie : Go Santo António 71,
+   SMM/Miser Conditionnel widest-margin mais Céder → cession dès livraison ;
+   chiffres exacts, 0 cadratin) ; **mémo Lisbonne bureaux** généré 5 pages
+   (`Barzel_Memo_Lisbonne_Bureaux`), 0 cadratin, comptages exacts (2 Go / 11
+   Cond / 11 Passer), Avenidas Novas + Santo António cités ; `check_no_minus_zero`
+   **52 vues = 0** ; `tsc` OK ; **matrice 10 pages × 2 villes × 2 navigateurs ×
+   3 largeurs : 120/120 vert** ; captures lisbonne régénérées (`lisbonne_foncier.png`
+   montre Arroios → résidentiel, hôtel au centre seul). HayaSlider et blocs
+   K-REST intacts, `_clean` inchangé, `.env` non commité.
 
 ### État final du gabarit de page de mode
 Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,

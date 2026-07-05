@@ -91,11 +91,18 @@ def verdict_counts(asset_class: str, city: str = "gaia") -> dict:
 def _counts_block(asset_class: str, city: str = "gaia") -> list[str]:
     counts_by_mode = verdict_counts(asset_class, city)
     n_freg = sum(next(iter(counts_by_mode.values())).values()) if counts_by_mode else 0
-    lines = [f"## DÉNOMBREMENTS (comptages exacts sur les {n_freg} freguesias ; utilise UNIQUEMENT "
-             "ces comptages, ne recompte JAMAIS toi-même à partir des listes)"]
+    lines = [f"## DÉNOMBREMENTS (comptages exacts sur les {n_freg} freguesias ; la ligne « ville » "
+             "(agrégat municipal, ex. Lisboa) est EXCLUE de ce total. Utilise UNIQUEMENT ces "
+             "comptages, ne recompte JAMAIS toi-même à partir des listes)"]
     for mode, counts in counts_by_mode.items():
         parts = ", ".join(f"{_VERDICT_ACCENT.get(v, v)} {n}" for v, n in counts.items())
         lines.append(f"- {_MODE_FR_CTX[mode]} : {parts}, total {n_freg} freguesias")
+    lines.append(
+        "COHÉRENCE OBLIGATOIRE : chaque catégorie de verdict a son compte propre. Ne fusionne "
+        "jamais deux catégories en un sous-total (jamais « les N autres freguesias, Conditionnel "
+        "ou Passer »). Quand tu décris une répartition, nomme chaque catégorie avec son compte, "
+        f"et les trois catégories d'un même mode s'additionnent au total {n_freg} : Go plus "
+        f"Conditionnel plus Passer égale {n_freg} en promotion, de même pour chaque autre mode.")
     return lines
 
 
@@ -117,7 +124,11 @@ def _fmt(v, digits=1):
     if v is None:
         return "n/d"
     if isinstance(v, float):
-        return f"{v:.{digits}f}"
+        # Arrondi half-up de la plateforme, et jamais de zéro négatif (« -0.0 »).
+        r = math.floor(v * 10 ** digits + 0.5) / 10 ** digits
+        if r == 0:
+            r = 0.0
+        return f"{r:.{digits}f}"
     return str(v)
 
 
@@ -174,6 +185,9 @@ _FACTS_ENERGY_LISBONNE = """- Parc résidentiel de Lisbonne en classes E-F (expo
 _FACTS_AL_LISBONNE = """## LOCATION COURTE DURÉE (AL) · LISBONNE
 - Le centre historique (Santa Maria Maior, Misericórdia) est en zone de contention : la pression réglementaire municipale sur l'alojamento local rend le yield facial touristique non représentatif d'une détention institutionnelle. Les verdicts de détention de la plateforme intègrent cette fragilité (rotation lente, marché locatif contractuel étroit) : yields affichés élevés, verdict Céder."""
 
+_FACTS_FLOOR_LISBONNE = """## PLANCHER DE RENDEMENT INSTITUTIONNEL (détention) · LISBONNE
+- Sous 3,0% de yield net, la détention n'est plus justifiée, quelle que soit la profondeur du marché : le verdict plafonne à Surveiller même quand le score de marché reste élevé (c'est un plafond de doctrine, pas un malus de score). C'est le cas du produit récent au net comprimé, Parque das Nações et Avenidas Novas : le rendement ne justifie plus la détention. Quand la fenêtre d'arbitrage est ouverte au même endroit (voir le mode arbitrage, Parque das Nações), la lecture institutionnelle est une rotation : céder dans la fenêtre plutôt que détenir sous le plancher."""
+
 
 def _facts_for(city: str) -> str:
     """Faits statiques : fiscalité PT + énergie EPBD communes ; parc SCE et
@@ -182,7 +196,8 @@ def _facts_for(city: str) -> str:
     if city == "gaia":
         return "\n\n".join([_FACTS_FISCAL, _FACTS_ENERGY_COMMON, _FACTS_ENERGY_GAIA])
     if city == "lisbonne":
-        return "\n\n".join([_FACTS_FISCAL, _FACTS_ENERGY_COMMON, _FACTS_ENERGY_LISBONNE, _FACTS_AL_LISBONNE])
+        return "\n\n".join([_FACTS_FISCAL, _FACTS_ENERGY_COMMON, _FACTS_ENERGY_LISBONNE,
+                            _FACTS_AL_LISBONNE, _FACTS_FLOOR_LISBONNE])
     return "\n\n".join([_FACTS_FISCAL, _FACTS_ENERGY_COMMON])
 
 
@@ -259,6 +274,7 @@ RÈGLES ABSOLUES :
 - Ton sobre et professionnel, en français. Réponses courtes : 5 à 10 lignes, en texte simple, JAMAIS de markdown (pas de titres, pas de gras, pas de puces), des phrases.
 - Avant de conclure, vérifie la cohérence interne de ta réponse : n'affirme jamais qu'un territoire domine sur tous les axes si un seul axe s'inverse ; dans ce cas, nomme l'exception d'emblée.
 - Pour tout comptage de freguesias (« N freguesias »), utilise UNIQUEMENT les comptages pré-calculés de la section DÉNOMBREMENTS ; ne recompte JAMAIS toi-même à partir des listes ; au moindre doute, formule sans compte. Ne cite un rang (« premier », « deuxième ») que s'il se lit directement dans l'ordre des données.
+- Ne fusionne JAMAIS deux catégories de verdict en un sous-total ambigu (par exemple « les 16 autres freguesias sont Conditionnel ou Passer ») : chaque catégorie a son compte propre dans DÉNOMBREMENTS. Pour décrire une répartition, cite chaque catégorie séparément et vérifie qu'elles se raccordent au total : Go plus Conditionnel plus Passer égale {NFREG} freguesias en promotion (le municipio, ligne « ville », n'entre pas dans ce total), et de même pour chaque autre mode.
 - Quand la question s'y prête, conclus par un verdict actionnable en une phrase (celui des données : Go/Conditionnel/Passer, Conserver/Surveiller/Céder, Fenêtre ouverte/étroite/fermée, Prioritaire/À phaser/En attente)."""
 
 

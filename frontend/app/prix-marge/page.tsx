@@ -8,7 +8,7 @@ import { MarginWaterfall } from "@/components/MarginWaterfall";
 import { MarginBars } from "@/components/MarginBars";
 import { InsightBanner } from "@/components/InsightBanner";
 import { useGaia } from "@/lib/useGaia";
-import { classLabel } from "@/lib/scoring";
+import { classLabel, fmtNum } from "@/lib/scoring";
 import { pmRows, pmSummary, eurM2 } from "@/lib/priceMargin";
 import { priceMarginInsight, anomalyNote } from "@/lib/insights";
 import { cityBySlug } from "@/lib/cities";
@@ -59,7 +59,13 @@ export default function PrixMargePage() {
   const scopeLabel = summary.scope === "viables" ? "freguesias viables" : "toutes freguesias";
 
   // Conclusion layer: page insight + banner right block + margin anomaly note.
-  const pmLine = useMemo(() => priceMarginInsight(allRows, cls), [allRows, cls]);
+  // Le complément du gabarit « marché sélectif » vient du registre des villes
+  // (« de la capitale » à Lisbonne) ; il ne se déclenche que quand les
+  // Conditionnel dépassent la moitié des freguesias (jamais à Gaia).
+  const pmLine = useMemo(
+    () => priceMarginInsight(allRows, cls, city.texts.promoSelectiveRest),
+    [allRows, cls, city.texts.promoSelectiveRest]
+  );
   const maxRow = useMemo(
     () => (allRows.length ? allRows.reduce((a, b) => (b.marginPct > a.marginPct ? b : a)) : null),
     [allRows]
@@ -125,7 +131,7 @@ export default function PrixMargePage() {
           <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
             <Kpi
               label="Marge médiane"
-              value={summary.medianMargin != null ? `${summary.medianMargin.toFixed(1)}%` : "–"}
+              value={summary.medianMargin != null ? `${fmtNum(summary.medianMargin, 1)}%` : "–"}
               sub={scopeLabel}
             />
             {cls === "residential" ? (
