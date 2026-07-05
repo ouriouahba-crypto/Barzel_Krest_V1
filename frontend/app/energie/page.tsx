@@ -128,8 +128,9 @@ export default function EnergiePage() {
             }
           />
 
-          {/* Timeline + simulator */}
-          <div className="grid shrink-0 grid-cols-1 gap-4 xl:grid-cols-[1.35fr_1fr]">
+          {/* Timeline + simulator (simulateur = curseur : absent pour Bruxelles,
+              lot 2b-ii → la frise réglementaire occupe alors toute la largeur) */}
+          <div className={`grid shrink-0 grid-cols-1 gap-4 ${Retrofit ? "xl:grid-cols-[1.35fr_1fr]" : ""}`}>
             <section className="rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
               <h3 className="font-display text-[16px] leading-tight text-navy">{E.PAGE.timelineTitle}</h3>
               <p className="mt-0.5 text-label text-muted">{E.PAGE.timelineSub}</p>
@@ -155,22 +156,24 @@ export default function EnergiePage() {
               </Link>
             </section>
 
-            <div className="flex flex-col gap-2">
-              {simRow ? (
-                <Retrofit
-                  row={simRow}
-                  placeLabel={simRow.short}
-                  efShare={simParc?.ef ?? null}
-                />
-              ) : (
-                <div className="flex min-h-[280px] items-center justify-center rounded-2xl bg-navy text-body text-cream/70 shadow-card">
-                  Chargement…
-                </div>
-              )}
-              <p className="px-1 text-caption leading-snug text-ink-soft">
-                {E.PAGE.simulatorCaption}
-              </p>
-            </div>
+            {Retrofit && (
+              <div className="flex flex-col gap-2">
+                {simRow ? (
+                  <Retrofit
+                    row={simRow}
+                    placeLabel={simRow.short}
+                    efShare={simParc?.ef ?? null}
+                  />
+                ) : (
+                  <div className="flex min-h-[280px] items-center justify-center rounded-2xl bg-navy text-body text-cream/70 shadow-card">
+                    Chargement…
+                  </div>
+                )}
+                <p className="px-1 text-caption leading-snug text-ink-soft">
+                  {E.PAGE.simulatorCaption}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Stock by freguesia */}

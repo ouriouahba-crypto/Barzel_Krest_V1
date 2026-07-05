@@ -114,8 +114,9 @@ export default function FiscalitePage() {
             ))}
           </div>
 
-          {/* Checkpoints + simulator */}
-          <div className="grid shrink-0 grid-cols-1 gap-4 xl:grid-cols-[1.35fr_1fr]">
+          {/* Checkpoints + simulator (simulateur = curseur : absent pour Bruxelles,
+              lot 2b-ii → la table de contrôle occupe alors toute la largeur) */}
+          <div className={`grid shrink-0 grid-cols-1 gap-4 ${FiscalSimulator ? "xl:grid-cols-[1.35fr_1fr]" : ""}`}>
             <section className="rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
               <h3 className="font-display text-[16px] leading-tight text-navy">
                 {F.PAGE.checkpointsTitle(residential)}
@@ -155,12 +156,14 @@ export default function FiscalitePage() {
               )}
             </section>
 
-            <div className="flex flex-col gap-2">
-              <FiscalSimulator residential={residential} />
-              <p className="px-1 text-caption leading-snug text-ink-soft">
-                {F.PAGE.simulatorCaption}
-              </p>
-            </div>
+            {FiscalSimulator && (
+              <div className="flex flex-col gap-2">
+                <FiscalSimulator residential={residential} />
+                <p className="px-1 text-caption leading-snug text-ink-soft">
+                  {F.PAGE.simulatorCaption}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Discreet source line */}

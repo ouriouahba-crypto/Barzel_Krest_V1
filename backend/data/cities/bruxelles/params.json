@@ -10,13 +10,13 @@
    "hypothese": "Valeur de travail proposee par defaut, A VALIDER par Ouri (terrain metier)."
   },
   "edit_note": "value = valeur ; unit = unite ; conf = confiance ; src = source. Ne pas supprimer les cles, corriger les valeurs.",
-  "note": "REGIME BE branche en valeurs de depart, A CALIBRER EN 2b : droits d'enregistrement Bruxelles 12,5% (countries.be.acquisition.registration_brussels_pct), contrainte PEB active (countries.be.energy_meps.brussels_threshold, label E d'ici 2033). Aucun texte editorial fiscal/energie BXL dans ce lot.",
+  "note": "REGIME BE : lot 2b-i a branche l'affichage reel des pages Fiscalite (droits enregistrement 12,5%, TVA neuf 21%, terrain 12,5%, precompte, ISoc 25% ; frais d'entree ~14-15% ; reperes Wallonie 3% / Flandre 2%) et Energie (PEB A-G, objectif PEB 275=classe E en 2033, PEB 150=classe C vers 2045, certificat generalise 2028, sortie mazout 01/06/2025, Ordonnance 07/03/2024 Renolution). Ces textes vivent cote FRONTEND (lib/fiscalBE.ts, lib/energieBE.ts), pas ici. AUCUN score, seuil, curseur ou actif vedette touche par ce lot. Les curseurs (simulateur d'acquisition, simulateur de renovation) et l'actif vedette restent un lot 2b-ii.",
   "todo_2b_bruxelles": [
    "eur/m2 reels par commune si KREST en dispose (remplacer le simule ancre).",
-   "Actif vedette Bruxelles reel a mettre en scene (curseur + seuils).",
-   "Taux et regime fiscal exact applicable aux actifs KREST (droits, precompte, plus-value/share-deal).",
-   "Donnees energie/PEB du portefeuille (parc reel par commune, calendrier MEPS Bruxelles).",
-   "Hierarchies editoriales par mode, insights, marges cibles, notes d'anomalie."
+   "Actif vedette Bruxelles reel a mettre en scene (curseur + seuils) : lot 2b-ii.",
+   "Fiscalite : confirmer par KREST le taux de precompte immobilier communal effectif et le traitement fiscal exact de leur vehicule (societe / SIR-GVV, share deal a la sortie) ; l'affichage 2b-i tient les taux regionaux publics.",
+   "Energie : remplacer la repartition PEB simulee par commune (lib/energieBE PARC_PEB) par les certificats PEB reels du portefeuille ; grille de reference de l'encadrement des loyers a preciser.",
+   "Hierarchies editoriales par mode, insights, marges cibles, notes d'anomalie : lot 2b-ii."
   ]
  },
  "global": {

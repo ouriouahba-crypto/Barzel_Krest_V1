@@ -7,6 +7,9 @@
 import type { ComponentType } from "react";
 import * as fiscalPT from "./fiscal";
 import * as energiePT from "./energie";
+import * as fiscalBE from "./fiscalBE";
+import * as energieBE from "./energieBE";
+import type { RegimeFiscal, RegimeEnergie } from "./regimes";
 import { AcquisitionSimulator } from "@/components/AcquisitionSimulator";
 import { RetrofitSimulator } from "@/components/RetrofitSimulator";
 import { HayaSlider } from "@/components/HayaSlider";
@@ -56,12 +59,14 @@ export interface CityDef {
   zoneNounPlural: string;
   /** freguesia/commune par défaut du simulateur énergie */
   energieDefaultZone: string;
-  /** régime fiscal du pays : barèmes, volets, insight, simulateur */
-  fiscal: typeof fiscalPT;
-  fiscalSimulator: ComponentType<{ residential: boolean }>;
-  /** régime énergie : échelle (SCE…), parc, frise réglementaire, simulateur */
-  energie: typeof energiePT;
-  retrofitSimulator: typeof RetrofitSimulator;
+  /** régime fiscal de la ville : barèmes, volets, insight (PT ou BE, même contrat) */
+  fiscal: RegimeFiscal;
+  /** simulateur d'acquisition (curseur) : optionnel ; absent pour Bruxelles (lot 2b-ii) */
+  fiscalSimulator?: ComponentType<{ residential: boolean }>;
+  /** régime énergie : échelle (SCE / PEB), parc, frise réglementaire (PT ou BE) */
+  energie: RegimeEnergie;
+  /** simulateur de rénovation (curseur) : optionnel ; absent pour Bruxelles (lot 2b-ii) */
+  retrofitSimulator?: typeof RetrofitSimulator;
   /** actif vedette promotion : nom API, freguesia/commune, curseur dédié.
    *  Absent tant que la ville n'a pas d'actif vedette (Bruxelles : lot 2b). */
   promoAsset?: { apiName: string; zoneId: string; displayName: string };
@@ -169,12 +174,13 @@ export const CITIES: CityDef[] = [
     },
   },
   {
-    // Bruxelles, lot 2a : branchement MÉCANIQUE (dataset simulé ancré + scoring
-    // générique). Maille = commune (19 communes de la Région de Bruxelles-Capitale).
-    // Régime fiscal/énergie : modules PT réutilisés en PLACEHOLDER le temps du lot 2b
-    // (le module BE se branche sans toucher les pages) ; aucun texte éditorial BE
-    // rédigé ici. Les valeurs BE (droits 12,5%, PEB) vivent dans params.json (interne).
-    // Pas d'actif vedette (promoAsset absent) ni de municipio agrégé : lot 2b.
+    // Bruxelles : dataset simulé ancré + scoring générique (lot 2a). Maille =
+    // commune (19 communes de la Région de Bruxelles-Capitale).
+    // Régime fiscal/énergie BE RÉEL (lot 2b-i, display seulement) : droits
+    // d'enregistrement 12,5%, TVA neuf 21%, précompte, ISoc 25% côté Fiscalité ;
+    // PEB A-G, PEB 275 en 2033 / PEB 150 vers 2045, Renolution côté Énergie.
+    // Les simulateurs interactifs (curseurs) restent un lot 2b-ii : absents ici.
+    // Pas d'actif vedette (promoAsset absent) ni de municipio agrégé : lot 2b-ii.
     slug: "bruxelles",
     label: "Bruxelles",
     country: "be",
@@ -186,11 +192,11 @@ export const CITIES: CityDef[] = [
     zoneNoun: "commune",
     zoneNounPlural: "communes",
     energieDefaultZone: "ixelles",
-    fiscal: fiscalPT,
-    fiscalSimulator: AcquisitionSimulator,
-    energie: energiePT,
-    retrofitSimulator: RetrofitSimulator,
-    // promoAsset absent : la page Prix & marge masque le curseur d'actif (lot 2b).
+    fiscal: fiscalBE,
+    // fiscalSimulator omis (curseur = lot 2b-ii) : la page rend la table de contrôle seule.
+    energie: energieBE,
+    // retrofitSimulator omis (curseur = lot 2b-ii) : la page rend la frise + le parc seuls.
+    // promoAsset absent : la page Prix & marge masque le curseur d'actif (lot 2b-ii).
     texts: {
       // Textes V0 neutres et factuels (le terme de maille dit « commune »),
       // à réécrire en 2b avec la signature bruxelloise.
