@@ -2,6 +2,7 @@
 
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Mode, fmtNum, verdictColor, verdictLabel } from "@/lib/scoring";
+import { useZoneNoun } from "@/lib/useZoneNoun";
 
 // Verdict-coloured bars per freguesia, parameterised by metric + labels so each
 // mode page reuses it (promotion: marge %, détention: yield net %, …). Defaults
@@ -31,7 +32,7 @@ export function MarginBars<T extends BarRowBase>({
   onSelect,
   classLabel,
   metric = (r) => (r as any).marginPct as number,
-  title = "Marge % par freguesia",
+  title,
   metricLabel = "marge",
   digits = 1,
 }: {
@@ -45,6 +46,10 @@ export function MarginBars<T extends BarRowBase>({
   metricLabel?: string;
   digits?: number;
 }) {
+  const { sg } = useZoneNoun();
+  // Titre par défaut piloté par le terme de maille de la ville (« Marge % par
+  // commune » à Bruxelles). Les pages qui passent un titre explicite priment.
+  const heading = title ?? `Marge % par ${sg}`;
   const data = rows
     .map((r) => ({ ...r, __value: metric(r) }))
     .sort((a, b) => b.__value - a.__value);
@@ -65,7 +70,7 @@ export function MarginBars<T extends BarRowBase>({
   return (
     <div className="rounded-2xl border border-navy/10 bg-white p-4 shadow-card">
       <div className="mb-2 flex items-baseline justify-between">
-        <h3 className="font-display text-[16px] text-navy">{title}</h3>
+        <h3 className="font-display text-[16px] text-navy">{heading}</h3>
         <span className="text-label text-muted">barres par verdict · {classLabel}</span>
       </div>
       <div className="h-[250px]">

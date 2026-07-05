@@ -3,6 +3,7 @@
 import React from "react";
 import { Mode } from "@/lib/scoring";
 import { VerdictBadge } from "./ui";
+import { useZoneNoun } from "@/lib/useZoneNoun";
 
 // Generic floating-bar cascade: a base bar (revenue, gross yield…) minus ordered
 // deductions, stepping down to a computed result, or a dedicated loss state when
@@ -129,11 +130,12 @@ export function Waterfall({
   );
 }
 
-// Empty state shared by the wrappers (no freguesia selected yet).
+// Empty state shared by the wrappers (no freguesia/commune selected yet).
 export function WaterfallEmpty() {
+  const { sg } = useZoneNoun();
   return (
     <div className="flex h-full min-h-[280px] items-center justify-center rounded-2xl border border-navy/10 bg-white text-body text-ink-soft shadow-card">
-      Sélectionnez une freguesia dans le tableau.
+      Sélectionnez une {sg} dans le tableau.
     </div>
   );
 }

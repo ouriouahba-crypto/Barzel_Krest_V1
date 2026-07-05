@@ -53,7 +53,7 @@ export default function EnergiePage() {
 
   // Table: simulated SCE stock joined with the engine's energy pillar risk.
   const rows = useMemo(() => {
-    const fregs = (g.detentionCity?.zones ?? []).filter((z) => z.level === "freguesia");
+    const fregs = (g.detentionCity?.zones ?? []).filter((z) => z.level !== "municipio");
     const parcs = fregs
       .map((z) => ({ z, parc: E.parcFor(z.zone, cls) }))
       .filter((e): e is { z: (typeof fregs)[number]; parc: NonNullable<ReturnType<typeof E.parcFor>> } => !!e.parc);
@@ -180,7 +180,7 @@ export default function EnergiePage() {
                 <thead className="bg-cream-200">
                   <tr className="border-b border-navy/10 text-th font-semibold uppercase tracking-wide text-ink-soft">
                     {E.PAGE.tableCols.map((c, i) => (
-                      <th key={c} className={`px-3 py-2.5 ${i === 0 || i === E.PAGE.tableCols.length - 1 ? "text-left" : "text-right"}`}>{c}</th>
+                      <th key={c} className={`px-3 py-2.5 ${i === 0 || i === E.PAGE.tableCols.length - 1 ? "text-left" : "text-right"}`}>{i === 0 ? city.zoneNoun.charAt(0).toUpperCase() + city.zoneNoun.slice(1) : c}</th>
                     ))}
                   </tr>
                 </thead>
@@ -210,7 +210,7 @@ export default function EnergiePage() {
                   {rows.length === 0 && (
                     <tr>
                       <td colSpan={6} className="px-4 py-10 text-center text-body text-ink-soft">
-                        Chargement des freguesias…
+                        Chargement des {city.zoneNounPlural}…
                       </td>
                     </tr>
                   )}

@@ -69,7 +69,7 @@ export default function ComparerPage() {
   useEffect(() => {
     if (userPicked || !promoZones) return;
     const ranked = promoZones
-      .filter((z) => z.level === "freguesia")
+      .filter((z) => z.level !== "municipio")
       .slice()
       .sort((a, b) => b.total - a.total)
       .map((z) => z.zone);
@@ -85,7 +85,7 @@ export default function ComparerPage() {
       const cells: CompareModeCell[] = [];
       let ident: ModeScore | undefined;
       for (const m of MODES) {
-        const row = g.citiesByMode[m]?.zones.find((z) => z.zone === zone && z.level === "freguesia");
+        const row = g.citiesByMode[m]?.zones.find((z) => z.zone === zone && z.level !== "municipio");
         if (!row) continue;
         ident = ident ?? row;
         cells.push(cellFor(m, row));
@@ -166,7 +166,7 @@ export default function ComparerPage() {
               </span>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
-              Deux ou trois freguesias côte à côte, à travers les quatre lectures du même marché :
+              Deux ou trois {city.zoneNounPlural} côte à côte, à travers les quatre lectures du même marché :
               la couche de décision avant d'entrer dans chaque module.
             </p>
           </div>
@@ -187,9 +187,9 @@ export default function ComparerPage() {
                   }`}
                 >
                   {slot === 2 ? (
-                    <option value="">{value ? "– Retirer –" : "+ Ajouter une freguesia"}</option>
+                    <option value="">{value ? "– Retirer –" : `+ Ajouter une ${city.zoneNoun}`}</option>
                   ) : (
-                    !value && <option value="">Choisir une freguesia…</option>
+                    !value && <option value="">Choisir une {city.zoneNoun}…</option>
                   )}
                   {options.map((f) => (
                     <option key={f.id} value={f.id}>
@@ -247,7 +247,7 @@ export default function ComparerPage() {
             ))}
             {columns.length === 0 && (
               <div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-navy/10 bg-white text-body text-ink-soft shadow-card xl:col-span-2">
-                {dataReady ? "Sélectionnez une freguesia à comparer" : "Chargement des freguesias…"}
+                {dataReady ? `Sélectionnez une ${city.zoneNoun} à comparer` : `Chargement des ${city.zoneNounPlural}…`}
               </div>
             )}
           </div>

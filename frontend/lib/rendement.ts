@@ -48,7 +48,7 @@ function toRow(z: CityResponse["zones"][number]): RdRow | null {
 export function rdRows(city?: CityResponse): RdRow[] {
   if (!city) return [];
   return city.zones
-    .filter((z) => z.level === "freguesia")
+    .filter((z) => z.level !== "municipio")
     .map(toRow)
     .filter((r): r is RdRow => r !== null)
     .sort((a, b) => b.yieldNet - a.yieldNet);

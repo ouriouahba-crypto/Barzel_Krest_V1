@@ -34,9 +34,10 @@ export default function PrixMargePage() {
   const city = cityBySlug(useCityStore((s) => s.slug));
   const [selected, setSelected] = useState<string[]>([]);
 
-  // Module promotion : sélection par défaut sur la freguesia de l'actif vedette
-  // (Afurada à Gaia, Marvila à Lisbonne).
-  const assetZone = city.promoAsset.zoneId;
+  // Module promotion : sélection par défaut sur la maille de l'actif vedette
+  // (Afurada à Gaia, Marvila à Lisbonne) ; repli sur la maille par défaut de la
+  // ville quand il n'y a pas encore d'actif vedette (Bruxelles, lot 2b).
+  const assetZone = city.promoAsset?.zoneId ?? city.cityZoneId;
   const AssetSlider = city.promoAssetSlider;
   useEffect(() => {
     g.setFocusZone(assetZone);
@@ -44,6 +45,7 @@ export default function PrixMargePage() {
   }, []);
 
   const cls = g.assetClass;
+  const zn = { sg: city.zoneNoun, pl: city.zoneNounPlural };  // terme de maille (commune/freguesia)
   const allRows = useMemo(() => pmRows(g.promoCity), [g.promoCity]);
   const rows = useMemo(
     () => (selected.length ? allRows.filter((r) => selected.includes(r.zone)) : allRows),
@@ -56,22 +58,22 @@ export default function PrixMargePage() {
   );
 
   const showHaya = g.focusZone === assetZone && cls === "residential" && !!g.hayaProps;
-  const scopeLabel = summary.scope === "viables" ? "freguesias viables" : "toutes freguesias";
+  const scopeLabel = summary.scope === "viables" ? `${zn.pl} viables` : `toutes ${zn.pl}`;
 
   // Conclusion layer: page insight + banner right block + margin anomaly note.
   // Le complément du gabarit « marché sélectif » vient du registre des villes
   // (« de la capitale » à Lisbonne) ; il ne se déclenche que quand les
   // Conditionnel dépassent la moitié des freguesias (jamais à Gaia).
   const pmLine = useMemo(
-    () => priceMarginInsight(allRows, cls, city.texts.promoSelectiveRest),
-    [allRows, cls, city.texts.promoSelectiveRest]
+    () => priceMarginInsight(allRows, cls, city.texts.promoSelectiveRest, zn),
+    [allRows, cls, city.texts.promoSelectiveRest, zn.sg, zn.pl]
   );
   const maxRow = useMemo(
     () => (allRows.length ? allRows.reduce((a, b) => (b.marginPct > a.marginPct ? b : a)) : null),
     [allRows]
   );
   const fregScores = useMemo(
-    () => (g.promoCity?.zones ?? []).filter((z) => z.level === "freguesia"),
+    () => (g.promoCity?.zones ?? []).filter((z) => z.level !== "municipio"),
     [g.promoCity]
   );
   const note = useMemo(() => anomalyNote("promotion", fregScores), [fregScores]);
@@ -176,7 +178,7 @@ export default function PrixMargePage() {
           {/* Margin decomposition (+ Haya slider for Afurada residential) */}
           <div className={`shrink-0 ${showHaya ? "grid grid-cols-1 gap-4 xl:grid-cols-[1.35fr_1fr]" : ""}`}>
             <MarginWaterfall row={selectedRow} mode="promotion" classLabel={classLabel(cls)} />
-            {showHaya && g.hayaProps && (
+            {showHaya && g.hayaProps && AssetSlider && (
               <div className="flex flex-col gap-2">
                 <AssetSlider {...g.hayaProps} />
                 <p className="px-1 text-caption leading-snug text-ink-soft">

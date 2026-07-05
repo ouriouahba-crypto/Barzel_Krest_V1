@@ -446,17 +446,18 @@ def test_gaia_payload_snapshot_4_modes_residential():
 
 
 def test_city_registry_and_default_dataset():
-    # Registre : gaia seule enregistrée, défaut gaia ; un nom de ville non
-    # enregistré (témoins lisbonne/bruxelles) est servi par le dataset par
-    # défaut, à l'identique des routes historiques sans slug.
+    # Registre : gaia/lisbonne/bruxelles enregistrées (bruxelles = lot 2a),
+    # défaut gaia ; un nom de ville TOUJOURS non enregistré (témoin résiduel,
+    # ex. mont_saint_guibert) est servi par le pool témoin (rétrocompat).
     from backend.services import cities as reg
 
     assert reg.default_slug() == "gaia"
-    assert reg.slugs() == {"gaia", "lisbonne"}
+    assert reg.slugs() == {"gaia", "lisbonne", "bruxelles"}
     assert reg.resolve_slug(None) == "gaia"
     assert reg.resolve_slug("gaia") == "gaia"
     assert reg.resolve_slug("lisbonne") == "lisbonne"  # ville enregistrée (lot 2a)
-    assert reg.resolve_slug("bruxelles") == reg.WITNESS_SLUG  # témoin → pool
+    assert reg.resolve_slug("bruxelles") == "bruxelles"  # ville enregistrée (lot 2a Bruxelles)
+    assert reg.resolve_slug("mont_saint_guibert") == reg.WITNESS_SLUG  # témoin résiduel → pool
     assert ms.load("lisbonne") is not ms.load()  # datasets distincts, caches par slug
 
 

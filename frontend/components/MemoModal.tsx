@@ -52,7 +52,7 @@ export function MemoModal({ open, onClose }: { open: boolean; onClose: () => voi
         .then((c) =>
           setFregs(
             c.zones
-              .filter((z) => z.level === "freguesia")
+              .filter((z) => z.level !== "municipio")
               .map((z) => ({ id: z.zone, label: displayName(z.zone_name) }))
               .sort((a, b) => a.label.localeCompare(b.label))
           )

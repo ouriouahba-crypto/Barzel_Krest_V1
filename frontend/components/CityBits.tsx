@@ -35,7 +35,7 @@ export function RankingList({
 }) {
   if (!city) return <div className="text-[13px] text-muted">Chargement…</div>;
   const rows = city.zones
-    .filter((z) => z.level === "freguesia")
+    .filter((z) => z.level !== "municipio")
     .filter((z) => selected.length === 0 || selected.includes(z.zone))
     .sort((a, b) => b.total - a.total);
   return (

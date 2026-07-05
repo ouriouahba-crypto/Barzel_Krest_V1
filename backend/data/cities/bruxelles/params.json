@@ -1,0 +1,936 @@
+{
+ "meta": {
+  "version": "0.1",
+  "generated": "2026-07-05",
+  "role": "Params Bruxelles lot 2a (MECANIQUE) : scoring generique sur dataset simule ancre. AUCUNE calibration editoriale fine, aucun actif vedette, aucune formule de signature (= lot 2b). Les knobs (foncier, prime, constructibilite, connectivite, facteurs commerciaux) sont generatifs V0 sous contraintes.",
+  "city": "bruxelles",
+  "confidence_legend": {
+   "officiel": "Regle ou taux publie par une autorite (fiscalite, reglement, seuil legal).",
+   "rapport": "Chiffre de marche issu d un rapport professionnel (CBRE, JLL, Cushman, Savills, Colliers, INE, Banco de Portugal).",
+   "hypothese": "Valeur de travail proposee par defaut, A VALIDER par Ouri (terrain metier)."
+  },
+  "edit_note": "value = valeur ; unit = unite ; conf = confiance ; src = source. Ne pas supprimer les cles, corriger les valeurs.",
+  "note": "REGIME BE branche en valeurs de depart, A CALIBRER EN 2b : droits d'enregistrement Bruxelles 12,5% (countries.be.acquisition.registration_brussels_pct), contrainte PEB active (countries.be.energy_meps.brussels_threshold, label E d'ici 2033). Aucun texte editorial fiscal/energie BXL dans ce lot.",
+  "todo_2b_bruxelles": [
+   "eur/m2 reels par commune si KREST en dispose (remplacer le simule ancre).",
+   "Actif vedette Bruxelles reel a mettre en scene (curseur + seuils).",
+   "Taux et regime fiscal exact applicable aux actifs KREST (droits, precompte, plus-value/share-deal).",
+   "Donnees energie/PEB du portefeuille (parc reel par commune, calendrier MEPS Bruxelles).",
+   "Hierarchies editoriales par mode, insights, marges cibles, notes d'anomalie."
+  ]
+ },
+ "global": {
+  "cost_of_capital_pct": {
+   "value": 7.5,
+   "unit": "%",
+   "conf": "hypothese",
+   "src": "cout du capital cible fonds/family office, a caler"
+  },
+  "senior_debt_rate_pct": {
+   "value": 4.5,
+   "unit": "%",
+   "conf": "hypothese",
+   "src": "taux dette senior indicatif 2026"
+  },
+  "ltv_max_pct": {
+   "value": 60,
+   "unit": "%",
+   "conf": "hypothese",
+   "src": "levier prudent detention"
+  },
+  "dev_cost_stack_pct": {
+   "value": 18,
+   "unit": "% du cout construction",
+   "conf": "hypothese",
+   "src": "frais soft, honoraires, commercialisation, contingence, hors foncier et hors financement"
+  },
+  "promotion_build_years": {
+   "value": 3,
+   "unit": "ans",
+   "conf": "hypothese",
+   "src": "duree chantier promotion pour le portage financier"
+  }
+ },
+ "countries": {
+  "pt": {
+   "label": "Portugal",
+   "acquisition": {
+    "imt_effective_pct": {
+     "value": 6.0,
+     "unit": "%",
+     "conf": "officiel",
+     "src": "IMT progressif, taux effectif haut de gamme; a affiner par prix"
+    },
+    "stamp_duty_is_pct": {
+     "value": 0.8,
+     "unit": "%",
+     "conf": "officiel",
+     "src": "Imposto do Selo"
+    },
+    "notary_registration_pct": {
+     "value": 1.0,
+     "unit": "%",
+     "conf": "hypothese",
+     "src": "notaire + registre, ordre de grandeur"
+    }
+   },
+   "vat": {
+    "construction_standard_pct": {
+     "value": 23,
+     "unit": "%",
+     "conf": "officiel",
+     "src": "IVA services construction"
+    },
+    "construction_affordable_pct": {
+     "value": 6,
+     "unit": "%",
+     "conf": "officiel",
+     "src": "IVA reduit contrats CIA / habitation a valeur moderee (reforme 2026)"
+    }
+   },
+   "holding": {
+    "imi_pct": {
+     "value": 0.36,
+     "unit": "% / an sur VPT",
+     "conf": "officiel",
+     "src": "IMI municipal 0.3-0.45%"
+    },
+    "aimi_note": {
+     "value": "AIMI additionnel au-dela de 600k eur de VPT",
+     "conf": "officiel",
+     "src": "AIMI"
+    }
+   },
+   "exit": {
+    "corporate_gains_pct": {
+     "value": 21,
+     "unit": "%",
+     "conf": "officiel",
+     "src": "IRC + derramas selon commune"
+    },
+    "reinvestment_exemption_note": {
+     "value": "Exoneration plus-value si reinvestissement en habitation abordable (reforme 2026)",
+     "conf": "officiel",
+     "src": "reforme habitation 2026"
+    }
+   },
+   "energy_meps": {
+    "scheme": {
+     "value": "SCE (Sistema Certificacao Energetica)",
+     "conf": "officiel",
+     "src": "ADENE"
+    },
+    "meps_horizon": {
+     "value": "Transposition EPBD, sortie progressive labels F/G ~2030-2033",
+     "conf": "hypothese",
+     "src": "calendrier EPBD a confirmer"
+    }
+   },
+   "incentives_2026": {
+    "value": "IVA 6% construction abordable, exoneration IMT/IS sous plafonds, exoneration AIMI, contrats CIA",
+    "conf": "officiel",
+    "src": "reforme habitation 2026, a verrouiller sur DR"
+   }
+  },
+  "be": {
+   "label": "Belgique",
+   "acquisition": {
+    "registration_brussels_pct": {
+     "value": 12.5,
+     "unit": "%",
+     "conf": "officiel",
+     "src": "droits enregistrement Region bruxelloise"
+    },
+    "abattement_brussels_eur": {
+     "value": 200000,
+     "unit": "eur",
+     "conf": "officiel",
+     "src": "abattement base imposable Bruxelles"
+    },
+    "registration_wallonia_pct": {
+     "value": 12.5,
+     "unit": "%",
+     "conf": "officiel",
+     "src": "Wallonie : 3% residence propre et unique, sinon 12,5% (reforme 2025)"
+    },
+    "registration_wallonia_own_home_pct": {
+     "value": 3.0,
+     "unit": "%",
+     "conf": "officiel",
+     "src": "Wallonie taux reduit residence propre et unique depuis 2025"
+    },
+    "notary_pct": {
+     "value": 1.5,
+     "unit": "%",
+     "conf": "hypothese",
+     "src": "notaire, ordre de grandeur"
+    }
+   },
+   "vat": {
+    "newbuild_pct": {
+     "value": 21,
+     "unit": "%",
+     "conf": "officiel",
+     "src": "TVA construction neuve"
+    },
+    "demolition_reconstruction_pct": {
+     "value": 6,
+     "unit": "%",
+     "conf": "officiel",
+     "src": "regime demolition-reconstruction PERMANENT depuis juillet 2025 (toute la Belgique, sous conditions sociales/superficie)"
+    }
+   },
+   "holding": {
+    "precompte_note": {
+     "value": "Precompte immobilier sur RC indexe, taux communal variable",
+     "conf": "officiel",
+     "src": "fiscalite regionale"
+    },
+    "rental_income_private_note": {
+     "value": "Bailleur prive impose sur RC x 1.4 (pas le loyer reel); societe = regime distinct",
+     "conf": "officiel",
+     "src": "IPP / ISoc"
+    },
+    "mortgage_interest_deduction": {
+     "value": "Deductibilite interets emprunt supprimee (fin bonus logement)",
+     "conf": "officiel",
+     "src": "reformes regionales"
+    },
+    "rent_control_brussels_note": {
+     "value": "Encadrement des loyers Bruxelles renforce (grille de reference contraignante, mai 2025)",
+     "conf": "officiel",
+     "src": "Region bruxelloise, mai 2025"
+    }
+   },
+   "exit": {
+    "share_deal_note": {
+     "value": "Cession via share deal courante pour l institutionnel; exit tax SIR/GVV si applicable",
+     "conf": "rapport",
+     "src": "pratique de marche"
+    }
+   },
+   "energy_meps": {
+    "scheme": {
+     "value": "PEB/EPC regional",
+     "conf": "officiel",
+     "src": "regions"
+    },
+    "brussels_threshold": {
+     "value": "Label E minimum d ici 2033",
+     "conf": "officiel",
+     "src": "MEPS Bruxelles, a verifier calendrier"
+    },
+    "flanders_threshold": {
+     "value": "Label D sous 5 ans apres achat (obligation renovation)",
+     "conf": "officiel",
+     "src": "Vlaanderen renovatieverplichting"
+    },
+    "wallonia_threshold": {
+     "value": "Trajectoire vers 2028+",
+     "conf": "hypothese",
+     "src": "a confirmer"
+    }
+   },
+   "soil": {
+    "value": "OVAM (Flandre) decret sol + due diligence PFAS; Bruxelles/Wallonie regimes propres",
+    "conf": "officiel",
+    "src": "OVAM / Bruxelles Environnement"
+   }
+  }
+ },
+ "construction_cost": {
+  "note": "Cout construction tout compris hors foncier et hors financement, par m2 de surface vendable. A valider par Ouri, poste le plus sensible du score promotion.",
+  "pt": {
+   "residential_standard": {
+    "value": 1700,
+    "unit": "eur/m2",
+    "conf": "hypothese",
+    "src": "cout dur + soft PT standard, recalibre 2025-2026"
+   },
+   "residential_high_nzeb": {
+    "value": 2600,
+    "unit": "eur/m2",
+    "conf": "hypothese",
+    "src": "haut de gamme / NZEB PT, recalibre"
+   }
+  },
+  "be": {
+   "residential_standard": {
+    "value": 2480,
+    "unit": "eur/m2",
+    "conf": "hypothese",
+    "src": "cout construction BE standard, recalibre 2025-2026"
+   },
+   "residential_high": {
+    "value": 3360,
+    "unit": "eur/m2",
+    "conf": "hypothese",
+    "src": "haut de gamme BE, recalibre"
+   }
+  }
+ },
+ "new_build_premium_by_zone": {
+  "note": "Prime neuf realisable en % de la mediane de l'ancien, par commune (V0 gradient + jitter, a calibrer 2b).",
+  "default": 26,
+  "woluwe": 21.0,
+  "ixelles": 21.0,
+  "uccle": 22.0,
+  "auderghem": 24.0,
+  "watermaelboitsfort": 25.0,
+  "etterbeek": 24.0,
+  "woluwesaintlambert": 25.0,
+  "bxlville": 22.0,
+  "saintgilles": 21.0,
+  "schaerbeek": 24.0,
+  "forest": 23.0,
+  "evere": 22.0,
+  "jette": 25.0,
+  "ganshoren": 28.0,
+  "berchemsainteagathe": 23.0,
+  "koekelberg": 26.0,
+  "anderlecht": 24.0,
+  "molenbeeksaintjean": 29.0,
+  "saintjossetennoode": 27.0
+ },
+ "land_cost_eur_m2_by_zone": {
+  "note": "Foncier eur/m2 de surface vendable par commune (V0 : derive par inversion d'une marge cible mecanique, plancher 40, a calibrer 2b).",
+  "default": 600,
+  "woluwe": 984.0,
+  "ixelles": 855.0,
+  "uccle": 799.0,
+  "auderghem": 743.0,
+  "watermaelboitsfort": 689.0,
+  "etterbeek": 605.0,
+  "woluwesaintlambert": 548.0,
+  "bxlville": 185.0,
+  "saintgilles": 102.0,
+  "schaerbeek": 110.0,
+  "forest": 40.0,
+  "evere": 40.0,
+  "jette": 40.0,
+  "ganshoren": 40.0,
+  "berchemsainteagathe": 40.0,
+  "koekelberg": 40.0,
+  "anderlecht": 40.0,
+  "molenbeeksaintjean": 40.0,
+  "saintjossetennoode": 40.0
+ },
+ "commercial_gaia": {
+  "city": "bruxelles",
+  "note": "Cle legacy (nommage historique) : economies commerciales de la ville courante. Bruxelles V0 (a calibrer 2b).",
+  "classes": {
+   "office": {
+    "yield_pct": 5.0,
+    "rent_eur_m2_month": 20,
+    "construction_eur_m2": 1900,
+    "land_pct": 40
+   },
+   "hotel": {
+    "yield_pct": 5.5,
+    "rent_eur_m2_month": 22,
+    "construction_eur_m2": 2400,
+    "land_pct": 30
+   },
+   "logistics": {
+    "yield_pct": 5.25,
+    "rent_eur_m2_month": 6.0,
+    "construction_eur_m2": 600,
+    "land_pct": 22
+   },
+   "retail": {
+    "yield_pct": 5.0,
+    "rent_eur_m2_month": 25,
+    "construction_eur_m2": 1300,
+    "land_pct": 55
+   }
+  },
+  "cost_note": "construction eur/m2 de coque + finitions ; land_pct = part foncier dans la valeur, par classe.",
+  "zone_factors": {
+   "default": {
+    "office": 1.0,
+    "hotel": 1.0,
+    "logistics": 1.0,
+    "retail": 1.0
+   },
+   "woluwe": {
+    "office": 1.135,
+    "hotel": 1.046,
+    "logistics": 0.638,
+    "retail": 1.112
+   },
+   "ixelles": {
+    "office": 1.2,
+    "hotel": 1.135,
+    "logistics": 0.603,
+    "retail": 1.137
+   },
+   "uccle": {
+    "office": 1.142,
+    "hotel": 1.121,
+    "logistics": 0.665,
+    "retail": 1.152
+   },
+   "auderghem": {
+    "office": 1.238,
+    "hotel": 1.112,
+    "logistics": 0.662,
+    "retail": 1.215
+   },
+   "watermaelboitsfort": {
+    "office": 1.244,
+    "hotel": 1.203,
+    "logistics": 0.723,
+    "retail": 1.21
+   },
+   "etterbeek": {
+    "office": 1.248,
+    "hotel": 1.164,
+    "logistics": 0.725,
+    "retail": 1.2
+   },
+   "woluwesaintlambert": {
+    "office": 1.275,
+    "hotel": 1.24,
+    "logistics": 0.758,
+    "retail": 1.294
+   },
+   "bxlville": {
+    "office": 1.295,
+    "hotel": 1.271,
+    "logistics": 0.81,
+    "retail": 1.272
+   },
+   "saintgilles": {
+    "office": 1.346,
+    "hotel": 1.219,
+    "logistics": 0.834,
+    "retail": 1.297
+   },
+   "schaerbeek": {
+    "office": 1.254,
+    "hotel": 1.25,
+    "logistics": 0.843,
+    "retail": 1.239
+   },
+   "forest": {
+    "office": 1.26,
+    "hotel": 1.167,
+    "logistics": 0.864,
+    "retail": 1.19
+   },
+   "evere": {
+    "office": 1.228,
+    "hotel": 1.181,
+    "logistics": 0.85,
+    "retail": 1.232
+   },
+   "jette": {
+    "office": 1.155,
+    "hotel": 1.085,
+    "logistics": 0.942,
+    "retail": 1.164
+   },
+   "ganshoren": {
+    "office": 1.196,
+    "hotel": 1.129,
+    "logistics": 0.917,
+    "retail": 1.105
+   },
+   "berchemsainteagathe": {
+    "office": 1.137,
+    "hotel": 1.105,
+    "logistics": 0.909,
+    "retail": 1.12
+   },
+   "koekelberg": {
+    "office": 1.075,
+    "hotel": 1.056,
+    "logistics": 1.004,
+    "retail": 1.061
+   },
+   "anderlecht": {
+    "office": 1.06,
+    "hotel": 1.017,
+    "logistics": 0.963,
+    "retail": 1.048
+   },
+   "molenbeeksaintjean": {
+    "office": 1.016,
+    "hotel": 0.97,
+    "logistics": 0.98,
+    "retail": 1.004
+   },
+   "saintjossetennoode": {
+    "office": 0.983,
+    "hotel": 1.005,
+    "logistics": 1.006,
+    "retail": 1.037
+   }
+  }
+ },
+ "classes": {
+  "note": "Yields prime, loyers prime et appetit institutionnel par classe et pays. Sources brokers a rafraichir sur derniere edition.",
+  "residential": {
+   "pt_prime_gross_yield_pct": {
+    "value": 4.5,
+    "unit": "%",
+    "conf": "rapport",
+    "src": "prime residentiel Lisbonne"
+   },
+   "pt_gaia_gross_yield_pct": {
+    "value": 5.5,
+    "unit": "%",
+    "conf": "rapport",
+    "src": "Gaia superieur a Lisbonne"
+   },
+   "be_prime_gross_yield_pct": {
+    "value": 3.8,
+    "unit": "%",
+    "conf": "rapport",
+    "src": "residentiel Bruxelles"
+   },
+   "institutional_appetite": {
+    "value": 80,
+    "unit": "0-100",
+    "conf": "hypothese",
+    "src": "PRS/BTR profond en capitale, poches residentielles institutionnelles"
+   },
+   "gross_yield_pct_by_city": {
+    "bruxelles": {
+     "value": 3.6,
+     "unit": "%",
+     "conf": "rapport",
+     "src": "yield brut residentiel Bruxelles (repere marche)"
+    }
+   }
+  },
+  "living": {
+   "be_net_yield_pct": {
+    "value": 4.0,
+    "unit": "%",
+    "conf": "rapport",
+    "src": "multifamily/living institutionnel BE"
+   },
+   "institutional_appetite": {
+    "value": 80,
+    "unit": "0-100",
+    "conf": "rapport",
+    "src": "living tres recherche BE, Article 8"
+   }
+  },
+  "office": {
+   "pt_prime_yield_pct": {
+    "value": 4.75,
+    "unit": "%",
+    "conf": "rapport",
+    "src": "bureau prime Lisbonne"
+   },
+   "pt_prime_rent_eur_m2_month": {
+    "value": 32,
+    "unit": "eur/m2/mois",
+    "conf": "rapport",
+    "src": "CBD Lisbonne"
+   },
+   "be_prime_yield_pct": {
+    "value": 4.75,
+    "unit": "%",
+    "conf": "rapport",
+    "src": "bureau prime Bruxelles"
+   },
+   "be_prime_rent_eur_m2_year": {
+    "value": 400,
+    "unit": "eur/m2/an",
+    "conf": "rapport",
+    "src": "quartier europeen Bruxelles"
+   },
+   "be_vacancy_pct": {
+    "value": 7.7,
+    "unit": "%",
+    "conf": "rapport",
+    "src": "vacance bureau Bruxelles"
+   },
+   "institutional_appetite": {
+    "value": 72,
+    "unit": "0-100",
+    "conf": "hypothese",
+    "src": "bifurcation prime ESG vs secondaire"
+   }
+  },
+  "hotel": {
+   "pt_prime_yield_pct": {
+    "value": 6.0,
+    "unit": "%",
+    "conf": "rapport",
+    "src": "hotellerie PT"
+   },
+   "institutional_appetite": {
+    "value": 78,
+    "unit": "0-100",
+    "conf": "hypothese",
+    "src": "tourisme PT record"
+   }
+  },
+  "logistics": {
+   "pt_prime_yield_pct": {
+    "value": 6.0,
+    "unit": "%",
+    "conf": "rapport",
+    "src": "logistique PT"
+   },
+   "be_prime_yield_pct": {
+    "value": 4.75,
+    "unit": "%",
+    "conf": "rapport",
+    "src": "logistique BE"
+   },
+   "institutional_appetite": {
+    "value": 78,
+    "unit": "0-100",
+    "conf": "hypothese",
+    "src": "logistique recherchee"
+   }
+  },
+  "retail": {
+   "institutional_appetite": {
+    "value": 50,
+    "unit": "0-100",
+    "conf": "hypothese",
+    "src": "retail selectif"
+   }
+  }
+ },
+ "zones": {
+  "note": "Overrides V0 Bruxelles (lot 2a) : constructibilite (redeveloppement canal/peripherie vs prime deja bati) et connectivite (metro/tram) par commune, gradient + jitter. A calibrer 2b.",
+  "woluwe": {
+   "constructibility": {
+    "value": 38,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 71,
+    "conf": "hypothese"
+   }
+  },
+  "ixelles": {
+   "constructibility": {
+    "value": 47,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 77,
+    "conf": "hypothese"
+   }
+  },
+  "uccle": {
+   "constructibility": {
+    "value": 44,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 80,
+    "conf": "hypothese"
+   }
+  },
+  "auderghem": {
+   "constructibility": {
+    "value": 43,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 79,
+    "conf": "hypothese"
+   }
+  },
+  "watermaelboitsfort": {
+   "constructibility": {
+    "value": 48,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 84,
+    "conf": "hypothese"
+   }
+  },
+  "etterbeek": {
+   "constructibility": {
+    "value": 49,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 83,
+    "conf": "hypothese"
+   }
+  },
+  "woluwesaintlambert": {
+   "constructibility": {
+    "value": 44,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 86,
+    "conf": "hypothese"
+   }
+  },
+  "bxlville": {
+   "constructibility": {
+    "value": 51,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 85,
+    "conf": "hypothese"
+   }
+  },
+  "saintgilles": {
+   "constructibility": {
+    "value": 51,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 86,
+    "conf": "hypothese"
+   }
+  },
+  "schaerbeek": {
+   "constructibility": {
+    "value": 48,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 82,
+    "conf": "hypothese"
+   }
+  },
+  "forest": {
+   "constructibility": {
+    "value": 54,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 81,
+    "conf": "hypothese"
+   }
+  },
+  "evere": {
+   "constructibility": {
+    "value": 56,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 78,
+    "conf": "hypothese"
+   }
+  },
+  "jette": {
+   "constructibility": {
+    "value": 51,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 83,
+    "conf": "hypothese"
+   }
+  },
+  "ganshoren": {
+   "constructibility": {
+    "value": 52,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 74,
+    "conf": "hypothese"
+   }
+  },
+  "berchemsainteagathe": {
+   "constructibility": {
+    "value": 63,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 79,
+    "conf": "hypothese"
+   }
+  },
+  "koekelberg": {
+   "constructibility": {
+    "value": 64,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 78,
+    "conf": "hypothese"
+   }
+  },
+  "anderlecht": {
+   "constructibility": {
+    "value": 56,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 76,
+    "conf": "hypothese"
+   }
+  },
+  "molenbeeksaintjean": {
+   "constructibility": {
+    "value": 62,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 71,
+    "conf": "hypothese"
+   }
+  },
+  "saintjossetennoode": {
+   "constructibility": {
+    "value": 57,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 73,
+    "conf": "hypothese"
+   }
+  }
+ },
+ "assets": {
+  "note": "Aucun actif vedette Bruxelles dans le lot 2a (= lot 2b)."
+ },
+ "scoring": {
+  "weights": {
+   "note": "Poids par mode, ajustables par classe et ville via 'adjustments'. Somme = 1 par mode.",
+   "promotion": {
+    "marge": 0.3,
+    "absorption": 0.25,
+    "momentum_prix": 0.2,
+    "constructibilite": 0.15,
+    "risque_sortie": 0.1
+   },
+   "detention": {
+    "rendement_net": 0.15,
+    "profondeur_locative": 0.3,
+    "resilience": 0.2,
+    "risque_energie": 0.2,
+    "fiscalite": 0.1,
+    "portage": 0.05
+   },
+   "arbitrage": {
+    "spread": 0.3,
+    "appetit_institutionnel": 0.25,
+    "momentum_cycle": 0.2,
+    "frictions_sortie": 0.15,
+    "cout_opportunite": 0.1
+   },
+   "landbank": {
+    "constructibilite": 0.25,
+    "valeur_meilleur_usage": 0.25,
+    "connectivite": 0.2,
+    "incitations": 0.15,
+    "risque_timing": 0.15
+   }
+  },
+  "adjustments": {
+   "note": "Modulations de poids proposees. Ex. en balneaire le risque de sortie pese plus; en landbank la connectivite pese plus.",
+   "balneaire_risque_sortie_boost": {
+    "value": 0.05,
+    "conf": "hypothese",
+    "src": "Algarve, demande etrangere"
+   },
+   "landbank_connectivite_boost": {
+    "value": 0.05,
+    "conf": "hypothese",
+    "src": "zones a infrastructure structurante"
+   }
+  },
+  "bands": {
+   "note": "Bandes absolues de normalisation sur les metriques natives (0-100). A affiner par classe.",
+   "promotion_marge_pct": {
+    "faible": 10,
+    "correct": 18,
+    "bon": 25,
+    "conf": "hypothese",
+    "src": "marge developpeur sur cout"
+   },
+   "detention_yield_net_pct": {
+    "faible": 3.0,
+    "correct": 4.5,
+    "bon": 6.0,
+    "conf": "hypothese",
+    "src": "rendement net, a moduler par classe"
+   },
+   "arbitrage_spread_pct": {
+    "faible": -1.0,
+    "correct": 3.0,
+    "bon": 6.5,
+    "conf": "hypothese",
+    "src": "spread de cession bloc, échelle capitale"
+   }
+  },
+  "verdicts": {
+   "promotion": {
+    "go": 70,
+    "conditionnel": 50,
+    "labels": [
+     "Go",
+     "Conditionnel",
+     "Passer"
+    ]
+   },
+   "detention": {
+    "conserver": 65,
+    "surveiller": 45,
+    "labels": [
+     "Conserver",
+     "Surveiller",
+     "Ceder"
+    ]
+   },
+   "arbitrage": {
+    "ouverte": 65,
+    "etroite": 45,
+    "labels": [
+     "Fenetre ouverte",
+     "Fenetre etroite",
+     "Fenetre fermee"
+    ]
+   },
+   "landbank": {
+    "prioritaire": 65,
+    "a_phaser": 45,
+    "labels": [
+     "Prioritaire",
+     "A phaser",
+     "En attente"
+    ]
+   }
+  },
+  "data_confidence_index": {
+   "note": "Affiche a cote de chaque score : part des piliers reposant sur de l officiel/rapport vs hypothese. eleve / moyen / indicatif.",
+   "eleve": ">= 0.7 des piliers en officiel+rapport",
+   "moyen": "0.4-0.7",
+   "indicatif": "< 0.4"
+  }
+ },
+ "residential_rent_factor_by_zone": {
+  "note": "Facteur de loyer residentiel par commune (V0, encadrement des loyers BXL ~0,90..1,05, a calibrer 2b).",
+  "woluwe": 1.0384,
+  "ixelles": 1.06,
+  "uccle": 1.06,
+  "auderghem": 1.0469,
+  "watermaelboitsfort": 0.9378,
+  "etterbeek": 1.0035,
+  "woluwesaintlambert": 1.0314,
+  "bxlville": 0.9782,
+  "saintgilles": 0.9453,
+  "schaerbeek": 0.9595,
+  "forest": 0.9865,
+  "evere": 0.9501,
+  "jette": 0.9778,
+  "ganshoren": 1.0015,
+  "berchemsainteagathe": 0.9806,
+  "koekelberg": 1.0597,
+  "anderlecht": 1.06,
+  "molenbeeksaintjean": 1.027,
+  "saintjossetennoode": 0.9761
+ },
+ "socle_scope": "city"
+}

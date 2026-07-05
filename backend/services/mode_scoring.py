@@ -339,6 +339,13 @@ def _adapt_params(raw: dict) -> dict:
         # optionnel par fichier ville ; None = pas de cap (gaia, témoin).
         "detention_net_floor_pct": _pv(sc.get("detention_net_floor_pct")),
     }
+    # Périmètre du socle de percentiles, par fichier ville : "pooled" (défaut,
+    # absent des params : univers = zones ville + pool témoin, gaia/lisbonne
+    # inchangés aux octets) ou "city" (univers = les seules zones de la ville).
+    # Bruxelles déclare "city" : marché de croissance faible, ses percentiles
+    # (momentum yoy 2-4%, constructibilité, etc.) doivent se classer ENTRE
+    # communes, pas contre les zones portugaises à fort yoy du pool témoin.
+    P["socle_scope"] = raw.get("socle_scope", "pooled")
     return P
 
 
@@ -409,9 +416,12 @@ def load(city: str | None = None, force: bool = False) -> State:
     # celui d'avant l'extraction des témoins (49 zones) : payloads identiques
     # aux octets. Les valeurs de la ville priment sur le pool en cas de clé
     # commune (fusion ville-en-dernier).
-    if slug != cities.WITNESS_SLUG and cities.witness_city_names():
+    pooled = params.get("socle_scope", "pooled") != "city"
+    if slug != cities.WITNESS_SLUG and cities.witness_city_names() and pooled:
         st.socle = _build_socle(_socle_universe(raw, zones, listings_by_zone))
     else:
+        # Socle sur les seules zones de la ville : villes à socle "city"
+        # (Bruxelles) ou pool témoin lui-même.
         st.socle = _build_socle(st)
     _STATES[slug] = st
     log.info("mode_scoring loaded [%s]: %d zones, %d zones with listings",

@@ -1,0 +1,537 @@
+{
+ "meta": {
+  "version": "0.1",
+  "generated": "2026-07-05",
+  "role": "Backbone Bruxelles (lot 2a) : 19 communes de la Region de Bruxelles-Capitale, maille commune, aucun municipio agrege. Prix/yoy/transactions SIMULES ancres sur reperes marche 2025 (niveau central ~3400-3500 eur/m2, indice Immoweb-Belfius 3419 ; yoy +2..+4% ; hierarchie par tier). A remplacer par les eur/m2 reels par commune si KREST en dispose.",
+  "city": "bruxelles"
+ },
+ "sources": {
+  "note": "Repere de niveau et hierarchie : indices de prix appartements 2025 (Immoweb/Belfius, Statbel). Valeurs par commune simulees sous contraintes, non officielles."
+ },
+ "cities": {
+  "bruxelles": {
+   "country": "be",
+   "label": "Bruxelles",
+   "residential_ref": {
+    "level_eur_m2": 3419,
+    "as_of": "2025",
+    "source": "indice appartements Belgique/BXL (repere)"
+   },
+   "zones": [
+    {
+     "id": "woluwe",
+     "name": "Woluwe-Saint-Pierre",
+     "level": "commune",
+     "nis5": "21019",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 4980,
+      "median_eur_m2_apartments": 4980,
+      "quantiles": {
+       "p10": 3685,
+       "q25": 4382,
+       "q50": 4980,
+       "q75": 5677,
+       "p90": 6673
+      },
+      "n_transactions": 610,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 3.9,
+      "yoy_confidence": "rapport",
+      "yoy_basis": "vs 2024",
+      "confidence": "rapport",
+      "source": "sim_anchored",
+      "as_of": "2025"
+     },
+     "status": "real"
+    },
+    {
+     "id": "ixelles",
+     "name": "Ixelles",
+     "level": "commune",
+     "nis5": "21009",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 4760,
+      "median_eur_m2_apartments": 4760,
+      "quantiles": {
+       "p10": 3522,
+       "q25": 4189,
+       "q50": 4760,
+       "q75": 5426,
+       "p90": 6378
+      },
+      "n_transactions": 950,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 3.8,
+      "yoy_confidence": "rapport",
+      "yoy_basis": "vs 2024",
+      "confidence": "rapport",
+      "source": "sim_anchored",
+      "as_of": "2025"
+     },
+     "status": "real"
+    },
+    {
+     "id": "uccle",
+     "name": "Uccle",
+     "level": "commune",
+     "nis5": "21016",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 4610,
+      "median_eur_m2_apartments": 4610,
+      "quantiles": {
+       "p10": 3411,
+       "q25": 4057,
+       "q50": 4610,
+       "q75": 5255,
+       "p90": 6177
+      },
+      "n_transactions": 900,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 3.4,
+      "yoy_confidence": "rapport",
+      "yoy_basis": "vs 2024",
+      "confidence": "rapport",
+      "source": "sim_anchored",
+      "as_of": "2025"
+     },
+     "status": "real"
+    },
+    {
+     "id": "auderghem",
+     "name": "Auderghem",
+     "level": "commune",
+     "nis5": "21002",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 4430,
+      "median_eur_m2_apartments": 4430,
+      "quantiles": {
+       "p10": 3278,
+       "q25": 3898,
+       "q50": 4430,
+       "q75": 5050,
+       "p90": 5936
+      },
+      "n_transactions": 450,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 3.3,
+      "yoy_confidence": "rapport",
+      "yoy_basis": "vs 2024",
+      "confidence": "rapport",
+      "source": "sim_anchored",
+      "as_of": "2025"
+     },
+     "status": "real"
+    },
+    {
+     "id": "watermaelboitsfort",
+     "name": "Watermael-Boitsfort",
+     "level": "commune",
+     "nis5": "21017",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 4290,
+      "median_eur_m2_apartments": 4290,
+      "quantiles": {
+       "p10": 3175,
+       "q25": 3775,
+       "q50": 4290,
+       "q75": 4891,
+       "p90": 5749
+      },
+      "n_transactions": 350,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 3.1,
+      "yoy_confidence": "rapport",
+      "yoy_basis": "vs 2024",
+      "confidence": "rapport",
+      "source": "sim_anchored",
+      "as_of": "2025"
+     },
+     "status": "real"
+    },
+    {
+     "id": "etterbeek",
+     "name": "Etterbeek",
+     "level": "commune",
+     "nis5": "21005",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 4180,
+      "median_eur_m2_apartments": 4180,
+      "quantiles": {
+       "p10": 3093,
+       "q25": 3678,
+       "q50": 4180,
+       "q75": 4765,
+       "p90": 5601
+      },
+      "n_transactions": 600,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 3.4,
+      "yoy_confidence": "rapport",
+      "yoy_basis": "vs 2024",
+      "confidence": "rapport",
+      "source": "sim_anchored",
+      "as_of": "2025"
+     },
+     "status": "real"
+    },
+    {
+     "id": "woluwesaintlambert",
+     "name": "Woluwe-Saint-Lambert",
+     "level": "commune",
+     "nis5": "21018",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 4040,
+      "median_eur_m2_apartments": 4040,
+      "quantiles": {
+       "p10": 2990,
+       "q25": 3555,
+       "q50": 4040,
+       "q75": 4606,
+       "p90": 5414
+      },
+      "n_transactions": 700,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 3.5,
+      "yoy_confidence": "rapport",
+      "yoy_basis": "vs 2024",
+      "confidence": "rapport",
+      "source": "sim_anchored",
+      "as_of": "2025"
+     },
+     "status": "real"
+    },
+    {
+     "id": "bxlville",
+     "name": "Bruxelles-Ville",
+     "level": "commune",
+     "nis5": "21004",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 3620,
+      "median_eur_m2_apartments": 3620,
+      "quantiles": {
+       "p10": 2679,
+       "q25": 3186,
+       "q50": 3620,
+       "q75": 4127,
+       "p90": 4851
+      },
+      "n_transactions": 1250,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 3.4,
+      "yoy_confidence": "rapport",
+      "yoy_basis": "vs 2024",
+      "confidence": "rapport",
+      "source": "sim_anchored",
+      "as_of": "2025"
+     },
+     "status": "real"
+    },
+    {
+     "id": "saintgilles",
+     "name": "Saint-Gilles",
+     "level": "commune",
+     "nis5": "21013",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 3510,
+      "median_eur_m2_apartments": 3510,
+      "quantiles": {
+       "p10": 2597,
+       "q25": 3089,
+       "q50": 3510,
+       "q75": 4001,
+       "p90": 4703
+      },
+      "n_transactions": 650,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 3.3,
+      "yoy_confidence": "rapport",
+      "yoy_basis": "vs 2024",
+      "confidence": "rapport",
+      "source": "sim_anchored",
+      "as_of": "2025"
+     },
+     "status": "real"
+    },
+    {
+     "id": "schaerbeek",
+     "name": "Schaerbeek",
+     "level": "commune",
+     "nis5": "21015",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 3410,
+      "median_eur_m2_apartments": 3410,
+      "quantiles": {
+       "p10": 2523,
+       "q25": 3001,
+       "q50": 3410,
+       "q75": 3887,
+       "p90": 4569
+      },
+      "n_transactions": 1100,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 3.2,
+      "yoy_confidence": "rapport",
+      "yoy_basis": "vs 2024",
+      "confidence": "rapport",
+      "source": "sim_anchored",
+      "as_of": "2025"
+     },
+     "status": "real"
+    },
+    {
+     "id": "forest",
+     "name": "Forest",
+     "level": "commune",
+     "nis5": "21007",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 3320,
+      "median_eur_m2_apartments": 3320,
+      "quantiles": {
+       "p10": 2457,
+       "q25": 2922,
+       "q50": 3320,
+       "q75": 3785,
+       "p90": 4449
+      },
+      "n_transactions": 600,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 2.9,
+      "yoy_confidence": "rapport",
+      "yoy_basis": "vs 2024",
+      "confidence": "rapport",
+      "source": "sim_anchored",
+      "as_of": "2025"
+     },
+     "status": "real"
+    },
+    {
+     "id": "evere",
+     "name": "Evere",
+     "level": "commune",
+     "nis5": "21006",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 3240,
+      "median_eur_m2_apartments": 3240,
+      "quantiles": {
+       "p10": 2398,
+       "q25": 2851,
+       "q50": 3240,
+       "q75": 3694,
+       "p90": 4342
+      },
+      "n_transactions": 500,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 2.7,
+      "yoy_confidence": "rapport",
+      "yoy_basis": "vs 2024",
+      "confidence": "rapport",
+      "source": "sim_anchored",
+      "as_of": "2025"
+     },
+     "status": "real"
+    },
+    {
+     "id": "jette",
+     "name": "Jette",
+     "level": "commune",
+     "nis5": "21010",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 3170,
+      "median_eur_m2_apartments": 3170,
+      "quantiles": {
+       "p10": 2346,
+       "q25": 2790,
+       "q50": 3170,
+       "q75": 3614,
+       "p90": 4248
+      },
+      "n_transactions": 600,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 2.8,
+      "yoy_confidence": "rapport",
+      "yoy_basis": "vs 2024",
+      "confidence": "rapport",
+      "source": "sim_anchored",
+      "as_of": "2025"
+     },
+     "status": "real"
+    },
+    {
+     "id": "ganshoren",
+     "name": "Ganshoren",
+     "level": "commune",
+     "nis5": "21008",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 3090,
+      "median_eur_m2_apartments": 3090,
+      "quantiles": {
+       "p10": 2287,
+       "q25": 2719,
+       "q50": 3090,
+       "q75": 3523,
+       "p90": 4141
+      },
+      "n_transactions": 280,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 3.1,
+      "yoy_confidence": "rapport",
+      "yoy_basis": "vs 2024",
+      "confidence": "rapport",
+      "source": "sim_anchored",
+      "as_of": "2025"
+     },
+     "status": "real"
+    },
+    {
+     "id": "berchemsainteagathe",
+     "name": "Berchem-Sainte-Agathe",
+     "level": "commune",
+     "nis5": "21003",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 3030,
+      "median_eur_m2_apartments": 3030,
+      "quantiles": {
+       "p10": 2242,
+       "q25": 2666,
+       "q50": 3030,
+       "q75": 3454,
+       "p90": 4060
+      },
+      "n_transactions": 300,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 2.9,
+      "yoy_confidence": "rapport",
+      "yoy_basis": "vs 2024",
+      "confidence": "rapport",
+      "source": "sim_anchored",
+      "as_of": "2025"
+     },
+     "status": "real"
+    },
+    {
+     "id": "koekelberg",
+     "name": "Koekelberg",
+     "level": "commune",
+     "nis5": "21011",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 2960,
+      "median_eur_m2_apartments": 2960,
+      "quantiles": {
+       "p10": 2190,
+       "q25": 2605,
+       "q50": 2960,
+       "q75": 3374,
+       "p90": 3966
+      },
+      "n_transactions": 260,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 2.6,
+      "yoy_confidence": "rapport",
+      "yoy_basis": "vs 2024",
+      "confidence": "rapport",
+      "source": "sim_anchored",
+      "as_of": "2025"
+     },
+     "status": "real"
+    },
+    {
+     "id": "anderlecht",
+     "name": "Anderlecht",
+     "level": "commune",
+     "nis5": "21001",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 2860,
+      "median_eur_m2_apartments": 2860,
+      "quantiles": {
+       "p10": 2116,
+       "q25": 2517,
+       "q50": 2860,
+       "q75": 3260,
+       "p90": 3832
+      },
+      "n_transactions": 1150,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 2.8,
+      "yoy_confidence": "rapport",
+      "yoy_basis": "vs 2024",
+      "confidence": "rapport",
+      "source": "sim_anchored",
+      "as_of": "2025"
+     },
+     "status": "real"
+    },
+    {
+     "id": "molenbeeksaintjean",
+     "name": "Molenbeek-Saint-Jean",
+     "level": "commune",
+     "nis5": "21012",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 2740,
+      "median_eur_m2_apartments": 2740,
+      "quantiles": {
+       "p10": 2028,
+       "q25": 2411,
+       "q50": 2740,
+       "q75": 3124,
+       "p90": 3672
+      },
+      "n_transactions": 700,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 2.8,
+      "yoy_confidence": "rapport",
+      "yoy_basis": "vs 2024",
+      "confidence": "rapport",
+      "source": "sim_anchored",
+      "as_of": "2025"
+     },
+     "status": "real"
+    },
+    {
+     "id": "saintjossetennoode",
+     "name": "Saint-Josse-ten-Noode",
+     "level": "commune",
+     "nis5": "21014",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 2660,
+      "median_eur_m2_apartments": 2660,
+      "quantiles": {
+       "p10": 1968,
+       "q25": 2341,
+       "q50": 2660,
+       "q75": 3032,
+       "p90": 3564
+      },
+      "n_transactions": 320,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 2.9,
+      "yoy_confidence": "rapport",
+      "yoy_basis": "vs 2024",
+      "confidence": "rapport",
+      "source": "sim_anchored",
+      "as_of": "2025"
+     },
+     "status": "real"
+    }
+   ]
+  }
+ }
+}

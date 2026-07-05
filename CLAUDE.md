@@ -95,6 +95,18 @@ non migrés — à convertir s'ils sont réutilisés.
   constructibles, constantes `FABRICA` dans `lib/scoring.ts` + asset
   `fabrica_oriente` des params lisbonne) est fictif, nom vérifié sans
   correspondance : à remplacer par un actif réel du portefeuille.
+- **Questions ouvertes KREST · Bruxelles (à fournir pour le lot 2b)** : consignées
+  au lot 2a (données Bruxelles simulées ancrées, régime BE en valeurs de départ).
+  (a) **€/m² réels par commune** si KREST en dispose (remplacer le simulé ancré
+  des 19 communes, aujourd'hui calé sur le niveau central ~3 400-3 500 €/m² et la
+  hiérarchie par tier) ; (b) **actif vedette bruxellois réel** à mettre en scène
+  en 2b (aujourd'hui aucun `promoAsset` pour Bruxelles, pas de curseur) ; (c) **taux
+  et régime fiscal exacts** applicables aux actifs KREST en Belgique (droits
+  d'enregistrement, 12,5 % Bruxelles en valeur de départ dans
+  `cities/bruxelles/params.json`, précompte immobilier, plus-value / share-deal) ;
+  (d) **données énergie/PEB du portefeuille** (parc réel par commune, calendrier
+  MEPS Bruxelles, label E d'ici 2033 en valeur de départ). Ces quatre points sont
+  aussi listés dans `meta.todo_2b_bruxelles` de `cities/bruxelles/params.json`.
 - **Actifs K-REST vedettes fictifs** : `Ribeira Sul` (détention — immeuble de
   rapport Santa Marinha, 24 lots / 1 800 m², acquis 2 300 €/m² + 340 €/m² de
   travaux, constantes `RIBEIRA` dans `lib/scoring.ts`), `Cais Poente`

@@ -48,7 +48,13 @@ export function Header({
         </div>
         {!hideSearch && (
           <div className="w-72">
-            <MultiSelect options={freguesias} selected={selected} onChange={onSelected} />
+            <MultiSelect
+              options={freguesias}
+              selected={selected}
+              onChange={onSelected}
+              placeholder={`Toutes les ${city.zoneNounPlural}`}
+              searchPlaceholder={`Rechercher une ${city.zoneNoun}…`}
+            />
           </div>
         )}
       </div>

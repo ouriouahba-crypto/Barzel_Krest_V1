@@ -23,6 +23,17 @@
       "energy_regime": "pt-sce",
       "zone_noun": "freguesia",
       "zone_noun_plural": "freguesias"
+    },
+    {
+      "slug": "bruxelles",
+      "label": "Bruxelles",
+      "country": "be",
+      "currency": "EUR",
+      "fiscal_locale": "fr-BE",
+      "fiscal_regime": "be",
+      "energy_regime": "be-peb",
+      "zone_noun": "commune",
+      "zone_noun_plural": "communes"
     }
   ]
 }

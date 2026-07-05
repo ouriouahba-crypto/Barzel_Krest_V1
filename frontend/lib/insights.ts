@@ -106,9 +106,17 @@ function marketOf(label: string): string {
   return /^[aeiouyéèêh]/i.test(label) ? `marché d'${label}` : `marché de ${label}`;
 }
 
-// 1 sentence verdict for the city: dominant mode, count of top-verdict freguesias,
+// Terme de maille de la ville, injecté aux insights pour qu'ils disent « commune »
+// à Bruxelles et « freguesia » en PT. Les deux noms sont féminins : les accords
+// (une/aucune/menées/prioritaire) tiennent sans changement. Défaut = freguesia
+// (Gaia/Lisbonne inchangés au caractère près).
+export type ZoneNoun = { sg: string; pl: string };
+const FREG_NOUN: ZoneNoun = { sg: "freguesia", pl: "freguesias" };
+const plurN = (n: number, noun: ZoneNoun) => (n > 1 ? noun.pl : noun.sg);
+
+// 1 sentence verdict for the city: dominant mode, count of top-verdict zones,
 // the dominant native metric range, and (where available) a driver.
-export function cityInsight(data: OverviewByMode, assetClass: string): string {
+export function cityInsight(data: OverviewByMode, assetClass: string, noun: ZoneNoun = FREG_NOUN): string {
   const bm = bestMode(data.scores);
   if (!bm || !data.scores[bm]) return "Chargement du marché…";
   const city = cap(data.scores[bm]!.city);
@@ -124,15 +132,14 @@ export function cityInsight(data: OverviewByMode, assetClass: string): string {
       .filter((x): x is { r: ModeScore; v: number } => x.v != null)
       .sort((a, b) => b.v - a.v)[0];
     const metric = top ? `, ${MEILLEUR[bm]} ${rangePhrase(bm, top.v, top.v)} à ${shortName(top.r.zone_name)}` : "";
-    return `${city} reste sélectif${suffix} : aucune freguesia ${GOOD_WORD[bm]} en ${label} ce cycle${metric}.`;
+    return `${city} reste sélectif${suffix} : aucune ${noun.sg} ${GOOD_WORD[bm]} en ${label} ce cycle${metric}.`;
   }
 
   const names = good.length <= 3 ? ` (${good.map((r) => displayName(r.zone_name)).join(", ")})` : "";
   const rng = kpiRange(good, bm);
   const metric = rng ? `, ${rangePhrase(bm, rng[0], rng[1])}` : "";
   const driver = rng ? driverClause(bm, good) : "";
-  const plural = good.length > 1 ? "s" : "";
-  const tail = `${good.length} freguesia${plural} ${GOOD_WORD[bm]}${names}${metric}${driver}`;
+  const tail = `${good.length} ${plurN(good.length, noun)} ${GOOD_WORD[bm]}${names}${metric}${driver}`;
 
   // Opening verb graded by the dominant mode's city (municipio) score.
   const muni = data.scores[bm]!.total;
@@ -196,7 +203,7 @@ function marginList(rows: PmRow[]): string {
 // and why the rest doesn't pencil. Verb graded by the count of viable freguesias.
 // `selectiveRest` : complément du gabarit « marché sélectif » (« de la capitale »
 // à Lisbonne), fourni par le registre des villes ; défaut « de la ville ».
-export function priceMarginInsight(rows: PmRow[], assetClass: string, selectiveRest?: string): string {
+export function priceMarginInsight(rows: PmRow[], assetClass: string, selectiveRest?: string, noun: ZoneNoun = FREG_NOUN): string {
   const adj = CLASS_ADJ_FR[assetClass] ?? classLabel(assetClass).toLowerCase();
   const viable = rows
     .filter((r) => verdictTone("promotion", r.verdict) !== "low")
@@ -214,15 +221,15 @@ export function priceMarginInsight(rows: PmRow[], assetClass: string, selectiveR
     const list = marginList(good.slice(0, 3));
     const head =
       good.length === 1
-        ? `La promotion ${adj} ne tient vraiment que sur une freguesia : ${list}.`
-        : `La promotion ${adj} ne tient vraiment que sur ${good.length} freguesias : ${list}.`;
+        ? `La promotion ${adj} ne tient vraiment que sur une ${noun.sg} : ${list}.`
+        : `La promotion ${adj} ne tient vraiment que sur ${good.length} ${noun.pl} : ${list}.`;
     return `${head} Le reste ${selectiveRest ?? "de la ville"} reste sous conditions, la marge écrasée par le foncier.`;
   }
 
   if (n === 0) {
     const best = [...rows].sort((a, b) => b.marginPct - a.marginPct)[0];
     const tail = best ? ` : meilleure marge ${Math.round(best.marginPct)}% à ${best.short}` : "";
-    return `Aucune freguesia ne porte la promotion ${adj} ce cycle${tail}.`;
+    return `Aucune ${noun.sg} ne porte la promotion ${adj} ce cycle${tail}.`;
   }
   // Closing clause computed on the non-viable set: pure loss vs thin/absorption.
   const nonViable = rows.filter((r) => verdictTone("promotion", r.verdict) === "low");
@@ -236,10 +243,10 @@ export function priceMarginInsight(rows: PmRow[], assetClass: string, selectiveR
   const list = marginList(viable.slice(0, 3));
   const head =
     n >= 3
-      ? `La promotion ${adj} tient sur ${n} freguesias, menées par ${list}.`
+      ? `La promotion ${adj} tient sur ${n} ${noun.pl}, menées par ${list}.`
       : n === 2
-      ? `La promotion ${adj} tient sur 2 freguesias : ${list}.`
-      : `La promotion ${adj} ne tient que sur une freguesia : ${list}.`;
+      ? `La promotion ${adj} tient sur 2 ${noun.pl} : ${list}.`
+      : `La promotion ${adj} ne tient que sur une ${noun.sg} : ${list}.`;
   return `${head}${why}`;
 }
 
@@ -263,7 +270,7 @@ function yieldList(rows: RdRow[]): string {
   return parts.slice(0, -1).join(", ") + " et " + parts[parts.length - 1];
 }
 
-export function detentionInsight(rows: RdRow[], assetClass: string, trapClause?: string): string {
+export function detentionInsight(rows: RdRow[], assetClass: string, trapClause?: string, noun: ZoneNoun = FREG_NOUN): string {
   const adj = CLASS_ADJ_FR[assetClass] ?? classLabel(assetClass).toLowerCase();
   const keep = rows
     .filter((r) => verdictTone("detention", r.verdict) === "good")
@@ -279,10 +286,10 @@ export function detentionInsight(rows: RdRow[], assetClass: string, trapClause?:
       : "";
 
   if (n === 0) {
-    if (trap) return `Aucune freguesia ne justifie de conserver${classSuffix(assetClass)} ce cycle.${trap}`;
+    if (trap) return `Aucune ${noun.sg} ne justifie de conserver${classSuffix(assetClass)} ce cycle.${trap}`;
     const best = [...rows].sort((a, b) => b.yieldNet - a.yieldNet)[0];
     const tail = best ? ` : meilleur yield net ${fmtNum(best.yieldNet, 1)}% à ${best.short}` : "";
-    return `Aucune freguesia ne justifie de conserver${classSuffix(assetClass)} ce cycle${tail}.`;
+    return `Aucune ${noun.sg} ne justifie de conserver${classSuffix(assetClass)} ce cycle${tail}.`;
   }
   // Closing clause: the yield trap when it applies, else the most common weakest
   // pillar across the non-Conserver set.
@@ -300,10 +307,10 @@ export function detentionInsight(rows: RdRow[], assetClass: string, trapClause?:
   const list = yieldList(keep.slice(0, 3));
   const head =
     n >= 3
-      ? `La détention ${adj} tient sur ${n} freguesias, menées par ${list}.`
+      ? `La détention ${adj} tient sur ${n} ${noun.pl}, menées par ${list}.`
       : n === 2
-      ? `La détention ${adj} tient sur 2 freguesias : ${list}.`
-      : `La détention ${adj} ne tient que sur une freguesia : ${list}.`;
+      ? `La détention ${adj} tient sur 2 ${noun.pl} : ${list}.`
+      : `La détention ${adj} ne tient que sur une ${noun.sg} : ${list}.`;
   return `${head}${trap || why}`;
 }
 
@@ -325,7 +332,7 @@ function spreadList(rows: ArbRow[]): string {
   return parts.slice(0, -1).join(", ") + " et " + parts[parts.length - 1];
 }
 
-export function arbitrageInsight(rows: ArbRow[], assetClass: string): string {
+export function arbitrageInsight(rows: ArbRow[], assetClass: string, noun: ZoneNoun = FREG_NOUN): string {
   const suffix = classSuffix(assetClass);
   const open = rows
     .filter((r) => verdictTone("arbitrage", r.verdict) === "good")
@@ -360,9 +367,9 @@ export function arbitrageInsight(rows: ArbRow[], assetClass: string): string {
   const list = spreadList(open.slice(0, 3));
   const head =
     n >= 3
-      ? `La fenêtre de cession est ouverte sur ${n} freguesias${suffix}, menées par ${list}.`
+      ? `La fenêtre de cession est ouverte sur ${n} ${noun.pl}${suffix}, menées par ${list}.`
       : n === 2
-      ? `La fenêtre de cession est ouverte sur 2 freguesias${suffix} : ${list}.`
+      ? `La fenêtre de cession est ouverte sur 2 ${noun.pl}${suffix} : ${list}.`
       : `Une seule fenêtre de cession est ouverte${suffix} : ${list}.`;
   return `${head}${trap || why}`;
 }
@@ -385,7 +392,7 @@ function upliftList(rows: FcRow[]): string {
   return parts.slice(0, -1).join(", ") + " et " + parts[parts.length - 1];
 }
 
-export function landbankInsight(rows: FcRow[]): string {
+export function landbankInsight(rows: FcRow[], noun: ZoneNoun = FREG_NOUN): string {
   const prio = rows
     .filter((r) => verdictTone("landbank", r.verdict) === "good")
     .sort((a, b) => b.upliftPct - a.upliftPct);
@@ -400,10 +407,10 @@ export function landbankInsight(rows: FcRow[]): string {
       : "";
 
   if (n === 0) {
-    if (trap) return `Aucune freguesia n'est prioritaire à l'activation foncière ce cycle.${trap}`;
+    if (trap) return `Aucune ${noun.sg} n'est prioritaire à l'activation foncière ce cycle.${trap}`;
     const best = [...rows].sort((a, b) => b.upliftPct - a.upliftPct)[0];
     const tail = best ? ` : meilleur uplift ${pctSigned(best.upliftPct, 0)} à ${best.short}` : "";
-    return `Aucune freguesia n'est prioritaire à l'activation foncière ce cycle${tail}.`;
+    return `Aucune ${noun.sg} n'est prioritaire à l'activation foncière ce cycle${tail}.`;
   }
   let why = "";
   if (!trap) {
@@ -419,10 +426,10 @@ export function landbankInsight(rows: FcRow[]): string {
   const list = upliftList(prio.slice(0, 3));
   const head =
     n >= 3
-      ? `L'activation foncière est prioritaire sur ${n} freguesias, menées par ${list}.`
+      ? `L'activation foncière est prioritaire sur ${n} ${noun.pl}, menées par ${list}.`
       : n === 2
-      ? `L'activation foncière est prioritaire sur 2 freguesias : ${list}.`
-      : `Une seule freguesia est prioritaire à l'activation foncière : ${list}.`;
+      ? `L'activation foncière est prioritaire sur 2 ${noun.pl} : ${list}.`
+      : `Une seule ${noun.sg} est prioritaire à l'activation foncière : ${list}.`;
   return `${head}${trap || why}`;
 }
 

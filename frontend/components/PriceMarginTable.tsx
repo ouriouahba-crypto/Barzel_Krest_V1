@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Mode, scoreColor, verdictTextColor, verdictTone } from "@/lib/scoring";
 import { PmRow, eur0, pct0, pct1 } from "@/lib/priceMargin";
 import { VerdictBadge } from "./ui";
+import { useZoneNoun } from "@/lib/useZoneNoun";
 
 type Key =
   | "name" | "baseMedian" | "premiumPct" | "realizable"
@@ -37,6 +38,7 @@ export function PriceMarginTable({
 }) {
   // Default: richest margin first (rows already arrive margin-desc).
   const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "marginPct", dir: "desc" });
+  const { Sg, pl } = useZoneNoun();
   // Until the user sorts, group viable (Go/Conditionnel) above the rest with a
   // separator. Any sort click switches to a plain global sort (no grouping).
   const [userSorted, setUserSorted] = useState(false);
@@ -100,7 +102,7 @@ export function PriceMarginTable({
                     <span className="inline-flex items-center gap-1 text-th leading-tight">
                       {!c.num && <span className="w-1" />}
                       <span className="flex flex-col">
-                        <span>{c.label}</span>
+                        <span>{c.key === "name" ? Sg : c.label}</span>
                         {c.unit && <span className="text-label font-medium normal-case text-muted">{c.unit}</span>}
                       </span>
                       <span className={`text-[10px] ${active ? "text-gold-700" : "text-transparent"}`}>
@@ -177,7 +179,7 @@ export function PriceMarginTable({
             {items.length === 0 && (
               <tr>
                 <td colSpan={cols.length + 1} className="px-4 py-10 text-center text-body text-ink-soft">
-                  Chargement des freguesias…
+                  Chargement des {pl}…
                 </td>
               </tr>
             )}

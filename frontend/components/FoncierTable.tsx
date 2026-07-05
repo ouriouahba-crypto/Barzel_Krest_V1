@@ -6,6 +6,7 @@ import { eur0 } from "@/lib/priceMargin";
 import { pctSigned } from "@/lib/arbitrage";
 import { FcRow } from "@/lib/foncier";
 import { VerdictBadge } from "./ui";
+import { useZoneNoun } from "@/lib/useZoneNoun";
 
 // Landbank table: same visual codes as the other mode tables. Default:
 // Prioritaire/À phaser above an "En attente" separator, best score first in
@@ -38,6 +39,7 @@ export function FoncierTable({
   onSelect: (zone: string) => void;
 }) {
   const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "upliftPct", dir: "desc" });
+  const { Sg, pl } = useZoneNoun();
   // Until the user sorts: verdict groups, best landbank score first in each;
   // no column carries the ordering, so no arrow lights up.
   const [userSorted, setUserSorted] = useState(false);
@@ -98,7 +100,7 @@ export function FoncierTable({
                     <span className="inline-flex items-center gap-1 text-th leading-tight">
                       {!c.num && <span className="w-1" />}
                       <span className="flex flex-col">
-                        <span>{c.label}</span>
+                        <span>{c.key === "name" ? Sg : c.label}</span>
                         {c.unit && <span className="text-label font-medium normal-case text-muted">{c.unit}</span>}
                       </span>
                       <span className={`text-[10px] ${active ? "text-gold-700" : "text-transparent"}`}>
@@ -170,7 +172,7 @@ export function FoncierTable({
             {items.length === 0 && (
               <tr>
                 <td colSpan={COLS.length + 1} className="px-4 py-10 text-center text-body text-ink-soft">
-                  Chargement des freguesias…
+                  Chargement des {pl}…
                 </td>
               </tr>
             )}
