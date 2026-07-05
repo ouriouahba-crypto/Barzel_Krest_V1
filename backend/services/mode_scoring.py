@@ -46,6 +46,11 @@ REPO_ROOT = BACKEND.parent
 
 MODES = ("promotion", "detention", "arbitrage", "landbank")
 
+# Classes d'actif canoniques exposées au client (source de vérité pour la
+# validation des routes). "living" reste un usage interne (best_use), jamais
+# une classe passée par l'API.
+CLASSES = ("residential", "office", "hotel", "logistics", "retail")
+
 # confidence vocabulary + ordering (officiel > rapport > derive > hypothese)
 OFFICIEL, DERIVE, RAPPORT, HYPOTHESE, NON_PERTINENT = (
     "officiel", "derive", "rapport", "hypothese", "non_pertinent")
@@ -1257,16 +1262,20 @@ _CLS_FR = {"residential": "résidentiel", "office": "bureaux", "hotel": "hôtel"
 def _land_best_use(st: State, z: dict) -> Pillar:
     val, cls = _best_use_value(st, z)
     if val is None:
-        return _np("valeur_meilleur_usage", "pas de valeur €/m² pour simuler le meilleur usage (BE)")
+        return _np("valeur_meilleur_usage", "pas de valeur €/m² pour simuler la valorisation max (BE)")
     sub = _percentile(st, "best_use_value", float(val))
     zp = _zone_param(st, z["id"])
     base_conf = zp.get("comparables_eur_m2_conf") if zp.get("comparables_eur_m2") \
         else z["residential"].get("confidence", DERIVE)
     conf = _derived_conf(base_conf)
     cls_fr = _CLS_FR.get(cls, cls)
+    # "valorisation max" (max multi-usages au prix de sortie), PAS la reco de
+    # destination du pilier constructibilite (breakdown meilleur_usage / page
+    # Foncier). Le titre du pilier porte déjà "valorisation max" : la valeur ne
+    # répète que "{usage} {prix}". Le native_indicator la préfixe (voir ci-dessous).
     return Pillar("valeur_meilleur_usage", sub, val, "€/m²",
-                  f"meilleur usage {cls_fr} {val} €/m²",
-                  f"valeur meilleur usage: {cls_fr} ~{val} €/m² (max multi-usages)", conf)
+                  f"{cls_fr} {val} €/m²",
+                  f"valorisation max: {cls_fr} ~{val} €/m² (max multi-usages)", conf)
 
 
 def _land_connectivite(st: State, z: dict) -> Pillar:
@@ -1419,13 +1428,20 @@ def _native_indicator(mode: str, pillars: dict) -> dict:
         p = pillars.get(k)
         return p.native_label if p and p.applicable else None
 
+    def val_lab():
+        # Segment "valorisation max {usage} {prix}" : le native_label du pilier
+        # ne porte que "{usage} {prix}" (le titre le qualifie ailleurs), on
+        # préfixe ici puisque l'indicateur combiné n'a pas de titre de pilier.
+        p = pillars.get("valeur_meilleur_usage")
+        return f"valorisation max {p.native_label}" if p and p.applicable else None
+
     ap = pillars.get("appetit_institutionnel")
     appetit = _appetit_qual(ap.native_value) if ap and ap.applicable else None
     parts = {
         "promotion": [lab("marge"), lab("absorption")],
         "detention": [lab("rendement_net"), lab("risque_energie")],
         "arbitrage": [lab("spread"), appetit],
-        "landbank": [lab("constructibilite"), lab("valeur_meilleur_usage")],
+        "landbank": [lab("constructibilite"), val_lab()],
     }[mode]
     # Never surface an empty / "n/a" segment.
     kept = [p for p in parts if p and p != "n/a"]

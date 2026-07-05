@@ -172,8 +172,19 @@ export function nativeHint(mode: Mode): string {
     promotion: "marge % · absorption",
     detention: "rendement net % · énergie",
     arbitrage: "spread % · appétit",
-    landbank: "constructibilité · meilleur usage",
+    landbank: "constructibilité · valorisation max",
   }[mode];
+}
+
+// Displayed title for a pillar key. Default humanises the key; overrides give a
+// clearer wording. "valeur_meilleur_usage" is the max multi-usage VALUATION, not
+// the Foncier destination reco (which keeps "meilleur usage") : titled
+// "valorisation max" to lift the client-visible term collision.
+const PILLAR_TITLE: Record<string, string> = {
+  valeur_meilleur_usage: "valorisation max",
+};
+export function pillarTitle(key: string): string {
+  return PILLAR_TITLE[key] ?? key.replace(/_/g, " ");
 }
 
 // ---------------------------------------------------------------------------

@@ -3038,7 +3038,7 @@
    "mode": "landbank",
    "n_transactions": 337,
    "native_indicator": {
-    "label": "constructibilité 67 · meilleur usage hôtel 3476 €/m²"
+    "label": "constructibilité 67 · valorisation max hôtel 3476 €/m²"
    },
    "pillars": [
     {
@@ -3102,14 +3102,14 @@
     {
      "applicable": true,
      "native": {
-      "label": "meilleur usage hôtel 3476 €/m²",
+      "label": "hôtel 3476 €/m²",
       "unit": "€/m²",
       "value": 3476
      },
      "pillar": "valeur_meilleur_usage",
      "subscore": 53.1,
      "weight": 0.25,
-     "why": "valeur meilleur usage: hôtel ~3476 €/m² (max multi-usages)"
+     "why": "valorisation max: hôtel ~3476 €/m² (max multi-usages)"
     },
     {
      "applicable": true,
@@ -3165,7 +3165,7 @@
    "mode": "landbank",
    "n_transactions": 778,
    "native_indicator": {
-    "label": "constructibilité 71 · meilleur usage hôtel 3320 €/m²"
+    "label": "constructibilité 71 · valorisation max hôtel 3320 €/m²"
    },
    "pillars": [
     {
@@ -3229,14 +3229,14 @@
     {
      "applicable": true,
      "native": {
-      "label": "meilleur usage hôtel 3320 €/m²",
+      "label": "hôtel 3320 €/m²",
       "unit": "€/m²",
       "value": 3320
      },
      "pillar": "valeur_meilleur_usage",
      "subscore": 46.9,
      "weight": 0.25,
-     "why": "valeur meilleur usage: hôtel ~3320 €/m² (max multi-usages)"
+     "why": "valorisation max: hôtel ~3320 €/m² (max multi-usages)"
     },
     {
      "applicable": true,
@@ -3292,7 +3292,7 @@
    "mode": "landbank",
    "n_transactions": 834,
    "native_indicator": {
-    "label": "constructibilité 69 · meilleur usage hôtel 3837 €/m²"
+    "label": "constructibilité 69 · valorisation max hôtel 3837 €/m²"
    },
    "pillars": [
     {
@@ -3356,14 +3356,14 @@
     {
      "applicable": true,
      "native": {
-      "label": "meilleur usage hôtel 3837 €/m²",
+      "label": "hôtel 3837 €/m²",
       "unit": "€/m²",
       "value": 3837
      },
      "pillar": "valeur_meilleur_usage",
      "subscore": 59.2,
      "weight": 0.25,
-     "why": "valeur meilleur usage: hôtel ~3837 €/m² (max multi-usages)"
+     "why": "valorisation max: hôtel ~3837 €/m² (max multi-usages)"
     },
     {
      "applicable": true,
@@ -3419,7 +3419,7 @@
    "mode": "landbank",
    "n_transactions": 1108,
    "native_indicator": {
-    "label": "constructibilité 63 · meilleur usage hôtel 3109 €/m²"
+    "label": "constructibilité 63 · valorisation max hôtel 3109 €/m²"
    },
    "pillars": [
     {
@@ -3483,14 +3483,14 @@
     {
      "applicable": true,
      "native": {
-      "label": "meilleur usage hôtel 3109 €/m²",
+      "label": "hôtel 3109 €/m²",
       "unit": "€/m²",
       "value": 3109
      },
      "pillar": "valeur_meilleur_usage",
      "subscore": 32.7,
      "weight": 0.25,
-     "why": "valeur meilleur usage: hôtel ~3109 €/m² (max multi-usages)"
+     "why": "valorisation max: hôtel ~3109 €/m² (max multi-usages)"
     },
     {
      "applicable": true,
@@ -3546,7 +3546,7 @@
    "mode": "landbank",
    "n_transactions": 549,
    "native_indicator": {
-    "label": "constructibilité 64 · meilleur usage hôtel 2791 €/m²"
+    "label": "constructibilité 64 · valorisation max hôtel 2791 €/m²"
    },
    "pillars": [
     {
@@ -3610,14 +3610,14 @@
     {
      "applicable": true,
      "native": {
-      "label": "meilleur usage hôtel 2791 €/m²",
+      "label": "hôtel 2791 €/m²",
       "unit": "€/m²",
       "value": 2791
      },
      "pillar": "valeur_meilleur_usage",
      "subscore": 22.4,
      "weight": 0.25,
-     "why": "valeur meilleur usage: hôtel ~2791 €/m² (max multi-usages)"
+     "why": "valorisation max: hôtel ~2791 €/m² (max multi-usages)"
     },
     {
      "applicable": true,
@@ -3673,7 +3673,7 @@
    "mode": "landbank",
    "n_transactions": 205,
    "native_indicator": {
-    "label": "constructibilité 53 · meilleur usage hôtel 2789 €/m²"
+    "label": "constructibilité 53 · valorisation max hôtel 2789 €/m²"
    },
    "pillars": [
     {
@@ -3737,14 +3737,14 @@
     {
      "applicable": true,
      "native": {
-      "label": "meilleur usage hôtel 2789 €/m²",
+      "label": "hôtel 2789 €/m²",
       "unit": "€/m²",
       "value": 2789
      },
      "pillar": "valeur_meilleur_usage",
      "subscore": 20.4,
      "weight": 0.25,
-     "why": "valeur meilleur usage: hôtel ~2789 €/m² (max multi-usages)"
+     "why": "valorisation max: hôtel ~2789 €/m² (max multi-usages)"
     },
     {
      "applicable": true,
@@ -3800,7 +3800,7 @@
    "mode": "landbank",
    "n_transactions": 296,
    "native_indicator": {
-    "label": "constructibilité 56 · meilleur usage hôtel 2744 €/m²"
+    "label": "constructibilité 56 · valorisation max hôtel 2744 €/m²"
    },
    "pillars": [
     {
@@ -3864,14 +3864,14 @@
     {
      "applicable": true,
      "native": {
-      "label": "meilleur usage hôtel 2744 €/m²",
+      "label": "hôtel 2744 €/m²",
       "unit": "€/m²",
       "value": 2744
      },
      "pillar": "valeur_meilleur_usage",
      "subscore": 14.3,
      "weight": 0.25,
-     "why": "valeur meilleur usage: hôtel ~2744 €/m² (max multi-usages)"
+     "why": "valorisation max: hôtel ~2744 €/m² (max multi-usages)"
     },
     {
      "applicable": true,
@@ -3927,7 +3927,7 @@
    "mode": "landbank",
    "n_transactions": 5494,
    "native_indicator": {
-    "label": "constructibilité 51 · meilleur usage hôtel 3018 €/m²"
+    "label": "constructibilité 51 · valorisation max hôtel 3018 €/m²"
    },
    "pillars": [
     {
@@ -3991,14 +3991,14 @@
     {
      "applicable": true,
      "native": {
-      "label": "meilleur usage hôtel 3018 €/m²",
+      "label": "hôtel 3018 €/m²",
       "unit": "€/m²",
       "value": 3018
      },
      "pillar": "valeur_meilleur_usage",
      "subscore": 26.5,
      "weight": 0.25,
-     "why": "valeur meilleur usage: hôtel ~3018 €/m² (max multi-usages)"
+     "why": "valorisation max: hôtel ~3018 €/m² (max multi-usages)"
     },
     {
      "applicable": true,
@@ -4054,7 +4054,7 @@
    "mode": "landbank",
    "n_transactions": 176,
    "native_indicator": {
-    "label": "constructibilité 48 · meilleur usage hôtel 2780 €/m²"
+    "label": "constructibilité 48 · valorisation max hôtel 2780 €/m²"
    },
    "pillars": [
     {
@@ -4118,14 +4118,14 @@
     {
      "applicable": true,
      "native": {
-      "label": "meilleur usage hôtel 2780 €/m²",
+      "label": "hôtel 2780 €/m²",
       "unit": "€/m²",
       "value": 2780
      },
      "pillar": "valeur_meilleur_usage",
      "subscore": 18.4,
      "weight": 0.25,
-     "why": "valeur meilleur usage: hôtel ~2780 €/m² (max multi-usages)"
+     "why": "valorisation max: hôtel ~2780 €/m² (max multi-usages)"
     },
     {
      "applicable": true,
@@ -4181,7 +4181,7 @@
    "mode": "landbank",
    "n_transactions": 218,
    "native_indicator": {
-    "label": "constructibilité 51 · meilleur usage hôtel 2535 €/m²"
+    "label": "constructibilité 51 · valorisation max hôtel 2535 €/m²"
    },
    "pillars": [
     {
@@ -4245,14 +4245,14 @@
     {
      "applicable": true,
      "native": {
-      "label": "meilleur usage hôtel 2535 €/m²",
+      "label": "hôtel 2535 €/m²",
       "unit": "€/m²",
       "value": 2535
      },
      "pillar": "valeur_meilleur_usage",
      "subscore": 12.2,
      "weight": 0.25,
-     "why": "valeur meilleur usage: hôtel ~2535 €/m² (max multi-usages)"
+     "why": "valorisation max: hôtel ~2535 €/m² (max multi-usages)"
     },
     {
      "applicable": true,
@@ -4308,7 +4308,7 @@
    "mode": "landbank",
    "n_transactions": 158,
    "native_indicator": {
-    "label": "constructibilité 49 · meilleur usage hôtel 2511 €/m²"
+    "label": "constructibilité 49 · valorisation max hôtel 2511 €/m²"
    },
    "pillars": [
     {
@@ -4372,14 +4372,14 @@
     {
      "applicable": true,
      "native": {
-      "label": "meilleur usage hôtel 2511 €/m²",
+      "label": "hôtel 2511 €/m²",
       "unit": "€/m²",
       "value": 2511
      },
      "pillar": "valeur_meilleur_usage",
      "subscore": 8.2,
      "weight": 0.25,
-     "why": "valeur meilleur usage: hôtel ~2511 €/m² (max multi-usages)"
+     "why": "valorisation max: hôtel ~2511 €/m² (max multi-usages)"
     },
     {
      "applicable": true,
@@ -4435,7 +4435,7 @@
    "mode": "landbank",
    "n_transactions": 191,
    "native_indicator": {
-    "label": "constructibilité 46 · meilleur usage hôtel 2513 €/m²"
+    "label": "constructibilité 46 · valorisation max hôtel 2513 €/m²"
    },
    "pillars": [
     {
@@ -4499,14 +4499,14 @@
     {
      "applicable": true,
      "native": {
-      "label": "meilleur usage hôtel 2513 €/m²",
+      "label": "hôtel 2513 €/m²",
       "unit": "€/m²",
       "value": 2513
      },
      "pillar": "valeur_meilleur_usage",
      "subscore": 10.2,
      "weight": 0.25,
-     "why": "valeur meilleur usage: hôtel ~2513 €/m² (max multi-usages)"
+     "why": "valorisation max: hôtel ~2513 €/m² (max multi-usages)"
     },
     {
      "applicable": true,
@@ -4562,7 +4562,7 @@
    "mode": "landbank",
    "n_transactions": 246,
    "native_indicator": {
-    "label": "constructibilité 43 · meilleur usage hôtel 2396 €/m²"
+    "label": "constructibilité 43 · valorisation max hôtel 2396 €/m²"
    },
    "pillars": [
     {
@@ -4626,14 +4626,14 @@
     {
      "applicable": true,
      "native": {
-      "label": "meilleur usage hôtel 2396 €/m²",
+      "label": "hôtel 2396 €/m²",
       "unit": "€/m²",
       "value": 2396
      },
      "pillar": "valeur_meilleur_usage",
      "subscore": 6.1,
      "weight": 0.25,
-     "why": "valeur meilleur usage: hôtel ~2396 €/m² (max multi-usages)"
+     "why": "valorisation max: hôtel ~2396 €/m² (max multi-usages)"
     },
     {
      "applicable": true,
@@ -4689,7 +4689,7 @@
    "mode": "landbank",
    "n_transactions": 139,
    "native_indicator": {
-    "label": "constructibilité 39 · meilleur usage hôtel 2351 €/m²"
+    "label": "constructibilité 39 · valorisation max hôtel 2351 €/m²"
    },
    "pillars": [
     {
@@ -4753,14 +4753,14 @@
     {
      "applicable": true,
      "native": {
-      "label": "meilleur usage hôtel 2351 €/m²",
+      "label": "hôtel 2351 €/m²",
       "unit": "€/m²",
       "value": 2351
      },
      "pillar": "valeur_meilleur_usage",
      "subscore": 4.1,
      "weight": 0.25,
-     "why": "valeur meilleur usage: hôtel ~2351 €/m² (max multi-usages)"
+     "why": "valorisation max: hôtel ~2351 €/m² (max multi-usages)"
     },
     {
      "applicable": true,
@@ -4816,7 +4816,7 @@
    "mode": "landbank",
    "n_transactions": 123,
    "native_indicator": {
-    "label": "constructibilité 37 · meilleur usage hôtel 2329 €/m²"
+    "label": "constructibilité 37 · valorisation max hôtel 2329 €/m²"
    },
    "pillars": [
     {
@@ -4880,14 +4880,14 @@
     {
      "applicable": true,
      "native": {
-      "label": "meilleur usage hôtel 2329 €/m²",
+      "label": "hôtel 2329 €/m²",
       "unit": "€/m²",
       "value": 2329
      },
      "pillar": "valeur_meilleur_usage",
      "subscore": 2.0,
      "weight": 0.25,
-     "why": "valeur meilleur usage: hôtel ~2329 €/m² (max multi-usages)"
+     "why": "valorisation max: hôtel ~2329 €/m² (max multi-usages)"
     },
     {
      "applicable": true,
@@ -4943,7 +4943,7 @@
    "mode": "landbank",
    "n_transactions": 136,
    "native_indicator": {
-    "label": "constructibilité 34 · meilleur usage hôtel 2192 €/m²"
+    "label": "constructibilité 34 · valorisation max hôtel 2192 €/m²"
    },
    "pillars": [
     {
@@ -5007,14 +5007,14 @@
     {
      "applicable": true,
      "native": {
-      "label": "meilleur usage hôtel 2192 €/m²",
+      "label": "hôtel 2192 €/m²",
       "unit": "€/m²",
       "value": 2192
      },
      "pillar": "valeur_meilleur_usage",
      "subscore": 0.0,
      "weight": 0.25,
-     "why": "valeur meilleur usage: hôtel ~2192 €/m² (max multi-usages)"
+     "why": "valorisation max: hôtel ~2192 €/m² (max multi-usages)"
     },
     {
      "applicable": true,

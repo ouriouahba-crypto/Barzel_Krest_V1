@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Mode, scoreColor, verdictLabel, verdictTone } from "@/lib/scoring";
+import { Mode, pillarTitle, scoreColor, verdictLabel, verdictTone } from "@/lib/scoring";
 
 export function VerdictBadge({ mode, verdict }: { mode: Mode; verdict: string }) {
   const tone = verdictTone(mode, verdict);
@@ -63,7 +63,7 @@ export function PillarBar({
   return (
     <div className="py-1.5">
       <div className="flex items-baseline justify-between gap-3">
-        <span className={`text-body font-medium capitalize leading-snug ${textMain}`}>{label.replace(/_/g, " ")}</span>
+        <span className={`text-body font-medium capitalize leading-snug ${textMain}`}>{pillarTitle(label)}</span>
         <span className={`text-td ${textMuted}`}>{native}</span>
       </div>
       <div className={`mt-1 h-1.5 w-full overflow-hidden rounded-full ${track}`}>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
@@ -14,8 +14,6 @@ import { Mode, MODES, MODE_LABEL, MODE_ROUTE, classLabel, fmtNum, fmtSigned, pil
 import { pctSigned } from "@/lib/arbitrage";
 import { CompareColumn, CompareModeCell, compareInsight, compareSynthesis } from "@/lib/insights";
 
-const SANTA = "santamarinhaesaopedrodaafurada";
-const MADALENA = "madalena";
 // Ligne marché : registre des villes (lib/cities.ts).
 
 // Native metric of each mode, read from the same pillars as the mode pages.
@@ -47,10 +45,36 @@ export default function ComparerPage() {
   const g = useGaia();
   const city = cityBySlug(useCityStore((s) => s.slug));
   const [selected, setSelected] = useState<string[]>([]);
-  // 2 or 3 comparison slots: first two prefilled, third starts empty.
-  const [picks, setPicks] = useState<(string | null)[]>([SANTA, MADALENA, null]);
+  // 2 ou 3 colonnes de comparaison. Les deux premières sont préremplies par
+  // défaut avec les deux freguesias les mieux classées (effet ci-dessous), la
+  // 3e reste vide. Aucune freguesia en dur : city-agnostic.
+  const [picks, setPicks] = useState<(string | null)[]>([null, null, null]);
+  // Tant que l'utilisateur n'a pas choisi manuellement, la présélection
+  // auto-classée s'applique ; dès qu'il touche un slot, elle se fige.
+  const [userPicked, setUserPicked] = useState(false);
 
   const cls = g.assetClass;
+
+  // Chargement réel : une colonne lit les 4 modes de la classe courante, donc
+  // les 4 doivent être arrivés. Sert à dissocier « fetch en cours » de « aucune
+  // sélection » (libellé d'attente) et à déclencher la présélection.
+  const promoZones = g.citiesByMode.promotion?.zones;
+  const dataReady = MODES.every((m) => !!g.citiesByMode[m]?.zones);
+
+  // Présélection city-agnostic : les deux freguesias au meilleur score du mode
+  // épinglé de cette page transverse (promotion), une fois les données prêtes,
+  // tant que l'utilisateur n'a pas touché aux slots. CityKey remonte l'arbre au
+  // changement de ville : cet état repart de zéro et re-sélectionne pour la
+  // nouvelle ville (persistance barzel_city gérée en amont, intacte).
+  useEffect(() => {
+    if (userPicked || !promoZones) return;
+    const ranked = promoZones
+      .filter((z) => z.level === "freguesia")
+      .slice()
+      .sort((a, b) => b.total - a.total)
+      .map((z) => z.zone);
+    if (ranked.length >= 2) setPicks([ranked[0], ranked[1], null]);
+  }, [promoZones, userPicked]);
 
   // One column of data per picked freguesia, recomposed from the four modes
   // already prefetched for the current class (no new business computation).
@@ -98,6 +122,7 @@ export default function ComparerPage() {
   }, [columns]);
 
   const setPick = (slot: number, value: string) => {
+    setUserPicked(true);
     setPicks((p) => {
       const next = [...p];
       next[slot] = value || null;
@@ -222,7 +247,7 @@ export default function ComparerPage() {
             ))}
             {columns.length === 0 && (
               <div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-navy/10 bg-white text-body text-ink-soft shadow-card xl:col-span-2">
-                Chargement des freguesias…
+                {dataReady ? "Sélectionnez une freguesia à comparer" : "Chargement des freguesias…"}
               </div>
             )}
           </div>

@@ -259,6 +259,34 @@ def test_unknown_zone_and_mode_raise():
         ms.score_mode(WITNESS, "not-a-mode")
 
 
+def test_class_guard_400():
+    # /city and /zone validate `class` symmetrically to `mode` : the 5 canonical
+    # classes -> 200, an absent class -> 200 (defaults residential, preserved),
+    # a non-empty non-canonical class -> 400 (not a silent degenerate scoring).
+    from fastapi import HTTPException
+    from backend.routers import scoring as sc
+
+    def status(fn):
+        try:
+            fn()
+            return 200
+        except HTTPException as e:
+            return e.status_code
+
+    for c in ms.CLASSES:  # canonical -> 200 on both routes
+        assert status(lambda c=c: sc.city(city="gaia", mode="promotion", asset_class=c, debug=False)) == 200, c
+        assert status(lambda c=c: sc.zone(zone=WITNESS, mode="landbank", asset_class=c, asset=None, city="gaia", debug=False)) == 200, c
+    # class absent OR empty -> 200, defaults residential (behaviour preserved)
+    for empty in (None, ""):
+        assert sc.city(city="gaia", mode="promotion", asset_class=empty, debug=False)["class"] == "residential", repr(empty)
+        assert status(lambda e=empty: sc.zone(zone=WITNESS, mode="promotion", asset_class=e, asset=None, city="gaia", debug=False)) == 200, repr(empty)
+    for bad in ("bureaux", "offices", "xyz", "residentiel", "living"):  # non-canonical -> 400
+        assert status(lambda b=bad: sc.city(city="gaia", mode="promotion", asset_class=b, debug=False)) == 400, bad
+        assert status(lambda b=bad: sc.zone(zone=WITNESS, mode="landbank", asset_class=b, asset=None, city="gaia", debug=False)) == 400, bad
+    # mode still validated on /city (unchanged)
+    assert status(lambda: sc.city(city="gaia", mode="not-a-mode", asset_class=None, debug=False)) == 400
+
+
 def test_memo_scores_half_up_and_sorted_like_pages():
     # One score rounding everywhere: half-up integers (the platform's
     # Math.round), never Python's half-to-even ; memo tables follow the mode
@@ -631,6 +659,7 @@ if __name__ == "__main__":  # dependency-free smoke run
     test_memo_scores_half_up_and_sorted_like_pages()
     test_memo_count_guard()
     test_native_labels_single_rounding_no_minus_zero()
+    test_class_guard_400()
     test_detention_verdict_cap_rule()
     test_no_em_dash_in_clean_texts()
     test_memo_em_dash_sanitized_everywhere()

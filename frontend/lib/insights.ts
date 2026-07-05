@@ -160,8 +160,10 @@ export function modeInsight(score: ModeScore, assetClass: string): string {
       // by its best use + achievable value instead.
       const bu = score.pillars.find((p) => p.pillar === "valeur_meilleur_usage" && p.applicable);
       if (bu && typeof bu.native.value === "number") {
-        const usage = /meilleur usage (\S+)/.exec(bu.native.label)?.[1] ?? "mixte";
-        return `Réserve foncière à activer : meilleur usage ${usage} à ${Math.round(bu.native.value).toLocaleString("fr-FR")} €/m².`;
+        // Le pilier valorisation a pour label "{usage} {prix} €/m²" (plus de
+        // préfixe "meilleur usage") : l'usage est le premier token.
+        const usage = /^(\S+)/.exec(bu.native.label)?.[1] ?? "mixte";
+        return `Réserve foncière à activer : valorisation max ${usage} à ${Math.round(bu.native.value).toLocaleString("fr-FR")} €/m².`;
       }
       return `Réserve foncière à activer : ${verdictLabel(score.verdict)}.`;
     }
