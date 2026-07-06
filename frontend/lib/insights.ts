@@ -84,7 +84,10 @@ function driverClause(m: Mode, good: ModeScore[]): string {
       .map((r) => (r.pillars.find((p) => p.pillar === "marge")?.breakdown as MargeBreakdown | undefined)?.premium_pct)
       .filter((v): v is number => v != null);
     const mp = median(prems);
-    if (mp != null) return `, portées par une prime neuf de ${Math.round(mp)}%`;
+    // Accord du participe avec la métrique : « marge 24 %, portée » (1 zone) vs
+    // « marges de 24 à 30 %, portées » (plusieurs). La prime citée est celle de
+    // la ZONE (premium_pct), jamais celle de l'actif vedette.
+    if (mp != null) return `, ${good.length > 1 ? "portées" : "portée"} par une prime neuf de ${Math.round(mp)}%`;
   }
   if (m === "arbitrage") {
     const app = pillarValue(good[0]?.pillars ?? [], "appetit_institutionnel");
@@ -113,6 +116,12 @@ function marketOf(label: string): string {
 export type ZoneNoun = { sg: string; pl: string };
 const FREG_NOUN: ZoneNoun = { sg: "freguesia", pl: "freguesias" };
 const plurN = (n: number, noun: ZoneNoun) => (n > 1 ? noun.pl : noun.sg);
+
+// Données pas encore chargées (rows vide) : on ne prononce JAMAIS un verdict de
+// marché absolu (« Aucune… ce cycle ») sur une absence de données, sinon la
+// synthèse contredit un tableau qui, lui, se remplira. Phrase neutre partagée,
+// identique à cityInsight.
+const LOADING = "Chargement du marché…";
 
 // 1 sentence verdict for the city: dominant mode, count of top-verdict zones,
 // the dominant native metric range, and (where available) a driver.
@@ -203,12 +212,16 @@ function marginList(rows: PmRow[]): string {
 // and why the rest doesn't pencil. Verb graded by the count of viable freguesias.
 // `selectiveRest` : complément du gabarit « marché sélectif » (« de la capitale »
 // à Lisbonne), fourni par le registre des villes ; défaut « de la ville ».
-export function priceMarginInsight(rows: PmRow[], assetClass: string, selectiveRest?: string, noun: ZoneNoun = FREG_NOUN): string {
+// `viableCount` : décompte autoritaire des viables (Go + Conditionnel) servi
+// par le backend (verdict_counts, maille fine hors municipio) ; le texte ne
+// recompte pas seul. Repli sur le comptage local des rows si absent.
+export function priceMarginInsight(rows: PmRow[], assetClass: string, selectiveRest?: string, noun: ZoneNoun = FREG_NOUN, viableCount?: number): string {
+  if (!rows.length) return LOADING;
   const adj = CLASS_ADJ_FR[assetClass] ?? classLabel(assetClass).toLowerCase();
   const viable = rows
     .filter((r) => verdictTone("promotion", r.verdict) !== "low")
     .sort((a, b) => b.marginPct - a.marginPct);
-  const n = viable.length;
+  const n = viableCount ?? viable.length;
 
   // Gabarit « marché sélectif » : quand les Conditionnel dépassent la moitié
   // des freguesias, « tient sur N » (Go + Conditionnel) serait mécaniquement
@@ -270,12 +283,15 @@ function yieldList(rows: RdRow[]): string {
   return parts.slice(0, -1).join(", ") + " et " + parts[parts.length - 1];
 }
 
-export function detentionInsight(rows: RdRow[], assetClass: string, trapClause?: string, noun: ZoneNoun = FREG_NOUN): string {
+// `keepCount` : décompte autoritaire des Conserver servi par le backend
+// (verdict_counts, maille fine hors municipio) ; le texte ne recompte pas seul.
+export function detentionInsight(rows: RdRow[], assetClass: string, trapClause?: string, noun: ZoneNoun = FREG_NOUN, keepCount?: number): string {
+  if (!rows.length) return LOADING;
   const adj = CLASS_ADJ_FR[assetClass] ?? classLabel(assetClass).toLowerCase();
   const keep = rows
     .filter((r) => verdictTone("detention", r.verdict) === "good")
     .sort((a, b) => b.yieldNet - a.yieldNet);
-  const n = keep.length;
+  const n = keepCount ?? keep.length;
 
   // Signature message of the page: when the highest facial yield sits on a Céder
   // freguesia, name the inverted-yield trap explicitly.
@@ -332,12 +348,17 @@ function spreadList(rows: ArbRow[]): string {
   return parts.slice(0, -1).join(", ") + " et " + parts[parts.length - 1];
 }
 
-export function arbitrageInsight(rows: ArbRow[], assetClass: string, noun: ZoneNoun = FREG_NOUN): string {
+// `openCount` : décompte autoritaire des Fenêtre ouverte servi par le backend
+// (verdict_counts, maille fine hors municipio) ; le texte ne recompte pas seul.
+// À la différence des autres modes, 0 fenêtre ouverte EST un état de marché réel
+// (ex. Porto) : le garde-fou ne porte que sur rows vide (données non chargées).
+export function arbitrageInsight(rows: ArbRow[], assetClass: string, noun: ZoneNoun = FREG_NOUN, openCount?: number): string {
+  if (!rows.length) return LOADING;
   const suffix = classSuffix(assetClass);
   const open = rows
     .filter((r) => verdictTone("arbitrage", r.verdict) === "good")
     .sort((a, b) => b.spreadPct - a.spreadPct);
-  const n = open.length;
+  const n = openCount ?? open.length;
 
   // Signature message of the page: when the widest spread sits outside the open
   // windows, it is a paper spread: no institutional buyer, no window.
@@ -392,11 +413,14 @@ function upliftList(rows: FcRow[]): string {
   return parts.slice(0, -1).join(", ") + " et " + parts[parts.length - 1];
 }
 
-export function landbankInsight(rows: FcRow[], noun: ZoneNoun = FREG_NOUN): string {
+// `prioCount` : décompte autoritaire des Prioritaire servi par le backend
+// (verdict_counts, maille fine hors municipio) ; le texte ne recompte pas seul.
+export function landbankInsight(rows: FcRow[], noun: ZoneNoun = FREG_NOUN, prioCount?: number): string {
+  if (!rows.length) return LOADING;
   const prio = rows
     .filter((r) => verdictTone("landbank", r.verdict) === "good")
     .sort((a, b) => b.upliftPct - a.upliftPct);
-  const n = prio.length;
+  const n = prioCount ?? prio.length;
 
   // Signature message of the page: the most constructible freguesia is not the
   // most activatable when its market cannot absorb a programme.

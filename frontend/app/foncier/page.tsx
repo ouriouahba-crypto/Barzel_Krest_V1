@@ -56,7 +56,10 @@ export default function FoncierPage() {
   const scopeLabel = summary.scope === "viables" ? `${zn.pl} viables` : `toutes ${zn.pl}`;
 
   // Conclusion layer: page insight + banner right block + anomaly note.
-  const fcLine = useMemo(() => landbankInsight(allRows, zn), [allRows]);
+  // Décompte autoritaire (backend, maille fine hors municipio) : le texte de
+  // synthèse ne recompte pas seul, il consomme le même décompte que le tableau.
+  const prioCount = g.landbankCity?.verdict_counts?.["Prioritaire"];
+  const fcLine = useMemo(() => landbankInsight(allRows, zn, prioCount), [allRows, prioCount, zn.sg, zn.pl]);
   // Banner right block: the best potential = the max uplift AMONG the
   // Prioritaires (the sentence leads with it), falling back to the max uplift
   // among viables when no Prioritaire exists.

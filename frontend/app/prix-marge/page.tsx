@@ -64,9 +64,16 @@ export default function PrixMargePage() {
   // Le complément du gabarit « marché sélectif » vient du registre des villes
   // (« de la capitale » à Lisbonne) ; il ne se déclenche que quand les
   // Conditionnel dépassent la moitié des freguesias (jamais à Gaia).
+  // Décompte autoritaire des viables (Go + Conditionnel) servi par le backend
+  // (verdict_counts, maille fine hors municipio) : le texte de synthèse ne
+  // recompte pas seul, il consomme le même décompte que le tableau.
+  const viableCount = useMemo(() => {
+    const vc = g.promoCity?.verdict_counts;
+    return vc ? (vc["Go"] ?? 0) + (vc["Conditionnel"] ?? 0) : undefined;
+  }, [g.promoCity]);
   const pmLine = useMemo(
-    () => priceMarginInsight(allRows, cls, city.texts.promoSelectiveRest, zn),
-    [allRows, cls, city.texts.promoSelectiveRest, zn.sg, zn.pl]
+    () => priceMarginInsight(allRows, cls, city.texts.promoSelectiveRest, zn, viableCount),
+    [allRows, cls, city.texts.promoSelectiveRest, zn.sg, zn.pl, viableCount]
   );
   const maxRow = useMemo(
     () => (allRows.length ? allRows.reduce((a, b) => (b.marginPct > a.marginPct ? b : a)) : null),

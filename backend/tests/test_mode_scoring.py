@@ -740,6 +740,190 @@ def test_porto_calibration_2b():
     assert would_be == 70 and _slider(2880)[1] == 69, (would_be, _slider(2880))
 
 
+def test_verdict_counts_single_source_no_false_aucune():
+    # Lot 1 (cohérence insights) : le /city expose `verdict_counts`, décompte
+    # des verdicts sur la MAILLE FINE (hors municipio). C'est LA source unique
+    # consommée par les synthèses front (le texte ne recompte plus seul).
+    #  (a) verdict_counts == comptage des verdicts des zones du tableau, hors
+    #      municipio, pour les 4 villes x 4 modes x résidentiel ;
+    #  (b) la phrase « Aucune… ce cycle » est INJOIGNABLE depuis les données en
+    #      détention (>=1 Conserver), landbank (>=1 Prioritaire) et promotion
+    #      (>=1 viable = Go+Conditionnel) : décompte > 0 => jamais « Aucune ».
+    #      L'arbitrage n'est PAS contraint : 0 fenêtre ouverte est un état de
+    #      marché réel (Porto), correctement rendu « Aucune fenêtre… ».
+    from collections import Counter
+    from backend.routers import scoring as sc
+
+    keep_expected = {"gaia": 2, "lisbonne": 3, "bruxelles": 2, "porto": 1}
+    prio_expected = {"gaia": 3, "lisbonne": 3, "bruxelles": 3, "porto": 2}
+
+    for city in ("gaia", "lisbonne", "bruxelles", "porto"):
+        for mode in ms.MODES:
+            resp = sc.city(city=city, mode=mode, asset_class="residential", debug=False)
+            vc = resp["verdict_counts"]
+            fine = [z for z in resp["zones"] if z["level"] != "municipio"]
+            table = dict(Counter(z["verdict"] for z in fine))
+            # (a) décompte injecté == verdicts du tableau, hors municipio
+            assert vc == table, (city, mode, vc, table)
+            assert sum(vc.values()) == len(fine), (city, mode)
+            # municipio jamais compté
+            assert not any(z["level"] == "municipio" for z in fine)
+        # (b) décompte > 0 => « Aucune » injoignable
+        det = sc.city(city=city, mode="detention", asset_class="residential", debug=False)["verdict_counts"]
+        land = sc.city(city=city, mode="landbank", asset_class="residential", debug=False)["verdict_counts"]
+        promo = sc.city(city=city, mode="promotion", asset_class="residential", debug=False)["verdict_counts"]
+        assert det.get("Conserver", 0) == keep_expected[city] >= 1, (city, det)
+        assert land.get("Prioritaire", 0) == prio_expected[city] >= 1, (city, land)
+        assert promo.get("Go", 0) + promo.get("Conditionnel", 0) >= 1, (city, promo)
+
+
+def test_no_city_copy_leak_between_cities():
+    # Lot 1 (anti-fuite white-label) : aucune ville ne doit afficher l'identité
+    # éditoriale d'une autre (« Gaia » / « Rive sud du Douro » hors Gaia, etc.).
+    # La fuite constatée : Porto héritait du repli PT partagé, calibré Gaia
+    # (« Rive sud du Douro », « parc de Gaia »), faute d'override Énergie/Fiscalité.
+    #  (a) les replis PT partagés (energie.ts / fiscal.ts PAGE) sont NEUTRES :
+    #      aucun tag géographique de ville ;
+    #  (b) chaque ville PT (gaia/lisbonne/porto) DÉFINIT ses propres
+    #      energieMarketLine / energieIntro / fiscaliteMarketLine : aucune
+    #      n'hérite du repli ;
+    #  (c) le bloc `texts` d'une ville ne contient AUCUN tag exclusif d'une autre.
+    import re
+    from pathlib import Path
+
+    lib = Path(__file__).resolve().parents[2] / "frontend" / "lib"
+
+    def strip_comments(s: str) -> str:
+        # On ne scanne QUE la copie rendue (littéraux) : les commentaires nomment
+        # légitimement d'autres villes (doc). `//...` (hors `://`) et `/* */`.
+        s = re.sub(r"/\*.*?\*/", "", s, flags=re.S)
+        s = re.sub(r"(?<!:)//.*", "", s)
+        return s
+
+    cities_src = strip_comments((lib / "cities.ts").read_text(encoding="utf-8"))
+    energie_src = strip_comments((lib / "energie.ts").read_text(encoding="utf-8"))
+    fiscal_src = strip_comments((lib / "fiscal.ts").read_text(encoding="utf-8"))
+
+    # Tags géographiques exclusifs (identité éditoriale) par ville.
+    TAGS = {
+        "gaia": ["rive sud du douro", "parc de gaia", "vila nova de gaia"],
+        "lisbonne": ["rive nord du tage", "parc de lisbonne"],
+        "porto": ["concelho do porto", "parc de porto"],
+        "bruxelles": ["bruxelles-capitale", "parc de bruxelles"],
+    }
+
+    # (a) les replis PT partagés ne nomment aucune ville.
+    def shared_page_line(src: str, key: str) -> str:
+        # récupère la valeur du champ `key:` de l'objet PAGE (repli commun)
+        m = re.search(rf'\b{key}:\s*\n?\s*"((?:[^"\\]|\\.)*)"', src)
+        return (m.group(1) if m else "").lower()
+
+    for src, name in ((energie_src, "energie"), (fiscal_src, "fiscal")):
+        for field in ("marketLine", "intro"):
+            val = shared_page_line(src, field)
+            for tags in TAGS.values():
+                for t in tags:
+                    assert t not in val, f"repli {name}.{field} nomme une ville : {t!r}"
+
+    # Découpe cities.ts en blocs par slug (jusqu'au slug suivant).
+    idx = [(m.group(1), m.start()) for m in re.finditer(r'slug:\s*"([a-z_]+)"', cities_src)]
+    blocks = {}
+    for i, (slug, start) in enumerate(idx):
+        end = idx[i + 1][1] if i + 1 < len(idx) else len(cities_src)
+        blocks[slug] = cities_src[start:end].lower()
+
+    # (b) chaque ville PT porte ses 3 overrides (jamais le repli Gaia-flavored).
+    for pt in ("gaia", "lisbonne", "porto"):
+        blk = blocks[pt]
+        for field in ("energiemarketline", "energieintro", "fiscalitemarketline"):
+            assert field in blk, f"{pt} n'override pas {field} (hériterait du repli)"
+
+    # (c) aucun bloc ville ne contient un tag exclusif d'une AUTRE ville.
+    for slug, blk in blocks.items():
+        for other, tags in TAGS.items():
+            if other == slug:
+                continue
+            for t in tags:
+                assert t not in blk, f"fuite : le bloc {slug!r} contient le tag {other!r} : {t!r}"
+
+
+def test_landbank_uplift_reconciled_across_surfaces():
+    # Lot 2 point 6 : la métrique canonique du profil foncier est UNE seule
+    # valeur, constructibilite.breakdown.uplift_pct. Comparer (cellFor lit /city),
+    # Foncier (fcRows lit /city), /zone et le contexte analyste la lisent TOUS :
+    # Campanhã doit afficher le même uplift partout (le « +2% » observé sur
+    # Comparer était le signal dominant de Bonfim, dont l'uplift RÉEL est ~+2%).
+    from backend.routers.analyst import _build_context, _fmt
+
+    def uplift(z):
+        b = next(p for p in z["pillars"] if p["pillar"] == "constructibilite")["breakdown"]
+        return b["uplift_pct"]
+
+    u_zone = uplift(ms.score_mode("campanha", "landbank", "residential", city="porto"))
+    city_rows = ms.score_city("porto", "landbank", "residential")
+    u_city = uplift(next(z for z in city_rows if z["zone"] == "campanha"))
+    assert u_zone == u_city, (u_zone, u_city)          # /zone == /city (Comparer/Foncier)
+    assert round(u_city) >= 20, u_city                 # ~+26%, pas le +2% de Bonfim
+    # l'analyste lit exactement cette valeur (contexte injecté au LLM).
+    ctx = _build_context("residential", "porto")
+    assert f"uplift {_fmt(u_city)}%" in ctx, f"uplift {_fmt(u_city)}% absent du contexte analyste"
+    # Bonfim (signal dominant landbank de Comparer) a bien un uplift distinct et bas.
+    u_bonfim = uplift(next(z for z in city_rows if z["zone"] == "bonfim"))
+    assert round(u_bonfim) < 10 < round(u_city), (u_bonfim, u_city)
+
+
+def test_analyst_ask_city_required():
+    # Lot 2 point 9 : /api/analyst/ask exige un `city` canonique. Absent -> 400,
+    # non canonique -> 400, valide -> passe la validation (plus de repli muet vers
+    # Gaia qui répondait « couvre Gaia et non Porto » à un utilisateur Porto).
+    from fastapi import HTTPException
+    from backend.routers.analyst import _require_city
+
+    def status(city):
+        try:
+            _require_city(city)
+            return 200
+        except HTTPException as e:
+            return e.status_code
+
+    assert status(None) == 400                     # absent
+    assert status("") == 400                       # vide
+    assert status("   ") == 400                    # blancs
+    assert status("atlantis") == 400               # non canonique
+    assert status("mont_saint_guibert") == 400     # témoin non enregistré -> 400 (pas de repli)
+    for c in ("gaia", "lisbonne", "bruxelles", "porto"):
+        assert status(c) == 200, c                 # ville enregistrée -> validée
+        assert _require_city(c) == c
+
+
+def test_lot3_energie_actif_type_median_and_spread_base():
+    # Lot 3 : (10) la valeur « actif type » du simulateur Énergie = médiane
+    # DYNAMIQUE de la freguesia choisie (RdRow.median = z.median_eur_m2 servi),
+    # fini le 3790 implicite (loyer/rendement brut) ; (11) la carte de
+    # décomposition d'arbitrage explicite la BASE du spread (médiane de marché),
+    # cohérent avec le point 2 (aucune « Médiane Gaia » codée en dur).
+    from pathlib import Path
+
+    front = Path(__file__).resolve().parents[2] / "frontend"
+    rd = (front / "lib" / "rendement.ts").read_text(encoding="utf-8")
+    retro = (front / "components" / "RetrofitSimulator.tsx").read_text(encoding="utf-8")
+    spread = (front / "components" / "SpreadWaterfall.tsx").read_text(encoding="utf-8")
+
+    # (10) RdRow.median vient de la médiane servie, et le simulateur l'affiche.
+    assert "median: z.median_eur_m2" in rd, "RdRow.median doit venir de z.median_eur_m2"
+    assert "row.median" in retro, "le simulateur doit afficher row.median (actif type)"
+    # La médiane servie EST la valeur attendue à l'écran (Porto Cedofeita, Gaia SM).
+    porto = {z["zone"]: z["median_eur_m2"] for z in ms.score_city("porto", "detention", "residential")}
+    gaia = {z["zone"]: z["median_eur_m2"] for z in ms.score_city("gaia", "detention", "residential")}
+    assert porto["cedofeitavitoria"] == 3801, porto["cedofeitavitoria"]
+    assert gaia["santamarinhaesaopedrodaafurada"] == 2721, gaia["santamarinhaesaopedrodaafurada"]
+
+    # (11) la carte spread explicite la base, sans fuite « Gaia ».
+    assert "médiane de marché" in spread, "libellé de base du spread absent"
+    assert "spread" in spread.lower()
+    assert "Médiane Gaia" not in spread and "médiane Gaia" not in spread
+
+
 if __name__ == "__main__":  # dependency-free smoke run
     ms.load()
     test_four_distinct_modes()
@@ -764,4 +948,9 @@ if __name__ == "__main__":  # dependency-free smoke run
     test_witness_pool_and_gaia_isolation()
     test_lisbonne_calibration_2b()
     test_porto_calibration_2b()
+    test_verdict_counts_single_source_no_false_aucune()
+    test_no_city_copy_leak_between_cities()
+    test_landbank_uplift_reconciled_across_surfaces()
+    test_analyst_ask_city_required()
+    test_lot3_energie_actif_type_median_and_spread_base()
     print("OK : all smoke checks passed")

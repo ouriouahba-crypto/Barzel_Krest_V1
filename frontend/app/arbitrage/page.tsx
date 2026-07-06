@@ -68,7 +68,10 @@ export default function ArbitragePage() {
   const scopeLabel = summary.scope === "viables" ? `${zn.pl} viables` : `toutes ${zn.pl}`;
 
   // Conclusion layer: page insight + banner right block + anomaly note.
-  const arbLine = useMemo(() => arbitrageInsight(allRows, cls, zn), [allRows, cls]);
+  // Décompte autoritaire (backend, maille fine hors municipio) : le texte de
+  // synthèse ne recompte pas seul. 0 fenêtre ouverte reste un état réel (Porto).
+  const openCount = g.arbitrageCity?.verdict_counts?.["Fenetre ouverte"];
+  const arbLine = useMemo(() => arbitrageInsight(allRows, cls, zn, openCount), [allRows, cls, openCount, zn.sg, zn.pl]);
   // Banner right block: the best window (top-score open, else top viable),
   // never a global spread max that would contradict the sentence.
   const bestWindow: ArbRow | null = useMemo(() => {

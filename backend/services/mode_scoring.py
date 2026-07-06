@@ -937,7 +937,9 @@ def _promo_momentum(st: State, z: dict) -> Pillar:
     regen = _zone_param(st, z["id"]).get("regeneration_momentum")
     if isinstance(regen, (int, float)) and float(regen) > sub:
         sub = float(regen)
-        note = " (soutenu par le pipeline de régénération)"
+        note = (" (plancher de régénération : nouveau terminal intermodal et "
+                "plan-guide de reconversion soutiennent le momentum de promotion "
+                "malgré le yoy consolidé)")
         conf = _derived_conf(conf, _zone_param(st, z["id"]).get("regeneration_momentum_conf", HYPOTHESE))
     nv = round(yoy, 1)
     return Pillar("momentum_prix", sub, nv, "%",
