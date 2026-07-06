@@ -25,6 +25,17 @@
       "zone_noun_plural": "freguesias"
     },
     {
+      "slug": "porto",
+      "label": "Porto",
+      "country": "pt",
+      "currency": "EUR",
+      "fiscal_locale": "pt-PT",
+      "fiscal_regime": "pt",
+      "energy_regime": "pt-sce",
+      "zone_noun": "freguesia",
+      "zone_noun_plural": "freguesias"
+    },
+    {
       "slug": "bruxelles",
       "label": "Bruxelles",
       "country": "be",

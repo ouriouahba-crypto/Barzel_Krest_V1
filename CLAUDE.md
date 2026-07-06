@@ -127,6 +127,28 @@ non migrés — à convertir s'ils sont réutilisés.
   TVA 21 % neuf BE assujettie ; constantes `DANSAERT` dans `lib/scoring.ts` +
   asset `dansaert_quai` des params bruxelles + `DansaertSlider`). Fictif mais
   plausible ; **identité, localisation, surface et coût réels à fournir par KREST**.
+- **Questions ouvertes KREST · Porto (à fournir après le lot 2b Porto)** : la
+  signature Campanhã (arc de régénération est) et l'actif vedette sont posés sur
+  **données INE réelles (prix/yoy) + calibration de travail**, à remplacer par les
+  données client. (a) **actif vedette portois réel** : `Campanha Souto de Moura`
+  (projet mixte logement/bureaux/hôtel signé Eduardo Souto de Moura, ~22 000 m²,
+  Campanhã ; vedette ancrée sur la composante **résidentielle** ; construction
+  1 850 €/m² + foncier 760 €/m² au prix Campanhã, target 3 790 €/m² → marge ~15 %,
+  prime +33 % ; constantes `CAMPANHA` dans `lib/scoring.ts` + asset `campanha_souto`
+  des params porto + `CampanhaSlider`) est **fictif mais plausible** : identité,
+  **programme et répartition résidentiel/bureaux/hôtel**, surface et coûts réels à
+  fournir ; (b) **couche momentum/régénération** (`regeneration_momentum` par zone :
+  plancher du momentum de PROMOTION porté par le pipeline est, Campanhã 95 primaire,
+  Bonfim/Paranhos 66/62 secondaires ; le **yoy INE reste réel et non modifié**) à
+  confirmer sur le calendrier réel du **nouveau terminal intermodal de Campanhã** et
+  du plan-guide mixte ; (c) **coûts de construction/foncier et taux de rendement
+  cibles réels** de KREST à Porto (aujourd'hui construction résidentielle 1 700,
+  yield brut 5,0 %, marge normative : hypothèses) ; (d) **€/m² médians par classe
+  commerciale et n_transactions réels** (aujourd'hui n_transactions = proxy, facteurs
+  commerciaux génératifs) ; (e) **parc énergétique SCE réel** du portefeuille (la
+  page Énergie lit un parc simulé par hash, aucun `risque_energie` par zone côté
+  moteur à Porto). Ces points sont aussi listés dans `meta.todo_2b_porto` de
+  `cities/porto/params.json`.
 - **Marge promoteur normative de la valeur résiduelle foncière** : 15 % est
   notre hypothèse (`_LAND_NORMATIVE_MARGIN`) — à remplacer par la marge
   normative interne de KREST.
@@ -1772,6 +1794,134 @@ Conditionnel).
 **Vérifs** : `tsc` OK ; snapshot Gaia aux octets PASS ; Lisbonne 2b + v0 PASS ; 0 cadratin
 (dataset Bruxelles + fichiers touchés) ; `score_asset dansaert` cohérent. **NON COMMITTÉ**
 (QA Ouri en direct d'abord).
+
+### Lot 2a Porto : 4e ville branchée mécaniquement (INE réel + V0) — **✅ Livré** (2026-07-06)
+Porto branché comme 4e ville sur le pattern multi-villes, régime PT réutilisé (même
+juridiction que Lisbonne/Gaia). **Purement additif** : aucun autre dataset, params,
+fixture, snapshot ni le régime PT partagé modifiés (snapshot Gaia aux octets PASS,
+invariants Lisbonne 2b PASS ; gaia/lisbonne/bruxelles promotion inchangés ; Haya/Fábrica/
+Dansaert inchangés). Pas de calibration éditoriale, pas d'actif vedette, pas de mémo PDF
+Porto (= lot 2b).
+1. **Données INE réelles** (`backend/data/cities/porto/backbone.json`) : 7 freguesias du
+   concelho do Porto + município (8 zones = 7 freguesias + município, exclu du décompte,
+   exact pattern Lisboa). €/m² médians et yoy **réels INE (12 mois à décembre 2025)** :
+   Foz/Aldoar/Nevogilde 3 932 (-0,7 %), Cedofeita/centro 3 801 (+18,7 %), Paranhos 3 286
+   (+15,5 %), Bonfim 3 196 (+12,7 %), Lordelo/Massarelos 3 130 (+6,0 %), Ramalde 2 869
+   (+5,6 %), Campanhã 2 857 (-1,2 %) ; município Porto 3 066 (+10,0 %). `n_transactions`
+   plausibles (proxy, non publiés à cette maille dans ce lot). Hiérarchie prix : Foz/centro
+   en haut, Campanhã en bas.
+2. **Params V0 génératifs** (`params.json`, `socle_scope: city`) : blocs PT partagés
+   (global, countries, construction_cost, classes/yields, scoring weights/bands/verdicts)
+   copiés de gaia (référence canonique, bande arbitrage 10/25/50) ; knobs dérivés
+   génératifs (foncier par inversion d'un gradient de marge mécanique 3-15 %, construction
+   1 700 ; prime neuf 19-34 %, constructibilité/connectivité/facteurs commerciaux en
+   gradient prix + jitter md5 ; anti-jumeaux foncier ; plancher 40) ; `commercial_gaia.city:
+   porto` (5 classes actives) ; ancre yield brut résidentiel Porto 5,0 % ; **pas d'actif
+   vedette**. Marges promotion V0 : 3,3-14,1 % (Foz Passer malgré le prix, yoy -0,7 %
+   réel ; Cedofeita Conditionnel, yoy +18,7 % réel). Verdicts V0 résidentiel : promotion
+   1 Conditionnel / 6 Passer ; détention 4 Surveiller / 3 Céder ; arbitrage 5 étroite /
+   2 fermée ; landbank 1 Prioritaire / 4 À phaser / 2 En attente (mécanique, à calibrer 2b).
+3. **Listings** (`listings_sim.csv`, 2 640) : générés par le pipeline `simulate`
+   (seed 42, centroïde Porto 41,162 / -8,622), **outillage partagé non modifié** (paths
+   repointés au runtime dans un script hors-dépôt).
+4. **Geojson** (`frontend/public/geo/porto/freguesias.geojson`, 9,4 Ko) : contours
+   geoapi.pt (dérivé CAOP/DGT, WGS84), 7 Polygones simplifiés Douglas-Peucker, propriété
+   `freguesia` joignant 7/7 au backbone via `normFreguesia` (préfixe « União das
+   freguesias de » retiré).
+5. **Registres** : backend `registry.json` + frontend `lib/cities.ts` (fiscalPT/energiePT,
+   simulateurs PT, `energieDefaultZone` cedofeitavitoria, textes V0 neutres, pas de
+   `promoAsset`). CitySelector à 4 villes automatique. Test registre étendu à porto
+   (`test_city_registry_and_default_dataset`).
+6. **Gardes réutilisées sans affaiblissement** : class absent → residential ; class non
+   canonique → 400 ; mode invalide → 400 ; mode requis (absent → 422) ; 5 classes
+   canoniques exactes tournent (8 zones chacune).
+7. **Vérifs** : `tsc` OK ; **30/30 tests framework** (le 31e = pytest.raises, split env) ;
+   snapshot Gaia aux octets PASS ; 0 cadratin (dataset Porto + fichiers touchés) ; geojson
+   join 7/7 ; 4 modes × 5 classes servis. **À calibrer 2b** : hiérarchies éditoriales par
+   mode, actif vedette Porto, parc SCE réel (ADENE), n_transactions réels, MARKET_LINEs et
+   insights réécrits.
+
+### Lot 2b Porto : signature Campanhã + actif vedette + fix IMI município — **✅ Livré** (2026-07-06)
+Thèse Barzel de Porto gravée. **Aucun changement Gaia/Lisbonne/Bruxelles/PT** (snapshot
+Gaia aux octets re-vérifié ; Lisbonne 2b + v0 PASS ; Haya/Fábrica/Dansaert
+total/verdict/marge inchangés). **Prix ET yoy médians INE réels INCHANGÉS** (Foz 3 932,
+Centro 3 801, Paranhos 3 286, Bonfim 3 196, Lordelo 3 130, Ramalde 2 869, Campanhã 2 857,
+município 3 066). Trois chantiers.
+
+**A. Signature Campanhã (arc de régénération est).** À cru (2a) Campanhã était dernière
+(promotion 31,8 Passer, landbank 29,4 En attente) : son yoy récent est **-1,2 %**
+(consolidation après des flambées +35 % puis +18,5 %) → momentum percentile 0. La thèse :
+Campanhã porte le **foncier le moins cher de la ville** (meilleure marge de promotion),
+soutenue par un **pipeline réel** (nouveau terminal intermodal + projet mixte Souto de
+Moura). Méthode identique à la signature canal de Bruxelles.
+1. **Couche momentum/régénération (nouveau moteur, additif, gaté, Gaia byte-identique)** :
+   attribut de zone `regeneration_momentum` (0-100) mappé dans `_adapt_params` (miroir de
+   `overlays_risk_0_100`) ; `_promo_momentum` l'applique comme **PLANCHER du subscore** de
+   momentum de promotion (`sub = max(sub_yoy, regen)`) quand présent. **Le yoy INE servi
+   (native_value) reste la donnée réelle** (Campanhã momentum native -1,2 %, subscore 95,
+   why « soutenu par le pipeline de régénération ») : honnêteté préservée, comme la
+   détention affiche le net mais plafonne le verdict. Absent des params
+   gaia/lisbonne/bruxelles/témoin → aucun effet, socle inchangé (il ne lit pas ce champ) →
+   **payloads Gaia identiques aux octets** (test snapshot PASS). Valeurs : Campanhã 95
+   (primaire, le pipeline flagship), Bonfim 66 / Paranhos 62 (secondaires sur l'arc de
+   croissance ; souvent non-bindants car leur yoy réel +12,7/+15,5 les porte déjà),
+   município 62 (la vue ville rejoint la promotion).
+2. **Recalibrage params (offsets en euros)** : foncier — Campanhã 910→**712** (le moins
+   cher), Bonfim 1 213→1 120, Paranhos 1 351→1 155, Foz 1 962→**1 907** (reste cher),
+   município 1 047→930 ; prime neuf — Campanhã 19→**32**, Bonfim 23→28, Foz 34→**18**
+   (peu de neuf, patrimoine) ; constructibilité — Campanhã 53→**72** (redéveloppement,
+   terminal), Bonfim 54→64, Paranhos 50→62, Cedofeita 53→**46** (centre bâti), Foz 55→50 ;
+   connectivité — Campanhã 63→**70** (terminal intermodal) ; `overlays_risk_0_100` par zone
+   (Campanhã 28 = régénération facilitée → Foz 48) ; landbank **repondéré** (constructibilité
+   0,25→**0,36**, valeur_meilleur_usage 0,25→**0,12**, connectivité 0,20→0,22 : marché de
+   régénération, comme Bruxelles) ; seuil landbank Prioritaire 65→**63**.
+3. **Cibles atteintes (résidentiel)** : promotion **1 Go** (Campanhã **80,2**) / 3
+   Conditionnel (Bonfim 57,8, Cedofeita 54,3, Paranhos 50,6) / 3 Passer (Foz **15,2**
+   plafonné, Ramalde, Lordelo) ; **município Conditionnel 55,0 avec la PROMOTION dominante**
+   (48,8 détention/arbitrage) → la vue ville penche vers la promotion. Détention 1 Conserver
+   (Cedofeita, parc central profond) / 4 Surveiller / 2 Céder. Arbitrage 5 Fenêtre étroite /
+   2 fermée (Campanhã **Fenêtre fermée** : positionnement -10,6 % vs médiane ville, on
+   construit sur l'arc, on n'y cède pas ; arbitrage inchangé par la calibration, prix
+   intacts). Landbank **2 Prioritaire** (Campanhã **#1 68,5**, Bonfim 63,4) / 1 A phaser
+   (Paranhos) / 4 En attente — **Foz s'effondre 71,9→40,8** (constructibilité basse +
+   repondéré). **Cohérence croisée Campanhã** : Go promotion + Prioritaire landbank #1 +
+   Fenêtre fermée arbitrage + Surveiller détention = construire et activer la réserve, ne
+   pas céder ni détenir l'ancien (comme Marvila/Molenbeek).
+
+**B. Actif vedette `Campanha Souto de Moura`** (fictif plausible, à remplacer par KREST) :
+projet mixte (logement, bureaux, hôtel) signé Eduardo Souto de Moura à Campanhã, **ancré
+sur sa composante résidentielle**, ~22 000 m². Backend : asset `campanha_souto` (params) +
+mapping `_adapt_params` (miroir Haya/Fábrica). Frontend : constantes `CAMPANHA` +
+`CampanhaSlider` (composant DISTINCT, Haya/Fábrica/Dansaert intouchés) + `promoAsset` du
+registre (slug asset **`campanha`**). **Économie PT** : coût = 1,261 × (construction 1 850 +
+foncier 760) = 2 933 €/m² ; **résidentiel PT SANS TVA** sur le prix de sortie (IMT côté
+acquéreur), contrairement au neuf BE (Dansaert). Défaut **3 790 €/m²** → marge **15,2 %**,
+prime **+32,7 %** vs médiane Campanhã 2 857, **score 72,7 Go** confortable. Le feu vert du
+développement exige une marge conventionnelle, `CAMPANHA.goMarginFloorPct = 12 %` (**hurdle
+rate projet**, plus exigeant que le cap de marché 8 %) : bascule Conditionnel→Go **mesurée à
+~3 686 €/m² (marge 12,00 %)**, le **clamp d'affichage engage** (à 3 686 : total 70,1 mais
+badge Conditionnel → score affiché 69, aucun état « score 70 / badge Conditionnel »),
+Passer sous 3 100 (marge < 0), Go jusqu'à 4 300 (marge ~31 %). La marge de la vedette
+(~15 %) est **distincte** de celle du neuf générique de la zone (24 %) : projet mixte à
+construction plus élevée. ⚠️ Le plancher `regeneration_momentum` Campanhã = **95** est
+calibré pour que ce hurdle de 12 % **soit le seuil bindant** (le socle non-marge de la zone
+doit tenir le score ≥ 70 jusqu'à 12 % de marge, comme Molenbeek pour Dansaert) : documenté,
+= le pipeline flagship de la ville.
+
+**C. Fix libellé IMI (régime PT partagé)** : la ligne détention IMI de `lib/fiscal.ts`
+disait « taux fixé par la **commune** » (mot = maille bruxelloise, collision sur page
+portugaise) → « taux fixé par le **município** ». Régime PT partagé Gaia/Lisbonne/Porto
+(display seulement, hors snapshot) ; régime BE et reste du PT intouchés.
+
+**Vérifs** : `tsc` OK ; **31/31 tests smoke framework** (+1 `test_porto_calibration_2b` :
+Campanhã seul Go et #1, distribution 1/3/3, Foz Passer, momentum native -1,2 conservé,
+foncier le moins cher + plancher 40, município promotion dominante, cohérence croisée 4
+modes, vedette marge ~15 % Go sans TVA ; le 32e = pytest.raises, split env) ; snapshot Gaia
+aux octets PASS ; non-régression live promotion résidentiel gaia 3/4/8, lisbonne 3/16/5,
+bruxelles 3/5/11 + flagships Haya 87,6/35,5 %, Fábrica 66,4/20,5 %, Dansaert 77,1/14,8 %
+inchangés ; **0 cadratin** (dataset Porto + fichiers touchés). Questions KREST →
+`meta.todo_2b_porto` + § données client. **À traiter éventuellement 2b+** : mémo PDF Porto,
+insights/notes d'anomalie réécrits par mode, parc SCE Porto réel (ADENE).
 
 ### État final du gabarit de page de mode
 Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,

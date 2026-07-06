@@ -260,6 +260,12 @@ def _adapt_params(raw: dict) -> dict:
             e["connectivite"] = _pv(zd["connectivity"]); e["connectivite_conf"] = _pc(zd["connectivity"])
         if "cycle_momentum" in zd:
             e["cycle_momentum"] = _pv(zd["cycle_momentum"]); e["cycle_momentum_conf"] = _pc(zd["cycle_momentum"])
+        # Couche de régénération (lot 2b Porto) : plancher du momentum de promotion
+        # justifié par un pipeline structurant (mirror des overlays ci-dessous).
+        # Absent des params gaia/lisbonne/bruxelles/témoin -> bytes identiques.
+        if "regeneration_momentum" in zd:
+            e["regeneration_momentum"] = _pv(zd["regeneration_momentum"])
+            e["regeneration_momentum_conf"] = _pc(zd["regeneration_momentum"])
         # Overrides multi-villes (lot 2b) : valeur de cession comparable (spread
         # d'arbitrage + base du meilleur usage), risque énergie du parc local,
         # meilleurs usages depuis le fichier. Absents des params gaia : bytes
@@ -331,6 +337,16 @@ def _adapt_params(raw: dict) -> dict:
                              "land_cost_eur_m2": _pv(a.get("land_cost_eur_m2"), 780),
                              "confidence": RAPPORT}
         krest["dansaert_quai"] = krest["dansaert"]
+    if "campanha_souto" in A:
+        a = A["campanha_souto"]
+        krest["campanha"] = {"name": "Campanha Souto de Moura", "city": a.get("city", "porto"),
+                             "zone": a.get("zone", "campanha"), "class": a.get("class", "residential"),
+                             "primary_mode": "promotion",
+                             "achievable_sale_eur_m2": _pv(a.get("target_price_eur_m2")),
+                             "construction_eur_m2": _pv(a.get("construction_eur_m2"), 1850),
+                             "land_cost_eur_m2": _pv(a.get("land_cost_eur_m2"), 760),
+                             "confidence": RAPPORT}
+        krest["campanha_souto"] = krest["campanha"]
     if "alcochete_landbank" in A:
         a = A["alcochete_landbank"]
         krest["alcochete"] = {"name": "Alcochete Landbank", "city": a.get("city", "alcochete"),
@@ -900,6 +916,20 @@ def _promo_momentum(st: State, z: dict) -> Pillar:
         sub = 60 + (sub - 60) * 0.4
         note = " (écrêté: signe de surchauffe)"
     conf = _derived_conf(z["residential"].get("yoy_confidence", DERIVE))
+    # Couche de régénération (paramètre zone regeneration_momentum, 0-100) : un
+    # pipeline structurant en cours (nouvelle infrastructure de transport, plan-
+    # guide de reconversion) soutient le momentum de PROMOTION même quand le yoy
+    # 12 mois consolide, parce qu'on construit pour une livraison à ~3 ans, pas
+    # sur le dernier mouvement de prix. C'est un PLANCHER, jamais un remplacement :
+    # une zone dont le yoy réel dépasse déjà le plancher est inchangée, et le yoy
+    # servi (native_value) reste la donnée INE réelle. Gaté sur la présence du
+    # paramètre : absent des params gaia/lisbonne/bruxelles/témoin -> aucun effet,
+    # payloads identiques aux octets (le socle ne lit pas ce champ).
+    regen = _zone_param(st, z["id"]).get("regeneration_momentum")
+    if isinstance(regen, (int, float)) and float(regen) > sub:
+        sub = float(regen)
+        note = " (soutenu par le pipeline de régénération)"
+        conf = _derived_conf(conf, _zone_param(st, z["id"]).get("regeneration_momentum_conf", HYPOTHESE))
     nv = round(yoy, 1)
     return Pillar("momentum_prix", sub, nv, "%",
                   f"yoy {_fmt_num(nv, 1, signed=True)}%",

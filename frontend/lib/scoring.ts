@@ -284,6 +284,42 @@ export function dansaertPremium(salePerM2: number): number {
   return (salePerM2 / DANSAERT.communeMedian - 1) * 100;
 }
 
+// ---------------------------------------------------------------------------
+// Campanha Souto de Moura : actif vedette porto (Campanha, arc de regeneration
+// est). Projet mixte (logement, bureaux, hotel) signe Eduardo Souto de Moura,
+// vedette ancree sur sa composante RESIDENTIELLE. Meme equation moteur que Haya/
+// Fabrica : cout = 1,261 × (construction + foncier) ; residentiel PT SANS TVA sur
+// le prix de sortie (IMT cote acquereur), contrairement au neuf BE (Dansaert).
+// Composant distinct (CampanhaSlider) ; Haya/Fabrica/Dansaert strictement
+// intouches. Feu vert du developpement a marge conventionnelle (hurdle rate
+// projet 12%, plus exigeant que le cap de marche 8% de la commune).
+// ---------------------------------------------------------------------------
+export const CAMPANHA = {
+  construction: 1850, // rehabilitation/developpement mixte, standard architectural signature
+  foncier: 760,       // foncier de l'emprise de regeneration (proche du terminal intermodal)
+  freguesiaMedian: 2857, // Campanha (INE)
+  baseSale: 3790,     // Go confortable : marge ~15%, prime +33% (< la prime generique du neuf)
+  saleMin: 3100,      // borne basse en Passer (marge negative)
+  saleMax: 4300,      // borne haute en Go, marge ~31%
+  surface: 22000,     // m² constructibles du projet mixte (composante residentielle predominante)
+  goMarginFloorPct: 12, // hurdle rate projet : bascule Conditionnel -> Go a ~12% de marge,
+  //                       plus exigeant que le cap de marche 8% de la commune. Calibration de
+  //                       la couche actif, jamais des 7 freguesias.
+};
+
+export function campanhaCost() {
+  return COST_FACTOR * (CAMPANHA.construction + CAMPANHA.foncier);
+}
+
+export function campanhaMargin(salePerM2: number): number {
+  const cost = campanhaCost(); // PT residentiel : pas de TVA deduite du prix de sortie
+  return ((salePerM2 - cost) / cost) * 100;
+}
+
+export function campanhaPremium(salePerM2: number): number {
+  return (salePerM2 / CAMPANHA.freguesiaMedian - 1) * 100;
+}
+
 // Piecewise-linear band -> 0-100 subscore (mirrors the backend _band()).
 function bandSubscore(pts: [number, number][], v: number): number {
   if (v <= pts[0][0]) return pts[0][1];

@@ -446,17 +446,18 @@ def test_gaia_payload_snapshot_4_modes_residential():
 
 
 def test_city_registry_and_default_dataset():
-    # Registre : gaia/lisbonne/bruxelles enregistrées (bruxelles = lot 2a),
+    # Registre : gaia/lisbonne/bruxelles/porto enregistrées (porto = lot 2a Porto),
     # défaut gaia ; un nom de ville TOUJOURS non enregistré (témoin résiduel,
     # ex. mont_saint_guibert) est servi par le pool témoin (rétrocompat).
     from backend.services import cities as reg
 
     assert reg.default_slug() == "gaia"
-    assert reg.slugs() == {"gaia", "lisbonne", "bruxelles"}
+    assert reg.slugs() == {"gaia", "lisbonne", "bruxelles", "porto"}
     assert reg.resolve_slug(None) == "gaia"
     assert reg.resolve_slug("gaia") == "gaia"
     assert reg.resolve_slug("lisbonne") == "lisbonne"  # ville enregistrée (lot 2a)
     assert reg.resolve_slug("bruxelles") == "bruxelles"  # ville enregistrée (lot 2a Bruxelles)
+    assert reg.resolve_slug("porto") == "porto"  # ville enregistrée (lot 2a Porto)
     assert reg.resolve_slug("mont_saint_guibert") == reg.WITNESS_SLUG  # témoin résiduel → pool
     assert ms.load("lisbonne") is not ms.load()  # datasets distincts, caches par slug
 
@@ -646,6 +647,59 @@ def test_lisbonne_calibration_2b():
     assert fb["realizable_sale"] == 5400
 
 
+def test_porto_calibration_2b():
+    # Calibration éditoriale lot 2b Porto : signature Campanha (arc de
+    # régénération est). Prix/yoy INE inchangés ; le momentum de promotion est
+    # SOUTENU par la couche regeneration_momentum (plancher du subscore, le yoy
+    # servi reste la donnée INE réelle).
+    from collections import Counter as _C
+
+    pr = {r["zone"]: r for r in ms.score_city("porto", "promotion", "residential") if r["level"] == "freguesia"}
+    # Campanha : SEUL Go, et #1 total de toutes les freguesias (foncier le moins
+    # cher -> meilleure marge, momentum plancher par le pipeline est).
+    go = sorted(z for z, r in pr.items() if r["verdict"] == "Go")
+    assert go == ["campanha"], go
+    assert pr["campanha"]["total"] == max(r["total"] for r in pr.values())
+    assert _C(r["verdict"] for r in pr.values()) == _C({"Go": 1, "Conditionnel": 3, "Passer": 3})
+    # Foz : premium plafonné par un foncier cher (marge écrasée) -> Passer.
+    assert pr["aldoarfoznevogilde"]["verdict"] == "Passer"
+    # Le yoy servi de Campanha reste la donnée INE réelle (-1,2%) ; seul le
+    # SUBSCORE est plancherisé par la régénération.
+    mp = next(p for p in pr["campanha"]["pillars"] if p["pillar"] == "momentum_prix")
+    assert mp["native"]["value"] == -1.2 and mp["subscore"] >= 80.0, mp
+    # Foncier : Campanha porte le moins cher de la ville, plancher 40 partout.
+    lands = {z: next(p for p in r["pillars"] if p["pillar"] == "marge")["breakdown"]["land"] for z, r in pr.items()}
+    assert lands["campanha"] == min(lands.values()) and all(v >= 40 for v in lands.values()), lands
+
+    # Vue ville : la promotion est le mode DOMINANT du municipio (penche vers la
+    # promotion, cohérent avec la signature).
+    muni = {m: ms.score_mode("porto", m, "residential", city="porto")["total"] for m in ms.MODES}
+    assert muni["promotion"] == max(muni.values()), muni
+
+    # Cohérence croisée Campanha (comme Marvila/Molenbeek) : Go promotion +
+    # Prioritaire landbank (#1) + Fenetre fermee arbitrage (on construit, on n'y
+    # cede pas) + Surveiller detention (ni Conserver ni Ceder : la valeur est
+    # dans le developpement).
+    lb = {r["zone"]: r for r in ms.score_city("porto", "landbank", "residential") if r["level"] == "freguesia"}
+    prio = sorted(z for z, r in lb.items() if r["verdict"] == "Prioritaire")
+    assert prio == ["bonfim", "campanha"], prio
+    assert lb["campanha"]["total"] == max(lb[z]["total"] for z in lb)
+    assert lb["aldoarfoznevogilde"]["verdict"] == "En attente"  # Foz effondre (repondere)
+    ar = {r["zone"]: r for r in ms.score_city("porto", "arbitrage", "residential") if r["level"] == "freguesia"}
+    assert ar["campanha"]["verdict"] == "Fenetre fermee"
+    dt = {r["zone"]: r for r in ms.score_city("porto", "detention", "residential") if r["level"] == "freguesia"}
+    assert dt["campanha"]["verdict"] == "Surveiller"
+
+    # Actif vedette Campanha Souto de Moura : projet mixte ancre residentiel,
+    # marge conventionnelle ~15% (seuil Go a 12%, plus exigeant que le cap 8%),
+    # residentiel PT SANS TVA sur le prix de sortie.
+    a = ms.score_asset("campanha", city="porto")
+    fb = next(p for p in a["primary"]["pillars"] if p["pillar"] == "marge")["breakdown"]
+    assert a["zone"] == "campanha" and a["primary_mode"] == "promotion"
+    assert a["primary"]["verdict"] == "Go" and 14.0 <= fb["margin_pct"] <= 16.0, fb["margin_pct"]
+    assert fb["realizable_sale"] == 3790 and fb["vat_pct"] == 0.0
+
+
 if __name__ == "__main__":  # dependency-free smoke run
     ms.load()
     test_four_distinct_modes()
@@ -669,4 +723,5 @@ if __name__ == "__main__":  # dependency-free smoke run
     test_lisbonne_v0_dataset_invariants()
     test_witness_pool_and_gaia_isolation()
     test_lisbonne_calibration_2b()
+    test_porto_calibration_2b()
     print("OK : all smoke checks passed")

@@ -145,7 +145,7 @@ export function volets(): FiscalVolet[] {
         {
           label: "IMI · prédios urbains",
           value: `${pctFR(IMI_MIN_PCT, 2)} – ${pctFR(IMI_MAX_PCT, 2)}`,
-          sub: "par an sur la VPT, taux fixé par la commune",
+          sub: "par an sur la VPT, taux fixé par le município",
         },
         {
           label: "AIMI · véhicule société",

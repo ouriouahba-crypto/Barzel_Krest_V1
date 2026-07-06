@@ -1,0 +1,249 @@
+{
+ "meta": {
+  "version": "0.1",
+  "generated": "2026-07-06",
+  "role": "Backbone Porto (lot 2a MECANIQUE) : 7 freguesias du concelho do Porto + municipio agrege. Maille freguesia (regime PT). Prix eur/m2 medians et yoy REELS INE (12 mois a decembre 2025, Estatisticas de Precos da Habitacao ao nivel local). n_transactions plausibles (proxy, non publies a cette maille dans ce lot).",
+  "city": "porto"
+ },
+ "sources": {
+  "note": "INE - Estatisticas de Precos da Habitacao ao nivel local (freguesia), 12 mois a decembre 2025. Prix medians et yoy officiels ; n_transactions estimes."
+ },
+ "cities": {
+  "porto": {
+   "country": "pt",
+   "label": "Porto",
+   "residential_ref": {
+    "municipio_median_eur_m2": 3066,
+    "as_of": "2025-Q4",
+    "confidence": "officiel",
+    "source": "ine_local"
+   },
+   "zones": [
+    {
+     "id": "aldoarfoznevogilde",
+     "name": "Aldoar, Foz do Douro e Nevogilde",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 3932,
+      "median_eur_m2_apartments": 3932,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 340,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": -0.7,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "cedofeitavitoria",
+     "name": "Cedofeita, Santo Ildefonso, Sé, Miragaia, São Nicolau e Vitória",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 3801,
+      "median_eur_m2_apartments": 3801,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 620,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 18.7,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "paranhos",
+     "name": "Paranhos",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 3286,
+      "median_eur_m2_apartments": 3286,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 540,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 15.5,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "bonfim",
+     "name": "Bonfim",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 3196,
+      "median_eur_m2_apartments": 3196,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 400,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 12.7,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "lordelomassarelos",
+     "name": "Lordelo do Ouro e Massarelos",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 3130,
+      "median_eur_m2_apartments": 3130,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 300,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 6.0,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "ramalde",
+     "name": "Ramalde",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 2869,
+      "median_eur_m2_apartments": 2869,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 480,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 5.6,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "campanha",
+     "name": "Campanhã",
+     "level": "freguesia",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 2857,
+      "median_eur_m2_apartments": 2857,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 420,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": -1.2,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    },
+    {
+     "id": "porto",
+     "name": "Porto",
+     "level": "municipio",
+     "residential": {
+      "status": "real",
+      "median_eur_m2": 3066,
+      "median_eur_m2_apartments": 3066,
+      "quantiles": {
+       "p10": null,
+       "q25": null,
+       "q50": null,
+       "q75": null,
+       "p90": null
+      },
+      "n_transactions": 3200,
+      "n_transactions_confidence": "rapport",
+      "yoy_pct": 10.0,
+      "yoy_confidence": "derive",
+      "yoy_basis": "vs 2024-Q4",
+      "confidence": "officiel",
+      "source": "ine_local",
+      "as_of": "2025-Q4",
+      "source_url": "https://www.ine.pt/ine/json_indicador/pindica.jsp",
+      "n_transactions_source": "0014363"
+     },
+     "status": "real"
+    }
+   ]
+  }
+ }
+}
