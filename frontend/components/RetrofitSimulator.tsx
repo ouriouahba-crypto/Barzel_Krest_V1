@@ -19,7 +19,9 @@ export function RetrofitSimulator({ row, placeLabel, efShare }: { row: RdRow; pl
   const rank = (g: SceGrade) => SCE_SCALE.indexOf(g);
   const capex = capexPerM2(from, to);
   const impact = capex != null ? retrofitImpact(row, capex) : null;
-  const value = row.loyer && row.yieldBrut > 0 ? row.loyer / (row.yieldBrut / 100) : null;
+  // Valeur « actif type » = médiane de marché dynamique de la freguesia choisie
+  // (même base que retrofitImpact), repli sur la valeur loyer / rendement brut.
+  const value = row.median && row.median > 0 ? row.median : row.loyer && row.yieldBrut > 0 ? row.loyer / (row.yieldBrut / 100) : null;
 
   const pick = (g: SceGrade, kind: "from" | "to") => {
     if (kind === "from") {
@@ -93,7 +95,7 @@ export function RetrofitSimulator({ row, placeLabel, efShare }: { row: RdRow; pl
         <p className="mt-4 text-caption leading-relaxed text-cream/85">
           La mise à niveau {from}→{to} coûte ~{capex} €/m² et comprime le yield net de{" "}
           {impact.compression.toFixed(2).replace(".", ",")} point la première décennie. Loyer
-          inchangé, actif type à {placeLabel} ({Math.round(impact.value).toLocaleString("fr-FR")} €/m²).
+          inchangé, actif type à {placeLabel} ({Math.round(value ?? impact.value).toLocaleString("fr-FR")} €/m²).
         </p>
       )}
     </div>

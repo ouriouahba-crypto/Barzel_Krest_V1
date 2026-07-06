@@ -896,6 +896,34 @@ def test_analyst_ask_city_required():
         assert _require_city(c) == c
 
 
+def test_lot3_energie_actif_type_median_and_spread_base():
+    # Lot 3 : (10) la valeur « actif type » du simulateur Énergie = médiane
+    # DYNAMIQUE de la freguesia choisie (RdRow.median = z.median_eur_m2 servi),
+    # fini le 3790 implicite (loyer/rendement brut) ; (11) la carte de
+    # décomposition d'arbitrage explicite la BASE du spread (médiane de marché),
+    # cohérent avec le point 2 (aucune « Médiane Gaia » codée en dur).
+    from pathlib import Path
+
+    front = Path(__file__).resolve().parents[2] / "frontend"
+    rd = (front / "lib" / "rendement.ts").read_text(encoding="utf-8")
+    retro = (front / "components" / "RetrofitSimulator.tsx").read_text(encoding="utf-8")
+    spread = (front / "components" / "SpreadWaterfall.tsx").read_text(encoding="utf-8")
+
+    # (10) RdRow.median vient de la médiane servie, et le simulateur l'affiche.
+    assert "median: z.median_eur_m2" in rd, "RdRow.median doit venir de z.median_eur_m2"
+    assert "row.median" in retro, "le simulateur doit afficher row.median (actif type)"
+    # La médiane servie EST la valeur attendue à l'écran (Porto Cedofeita, Gaia SM).
+    porto = {z["zone"]: z["median_eur_m2"] for z in ms.score_city("porto", "detention", "residential")}
+    gaia = {z["zone"]: z["median_eur_m2"] for z in ms.score_city("gaia", "detention", "residential")}
+    assert porto["cedofeitavitoria"] == 3801, porto["cedofeitavitoria"]
+    assert gaia["santamarinhaesaopedrodaafurada"] == 2721, gaia["santamarinhaesaopedrodaafurada"]
+
+    # (11) la carte spread explicite la base, sans fuite « Gaia ».
+    assert "médiane de marché" in spread, "libellé de base du spread absent"
+    assert "spread" in spread.lower()
+    assert "Médiane Gaia" not in spread and "médiane Gaia" not in spread
+
+
 if __name__ == "__main__":  # dependency-free smoke run
     ms.load()
     test_four_distinct_modes()
@@ -924,4 +952,5 @@ if __name__ == "__main__":  # dependency-free smoke run
     test_no_city_copy_leak_between_cities()
     test_landbank_uplift_reconciled_across_surfaces()
     test_analyst_ask_city_required()
+    test_lot3_energie_actif_type_median_and_spread_base()
     print("OK : all smoke checks passed")

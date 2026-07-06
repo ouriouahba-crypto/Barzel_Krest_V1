@@ -134,6 +134,10 @@ export function capexPerM2(from: SceGrade, to: SceGrade): number | null {
 
 // Impact sur le yield net d'un actif type de la freguesia (ligne détention du
 // moteur) : CAPEX ajouté à la base de valeur, loyer inchangé.
+// Base économique du calcul = valeur implicite loyer / rendement brut (le
+// rendement net « avant » reste EXACTEMENT celui de la page Rendement, pas de
+// dérive inter-page). La valeur AFFICHÉE « actif type » (médiane de marché de la
+// freguesia) est un libellé, gérée côté composant : voir RetrofitSimulator.
 export function retrofitImpact(row: RdRow, capex: number) {
   if (!row.loyer || row.yieldBrut <= 0) return null;
   const value = row.loyer / (row.yieldBrut / 100);          // valeur type €/m²

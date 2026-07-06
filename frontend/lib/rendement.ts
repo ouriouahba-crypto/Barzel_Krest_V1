@@ -13,6 +13,7 @@ export interface RdRow {
   short: string;
   total: number;             // detention score /100
   verdict: string;
+  median: number | null;     // prix médian de marché €/m² (base « actif type » énergie)
   loyer: number | null;      // loyer de marché €/m²/an
   yieldBrut: number;         // yield brut % (ajusté zone)
   chargesPctLoyer: number;   // charges + vacance, % du loyer
@@ -35,6 +36,7 @@ function toRow(z: CityResponse["zones"][number]): RdRow | null {
     short: shortName(z.zone_name),
     total: z.total,
     verdict: z.verdict,
+    median: z.median_eur_m2 ?? null,
     loyer: b.loyer_marche_eur_m2_an,
     yieldBrut: b.yield_brut_pct,
     chargesPctLoyer: b.charges_pct_loyer,
