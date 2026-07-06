@@ -1,9 +1,9 @@
 "use client";
 
+import type { ComponentType } from "react";
 import { ModeScore } from "@/lib/api";
 import { MODE_LABEL, Mode } from "@/lib/scoring";
 import { PillarBar, ScoreDial, VerdictBadge } from "./ui";
-import { HayaSlider } from "./HayaSlider";
 
 export interface KeyFigure {
   label: string;
@@ -17,6 +17,7 @@ export function DetailPanel({
   mode,
   keyFigures,
   haya,
+  assetSlider,
 }: {
   open: boolean;
   onClose: () => void;
@@ -24,7 +25,9 @@ export function DetailPanel({
   mode: Mode;
   keyFigures: KeyFigure[];
   haya: { baseTotal: number; margeWeight: number } | null;
+  assetSlider: ComponentType<{ baseTotal: number; margeWeight: number }> | null;
 }) {
+  const AssetSlider = assetSlider;
   return (
     <>
       {/* scrim on small screens */}
@@ -59,7 +62,7 @@ export function DetailPanel({
               </button>
             </div>
 
-            {haya && <div className="mt-4"><HayaSlider {...haya} /></div>}
+            {AssetSlider && haya && <div className="mt-4"><AssetSlider {...haya} /></div>}
 
             <div className="mt-5 flex items-center gap-4 rounded-2xl border border-navy/10 bg-navy p-4">
               <ScoreDial score={score.total} size={68} />

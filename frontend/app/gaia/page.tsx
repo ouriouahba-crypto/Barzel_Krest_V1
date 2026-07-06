@@ -46,6 +46,12 @@ export default function CartePage() {
   const panelZone = hover ?? g.focusZone;
   const q = g.quickFor(panelZone);
 
+  // Actif vedette de la ville (miroir de showHaya sur Prix & marge) : le curseur
+  // ne s'affiche que sur la zone de l'actif vedette, en résidentiel, panneau ouvert.
+  const AssetSlider = city.promoAssetSlider ?? null;
+  const showAsset =
+    detailOpen && g.focusZone === city.promoAsset?.zoneId && g.assetClass === "residential" && !!g.hayaProps;
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
@@ -114,6 +120,7 @@ export default function CartePage() {
         mode={g.mode}
         keyFigures={g.detailScore ? detailFigures(g.detailScore, g.mode) : []}
         haya={g.hayaProps}
+        assetSlider={showAsset ? AssetSlider : null}
       />
     </div>
   );
