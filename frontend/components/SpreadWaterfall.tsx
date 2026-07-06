@@ -12,10 +12,15 @@ export function SpreadWaterfall({
   row,
   mode,
   classLabel,
+  baseLabel,
 }: {
   row: ArbRow | null;
   mode: Mode;
   classLabel: string;
+  // Suffixe de la base du spread, DATA-DRIVEN côté page : « de la ville »
+  // (médiane ville, base constante) vs « de la freguesia »/« de la commune »
+  // (médiane maille) ; repli « de marché ».
+  baseLabel: string;
 }) {
   if (!row || row.valeurRealisable == null) return <WaterfallEmpty />;
 
@@ -28,7 +33,7 @@ export function SpreadWaterfall({
   return (
     <Waterfall
       title={`Décomposition de la cession · ${row.name}`}
-      subtitle={`Spread ${pctSigned(row.spreadPct)} vs médiane de marché ${eurM2(row.prixMarche)} · ${classLabel}`}
+      subtitle={`Spread ${pctSigned(row.spreadPct)} vs médiane ${baseLabel} ${eurM2(row.prixMarche)} · ${classLabel}`}
       mode={mode}
       verdict={row.verdict}
       headline={pctSigned(row.spreadPct)}

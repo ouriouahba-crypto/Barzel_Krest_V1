@@ -896,12 +896,50 @@ def test_analyst_ask_city_required():
         assert _require_city(c) == c
 
 
+def test_analyst_ask_class_guard():
+    # Lot finitions (B) : /api/analyst/ask valide `asset_class` comme le `class`
+    # du scoring. Classe PRÉSENTE non canonique -> 400 ; classe ABSENTE -> défaut
+    # Pydantic residential (200) ; classe canonique -> 200. Mirror direct du helper
+    # (comme test_analyst_ask_city_required ; l'appel HTTP complet exige une clé API).
+    from fastapi import HTTPException
+    from backend.routers.analyst import _require_class, AskPayload
+
+    def status(cls):
+        try:
+            _require_class(cls)
+            return 200
+        except HTTPException as e:
+            return e.status_code
+
+    assert status("banana") == 400                 # présente non canonique
+    assert status("bureaux") == 400                # libellé FR non canonique
+    assert status("") == 400                       # présente vide -> 400 (pas un repli)
+    # Classe absente du payload : le défaut Pydantic est residential -> validé (200).
+    assert AskPayload(question="q").asset_class == "residential"
+    assert status(AskPayload(question="q").asset_class) == 200
+    for c in ms.CLASSES:                            # 5 classes canoniques -> 200
+        assert status(c) == 200, c
+        assert _require_class(c) == c
+
+
+def test_analyst_context_no_hardcoded_gaia_median():
+    # Lot finitions (A2) : la base du spread dans le contexte analyste est
+    # « médiane de marché », jamais « médiane Gaia » (fuite white-label : une ville
+    # non-Gaia ne doit pas voir « médiane Gaia » dans le contexte du modèle).
+    from backend.routers.analyst import _build_context
+
+    for city in ("gaia", "porto", "lisbonne", "bruxelles"):
+        ctx = _build_context("residential", city)
+        assert "médiane gaia" not in ctx.lower(), city    # aucune fuite Gaia codée en dur
+        assert "médiane de marché" in ctx, city           # base du spread explicitée
+
+
 def test_lot3_energie_actif_type_median_and_spread_base():
     # Lot 3 : (10) la valeur « actif type » du simulateur Énergie = médiane
     # DYNAMIQUE de la freguesia choisie (RdRow.median = z.median_eur_m2 servi),
     # fini le 3790 implicite (loyer/rendement brut) ; (11) la carte de
-    # décomposition d'arbitrage explicite la BASE du spread (médiane de marché),
-    # cohérent avec le point 2 (aucune « Médiane Gaia » codée en dur).
+    # décomposition d'arbitrage ET l'en-tête du tableau explicitent la BASE du
+    # spread, DATA-DRIVEN (médiane ville vs maille), sans « Gaia » codé en dur.
     from pathlib import Path
 
     front = Path(__file__).resolve().parents[2] / "frontend"
@@ -918,10 +956,18 @@ def test_lot3_energie_actif_type_median_and_spread_base():
     assert porto["cedofeitavitoria"] == 3801, porto["cedofeitavitoria"]
     assert gaia["santamarinhaesaopedrodaafurada"] == 2721, gaia["santamarinhaesaopedrodaafurada"]
 
-    # (11) la carte spread explicite la base, sans fuite « Gaia ».
-    assert "médiane de marché" in spread, "libellé de base du spread absent"
+    # (11) la cascade ET l'en-tête du tableau explicitent la base via un suffixe
+    # DATA-DRIVEN (« médiane {baseLabel} »), jamais « Gaia » codé en dur.
+    page = (front / "app" / "arbitrage" / "page.tsx").read_text(encoding="utf-8")
+    table = (front / "components" / "ArbitrageTable.tsx").read_text(encoding="utf-8")
+    assert "médiane ${baseLabel}" in spread, "base du spread (cascade) non data-driven"
+    assert "médiane ${baseLabel}" in table, "base du spread (tableau) non data-driven"
     assert "spread" in spread.lower()
-    assert "Médiane Gaia" not in spread and "médiane Gaia" not in spread
+    for f in (spread, table, page):
+        assert "médiane gaia" not in f.lower(), "aucune « médiane Gaia » codée en dur"
+    # La page dérive la base : prix_marche constant sur toutes les lignes -> médiane
+    # ville ; sinon médiane de la maille (city.zoneNoun) ; repli « de marché ».
+    assert "baseIsCity" in page and "de marché" in page and "city.zoneNoun" in page
 
 
 if __name__ == "__main__":  # dependency-free smoke run
@@ -952,5 +998,7 @@ if __name__ == "__main__":  # dependency-free smoke run
     test_no_city_copy_leak_between_cities()
     test_landbank_uplift_reconciled_across_surfaces()
     test_analyst_ask_city_required()
+    test_analyst_ask_class_guard()
+    test_analyst_context_no_hardcoded_gaia_median()
     test_lot3_energie_actif_type_median_and_spread_base()
     print("OK : all smoke checks passed")

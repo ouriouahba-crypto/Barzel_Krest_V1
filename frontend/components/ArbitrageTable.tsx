@@ -18,26 +18,35 @@ type Key = "name" | "valeurRealisable" | "spreadPct" | "delaiMois";
 
 type Dir = "asc" | "desc";
 
-const COLS: { key: Key; label: string; unit?: string; num: boolean }[] = [
-  { key: "name", label: "Freguesia", num: false },
-  { key: "valeurRealisable", label: "Valeur réalisable", unit: "€/m²", num: true },
-  { key: "spreadPct", label: "Spread", unit: "vs médiane de marché", num: true },
-  { key: "delaiMois", label: "Délai", unit: "mois", num: true },
-];
-
 export function ArbitrageTable({
   rows,
   mode,
   focusZone,
   onSelect,
+  baseLabel,
 }: {
   rows: ArbRow[];
   mode: Mode;
   focusZone: string | null;
   onSelect: (zone: string) => void;
+  // Suffixe de la base du spread (« de la ville » / « de la freguesia » /
+  // « de la commune » / « de marché »), calculé data-driven côté page.
+  baseLabel: string;
 }) {
   const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "spreadPct", dir: "desc" });
   const { Sg, pl } = useZoneNoun();
+  // "Spread" se compare à la médiane VILLE (base constante : Gaia, Porto) ou à
+  // la médiane de la MAILLE (base par ligne : Lisbonne, Bruxelles) : le libellé
+  // le dit, sans hardcode par ville.
+  const COLS = useMemo<{ key: Key; label: string; unit?: string; num: boolean }[]>(
+    () => [
+      { key: "name", label: "Freguesia", num: false },
+      { key: "valeurRealisable", label: "Valeur réalisable", unit: "€/m²", num: true },
+      { key: "spreadPct", label: "Spread", unit: `vs médiane ${baseLabel}`, num: true },
+      { key: "delaiMois", label: "Délai", unit: "mois", num: true },
+    ],
+    [baseLabel]
+  );
   // Until the user sorts: verdict groups, best arbitrage score first in each;
   // no column carries the ordering, so no arrow lights up.
   const [userSorted, setUserSorted] = useState(false);
