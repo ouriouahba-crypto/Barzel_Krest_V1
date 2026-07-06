@@ -319,7 +319,7 @@ def _adapt_params(raw: dict) -> dict:
         krest["haya_towers"] = krest["haya"]
     if "fabrica_oriente" in A:
         a = A["fabrica_oriente"]
-        krest["fabrica"] = {"name": "Fábrica Oriente", "city": a.get("city", "lisbonne"),
+        krest["fabrica"] = {"name": "Formoso", "city": a.get("city", "lisbonne"),
                             "zone": a.get("zone", "marvila"), "class": a.get("class", "residential"),
                             "primary_mode": "promotion",
                             "achievable_sale_eur_m2": _pv(a.get("target_price_eur_m2")),

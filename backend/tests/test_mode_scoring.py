@@ -640,7 +640,7 @@ def test_lisbonne_calibration_2b():
     assert _bd("belem")["meilleur_usage"] == "hôtel"
     assert usages["résidentiel"] >= 12 and 4 <= usages["hôtel"] <= 7 and usages["bureaux"] >= 3
 
-    # Actif vedette Fábrica Oriente : marge 20,5% à 5 400 (affichée 21%).
+    # Actif vedette Formoso (identifiant interne fabrica) : marge 20,5% à 5 400 (affichée 21%).
     a = ms.score_asset("fabrica", city="lisbonne")
     fb = next(p for p in a["primary"]["pillars"] if p["pillar"] == "marge")["breakdown"]
     assert a["zone"] == "marvila" and abs(fb["margin_pct"] - 20.5) <= 0.3, fb["margin_pct"]

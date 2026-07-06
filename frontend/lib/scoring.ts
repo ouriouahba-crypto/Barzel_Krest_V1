@@ -206,10 +206,12 @@ export const HAYA = {
 const COST_FACTOR = 1.261; // 1 + dev_cost_stack(0.18) + finance(LTV0.6×debt0.045×3y)
 
 // ---------------------------------------------------------------------------
-// Fábrica Oriente : actif vedette lisboète (Marvila, reconversion de friche
-// industrielle, 14 000 m² constructibles). Même équation moteur que Haya :
-// coût = 1,261 × (construction + foncier), résidentiel PT sans TVA sur le prix
-// de sortie (IMT côté acquéreur). Marge 20,5 % à 5 400 (affichée 21 %).
+// Formoso : actif vedette lisboète (Marvila, reconversion d'un entrepôt viticole,
+// 50 appartements T1 et T2 duplex, architecte Bak Gordon). L'identifiant interne
+// reste FABRICA (asset key fabrica_oriente, route API asset=fabrica, composant
+// FabricaSlider) : seul le libellé d'affichage change. Même équation moteur que
+// Haya : coût = 1,261 × (construction + foncier), résidentiel PT sans TVA sur le
+// prix de sortie (IMT côté acquéreur). Marge 20,5 % à 5 400 (affichée 21 %).
 // ---------------------------------------------------------------------------
 export const FABRICA = {
   construction: 2210, // coque conservée + finitions (reconversion)
@@ -253,7 +255,7 @@ export function hayaPremium(salePerM2: number): number {
 // conservée. Économie BE : TVA 21% assujettie sur le neuf (pas de droits
 // d'enregistrement sur le neuf) -> le prix de sortie est net de TVA avant la
 // marge ; coût = 1,261 × (conversion + foncier au prix bureau). Composant
-// distinct (DansaertSlider), Haya/Fábrica strictement intouchés.
+// distinct (DansaertSlider), Haya/Formoso strictement intouchés.
 // ---------------------------------------------------------------------------
 export const DANSAERT = {
   construction: 1550, // conversion bureau vers résidentiel, coque conservée + finitions + mise à niveau PEB
