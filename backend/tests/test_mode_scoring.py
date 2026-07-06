@@ -938,8 +938,8 @@ def test_lot3_energie_actif_type_median_and_spread_base():
     # Lot 3 : (10) la valeur « actif type » du simulateur Énergie = médiane
     # DYNAMIQUE de la freguesia choisie (RdRow.median = z.median_eur_m2 servi),
     # fini le 3790 implicite (loyer/rendement brut) ; (11) la carte de
-    # décomposition d'arbitrage explicite la BASE du spread (médiane de marché),
-    # cohérent avec le point 2 (aucune « Médiane Gaia » codée en dur).
+    # décomposition d'arbitrage ET l'en-tête du tableau explicitent la BASE du
+    # spread, DATA-DRIVEN (médiane ville vs maille), sans « Gaia » codé en dur.
     from pathlib import Path
 
     front = Path(__file__).resolve().parents[2] / "frontend"
@@ -956,10 +956,18 @@ def test_lot3_energie_actif_type_median_and_spread_base():
     assert porto["cedofeitavitoria"] == 3801, porto["cedofeitavitoria"]
     assert gaia["santamarinhaesaopedrodaafurada"] == 2721, gaia["santamarinhaesaopedrodaafurada"]
 
-    # (11) la carte spread explicite la base, sans fuite « Gaia ».
-    assert "médiane de marché" in spread, "libellé de base du spread absent"
+    # (11) la cascade ET l'en-tête du tableau explicitent la base via un suffixe
+    # DATA-DRIVEN (« médiane {baseLabel} »), jamais « Gaia » codé en dur.
+    page = (front / "app" / "arbitrage" / "page.tsx").read_text(encoding="utf-8")
+    table = (front / "components" / "ArbitrageTable.tsx").read_text(encoding="utf-8")
+    assert "médiane ${baseLabel}" in spread, "base du spread (cascade) non data-driven"
+    assert "médiane ${baseLabel}" in table, "base du spread (tableau) non data-driven"
     assert "spread" in spread.lower()
-    assert "Médiane Gaia" not in spread and "médiane Gaia" not in spread
+    for f in (spread, table, page):
+        assert "médiane gaia" not in f.lower(), "aucune « médiane Gaia » codée en dur"
+    # La page dérive la base : prix_marche constant sur toutes les lignes -> médiane
+    # ville ; sinon médiane de la maille (city.zoneNoun) ; repli « de marché ».
+    assert "baseIsCity" in page and "de marché" in page and "city.zoneNoun" in page
 
 
 if __name__ == "__main__":  # dependency-free smoke run

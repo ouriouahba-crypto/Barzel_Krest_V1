@@ -39,6 +39,14 @@ export default function ArbitragePage() {
 
   const cls = g.assetClass;
   const allRows = useMemo(() => arbRows(g.arbitrageCity), [g.arbitrageCity]);
+
+  // Base du spread, DATA-DRIVEN (pas de hardcode par ville) : si prix_marche est
+  // constant sur toutes les lignes, la base est la médiane de la VILLE (Gaia,
+  // Porto) ; sinon la médiane de la MAILLE (Lisbonne, Bruxelles). Les prix_marche
+  // sont des entiers arrondis côté backend, l'égalité stricte est fiable.
+  const baseIsCity = allRows.length > 1 && allRows.every((r) => r.prixMarche === allRows[0].prixMarche);
+  const spreadBaseLabel =
+    allRows.length <= 1 ? "de marché" : baseIsCity ? "de la ville" : `de la ${city.zoneNoun}`;
   const rows = useMemo(
     () => (selected.length ? allRows.filter((r) => selected.includes(r.zone)) : allRows),
     [allRows, selected]
@@ -178,6 +186,7 @@ export default function ArbitragePage() {
             mode="arbitrage"
             focusZone={g.focusZone}
             onSelect={g.setFocusZone}
+            baseLabel={spreadBaseLabel}
           />
 
           {/* Analysis note: the most telling exception (if any) */}
@@ -191,7 +200,7 @@ export default function ArbitragePage() {
 
           {/* Disposal decomposition (+ Cais Poente slider for Santa Marinha résidentiel) */}
           <div className={`shrink-0 ${showAsset ? "grid grid-cols-1 gap-4 xl:grid-cols-[1.35fr_1fr]" : ""}`}>
-            <SpreadWaterfall row={selectedRow} mode="arbitrage" classLabel={classLabel(cls)} />
+            <SpreadWaterfall row={selectedRow} mode="arbitrage" classLabel={classLabel(cls)} baseLabel={spreadBaseLabel} />
             {showAsset && assetProps && (
               <div className="flex flex-col gap-2">
                 <CaisSlider {...assetProps} />
