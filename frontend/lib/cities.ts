@@ -212,7 +212,7 @@ export const CITIES: CityDef[] = [
       promoContextResidential:
         "À Porto, la marge de promotion se déplace vers l'arc de régénération est : Campanhã porte le foncier le moins cher de la ville et un pipeline structurant (nouveau terminal intermodal, projet mixte Souto de Moura), quand la Foz reste plafonnée par un foncier cher qui écrase la marge malgré le prix.",
       promoAssetCaption:
-        "Curseur temps réel sur l'actif K-REST à Campanhã (projet mixte Souto de Moura, composante résidentielle) : ajustez le prix de sortie pour voir la marge et le verdict se recalculer.",
+        "Curseur temps réel sur l'actif K-REST à Campanhã (projet mixte Souto de Moura à la gare de Campanhã, composante résidentielle, positionnement accessible) : ajustez le prix de sortie pour voir la marge et le verdict se recalculer.",
       promoSelectiveRest: "de la ville",
       analystSuggestions: [
         { q: "Où lancer une promotion résidentielle à Porto ?", icon: "pin" },

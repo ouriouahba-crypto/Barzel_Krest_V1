@@ -286,22 +286,26 @@ export function dansaertPremium(salePerM2: number): number {
 
 // ---------------------------------------------------------------------------
 // Campanha Souto de Moura : actif vedette porto (Campanha, arc de regeneration
-// est). Projet mixte (logement, bureaux, hotel) signe Eduardo Souto de Moura,
-// vedette ancree sur sa composante RESIDENTIELLE. Meme equation moteur que Haya/
-// Fabrica : cout = 1,261 × (construction + foncier) ; residentiel PT SANS TVA sur
-// le prix de sortie (IMT cote acquereur), contrairement au neuf BE (Dansaert).
-// Composant distinct (CampanhaSlider) ; Haya/Fabrica/Dansaert strictement
-// intouches. Feu vert du developpement a marge conventionnelle (hurdle rate
-// projet 12%, plus exigeant que le cap de marche 8% de la commune).
+// est). Projet mixte (logement, appart-hotel, bureaux, commerces) signe Eduardo
+// Souto de Moura avec Metro Urbe, a 300 m de la gare de Campanha ; vedette ancree
+// sur sa composante RESIDENTIELLE, positionnement accessible (recale sur donnees
+// publiques KREST : foncier acquis ~15 M eur / ~70 000 m2 = ~215 eur/m2). Meme
+// modele de cout que Haya/Fabrica : cout = 1,261 × (construction + foncier) ;
+// residentiel PT SANS TVA sur le prix de sortie (IMT cote acquereur). La marge de
+// la vedette est une marge sur le prix de sortie (profit sur GDV : (prix - cout)/
+// prix), coherente avec le positionnement accessible et avec le backend (flag
+// margin_basis "gdv" de l'actif). Composant distinct (CampanhaSlider) ; Haya/
+// Fabrica/Dansaert strictement intouches. Feu vert du developpement a marge
+// conventionnelle (hurdle rate projet 12%, plus exigeant que le cap de marche 8%).
 // ---------------------------------------------------------------------------
 export const CAMPANHA = {
-  construction: 1850, // rehabilitation/developpement mixte, standard architectural signature
-  foncier: 760,       // foncier de l'emprise de regeneration (proche du terminal intermodal)
+  construction: 1800, // rehabilitation/developpement mixte a composante residentielle (recale)
+  foncier: 215,       // foncier acquis ~15 M eur / ~70 000 m2 constructibles = ~215 eur/m2
   freguesiaMedian: 2857, // Campanha (INE)
-  baseSale: 3790,     // Go confortable : marge ~15%, prime +33% (< la prime generique du neuf)
-  saleMin: 3100,      // borne basse en Passer (marge negative)
-  saleMax: 4300,      // borne haute en Go, marge ~31%
-  surface: 22000,     // m² constructibles du projet mixte (composante residentielle predominante)
+  baseSale: 3000,     // Go confortable : marge sur GDV ~15%, prime +5% (positionnement accessible)
+  saleMin: 2500,      // borne basse en Passer (marge negative)
+  saleMax: 3600,      // borne haute en Go, marge ~29%
+  surface: 22000,     // composante residentielle simulee (interne, non affichee) du projet mixte 70 000+ m²
   goMarginFloorPct: 12, // hurdle rate projet : bascule Conditionnel -> Go a ~12% de marge,
   //                       plus exigeant que le cap de marche 8% de la commune. Calibration de
   //                       la couche actif, jamais des 7 freguesias.
@@ -312,8 +316,11 @@ export function campanhaCost() {
 }
 
 export function campanhaMargin(salePerM2: number): number {
-  const cost = campanhaCost(); // PT residentiel : pas de TVA deduite du prix de sortie
-  return ((salePerM2 - cost) / cost) * 100;
+  // Marge sur le prix de sortie (profit sur GDV), positionnement accessible ;
+  // PT residentiel : pas de TVA deduite du prix de sortie. Miroir du backend
+  // (flag margin_basis "gdv" de l'actif campanha_souto).
+  const cost = campanhaCost();
+  return ((salePerM2 - cost) / salePerM2) * 100;
 }
 
 export function campanhaPremium(salePerM2: number): number {

@@ -691,13 +691,53 @@ def test_porto_calibration_2b():
     assert dt["campanha"]["verdict"] == "Surveiller"
 
     # Actif vedette Campanha Souto de Moura : projet mixte ancre residentiel,
-    # marge conventionnelle ~15% (seuil Go a 12%, plus exigeant que le cap 8%),
-    # residentiel PT SANS TVA sur le prix de sortie.
+    # positionnement accessible (recale sur donnees publiques KREST : foncier
+    # ~215 eur/m2, prix de sortie 3000). Marge sur GDV ~15% (seuil Go a 12%, plus
+    # exigeant que le cap de marche 8%), residentiel PT SANS TVA sur le prix de
+    # sortie. Cout condense = 1,261 x (construction 1800 + foncier 215) = 2541.
+    import math
     a = ms.score_asset("campanha", city="porto")
-    fb = next(p for p in a["primary"]["pillars"] if p["pillar"] == "marge")["breakdown"]
+    mp = next(p for p in a["primary"]["pillars"] if p["pillar"] == "marge")
+    fb = mp["breakdown"]
     assert a["zone"] == "campanha" and a["primary_mode"] == "promotion"
     assert a["primary"]["verdict"] == "Go" and 14.0 <= fb["margin_pct"] <= 16.0, fb["margin_pct"]
-    assert fb["realizable_sale"] == 3790 and fb["vat_pct"] == 0.0
+    assert fb["realizable_sale"] == 3000 and fb["vat_pct"] == 0.0
+    assert fb["cost_total"] == 2541 and fb["premium_over_median_pct"] <= 6.0, fb
+
+    # Bascule Go de l'actif vedette (CampanhaSlider, recalcul cote client). Le prix
+    # de sortie glisse, la marge sur GDV et le verdict se recalculent ; feu vert du
+    # developpement au hurdle rate projet 12%. On reproduit ici la meme arithmetique
+    # que le slider (cout condense, marge sur GDV, bande de marge, echelle promotion,
+    # clamp d'affichage) sur le baseTotal reellement servi par le moteur.
+    st = ms.load("porto")
+    base_total, marge_w = a["primary"]["total"], mp["weight"]
+    cost = 1.261 * (1800 + 215)                        # 2540.915
+    def _gdv(sale): return (sale - cost) / sale * 100.0
+    def _band_marge(m): return ms._band(st, "marge_pct", m)
+    base_sub = _band_marge(_gdv(3000))
+
+    def _slider(sale):
+        m = _gdv(sale)
+        total = max(0.0, min(100.0, base_total + marge_w * (_band_marge(m) - base_sub)))
+        v = "Go" if total >= 70 else ("Conditionnel" if total >= 50 else "Passer")
+        if m < 0:
+            v = "Passer"
+        elif m < 12 and v == "Go":
+            v = "Conditionnel"
+        s = math.floor(total + 0.5)                    # roundHalfUp (mirror front)
+        return v, (s if v == "Go" else min(s, 69))
+
+    # Defaut 3000 : Go, marge ~15,3%, score affiche 73 (>= 71).
+    assert _slider(3000) == ("Go", 73), _slider(3000)
+    # Bascule Conditionnel -> Go entre 2880 et 2890 (premier cran Go 2890, marge ~12,1%).
+    assert _slider(2880)[0] == "Conditionnel" and _slider(2890)[0] == "Go", (_slider(2880), _slider(2890))
+    first_go = next(s for s in range(2500, 3610, 10) if _slider(s)[0] == "Go")
+    assert first_go == 2890, first_go
+    # Clamp d'affichage hors Go : a 2880 le total brut arrondit a 70, mais le verdict
+    # n'est pas Go (marge < 12%) -> score affiche plafonne a 69 (jamais 70 sous badge
+    # Conditionnel), meme correctif que Fabrica/Dansaert.
+    would_be = math.floor(max(0.0, min(100.0, base_total + marge_w * (_band_marge(_gdv(2880)) - base_sub))) + 0.5)
+    assert would_be == 70 and _slider(2880)[1] == 69, (would_be, _slider(2880))
 
 
 if __name__ == "__main__":  # dependency-free smoke run
