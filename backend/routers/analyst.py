@@ -153,7 +153,7 @@ def _mode_block(mode: str, zones: list[dict]) -> list[str]:
         elif mode == "arbitrage":
             b = _pillar(z, "spread").get("breakdown") or {}
             out.append(head + f", valeur réalisable {_fmt(b.get('valeur_realisable_eur_m2'), 0)} €/m², "
-                              f"spread {_fmt(b.get('spread_pct'))}% vs médiane Gaia {_fmt(b.get('prix_marche_eur_m2'), 0)} €/m², "
+                              f"spread {_fmt(b.get('spread_pct'))}% vs médiane de marché {_fmt(b.get('prix_marche_eur_m2'), 0)} €/m², "
                               f"délai de cession {_fmt(b.get('delai_cession_mois'))} mois, frais {_fmt(b.get('frais_cession_pct'))}%, "
                               f"décote {_fmt(b.get('decote_negociation_pct'))}%")
         else:  # landbank
@@ -270,7 +270,7 @@ RÈGLES ABSOLUES :
 - Tu cites les freguesias par leur nom et les chiffres exacts (mêmes décimales que les données quand c'est utile). Exception : les scores se citent toujours en entiers (« 87/100 »), jamais avec décimale.
 - {VILLE} compte {NFREG} freguesias (la ligne « ville » est l'agrégat municipal, pas une de plus). Ces territoires s'appellent des freguesias ; n'emploie jamais d'autre terme (jamais « friches », « quartiers » ou « communes »).
 - Tu ne mentionnes JAMAIS de niveau de confiance, de source de donnée, de méthodologie interne ni l'idée qu'une donnée serait simulée ou estimée. Si l'on t'interroge sur l'origine ou la nature des données : « la plateforme agrège des données de marché et son modèle propriétaire Barzel », sans autre détail.
-- Si la question sort de Vila Nova de Gaia ou du périmètre immobilier de la plateforme, réponds avec élégance que c'est hors du périmètre couvert par la plateforme sur {VILLE}, et propose ce que tu peux couvrir.
+- Si la question sort de {VILLE} ou du périmètre immobilier de la plateforme, réponds avec élégance que c'est hors du périmètre couvert par la plateforme sur {VILLE}, et propose ce que tu peux couvrir.
 - Ponctuation : tu n'utilises JAMAIS le tiret cadratin (le tiret long, U+2014), ni seul ni encadré d'espaces ; articule avec deux-points, virgule, parenthèses ou une nouvelle phrase.
 - Ton sobre et professionnel, en français. Réponses courtes : 5 à 10 lignes, en texte simple, JAMAIS de markdown (pas de titres, pas de gras, pas de puces), des phrases.
 - Avant de conclure, vérifie la cohérence interne de ta réponse : n'affirme jamais qu'un territoire domine sur tous les axes si un seul axe s'inverse ; dans ce cas, nomme l'exception d'emblée.
@@ -299,6 +299,16 @@ def _require_city(city_in: str | None) -> str:
     return city
 
 
+def _require_class(cls_in: str) -> str:
+    """`asset_class` PRÉSENT mais non canonique : 400 (symétrique au `class` des
+    endpoints de scoring). La classe ABSENTE prend le défaut Pydantic « residential »
+    avant d'arriver ici ; seule une valeur explicite hors des 5 classes est rejetée
+    (fini le repli silencieux vers residential sur une classe inconnue)."""
+    if cls_in not in _CLASSES:
+        raise HTTPException(status_code=400, detail=f"unknown asset_class {cls_in!r}")
+    return cls_in
+
+
 @router.post("/ask")
 def ask(payload: AskPayload) -> dict:
     question = (payload.question or "").strip()
@@ -306,7 +316,7 @@ def ask(payload: AskPayload) -> dict:
         raise HTTPException(status_code=400, detail="question vide")
     if len(question) > 600:
         raise HTTPException(status_code=400, detail="question trop longue")
-    asset_class = payload.asset_class if payload.asset_class in _CLASSES else "residential"
+    asset_class = _require_class(payload.asset_class)
     city = _require_city(payload.city)
 
     key = _api_key()
