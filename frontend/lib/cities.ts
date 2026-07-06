@@ -110,6 +110,14 @@ export const CITIES: CityDef[] = [
         "Le neuf se vend cher rive sud du Douro quand le foncier reste rare : la marge de promotion se décide surtout sur le coût du terrain, freguesia par freguesia.",
       promoAssetCaption:
         "Curseur temps réel sur l'actif K-REST à Afurada : ajustez le prix de vente pour voir la marge et le verdict se recalculer.",
+      // Copie Fiscalité/Énergie propre à Gaia (rive sud du Douro) : déplacée
+      // verbatim du régime PT partagé, désormais neutre (aucune fuite d'identité).
+      fiscaliteMarketLine:
+        "Portugal, rive sud du Douro : ce que le fisc prend à chaque étape, et comment c'est déjà intégré dans nos verdicts.",
+      energieMarketLine:
+        "Rive sud du Douro : ce que la réglementation énergétique va coûter au parc, où, et comment c'est déjà compté dans nos verdicts.",
+      energieIntro:
+        "La directive EPBD impose une trajectoire de rénovation au parc européen ; le certificat SCE (A+ → F) en est l'instrument portugais. Exposition du parc de Gaia, échéances, et coût d'une mise à niveau.",
       analystSuggestions: [
         { q: "Où lancer une promotion résidentielle à Gaia ?", icon: "pin" },
         { q: "Faut-il conserver ou céder un actif résidentiel à Madalena ?", icon: "building" },
@@ -214,6 +222,14 @@ export const CITIES: CityDef[] = [
       promoAssetCaption:
         "Curseur temps réel sur l'actif K-REST à Campanhã (projet mixte Souto de Moura à la gare de Campanhã, composante résidentielle, positionnement accessible) : ajustez le prix de sortie pour voir la marge et le verdict se recalculer.",
       promoSelectiveRest: "de la ville",
+      // Copie Fiscalité/Énergie propre à Porto (concelho, arc est / centre
+      // historique) : sinon la ville hérite du repli PT neutre. Aucune fuite Gaia.
+      fiscaliteMarketLine:
+        "Portugal, concelho do Porto : ce que le fisc prend à chaque étape, et comment c'est déjà intégré dans nos verdicts.",
+      energieMarketLine:
+        "Concelho do Porto : ce que la réglementation énergétique va coûter au parc, où, et comment c'est déjà compté dans nos verdicts.",
+      energieIntro:
+        "La directive EPBD impose une trajectoire de rénovation au parc européen ; le certificat SCE (A+ → F) en est l'instrument portugais. Exposition du parc de Porto, du bâti ancien du centre historique à l'arc est en régénération, échéances, et coût d'une mise à niveau.",
       analystSuggestions: [
         { q: "Où lancer une promotion résidentielle à Porto ?", icon: "pin" },
         { q: "Pourquoi Campanhã ressort-elle en promotion malgré son prix bas ?", icon: "pin" },

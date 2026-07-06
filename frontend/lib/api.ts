@@ -98,6 +98,10 @@ export interface CityResponse {
   city: string;
   mode: Mode;
   count: number;
+  // Décompte des verdicts sur la maille fine (hors municipio), servi par le
+  // backend : source unique consommée par les insights de synthèse et les
+  // décomptes affichés (le texte de synthèse ne recompte plus seul).
+  verdict_counts?: Record<string, number>;
   zones: ModeScore[];
 }
 export interface AssetResponse {

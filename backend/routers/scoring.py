@@ -45,6 +45,23 @@ def _present(payload, debug: bool):
     return payload if debug else _clean(payload)
 
 
+def _verdict_counts(results: list) -> dict:
+    """Décompte des verdicts sur la MAILLE FINE (hors zone municipio), source
+    unique de comptage pour les insights de synthèse et les décomptes affichés
+    (le texte ne compte plus seul). Clés = chaînes de verdict brutes du moteur
+    (« Conserver », « Prioritaire », « Fenetre ouverte »…). N'entre PAS dans
+    le payload figé du snapshot Gaia (`_clean(score_city)` porte sur la liste
+    de zones, pas sur ce wrapper de route)."""
+    counts: dict[str, int] = {}
+    for z in results:
+        if isinstance(z, dict) and z.get("level") == "municipio":
+            continue
+        v = z.get("verdict") if isinstance(z, dict) else None
+        if v:
+            counts[v] = counts.get(v, 0) + 1
+    return counts
+
+
 def _check_class(asset_class: str | None) -> None:
     """Validation symétrique au mode : class absent OU vide -> défaut résidentiel
     (comportement historique préservé, `"" or "residential"`) ; class NON VIDE
@@ -92,7 +109,17 @@ def city(
     results = ms.score_city(city, mode, asset_class)
     if not results:
         raise HTTPException(status_code=404, detail=f"no zones for city {city!r}")
-    return _present({"city": city, "mode": mode, "class": asset_class or "residential", "count": len(results), "zones": results}, debug)
+    return _present(
+        {
+            "city": city,
+            "mode": mode,
+            "class": asset_class or "residential",
+            "count": len(results),
+            "verdict_counts": _verdict_counts(results),
+            "zones": results,
+        },
+        debug,
+    )
 
 
 @router.get("/asset")

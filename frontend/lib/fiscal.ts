@@ -187,8 +187,10 @@ export function volets(): FiscalVolet[] {
 
 // Textes de page du régime PT (déplacés de app/fiscalite/page.tsx, verbatim).
 export const PAGE = {
+  // Libellé NEUTRE (aucune ville nommée) : repli commun du régime PT, chaque
+  // ville PT porte son propre `texts.fiscaliteMarketLine` (cf. lib/cities.ts).
   marketLine:
-    "Portugal, rive sud du Douro : ce que le fisc prend à chaque étape, et comment c'est déjà intégré dans nos verdicts.",
+    "Portugal : ce que le fisc prend à chaque étape, et comment c'est déjà intégré dans nos verdicts.",
   chipPrefix: "Portugal",
   intro:
     "Acquérir, détenir, céder : les prélèvements portugais aux taux officiels 2026, et l'endroit exact où chacun est déjà compté dans les cascades de la plateforme.",

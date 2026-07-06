@@ -21,7 +21,7 @@ type Dir = "asc" | "desc";
 const COLS: { key: Key; label: string; unit?: string; num: boolean }[] = [
   { key: "name", label: "Freguesia", num: false },
   { key: "valeurRealisable", label: "Valeur réalisable", unit: "€/m²", num: true },
-  { key: "spreadPct", label: "Spread", unit: "vs médiane Gaia", num: true },
+  { key: "spreadPct", label: "Spread", unit: "vs médiane de marché", num: true },
   { key: "delaiMois", label: "Délai", unit: "mois", num: true },
 ];
 

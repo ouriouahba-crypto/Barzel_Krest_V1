@@ -172,13 +172,17 @@ export const TIMELINE: { when: string; what: string }[] = [
   { when: "2040", what: "Sortie des chaudières à combustibles fossiles." },
 ];
 
-// Textes de page du régime PT (déplacés de app/energie/page.tsx, verbatim).
+// Textes de page du régime PT. `marketLine`/`intro` sont NEUTRES (aucun nom de
+// ville) : ce repli commun ne doit fuir l'identité éditoriale d'aucune ville.
+// Chaque ville PT porte son propre libellé dans le registre
+// (`texts.energieMarketLine` / `texts.energieIntro`, cf. lib/cities.ts) ; ces
+// valeurs génériques ne servent que de dernier recours.
 export const PAGE = {
   marketLine:
-    "Rive sud du Douro : ce que la réglementation énergétique va coûter au parc, où, et comment c'est déjà compté dans nos verdicts.",
+    "Ce que la réglementation énergétique va coûter au parc, où, et comment c'est déjà compté dans nos verdicts.",
   chipPrefix: "EPBD",
   intro:
-    "La directive EPBD impose une trajectoire de rénovation au parc européen ; le certificat SCE (A+ → F) en est l'instrument portugais. Exposition du parc de Gaia, échéances, et coût d'une mise à niveau.",
+    "La directive EPBD impose une trajectoire de rénovation au parc européen ; le certificat SCE (A+ → F) en est l'instrument portugais. Exposition du parc, échéances, et coût d'une mise à niveau.",
   bannerEyebrowPrefix: "Exposition du parc",
   maxLabelPrefix: "Parc le plus exposé",
   maxSub: "du parc en classes E-F",
