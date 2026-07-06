@@ -269,6 +269,9 @@ def _adapt_params(raw: dict) -> dict:
             e["comparables_eur_m2_conf"] = zd.get("comparables_eur_m2_conf", HYPOTHESE)
         if "risque_energie" in zd:
             e["risque_energie"] = {"value": _pv(zd["risque_energie"]), "conf": _pc(zd["risque_energie"])}
+        if "overlays_risk_0_100" in zd:
+            e["overlays_risk_0_100"] = _pv(zd["overlays_risk_0_100"])
+            e["overlays_risk_0_100_conf"] = _pc(zd["overlays_risk_0_100"])
         if isinstance(zd.get("best_use"), list):
             e["best_use"] = list(zd["best_use"])
         if zid in best_use and "best_use" not in e:
@@ -318,6 +321,16 @@ def _adapt_params(raw: dict) -> dict:
                             "land_cost_eur_m2": _pv(a.get("land_cost_eur_m2"), 1343),
                             "confidence": RAPPORT}
         krest["fabrica_oriente"] = krest["fabrica"]
+    if "dansaert_quai" in A:
+        a = A["dansaert_quai"]
+        krest["dansaert"] = {"name": "Dansaert Quai", "city": a.get("city", "bruxelles"),
+                             "zone": a.get("zone", "molenbeeksaintjean"), "class": a.get("class", "residential"),
+                             "primary_mode": "promotion",
+                             "achievable_sale_eur_m2": _pv(a.get("target_price_eur_m2")),
+                             "construction_eur_m2": _pv(a.get("construction_eur_m2"), 1550),
+                             "land_cost_eur_m2": _pv(a.get("land_cost_eur_m2"), 780),
+                             "confidence": RAPPORT}
+        krest["dansaert_quai"] = krest["dansaert"]
     if "alcochete_landbank" in A:
         a = A["alcochete_landbank"]
         krest["alcochete"] = {"name": "Alcochete Landbank", "city": a.get("city", "alcochete"),
@@ -339,6 +352,13 @@ def _adapt_params(raw: dict) -> dict:
         # optionnel par fichier ville ; None = pas de cap (gaia, témoin).
         "detention_net_floor_pct": _pv(sc.get("detention_net_floor_pct")),
     }
+    # Périmètre du socle de percentiles, par fichier ville : "pooled" (défaut,
+    # absent des params : univers = zones ville + pool témoin, gaia/lisbonne
+    # inchangés aux octets) ou "city" (univers = les seules zones de la ville).
+    # Bruxelles déclare "city" : marché de croissance faible, ses percentiles
+    # (momentum yoy 2-4%, constructibilité, etc.) doivent se classer ENTRE
+    # communes, pas contre les zones portugaises à fort yoy du pool témoin.
+    P["socle_scope"] = raw.get("socle_scope", "pooled")
     return P
 
 
@@ -409,9 +429,12 @@ def load(city: str | None = None, force: bool = False) -> State:
     # celui d'avant l'extraction des témoins (49 zones) : payloads identiques
     # aux octets. Les valeurs de la ville priment sur le pool en cas de clé
     # commune (fusion ville-en-dernier).
-    if slug != cities.WITNESS_SLUG and cities.witness_city_names():
+    pooled = params.get("socle_scope", "pooled") != "city"
+    if slug != cities.WITNESS_SLUG and cities.witness_city_names() and pooled:
         st.socle = _build_socle(_socle_universe(raw, zones, listings_by_zone))
     else:
+        # Socle sur les seules zones de la ville : villes à socle "city"
+        # (Bruxelles) ou pool témoin lui-même.
         st.socle = _build_socle(st)
     _STATES[slug] = st
     log.info("mode_scoring loaded [%s]: %d zones, %d zones with listings",

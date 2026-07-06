@@ -53,7 +53,7 @@ function toRow(z: CityResponse["zones"][number]): FcRow | null {
 export function fcRows(city?: CityResponse): FcRow[] {
   if (!city) return [];
   return city.zones
-    .filter((z) => z.level === "freguesia")
+    .filter((z) => z.level !== "municipio")
     .map(toRow)
     .filter((r): r is FcRow => r !== null)
     .sort((a, b) => b.upliftPct - a.upliftPct);

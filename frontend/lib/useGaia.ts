@@ -24,7 +24,10 @@ export function shortName(name: string) {
   // (« Santa Maria Maior » → « Santa Maria… », pas « Santa Maria  … »).
   return base.length > 13 ? base.slice(0, 12).trimEnd() + "…" : base;
 }
-const fregOnly = (c?: CityResponse) => (c?.zones || []).filter((z) => z.level === "freguesia");
+// Zones de maille fine (freguesias PT / communes BE), en excluant le municipio
+// agrégé. Résultat identique pour Gaia/Lisbonne (leur seul autre niveau est
+// municipio) et non vide pour Bruxelles (niveau commune).
+const fregOnly = (c?: CityResponse) => (c?.zones || []).filter((z) => z.level !== "municipio");
 const eur = (v: number | null | undefined) =>
   v != null ? `${Math.round(v).toLocaleString("fr-FR")} €/m²` : "–";
 
@@ -58,9 +61,11 @@ export function useGaia() {
     });
   }, [cityReady, CITY, assetClass, cityByKey]);
 
-  const promoAssetName = cityBySlug(citySlug).promoAsset.apiName;
+  // Actif vedette : absent pour les villes sans actif (Bruxelles, lot 2b) : on
+  // ne fetch pas et haya reste null (aucun marqueur, aucun curseur).
+  const promoAssetName = cityBySlug(citySlug).promoAsset?.apiName ?? null;
   useEffect(() => {
-    if (!cityReady) return;
+    if (!cityReady || !promoAssetName) return;
     api.asset(promoAssetName).then(setHaya).catch(() => {});
   }, [cityReady, promoAssetName]);
 

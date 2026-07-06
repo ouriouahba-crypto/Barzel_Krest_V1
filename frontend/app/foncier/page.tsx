@@ -52,10 +52,11 @@ export default function FoncierPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allRows]);
 
-  const scopeLabel = summary.scope === "viables" ? "freguesias viables" : "toutes freguesias";
+  const zn = { sg: city.zoneNoun, pl: city.zoneNounPlural };
+  const scopeLabel = summary.scope === "viables" ? `${zn.pl} viables` : `toutes ${zn.pl}`;
 
   // Conclusion layer: page insight + banner right block + anomaly note.
-  const fcLine = useMemo(() => landbankInsight(allRows), [allRows]);
+  const fcLine = useMemo(() => landbankInsight(allRows, zn), [allRows]);
   // Banner right block: the best potential = the max uplift AMONG the
   // Prioritaires (the sentence leads with it), falling back to the max uplift
   // among viables when no Prioritaire exists.
@@ -66,7 +67,7 @@ export default function FoncierPage() {
     return pool.reduce((a, b) => (b.upliftPct > a.upliftPct ? b : a));
   }, [allRows]);
   const fregScores = useMemo(
-    () => (g.landbankCity?.zones ?? []).filter((z) => z.level === "freguesia"),
+    () => (g.landbankCity?.zones ?? []).filter((z) => z.level !== "municipio"),
     [g.landbankCity]
   );
   const note = useMemo(() => anomalyNote("landbank", fregScores), [fregScores]);
@@ -181,7 +182,7 @@ export default function FoncierPage() {
               onSelect={g.setFocusZone}
               classLabel="tous usages"
               metric={(r) => r.upliftPct}
-              title="Uplift % par freguesia"
+              title={`Uplift % par ${zn.sg}`}
               metricLabel="uplift"
               digits={1}
             />

@@ -117,11 +117,13 @@ export function MultiSelect({
   selected,
   onChange,
   placeholder = "Toutes les freguesias",
+  searchPlaceholder = "Rechercher une freguesia…",
 }: {
   options: { id: string; label: string }[];
   selected: string[];
   onChange: (ids: string[]) => void;
   placeholder?: string;
+  searchPlaceholder?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -162,7 +164,7 @@ export function MultiSelect({
             autoFocus
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Rechercher une freguesia…"
+            placeholder={searchPlaceholder}
             className="mb-2 w-full rounded-lg border border-navy/10 bg-cream/40 px-3 py-2 text-btn outline-none focus:border-gold"
           />
           <div className="max-h-64 overflow-auto pr-1">

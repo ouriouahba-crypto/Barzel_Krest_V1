@@ -62,11 +62,12 @@ export default function RendementPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allRows]);
 
-  const scopeLabel = summary.scope === "viables" ? "freguesias viables" : "toutes freguesias";
+  const zn = { sg: city.zoneNoun, pl: city.zoneNounPlural };
+  const scopeLabel = summary.scope === "viables" ? `${zn.pl} viables` : `toutes ${zn.pl}`;
 
   // Conclusion layer: page insight + banner right block + anomaly note.
   const rdLine = useMemo(
-    () => detentionInsight(allRows, cls, cls === "residential" ? city.texts.yieldTrapClause : undefined),
+    () => detentionInsight(allRows, cls, cls === "residential" ? city.texts.yieldTrapClause : undefined, zn),
     [allRows, cls, city.texts.yieldTrapClause]
   );
   // Banner right block: the best-held freguesia (top-score Conserver, else top
@@ -78,7 +79,7 @@ export default function RendementPage() {
     return pool.reduce((a, b) => (b.total > a.total ? b : a));
   }, [allRows]);
   const fregScores = useMemo(
-    () => (g.detentionCity?.zones ?? []).filter((z) => z.level === "freguesia"),
+    () => (g.detentionCity?.zones ?? []).filter((z) => z.level !== "municipio"),
     [g.detentionCity]
   );
   const autoNote = useMemo(() => anomalyNote("detention", fregScores), [fregScores]);
@@ -168,7 +169,7 @@ export default function RendementPage() {
             <Kpi
               label="À céder"
               value={summary.totalCount ? `${summary.cederCount} / ${summary.totalCount}` : "–"}
-              sub="freguesias au verdict Céder"
+              sub={`${zn.pl} au verdict Céder`}
             />
           </div>
 
@@ -212,7 +213,7 @@ export default function RendementPage() {
               onSelect={g.setFocusZone}
               classLabel={classLabel(cls)}
               metric={(r) => r.yieldNet}
-              title="Yield net % par freguesia"
+              title={`Yield net % par ${zn.sg}`}
               metricLabel="yield net"
               digits={1}
             />

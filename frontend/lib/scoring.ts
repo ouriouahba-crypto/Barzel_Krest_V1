@@ -247,6 +247,43 @@ export function hayaPremium(salePerM2: number): number {
   return (salePerM2 / HAYA.freguesiaMedian - 1) * 100;
 }
 
+// ---------------------------------------------------------------------------
+// Dansaert Quai : actif vedette bruxellois (Molenbeek, quartier du canal /
+// Dansaert). Conversion d'un immeuble de bureaux vacant en résidentiel, coque
+// conservée. Économie BE : TVA 21% assujettie sur le neuf (pas de droits
+// d'enregistrement sur le neuf) -> le prix de sortie est net de TVA avant la
+// marge ; coût = 1,261 × (conversion + foncier au prix bureau). Composant
+// distinct (DansaertSlider), Haya/Fábrica strictement intouchés.
+// ---------------------------------------------------------------------------
+export const DANSAERT = {
+  construction: 1550, // conversion bureau vers résidentiel, coque conservée + finitions + mise à niveau PEB
+  foncier: 780,       // acquisition de l'immeuble de bureaux vacant, au prix bureau
+  communeMedian: 2740, // Molenbeek-Saint-Jean
+  baseSale: 4080,      // Go confortable : marge ~15%, prime +49% (< +50%) sur la médiane commune
+  saleMin: 3300,       // borne basse en Passer (marge négative)
+  saleMax: 4600,       // borne haute en Go, marge saine ~29%
+  surface: 13000,
+  vatPct: 21,          // TVA neuf BE assujettie
+  goMarginFloorPct: 12, // seuil de feu vert du DÉVELOPPEMENT (hurdle rate projet) : une
+  //                      marge conventionnelle est requise pour engager la conversion, plus
+  //                      exigeant que le cap de marché de la commune (8%). Calibration de la
+  //                      couche actif, jamais des 19 communes.
+};
+
+export function dansaertCost() {
+  return COST_FACTOR * (DANSAERT.construction + DANSAERT.foncier);
+}
+
+export function dansaertMargin(salePerM2: number): number {
+  const cost = dansaertCost();
+  const net = salePerM2 / (1 + DANSAERT.vatPct / 100); // net de TVA 21%
+  return ((net - cost) / cost) * 100;
+}
+
+export function dansaertPremium(salePerM2: number): number {
+  return (salePerM2 / DANSAERT.communeMedian - 1) * 100;
+}
+
 // Piecewise-linear band -> 0-100 subscore (mirrors the backend _band()).
 function bandSubscore(pts: [number, number][], v: number): number {
   if (v <= pts[0][0]) return pts[0][1];

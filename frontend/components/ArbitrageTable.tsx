@@ -5,6 +5,7 @@ import { Mode, scoreColor, verdictTextColor, verdictTone } from "@/lib/scoring";
 import { eur0 } from "@/lib/priceMargin";
 import { ArbRow, pctSigned } from "@/lib/arbitrage";
 import { VerdictBadge } from "./ui";
+import { useZoneNoun } from "@/lib/useZoneNoun";
 
 // Arbitrage table: same visual codes as the other mode tables. Default:
 // open/narrow windows above a "Fenêtre fermée" separator, best score first in
@@ -36,6 +37,7 @@ export function ArbitrageTable({
   onSelect: (zone: string) => void;
 }) {
   const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "spreadPct", dir: "desc" });
+  const { Sg, pl } = useZoneNoun();
   // Until the user sorts: verdict groups, best arbitrage score first in each;
   // no column carries the ordering, so no arrow lights up.
   const [userSorted, setUserSorted] = useState(false);
@@ -96,7 +98,7 @@ export function ArbitrageTable({
                     <span className="inline-flex items-center gap-1 text-th leading-tight">
                       {!c.num && <span className="w-1" />}
                       <span className="flex flex-col">
-                        <span>{c.label}</span>
+                        <span>{c.key === "name" ? Sg : c.label}</span>
                         {c.unit && <span className="text-label font-medium normal-case text-muted">{c.unit}</span>}
                       </span>
                       <span className={`text-[10px] ${active ? "text-gold-700" : "text-transparent"}`}>
@@ -167,7 +169,7 @@ export function ArbitrageTable({
             {items.length === 0 && (
               <tr>
                 <td colSpan={COLS.length + 1} className="px-4 py-10 text-center text-body text-ink-soft">
-                  Chargement des freguesias…
+                  Chargement des {pl}…
                 </td>
               </tr>
             )}

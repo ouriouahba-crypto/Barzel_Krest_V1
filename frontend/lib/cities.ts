@@ -7,10 +7,14 @@
 import type { ComponentType } from "react";
 import * as fiscalPT from "./fiscal";
 import * as energiePT from "./energie";
+import * as fiscalBE from "./fiscalBE";
+import * as energieBE from "./energieBE";
+import type { RegimeFiscal, RegimeEnergie } from "./regimes";
 import { AcquisitionSimulator } from "@/components/AcquisitionSimulator";
 import { RetrofitSimulator } from "@/components/RetrofitSimulator";
 import { HayaSlider } from "@/components/HayaSlider";
 import { FabricaSlider } from "@/components/FabricaSlider";
+import { DansaertSlider } from "@/components/DansaertSlider";
 
 export type AnalystIcon = "pin" | "building" | "layers" | "bolt" | "compare";
 
@@ -28,8 +32,9 @@ export interface CityTexts {
   energieIntro?: string;
   /** IA Analyste : suggestions propres à la ville */
   analystSuggestions: { q: string; icon: AnalystIcon }[];
-  /** légende du curseur d'actif vedette (page Prix & marge) */
-  promoAssetCaption: string;
+  /** légende du curseur d'actif vedette (page Prix & marge ; absente si la ville
+   *  n'a pas encore d'actif vedette, lot 2b) */
+  promoAssetCaption?: string;
   /** complément du gabarit « marché sélectif » de la bannière Prix & marge
    *  (« de la capitale » à Lisbonne) ; absent = « de la ville » */
   promoSelectiveRest?: string;
@@ -49,17 +54,24 @@ export interface CityDef {
   cityZoneId: string;
   /** contours des freguesias/communes */
   geojson: string;
-  /** freguesia par défaut du simulateur énergie */
+  /** terme de maille de la ville : « freguesia » (PT), « commune » (BE). Pilote
+   *  tous les libellés de maille de l'UI (tableaux, placeholders, textes). */
+  zoneNoun: string;
+  zoneNounPlural: string;
+  /** freguesia/commune par défaut du simulateur énergie */
   energieDefaultZone: string;
-  /** régime fiscal du pays : barèmes, volets, insight, simulateur */
-  fiscal: typeof fiscalPT;
-  fiscalSimulator: ComponentType<{ residential: boolean }>;
-  /** régime énergie : échelle (SCE…), parc, frise réglementaire, simulateur */
-  energie: typeof energiePT;
-  retrofitSimulator: typeof RetrofitSimulator;
-  /** actif vedette promotion : nom API, freguesia, curseur dédié */
-  promoAsset: { apiName: string; zoneId: string; displayName: string };
-  promoAssetSlider: typeof HayaSlider;
+  /** régime fiscal de la ville : barèmes, volets, insight (PT ou BE, même contrat) */
+  fiscal: RegimeFiscal;
+  /** simulateur d'acquisition (curseur) : optionnel ; absent pour Bruxelles (lot 2b-ii) */
+  fiscalSimulator?: ComponentType<{ residential: boolean }>;
+  /** régime énergie : échelle (SCE / PEB), parc, frise réglementaire (PT ou BE) */
+  energie: RegimeEnergie;
+  /** simulateur de rénovation (curseur) : optionnel ; absent pour Bruxelles (lot 2b-ii) */
+  retrofitSimulator?: typeof RetrofitSimulator;
+  /** actif vedette promotion : nom API, freguesia/commune, curseur dédié.
+   *  Absent tant que la ville n'a pas d'actif vedette (Bruxelles : lot 2b). */
+  promoAsset?: { apiName: string; zoneId: string; displayName: string };
+  promoAssetSlider?: typeof HayaSlider;
   texts: CityTexts;
 }
 
@@ -72,6 +84,8 @@ export const CITIES: CityDef[] = [
     fiscalLocale: "pt-PT",
     cityZoneId: "vilanovadegaia",
     geojson: "/geo/gaia/freguesias.geojson",
+    zoneNoun: "freguesia",
+    zoneNounPlural: "freguesias",
     energieDefaultZone: "santamarinhaesaopedrodaafurada",
     fiscal: fiscalPT,
     fiscalSimulator: AcquisitionSimulator,
@@ -114,6 +128,8 @@ export const CITIES: CityDef[] = [
     fiscalLocale: "pt-PT",
     cityZoneId: "lisboa",
     geojson: "/geo/lisbonne/freguesias.geojson",
+    zoneNoun: "freguesia",
+    zoneNounPlural: "freguesias",
     energieDefaultZone: "santamariamaior",
     fiscal: fiscalPT,
     fiscalSimulator: AcquisitionSimulator,
@@ -155,6 +171,59 @@ export const CITIES: CityDef[] = [
         { q: "Quel est le meilleur usage d'un terrain à Marvila ?", icon: "layers" },
         { q: "Quel impact la réglementation énergétique a-t-elle sur une détention à Santa Maria Maior ?", icon: "bolt" },
         { q: "Compare Parque das Nações et Avenidas Novas en bureaux.", icon: "compare" },
+      ],
+    },
+  },
+  {
+    // Bruxelles : dataset simulé ancré + scoring générique (lot 2a). Maille =
+    // commune (19 communes de la Région de Bruxelles-Capitale).
+    // Régime fiscal/énergie BE RÉEL (lot 2b-i, display seulement) : droits
+    // d'enregistrement 12,5%, TVA neuf 21%, précompte, ISoc 25% côté Fiscalité ;
+    // PEB A-G, PEB 275 en 2033 / PEB 150 vers 2045, Renolution côté Énergie.
+    // Les simulateurs interactifs (curseurs) restent un lot 2b-ii : absents ici.
+    // Pas d'actif vedette (promoAsset absent) ni de municipio agrégé : lot 2b-ii.
+    slug: "bruxelles",
+    label: "Bruxelles",
+    country: "be",
+    currency: "EUR",
+    fiscalLocale: "fr-BE",
+    // Pas de municipio : commune représentative pour la vue par défaut de la Carte.
+    cityZoneId: "ixelles",
+    geojson: "/geo/bruxelles/freguesias.geojson",
+    zoneNoun: "commune",
+    zoneNounPlural: "communes",
+    energieDefaultZone: "ixelles",
+    fiscal: fiscalBE,
+    // fiscalSimulator omis (curseur = lot 2b-ii) : la page rend la table de contrôle seule.
+    energie: energieBE,
+    // retrofitSimulator omis (curseur = lot 2b-ii) : la page rend la frise + le parc seuls.
+    // Actif vedette (lot 2b-ii) : conversion bureau vers résidentiel au canal / Dansaert.
+    promoAsset: { apiName: "dansaert", zoneId: "molenbeeksaintjean", displayName: "Dansaert Quai" },
+    promoAssetSlider: DansaertSlider,
+    texts: {
+      // Textes V0 neutres et factuels (le terme de maille dit « commune »),
+      // à réécrire en 2b avec la signature bruxelloise.
+      marketLines: {
+        carte: "Région de Bruxelles-Capitale : marché à deux vitesses, l'arc du canal en mutation face au sud-est résidentiel plafonné. Dix-neuf communes, quatre lectures.",
+        vueEnsemble: "Région de Bruxelles-Capitale : la valeur se crée sur l'arc du canal en mutation, pas dans le premium plafonné par un foncier cher. Quatre lectures d'un même marché.",
+        comparer: "Région de Bruxelles-Capitale : un même territoire, quatre lectures (promotion, détention, arbitrage, foncier), commune par commune.",
+        prixMarge: "Région de Bruxelles-Capitale : coûts de construction élevés et TVA sur le neuf. La marge de promotion se joue sur l'arc du canal (Molenbeek, Anderlecht, Forest), là où le foncier reste accessible.",
+        rendement: "Région de Bruxelles-Capitale : précompte lourd et capex PEB sur le stock énergivore. Conserver ne se défend que sur le parc récent du sud-est, après charges et fiscalité.",
+        arbitrage: "Région de Bruxelles-Capitale : le mur PEB 2033 décote l'énergivore. La fenêtre de cession s'ouvre là où acheter décoté, rénover et capturer le saut de classe reste rentable.",
+        foncier: "Région de Bruxelles-Capitale : la réserve à activer est sur l'arc du canal en régénération. Elle se juge à sa constructibilité, son usage et son horizon d'activation.",
+        iaAnalyste: "Posez vos questions sur Bruxelles : l'analyste répond à partir des scores, verdicts et cascades de la plateforme.",
+      },
+      promoContextResidential:
+        "À Bruxelles, la marge de promotion est comprimée par des coûts de construction élevés et la TVA sur le neuf : elle se joue sur l'arc du canal en mutation (Molenbeek, Anderlecht, Forest), là où le foncier reste accessible et où la gentrification tire les prix de sortie, quand les communes premium sont plafonnées par un foncier cher.",
+      promoAssetCaption:
+        "Curseur temps réel sur l'actif K-REST au canal (Molenbeek) : ajustez le prix de sortie de la conversion pour voir la marge et le verdict se recalculer.",
+      promoSelectiveRest: "de la Région",
+      analystSuggestions: [
+        { q: "Où lancer une promotion résidentielle à Bruxelles ?", icon: "pin" },
+        { q: "Faut-il conserver ou céder un actif résidentiel à Ixelles ?", icon: "building" },
+        { q: "Quel est le meilleur usage d'un terrain à Anderlecht ?", icon: "layers" },
+        { q: "Quel impact la réglementation énergétique a-t-elle sur une détention à Schaerbeek ?", icon: "bolt" },
+        { q: "Compare Ixelles et Uccle en bureaux.", icon: "compare" },
       ],
     },
   },

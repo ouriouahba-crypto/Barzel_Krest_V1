@@ -21,7 +21,7 @@ const SANTA = "santamarinhaesaopedrodaafurada";
 // Arbitrage economics, one line per class.
 const CONTEXT: Record<string, string> = {
   residential:
-    "Le résidentiel a couru : les écarts face à la médiane sont réels, mais l'acheteur institutionnel reste rare. La fenêtre de cession se juge freguesia par freguesia.",
+    "Le résidentiel a couru : les écarts face à la médiane sont réels, mais l'acheteur institutionnel reste rare. La fenêtre de cession se juge {maille} par {maille}.",
   office:
     "Bureaux : appétit institutionnel soutenu et offre prime rare. Les meilleurs actifs trouvent preneur, le reste attend son cycle.",
   hotel:
@@ -64,10 +64,11 @@ export default function ArbitragePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allRows]);
 
-  const scopeLabel = summary.scope === "viables" ? "freguesias viables" : "toutes freguesias";
+  const zn = { sg: city.zoneNoun, pl: city.zoneNounPlural };
+  const scopeLabel = summary.scope === "viables" ? `${zn.pl} viables` : `toutes ${zn.pl}`;
 
   // Conclusion layer: page insight + banner right block + anomaly note.
-  const arbLine = useMemo(() => arbitrageInsight(allRows, cls), [allRows, cls]);
+  const arbLine = useMemo(() => arbitrageInsight(allRows, cls, zn), [allRows, cls]);
   // Banner right block: the best window (top-score open, else top viable),
   // never a global spread max that would contradict the sentence.
   const bestWindow: ArbRow | null = useMemo(() => {
@@ -77,7 +78,7 @@ export default function ArbitragePage() {
     return pool.reduce((a, b) => (b.total > a.total ? b : a));
   }, [allRows]);
   const fregScores = useMemo(
-    () => (g.arbitrageCity?.zones ?? []).filter((z) => z.level === "freguesia"),
+    () => (g.arbitrageCity?.zones ?? []).filter((z) => z.level !== "municipio"),
     [g.arbitrageCity]
   );
   const note = useMemo(() => anomalyNote("arbitrage", fregScores), [fregScores]);
@@ -126,7 +127,7 @@ export default function ArbitragePage() {
               </span>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
-              {CONTEXT[cls] ?? CONTEXT.residential}
+              {(CONTEXT[cls] ?? CONTEXT.residential).replaceAll("{maille}", city.zoneNoun)}
             </p>
           </div>
 
@@ -208,7 +209,7 @@ export default function ArbitragePage() {
               onSelect={g.setFocusZone}
               classLabel={classLabel(cls)}
               metric={(r) => r.spreadPct}
-              title="Spread % par freguesia"
+              title={`Spread % par ${zn.sg}`}
               metricLabel="spread"
               digits={1}
             />

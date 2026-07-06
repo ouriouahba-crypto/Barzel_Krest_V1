@@ -95,6 +95,23 @@ non migrés — à convertir s'ils sont réutilisés.
   constructibles, constantes `FABRICA` dans `lib/scoring.ts` + asset
   `fabrica_oriente` des params lisbonne) est fictif, nom vérifié sans
   correspondance : à remplacer par un actif réel du portefeuille.
+- **Questions ouvertes KREST · Bruxelles (à fournir après le lot 2b-ii)** :
+  la calibration éditoriale et l'actif vedette sont posés (lot 2b-ii, thèse Barzel
+  gravée) sur **données simulées**, à remplacer par les données client.
+  (a) **actif vedette bruxellois réel** : `Dansaert Quai` (conversion bureau vers
+  résidentiel, ~13 000 m², quartier du canal / Dansaert à Molenbeek, target
+  4 080 €/m², conversion 1 550, foncier bureau 780) est **fictif mais plausible** :
+  identité, localisation, surface et coût réels à fournir ; (b) **€/m² médians ET
+  yoy réels par commune** (le simulé ancré porte désormais la thèse deux vitesses :
+  arc canal +5…+6,8 %, premium +1,5…+2,4 % ; prix médians INCHANGÉS depuis 2a,
+  Woluwe-SP ~4 980 → Saint-Josse ~2 660) ; (c) **profil énergétique PEB réel** du
+  portefeuille (le `risque_energie` par commune est aligné sur le parc simulé
+  `PARC_PEB` : il alimente la détention et l'arbitrage) ; (d) **coûts de
+  construction/conversion et taux de rendement cibles réels** (aujourd'hui
+  construction résidentielle 2 050, conversion 1 550, yield brut 4,6 % :
+  hypothèses de travail) ; (e) **taux et régime fiscal exacts** (précompte
+  communal, véhicule société / SIR-GVV, share-deal). Ces points sont aussi listés
+  dans `meta.todo_2b_bruxelles` de `cities/bruxelles/params.json`.
 - **Actifs K-REST vedettes fictifs** : `Ribeira Sul` (détention — immeuble de
   rapport Santa Marinha, 24 lots / 1 800 m², acquis 2 300 €/m² + 340 €/m² de
   travaux, constantes `RIBEIRA` dans `lib/scoring.ts`), `Cais Poente`
@@ -104,6 +121,12 @@ non migrés — à convertir s'ils sont réutilisés.
   KREST**). Noms vérifiés sans correspondance avec un projet réel de Gaia
   (2026-07) ; à remplacer par les vrais actifs du portefeuille KREST. Haya
   Towers vient du brief client (params `assets`).
+- **Actif K-REST vedette bruxellois fictif** : `Dansaert Quai` (promotion,
+  conversion bureau vers résidentiel ~13 000 m², quartier du canal / Dansaert à
+  Molenbeek, coque conservée ; conversion 1 550 €/m² + foncier bureau 780 €/m²,
+  TVA 21 % neuf BE assujettie ; constantes `DANSAERT` dans `lib/scoring.ts` +
+  asset `dansaert_quai` des params bruxelles + `DansaertSlider`). Fictif mais
+  plausible ; **identité, localisation, surface et coût réels à fournir par KREST**.
 - **Marge promoteur normative de la valeur résiduelle foncière** : 15 % est
   notre hypothèse (`_LAND_NORMATIVE_MARGIN`) — à remplacer par la marge
   normative interne de KREST.
@@ -1679,6 +1702,76 @@ Aucun changement Gaia (snapshot aux octets) ni résidentiel Lisbonne.
    3 largeurs : 120/120 vert** ; captures lisbonne régénérées (`lisbonne_foncier.png`
    montre Arroios → résidentiel, hôtel au centre seul). HayaSlider et blocs
    K-REST intacts, `_clean` inchangé, `.env` non commité.
+
+### Lot 2b-ii Bruxelles : calibration éditoriale + actif vedette — **🔶 En QA (non committé)** (2026-07-06)
+Thèse Barzel de Bruxelles gravée (validée Ouri). **Aucun changement Gaia/Lisbonne/PT**
+(snapshot Gaia aux octets re-vérifié, invariants Lisbonne 2b/v0 PASS). Deux chantiers.
+
+**A. Calibration anti-austérité (sortie du 0 Go / 0 Conserver / 0 Prioritaire de 2a).**
+Ligne : la marge de promotion se joue sur l'arc du canal en mutation (Molenbeek,
+Anderlecht, Forest en priorité ; Saint-Gilles/Saint-Josse secondaires), foncier
+accessible + gentrification tire les prix ; le premium (Woluwe, Uccle, Ixelles,
+Auderghem) est plafonné par un foncier cher. Levier propre à Bruxelles : arbitrage
+PEB (mur 2033, classes F/G interdites) décote l'énergivore, la fenêtre s'ouvre sur le
+décoté renovable ; la détention est pénalisée par le capex PEB (stock énergivore) et le
+précompte. **Prix médians et hiérarchie 2a INCHANGÉS** (Woluwe-SP ~4 980 → Saint-Josse
+~2 660) : le momentum est une dimension distincte du niveau de prix.
+1. **Couche momentum** (`backbone.json` yoy) : deux vitesses, arc canal +5…+6,8 %
+   (Forest 6,8 ancre = plus forte hausse 5 ans réelle, Molenbeek 6,5, Anderlecht 6,4),
+   premium plateau +1,5…+2,4 %. Alimente `momentum_prix` (promotion) et `momentum_cycle`
+   (arbitrage), socle `city` (percentile entre communes).
+2. **Couche énergie** (`params.zones.risque_energie` par commune, aligné sur le parc
+   `PARC_PEB` du frontend : Saint-Josse 82 → Woluwe-SP 26). Alimente le pilier
+   `risque_energie` détention (haircut PEB). ⚠️ **Effet de bord assumé** : la page
+   Énergie lit ce risque moteur (`riskMeps`) → sa colonne « Risque PEB /100 » passe
+   d'un ~60 plat à un gradient différencié (Contenu → Exposé), cohérent avec le
+   `PARC_PEB` déjà affiché. Page Énergie NON éditée (code intact) ; seule la donnée
+   moteur qu'elle consomme change.
+3. **Recalibrage params (offsets en euros)** : construction résidentielle BE 2 480→2 050 ;
+   foncier par commune (arc accessible 55-120, premium cher 780-1 250) ; prime neuf (arc
+   24-40 % capture gentrification, premium 10-16 % plafonné) ; `comparables_eur_m2` par
+   commune = valeur post-repositionnement (spread arbitrage : arc +10…+13 %, premium
+   ~0/négatif) ; constructibilité (arc redéveloppement 66-72, premium bâti 36-46) ;
+   connectivité (métro/ligne 3 future) ; gross yield BE 3,6→4,6 % + `charges_pct.be`
+   1,2→0,7 (nets résidentiels ~2-2,7 %, plus réalistes) ; appétit résidentiel 80→55
+   (arbitrage modéré, marché fragmenté) ; landbank repondéré (constructibilité 0,25→0,36,
+   valeur 0,25→0,12 : marché de régénération) + `overlays_risk_0_100` par zone (timing
+   des zones de régénération canal/ZEMU facilité). **Nouveau moteur (additif, gated,
+   Gaia byte-identique)** : `_adapt_params` copie `overlays_risk_0_100` des zones (mirror
+   du pattern comparables/risque_energie).
+4. **Seuils recalibrés** (params, `recalibre les seuils`) : détention Conserver 65→60,
+   landbank Prioritaire 65→63 — plafond d'un marché de détention structurellement bas
+   (précompte + capex PEB écrêtent le net et la fiscalité à 25/100) ; promotion Go 70 et
+   arbitrage 65 inchangés. TVA 21 % neuf BE déjà appliquée par le moteur (résidentiel).
+5. **Cibles atteintes (résidentiel)** : promotion **3 Go** (Molenbeek 79, Forest 74,
+   Anderlecht 71) / 5 Conditionnel / 11 Passer ; détention **2 Conserver** (Woluwe-SP 62,
+   Woluwe-SL 61, sud-est vert) / 3 Surveiller / 14 Céder ; arbitrage **8 Fenêtre ouverte**
+   (arc) / 11 étroite (premium resserré) ; landbank **3 Prioritaire** (Molenbeek 69,
+   Forest 64, Anderlecht 64) / 7 À phaser / 9 En attente. **Cohérence croisée** : les 3
+   communes de l'arc sont Go promotion + Fenêtre ouverte + Prioritaire + Céder détention
+   (construire/repositionner, ne pas détenir l'ancien énergivore) ; le premium/vert est
+   Conserver détention + Passer/En attente/étroite (tenir le revenu, ne pas développer).
+
+**B. Actif vedette `Dansaert Quai`** (fictif plausible, à remplacer par KREST) : conversion
+d'un immeuble de bureaux vacant en résidentiel, quartier du canal / Dansaert (Molenbeek,
+Go promotion), ~13 000 m², coque conservée. Backend : asset `dansaert_quai` (params) +
+mapping `_adapt_params` (miroir Haya/Fábrica). Frontend : constantes `DANSAERT` +
+`DansaertSlider` (composant DISTINCT, Haya/Fábrica intouchés) + `promoAsset` du registre.
+**Économie BE** : coût = 1,261 × (conversion 1 550 + foncier bureau 780) = 2 938 €/m² ;
+**TVA 21 % neuf assujettie** (net de TVA avant marge), pas de droits d'enregistrement sur
+le neuf. Défaut **4 080 €/m²** → marge **14,8 %**, prime **+49 %** vs médiane Molenbeek
+2 740 (< +50 %), **score 77 Go** confortable. **Retouche (avant commit)** : le feu vert du
+développement exige une marge conventionnelle, `DANSAERT.goMarginFloorPct = 12 %`
+(**hurdle rate projet**, plus exigeant que le cap de marché 8 % de la commune, cohérent
+optiquement avec Fábrica à ~25 %) : bascule Conditionnel → Go à **~3 982 €/m²** (marge
+12 %), Passer sous 3 555 (marge < 0), borne haute 4 600 (marge ~29 %). Ajustement en euros
++ seuil de marge de la **couche actif uniquement**, jamais en points, jamais sur les 19
+communes. Le slider applique ce hurdle (clamp d'affichage : aucun score 70 sous badge
+Conditionnel).
+
+**Vérifs** : `tsc` OK ; snapshot Gaia aux octets PASS ; Lisbonne 2b + v0 PASS ; 0 cadratin
+(dataset Bruxelles + fichiers touchés) ; `score_asset dansaert` cohérent. **NON COMMITTÉ**
+(QA Ouri en direct d'abord).
 
 ### État final du gabarit de page de mode
 Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,

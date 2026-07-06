@@ -28,13 +28,11 @@ function detailFigures(score: ModeScore, mode: Mode): KeyFigure[] {
   return figs;
 }
 
-function cityAssetName(c: { promoAsset: { displayName: string } }) {
-  return c.promoAsset.displayName;
-}
-
 export default function CartePage() {
   const g = useGaia();
   const city = cityBySlug(useCityStore((s) => s.slug));
+  const noun = city.zoneNoun;              // « freguesia » (PT) / « commune » (BE)
+  const Noun = noun.charAt(0).toUpperCase() + noun.slice(1);
   const [selected, setSelected] = useState<string[]>([]);
   const [hover, setHover] = useState<string | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -73,7 +71,7 @@ export default function CartePage() {
               onSelectZone={onSelectZone}
               onHoverZone={setHover}
               hayaNorm={g.hayaNorm}
-              assetName={city.texts ? cityAssetName(city) : undefined}
+              assetName={city.promoAsset?.displayName}
               mode={g.mode}
               focusZoneId={g.focusZone}
             />
@@ -89,7 +87,7 @@ export default function CartePage() {
             <div className="absolute right-7 top-7 z-[500] w-72 rounded-2xl border border-gold/40 bg-navy p-4 text-cream shadow-card fade-up">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                  <div className="text-label uppercase tracking-widest text-gold/90">{q.level === "municipio" ? "Vue ville" : "Freguesia"}</div>
+                  <div className="text-label uppercase tracking-widest text-gold/90">{q.level === "municipio" ? "Vue ville" : Noun}</div>
                   <div className="font-display text-[17px] leading-tight">{q.name}</div>
                 </div>
                 <ScoreDial score={q.total} size={52} />
@@ -103,7 +101,7 @@ export default function CartePage() {
                 <Stat label={q.extra.label} value={q.extra.value} />
                 <Stat label={q.kpiLabel} value={q.kpiValue ?? "–"} />
               </div>
-              <div className="mt-3 text-label text-cream/60">Survolez une freguesia · cliquez pour le détail</div>
+              <div className="mt-3 text-label text-cream/60">Survolez une {noun} · cliquez pour le détail</div>
             </div>
           )}
         </main>

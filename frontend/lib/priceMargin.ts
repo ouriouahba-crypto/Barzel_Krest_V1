@@ -51,7 +51,7 @@ function toRow(z: CityResponse["zones"][number]): PmRow | null {
 export function pmRows(city?: CityResponse): PmRow[] {
   if (!city) return [];
   return city.zones
-    .filter((z) => z.level === "freguesia")
+    .filter((z) => z.level !== "municipio")
     .map(toRow)
     .filter((r): r is PmRow => r !== null)
     .sort((a, b) => b.marginPct - a.marginPct);

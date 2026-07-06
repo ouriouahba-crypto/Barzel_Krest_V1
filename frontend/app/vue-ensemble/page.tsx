@@ -35,6 +35,24 @@ const kpiVal = (s: ModeScore, m: Mode) => {
   return v != null ? `${fmtNum(v, MODE_KPI[m].digits)}${MODE_KPI[m].unit}` : "–";
 };
 
+// Proxy « vue ville » pour une ville sans municipio agrégé (ex. Bruxelles : 19
+// communes, aucun municipio) : la maille au score médian sert de représentant,
+// avec prix/yoy médians et transactions sommées pour la barre de contexte.
+// Gaia/Lisbonne ont un municipio : ce repli ne les touche jamais.
+function synthCity(fine: ModeScore[]): ModeScore | undefined {
+  if (!fine.length) return undefined;
+  const rep = [...fine].sort((a, b) => a.total - b.total)[Math.floor((fine.length - 1) / 2)];
+  const price = median(fine.map((z) => (z.price_eur_m2 ?? NaN) as number));
+  const yoy = median(fine.map((z) => (z.yoy_pct ?? NaN) as number));
+  const tx = fine.reduce((s, z) => s + (z.n_transactions ?? 0), 0);
+  return {
+    ...rep,
+    price_eur_m2: nn(price) ? price : rep.price_eur_m2,
+    yoy_pct: nn(yoy) ? yoy : rep.yoy_pct,
+    n_transactions: tx,
+  };
+}
+
 export default function VueEnsemble() {
   const g = useGaia();
   const city = cityBySlug(useCityStore((s) => s.slug));
@@ -47,15 +65,18 @@ export default function VueEnsemble() {
     for (const m of MODES) {
       const c = g.citiesByMode[m];
       if (!c) continue;
-      scores[m] = c.zones.find((z) => z.level === "municipio");
-      freg[m] = c.zones.filter((z) => z.level === "freguesia");
+      const fine = c.zones.filter((z) => z.level !== "municipio");
+      freg[m] = fine;
+      // Vue ville = municipio du moteur ; à défaut (Bruxelles, sans municipio),
+      // proxy synthétique sur les communes.
+      scores[m] = c.zones.find((z) => z.level === "municipio") ?? synthCity(fine);
     }
     return { scores, freg };
   }, [g.citiesByMode]);
 
   const bm = bestMode(overview.scores);
   const bmScore = bm ? overview.scores[bm] : undefined;
-  const cityLine = cityInsight(overview, cls);
+  const cityLine = cityInsight(overview, cls, { sg: city.zoneNoun, pl: city.zoneNounPlural });
 
   const bmFreg = (bm && overview.freg[bm]) || [];
   const podium = useMemo(() => [...bmFreg].sort((a, b) => b.total - a.total).slice(0, 3), [bmFreg]);
@@ -197,7 +218,7 @@ export default function VueEnsemble() {
           <div className="grid shrink-0 grid-cols-1 gap-3 xl:grid-cols-[1fr_1.35fr_1fr]">
             <section className="flex flex-col rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
               <div className="mb-3 flex items-baseline justify-between">
-                <h3 className="font-display text-[16px] text-navy">Où : top 3 freguesias</h3>
+                <h3 className="font-display text-[16px] text-navy">Où : top 3 {city.zoneNounPlural}</h3>
                 <span className="text-label text-muted">{bm ? MODE_LABEL[bm] : ""}</span>
               </div>
               <div className="flex flex-col gap-2.5">
@@ -223,7 +244,7 @@ export default function VueEnsemble() {
 
             <section className="flex flex-col rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
               <div className="mb-2 flex items-baseline justify-between">
-                <h3 className="font-display text-[16px] text-navy">Classement des freguesias</h3>
+                <h3 className="font-display text-[16px] text-navy">Classement des {city.zoneNounPlural}</h3>
                 <span className="text-label text-muted">score {bm ? MODE_LABEL[bm].toLowerCase() : ""} · par verdict</span>
               </div>
               <div>{bm && rankRows.length ? <OverviewRanking rows={rankRows} mode={bm} /> : null}</div>
@@ -251,7 +272,7 @@ export default function VueEnsemble() {
             <span className="mx-2 text-navy/20">·</span>
             {market.tx.toLocaleString("fr-FR")} transactions / an
             <span className="mx-2 text-navy/20">·</span>
-            {market.count} freguesias suivies
+            {market.count} {city.zoneNounPlural} suivies
           </div>
         </main>
       </div>

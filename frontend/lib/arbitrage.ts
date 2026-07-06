@@ -62,7 +62,7 @@ function toRow(z: CityResponse["zones"][number]): ArbRow | null {
 export function arbRows(city?: CityResponse): ArbRow[] {
   if (!city) return [];
   return city.zones
-    .filter((z) => z.level === "freguesia")
+    .filter((z) => z.level !== "municipio")
     .map(toRow)
     .filter((r): r is ArbRow => r !== null)
     .sort((a, b) => b.spreadPct - a.spreadPct);
