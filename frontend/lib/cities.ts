@@ -175,6 +175,46 @@ export const CITIES: CityDef[] = [
     },
   },
   {
+    // Porto, lot 2a : branchement mécanique (INE 12 mois à décembre 2025 + params
+    // V0 génératifs). Régime PT réutilisé (Fiscalité/Énergie de Lisbonne).
+    // Textes V0 neutres et factuels, à réécrire en 2b. Pas d'actif vedette (2b).
+    slug: "porto",
+    label: "Porto",
+    country: "pt",
+    currency: "EUR",
+    fiscalLocale: "pt-PT",
+    cityZoneId: "porto",
+    geojson: "/geo/porto/freguesias.geojson",
+    zoneNoun: "freguesia",
+    zoneNounPlural: "freguesias",
+    energieDefaultZone: "cedofeitavitoria",
+    fiscal: fiscalPT,
+    fiscalSimulator: AcquisitionSimulator,
+    energie: energiePT,
+    retrofitSimulator: RetrofitSimulator,
+    texts: {
+      marketLines: {
+        carte: "Concelho do Porto : 7 freguesias, du front de mer de la Foz au centre historique. Quatre lectures d'un même marché.",
+        vueEnsemble: "Concelho do Porto : prix en progression au centre, écarts nets entre freguesias. Quatre lectures d'un même marché.",
+        comparer: "Concelho do Porto : un même territoire, quatre lectures (promotion, détention, arbitrage, foncier), freguesia par freguesia.",
+        prixMarge: "Concelho do Porto : la marge de promotion se joue freguesia par freguesia, sur le prix de sortie et le coût du foncier.",
+        rendement: "Concelho do Porto : loyers et charges réels. Conserver ne se justifie qu'au rendement net, après charges et fiscalité.",
+        arbitrage: "Concelho do Porto : les écarts de prix entre freguesias sont réels. Céder se juge sur la fenêtre, le spread réalisable et la profondeur d'acheteurs.",
+        foncier: "Concelho do Porto : le foncier bien desservi se raréfie. La réserve se juge à sa valeur résiduelle par usage et à son horizon d'activation.",
+        iaAnalyste: "Posez vos questions sur Porto : l'analyste répond à partir des scores, verdicts et cascades de la plateforme.",
+      },
+      promoContextResidential:
+        "À Porto, la marge de promotion se décide sur le prix de sortie et le coût du foncier, freguesia par freguesia.",
+      analystSuggestions: [
+        { q: "Où lancer une promotion résidentielle à Porto ?", icon: "pin" },
+        { q: "Faut-il conserver ou céder un actif résidentiel à Cedofeita ?", icon: "building" },
+        { q: "Quel est le meilleur usage d'un terrain à Campanhã ?", icon: "layers" },
+        { q: "Quel impact la réglementation énergétique a-t-elle sur une détention à Bonfim ?", icon: "bolt" },
+        { q: "Compare Paranhos et Ramalde en bureaux.", icon: "compare" },
+      ],
+    },
+  },
+  {
     // Bruxelles : dataset simulé ancré + scoring générique (lot 2a). Maille =
     // commune (19 communes de la Région de Bruxelles-Capitale).
     // Régime fiscal/énergie BE RÉEL (lot 2b-i, display seulement) : droits

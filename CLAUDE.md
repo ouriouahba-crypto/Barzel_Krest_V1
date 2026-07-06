@@ -1773,6 +1773,52 @@ Conditionnel).
 (dataset Bruxelles + fichiers touchés) ; `score_asset dansaert` cohérent. **NON COMMITTÉ**
 (QA Ouri en direct d'abord).
 
+### Lot 2a Porto : 4e ville branchée mécaniquement (INE réel + V0) — **✅ Livré** (2026-07-06)
+Porto branché comme 4e ville sur le pattern multi-villes, régime PT réutilisé (même
+juridiction que Lisbonne/Gaia). **Purement additif** : aucun autre dataset, params,
+fixture, snapshot ni le régime PT partagé modifiés (snapshot Gaia aux octets PASS,
+invariants Lisbonne 2b PASS ; gaia/lisbonne/bruxelles promotion inchangés ; Haya/Fábrica/
+Dansaert inchangés). Pas de calibration éditoriale, pas d'actif vedette, pas de mémo PDF
+Porto (= lot 2b).
+1. **Données INE réelles** (`backend/data/cities/porto/backbone.json`) : 7 freguesias du
+   concelho do Porto + município (8 zones = 7 freguesias + município, exclu du décompte,
+   exact pattern Lisboa). €/m² médians et yoy **réels INE (12 mois à décembre 2025)** :
+   Foz/Aldoar/Nevogilde 3 932 (-0,7 %), Cedofeita/centro 3 801 (+18,7 %), Paranhos 3 286
+   (+15,5 %), Bonfim 3 196 (+12,7 %), Lordelo/Massarelos 3 130 (+6,0 %), Ramalde 2 869
+   (+5,6 %), Campanhã 2 857 (-1,2 %) ; município Porto 3 066 (+10,0 %). `n_transactions`
+   plausibles (proxy, non publiés à cette maille dans ce lot). Hiérarchie prix : Foz/centro
+   en haut, Campanhã en bas.
+2. **Params V0 génératifs** (`params.json`, `socle_scope: city`) : blocs PT partagés
+   (global, countries, construction_cost, classes/yields, scoring weights/bands/verdicts)
+   copiés de gaia (référence canonique, bande arbitrage 10/25/50) ; knobs dérivés
+   génératifs (foncier par inversion d'un gradient de marge mécanique 3-15 %, construction
+   1 700 ; prime neuf 19-34 %, constructibilité/connectivité/facteurs commerciaux en
+   gradient prix + jitter md5 ; anti-jumeaux foncier ; plancher 40) ; `commercial_gaia.city:
+   porto` (5 classes actives) ; ancre yield brut résidentiel Porto 5,0 % ; **pas d'actif
+   vedette**. Marges promotion V0 : 3,3-14,1 % (Foz Passer malgré le prix, yoy -0,7 %
+   réel ; Cedofeita Conditionnel, yoy +18,7 % réel). Verdicts V0 résidentiel : promotion
+   1 Conditionnel / 6 Passer ; détention 4 Surveiller / 3 Céder ; arbitrage 5 étroite /
+   2 fermée ; landbank 1 Prioritaire / 4 À phaser / 2 En attente (mécanique, à calibrer 2b).
+3. **Listings** (`listings_sim.csv`, 2 640) : générés par le pipeline `simulate`
+   (seed 42, centroïde Porto 41,162 / -8,622), **outillage partagé non modifié** (paths
+   repointés au runtime dans un script hors-dépôt).
+4. **Geojson** (`frontend/public/geo/porto/freguesias.geojson`, 9,4 Ko) : contours
+   geoapi.pt (dérivé CAOP/DGT, WGS84), 7 Polygones simplifiés Douglas-Peucker, propriété
+   `freguesia` joignant 7/7 au backbone via `normFreguesia` (préfixe « União das
+   freguesias de » retiré).
+5. **Registres** : backend `registry.json` + frontend `lib/cities.ts` (fiscalPT/energiePT,
+   simulateurs PT, `energieDefaultZone` cedofeitavitoria, textes V0 neutres, pas de
+   `promoAsset`). CitySelector à 4 villes automatique. Test registre étendu à porto
+   (`test_city_registry_and_default_dataset`).
+6. **Gardes réutilisées sans affaiblissement** : class absent → residential ; class non
+   canonique → 400 ; mode invalide → 400 ; mode requis (absent → 422) ; 5 classes
+   canoniques exactes tournent (8 zones chacune).
+7. **Vérifs** : `tsc` OK ; **30/30 tests framework** (le 31e = pytest.raises, split env) ;
+   snapshot Gaia aux octets PASS ; 0 cadratin (dataset Porto + fichiers touchés) ; geojson
+   join 7/7 ; 4 modes × 5 classes servis. **À calibrer 2b** : hiérarchies éditoriales par
+   mode, actif vedette Porto, parc SCE réel (ADENE), n_transactions réels, MARKET_LINEs et
+   insights réécrits.
+
 ### État final du gabarit de page de mode
 Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,
 `rendement_net`, `spread`, `constructibilite`), InsightBanner + insight gradué à
