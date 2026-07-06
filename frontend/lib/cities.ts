@@ -15,6 +15,7 @@ import { RetrofitSimulator } from "@/components/RetrofitSimulator";
 import { HayaSlider } from "@/components/HayaSlider";
 import { FabricaSlider } from "@/components/FabricaSlider";
 import { DansaertSlider } from "@/components/DansaertSlider";
+import { CampanhaSlider } from "@/components/CampanhaSlider";
 
 export type AnalystIcon = "pin" | "building" | "layers" | "bolt" | "compare";
 
@@ -177,7 +178,8 @@ export const CITIES: CityDef[] = [
   {
     // Porto, lot 2a : branchement mécanique (INE 12 mois à décembre 2025 + params
     // V0 génératifs). Régime PT réutilisé (Fiscalité/Énergie de Lisbonne).
-    // Textes V0 neutres et factuels, à réécrire en 2b. Pas d'actif vedette (2b).
+    // Lot 2b : calibration signature Campanha (arc de regeneration est) + actif
+    // vedette Campanha Souto de Moura (projet mixte, ancre residentiel).
     slug: "porto",
     label: "Porto",
     country: "pt",
@@ -192,24 +194,31 @@ export const CITIES: CityDef[] = [
     fiscalSimulator: AcquisitionSimulator,
     energie: energiePT,
     retrofitSimulator: RetrofitSimulator,
+    // Actif vedette (lot 2b) : projet mixte signe Souto de Moura a Campanha, ancre
+    // sur sa composante residentielle (arc de regeneration est, freguesia Campanha).
+    promoAsset: { apiName: "campanha", zoneId: "campanha", displayName: "Campanha Souto de Moura" },
+    promoAssetSlider: CampanhaSlider,
     texts: {
       marketLines: {
-        carte: "Concelho do Porto : 7 freguesias, du front de mer de la Foz au centre historique. Quatre lectures d'un même marché.",
-        vueEnsemble: "Concelho do Porto : prix en progression au centre, écarts nets entre freguesias. Quatre lectures d'un même marché.",
+        carte: "Concelho do Porto : 7 freguesias, du front de mer de la Foz au centre historique. La valeur de promotion se déplace vers l'arc de régénération est (Campanhã). Quatre lectures d'un même marché.",
+        vueEnsemble: "Concelho do Porto : la marge de promotion se joue sur l'arc de régénération est (Campanhã), foncier le moins cher porté par un pipeline structurant, quand la Foz est plafonnée par un foncier cher. Quatre lectures d'un même marché.",
         comparer: "Concelho do Porto : un même territoire, quatre lectures (promotion, détention, arbitrage, foncier), freguesia par freguesia.",
-        prixMarge: "Concelho do Porto : la marge de promotion se joue freguesia par freguesia, sur le prix de sortie et le coût du foncier.",
-        rendement: "Concelho do Porto : loyers et charges réels. Conserver ne se justifie qu'au rendement net, après charges et fiscalité.",
-        arbitrage: "Concelho do Porto : les écarts de prix entre freguesias sont réels. Céder se juge sur la fenêtre, le spread réalisable et la profondeur d'acheteurs.",
-        foncier: "Concelho do Porto : le foncier bien desservi se raréfie. La réserve se juge à sa valeur résiduelle par usage et à son horizon d'activation.",
+        prixMarge: "Concelho do Porto : la marge de promotion se joue sur l'arc de régénération est (Campanhã), là où le foncier reste le moins cher et où un pipeline structurant soutient la sortie ; la Foz est plafonnée par un foncier cher.",
+        rendement: "Concelho do Porto : loyers et charges réels. Conserver ne se justifie qu'au rendement net, après charges et fiscalité, sur le parc central profond.",
+        arbitrage: "Concelho do Porto : les écarts de prix entre freguesias sont réels. Céder se juge sur la fenêtre, le spread réalisable et la profondeur d'acheteurs ; sur l'arc est, on construit plutôt qu'on ne cède.",
+        foncier: "Concelho do Porto : la réserve à activer est sur l'arc de régénération est (Campanhã, Bonfim), portée par le nouveau terminal intermodal. Elle se juge à sa constructibilité, son usage et son horizon d'activation.",
         iaAnalyste: "Posez vos questions sur Porto : l'analyste répond à partir des scores, verdicts et cascades de la plateforme.",
       },
       promoContextResidential:
-        "À Porto, la marge de promotion se décide sur le prix de sortie et le coût du foncier, freguesia par freguesia.",
+        "À Porto, la marge de promotion se déplace vers l'arc de régénération est : Campanhã porte le foncier le moins cher de la ville et un pipeline structurant (nouveau terminal intermodal, projet mixte Souto de Moura), quand la Foz reste plafonnée par un foncier cher qui écrase la marge malgré le prix.",
+      promoAssetCaption:
+        "Curseur temps réel sur l'actif K-REST à Campanhã (projet mixte Souto de Moura, composante résidentielle) : ajustez le prix de sortie pour voir la marge et le verdict se recalculer.",
+      promoSelectiveRest: "de la ville",
       analystSuggestions: [
         { q: "Où lancer une promotion résidentielle à Porto ?", icon: "pin" },
+        { q: "Pourquoi Campanhã ressort-elle en promotion malgré son prix bas ?", icon: "pin" },
         { q: "Faut-il conserver ou céder un actif résidentiel à Cedofeita ?", icon: "building" },
         { q: "Quel est le meilleur usage d'un terrain à Campanhã ?", icon: "layers" },
-        { q: "Quel impact la réglementation énergétique a-t-elle sur une détention à Bonfim ?", icon: "bolt" },
         { q: "Compare Paranhos et Ramalde en bureaux.", icon: "compare" },
       ],
     },

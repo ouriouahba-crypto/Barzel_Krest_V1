@@ -1,8 +1,8 @@
 {
  "meta": {
-  "version": "0.1",
+  "version": "0.2",
   "generated": "2026-07-06",
-  "role": "Params Porto lot 2a (MECANIQUE) : scoring generique sur dataset INE reel (prix/yoy). Knobs V0 generatifs sous contraintes (foncier par inversion d'un gradient de marge, prime neuf/constructibilite/connectivite/facteurs commerciaux en gradient prix + jitter md5). AUCUNE calibration editoriale, aucun actif vedette (= lot 2b). Regime PT reutilise (Fiscalite/Energie communs).",
+  "role": "Params Porto lot 2b (CALIBRATION EDITORIALE + ACTIF VEDETTE) : signature Campanha gravee sur dataset INE reel (prix/yoy INONCHANGES). Couche momentum/regeneration (regeneration_momentum par zone : plancher du momentum de promotion porte par le pipeline est, le yoy INE reel n'est PAS touche), foncier/prime/constructibilite/connectivite/overlays recalibres (offsets en euros), landbank repondere (marche de regeneration). Actif vedette Campanha Souto de Moura (projet mixte, ancre residentiel). Regime PT reutilise (Fiscalite/Energie communs). Gaia/Lisbonne/Bruxelles/PT intouches.",
   "city": "porto",
   "confidence_legend": {
    "officiel": "Regle ou taux publie par une autorite (fiscalite, reglement, seuil legal).",
@@ -10,7 +10,16 @@
    "hypothese": "Valeur de travail proposee par defaut, A VALIDER par Ouri (terrain metier)."
   },
   "edit_note": "value = valeur ; unit = unite ; conf = confiance ; src = source. Ne pas supprimer les cles, corriger les valeurs.",
-  "note": "V0 : hierarchie des prix = INE reel ; les knobs derives sont generatifs, a calibrer en 2b. Pas d'actif vedette, pas de calibration par nom."
+  "note": "Hierarchie des prix = INE reel (Foz 3932 en haut, Campanha 2857 en bas ; yoy INE reels INCHANGES). La calibration 2b grave la these Barzel : Campanha (arc de regeneration est) porte le foncier le moins cher de la ville -> meilleure marge de promotion, soutenue par un pipeline structurant (nouveau terminal intermodal, projet mixte Souto de Moura) ; le premium (Foz) reste plafonne par un foncier cher qui ecrase la marge malgre le prix.",
+  "note_2b_ii": "These Campanha : le yoy 12 mois de Campanha consolide (-1,2% apres des flambees +35% puis +18,5%) mais le pipeline est soutient le momentum de PROMOTION (couche regeneration_momentum, plancher applique au SUBSCORE ; le yoy servi reste la donnee INE reelle). Cibles atteintes (residentiel) : promotion 1 Go (Campanha) / 3 Conditionnel (Bonfim, Cedofeita, Paranhos) / 3 Passer ; municipio Conditionnel avec la promotion dominante (la vue ville penche vers la promotion). Detention 1 Conserver (Cedofeita, parc central profond) / 4 Surveiller / 2 Ceder. Arbitrage 5 Fenetre etroite / 2 Fenetre fermee (on construit sur l'arc est, on n'y cede pas : Campanha Fermee). Landbank 2 Prioritaire (Campanha #1, Bonfim) / 1 A phaser (Paranhos) / 4 En attente (Foz effondre : constructibilite basse + repondere valeur_meilleur_usage 0,25->0,12). Coherence croisee Campanha : Go promotion + Prioritaire landbank + Fenetre fermee arbitrage + Surveiller detention (construire et activer la reserve, ne pas ceder ni detenir l'ancien). Seuil landbank Prioritaire recalibre 65->63. L'actif vedette porte une marge conventionnelle ~15% (seuil Go a 12%, plus exigeant que le cap de marche 8%), distincte de la marge du neuf generique de la zone (24%).",
+  "todo_2b_porto": [
+   "ACTIF VEDETTE : identite, programme, surface et couts REELS du projet mixte (logement, bureaux, hotel) signe Eduardo Souto de Moura a Campanha (aujourd'hui 'Campanha Souto de Moura' : ~22000 m2, construction 1850 eur/m2, foncier 760 eur/m2, prix de sortie residentiel 3790 eur/m2 -> marge ~15% : FICTIF plausible, a remplacer par le vrai actif KREST).",
+   "REPARTITION reelle du programme mixte residentiel/bureaux/hotel du projet Souto de Moura (la vedette est ancree sur la seule composante residentielle).",
+   "Taux de rendement cibles et couts de construction/foncier REELS de KREST a Porto (aujourd'hui construction residentielle 1700, yield brut residentiel 5,0%, marges cibles : hypotheses de travail).",
+   "regeneration_momentum et pipeline est : confirmer le calendrier reel du nouveau terminal intermodal de Campanha et du plan-guide mixte (le plancher de momentum de promotion en depend ; le yoy INE reste reel).",
+   "eur/m2 medians par classe commerciale (bureaux/hotel/logistique/commerce) et n_transactions reels par freguesia si KREST en dispose (aujourd'hui n_transactions = proxy, facteurs commerciaux generatifs).",
+   "Parc energetique SCE reel du portefeuille porto (ADENE) : aujourd'hui la page Energie lit le parc simule par hash (aucun risque_energie par zone cote moteur)."
+  ]
  },
  "global": {
   "cost_of_capital_pct": {
@@ -394,28 +403,28 @@
   }
  },
  "new_build_premium_by_zone": {
-  "note": "Prime neuf realisable en % de la mediane de l'ancien, par freguesia (V0 gradient prix + jitter).",
+  "note": "Prime neuf realisable en % de la mediane de l'ancien, par freguesia (lot 2b : calibree signature Campanha). L'arc de regeneration est (Campanha) capture la prime de gentrification ; le premium (Foz) est plafonne (peu de neuf, patrimoine).",
   "default": 26,
-  "porto": 22,
-  "aldoarfoznevogilde": 34.0,
-  "cedofeitavitoria": 34.0,
+  "porto": 24,
+  "aldoarfoznevogilde": 18.0,
+  "cedofeitavitoria": 32.0,
   "paranhos": 26.0,
-  "bonfim": 23.0,
-  "lordelomassarelos": 23.0,
+  "bonfim": 28.0,
+  "lordelomassarelos": 22.0,
   "ramalde": 20.0,
-  "campanha": 19.0
+  "campanha": 32.0
  },
  "land_cost_eur_m2_by_zone": {
-  "note": "Foncier eur/m2 de surface vendable par freguesia (V0 : derive par inversion d'une marge cible mecanique, plancher 40).",
+  "note": "Foncier eur/m2 de surface vendable par freguesia (lot 2b : offsets en euros). Campanha porte le foncier le moins cher de la ville (arc de regeneration est) -> meilleure marge de promotion ; Foz reste au foncier cher qui ecrase la marge malgre le prix.",
   "default": 300,
-  "aldoarfoznevogilde": 1962.0,
-  "cedofeitavitoria": 1897.0,
-  "paranhos": 1351.0,
-  "bonfim": 1213.0,
-  "lordelomassarelos": 1145.0,
-  "ramalde": 923.0,
-  "campanha": 910.0,
-  "porto": 1047.0
+  "aldoarfoznevogilde": 1907.0,
+  "cedofeitavitoria": 1900.0,
+  "paranhos": 1155.0,
+  "bonfim": 1120.0,
+  "lordelomassarelos": 1157.0,
+  "ramalde": 925.0,
+  "campanha": 712.0,
+  "porto": 930.0
  },
  "commercial_gaia": {
   "city": "porto",
@@ -505,28 +514,8 @@
   }
  },
  "zones": {
-  "note": "Overrides V0 Porto (constructibilite/connectivite par freguesia, gradient prix + jitter md5). A calibrer 2b.",
+  "note": "Overrides Porto lot 2b (signature Campanha). constructibilite : redeveloppement de l'arc est (Campanha, terminal intermodal + plan-guide mixte) vs centre historique et Foz deja batis. connectivity : Campanha renforcee par le nouveau terminal intermodal. regeneration_momentum : plancher du momentum de promotion porte par le pipeline est (Campanha en priorite, Bonfim/Paranhos secondaires sur l'arc de croissance) ; le yoy INE reel n'est PAS modifie. overlays_risk_0_100 : risque de timing reglementaire (l'arc en regeneration est facilite).",
   "aldoarfoznevogilde": {
-   "constructibility": {
-    "value": 55,
-    "conf": "hypothese"
-   },
-   "connectivity": {
-    "value": 65,
-    "conf": "hypothese"
-   }
-  },
-  "cedofeitavitoria": {
-   "constructibility": {
-    "value": 53,
-    "conf": "hypothese"
-   },
-   "connectivity": {
-    "value": 65,
-    "conf": "hypothese"
-   }
-  },
-  "paranhos": {
    "constructibility": {
     "value": 50,
     "conf": "hypothese"
@@ -534,61 +523,160 @@
    "connectivity": {
     "value": 66,
     "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 48,
+    "conf": "hypothese"
+   }
+  },
+  "cedofeitavitoria": {
+   "constructibility": {
+    "value": 46,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 70,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 50,
+    "conf": "hypothese"
+   }
+  },
+  "paranhos": {
+   "constructibility": {
+    "value": 62,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 68,
+    "conf": "hypothese"
+   },
+   "regeneration_momentum": {
+    "value": 62,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 40,
+    "conf": "hypothese"
    }
   },
   "bonfim": {
    "constructibility": {
-    "value": 54,
+    "value": 64,
     "conf": "hypothese"
    },
    "connectivity": {
-    "value": 64,
+    "value": 68,
+    "conf": "hypothese"
+   },
+   "regeneration_momentum": {
+    "value": 66,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 36,
     "conf": "hypothese"
    }
   },
   "lordelomassarelos": {
    "constructibility": {
-    "value": 56,
-    "conf": "hypothese"
-   },
-   "connectivity": {
-    "value": 61,
-    "conf": "hypothese"
-   }
-  },
-  "ramalde": {
-   "constructibility": {
-    "value": 53,
-    "conf": "hypothese"
-   },
-   "connectivity": {
-    "value": 60,
-    "conf": "hypothese"
-   }
-  },
-  "campanha": {
-   "constructibility": {
-    "value": 53,
-    "conf": "hypothese"
-   },
-   "connectivity": {
-    "value": 63,
-    "conf": "hypothese"
-   }
-  },
-  "porto": {
-   "constructibility": {
-    "value": 53,
+    "value": 52,
     "conf": "hypothese"
    },
    "connectivity": {
     "value": 62,
     "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 44,
+    "conf": "hypothese"
+   }
+  },
+  "ramalde": {
+   "constructibility": {
+    "value": 56,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 64,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 46,
+    "conf": "hypothese"
+   }
+  },
+  "campanha": {
+   "constructibility": {
+    "value": 72,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 70,
+    "conf": "hypothese"
+   },
+   "regeneration_momentum": {
+    "value": 95,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 28,
+    "conf": "hypothese"
+   }
+  },
+  "porto": {
+   "constructibility": {
+    "value": 58,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 65,
+    "conf": "hypothese"
+   },
+   "regeneration_momentum": {
+    "value": 62,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 44,
+    "conf": "hypothese"
    }
   }
  },
  "assets": {
-  "note": "Aucun actif vedette Porto dans le lot 2a (= lot 2b)."
+  "note": "Actif vedette Porto (lot 2b) : projet mixte (logement, bureaux, hotel) signe Eduardo Souto de Moura a Campanha (arc de regeneration est). Vedette ancree sur la composante RESIDENTIELLE. FICTIF plausible : identite, programme, surface et couts reels A FOURNIR PAR KREST (cf. meta.todo_2b_porto).",
+  "campanha_souto": {
+   "name": "Campanha Souto de Moura",
+   "city": "porto",
+   "zone": "campanha",
+   "class": "residential",
+   "primary_mode": "promotion",
+   "target_price_eur_m2": {
+    "value": 3790,
+    "unit": "eur/m2",
+    "conf": "hypothese",
+    "src": "prix de sortie vise de la composante residentielle (Go confortable, marge ~15%), prime ~33% sur la mediane Campanha 2857"
+   },
+   "construction_eur_m2": {
+    "value": 1850,
+    "unit": "eur/m2",
+    "conf": "hypothese",
+    "src": "cout de rehabilitation/developpement mixte a composante residentielle, standard architectural signature"
+   },
+   "land_cost_eur_m2": {
+    "value": 760,
+    "unit": "eur/m2",
+    "conf": "hypothese",
+    "src": "foncier de l'emprise de regeneration a Campanha (proche du nouveau terminal intermodal)"
+   },
+   "surface_m2": {
+    "value": 22000,
+    "unit": "m2",
+    "conf": "hypothese",
+    "src": "surface constructible du projet mixte (logement, bureaux, hotel) ; composante residentielle predominante"
+   }
+  }
  },
  "scoring": {
   "weights": {
@@ -616,9 +704,9 @@
     "cout_opportunite": 0.1
    },
    "landbank": {
-    "constructibilite": 0.25,
-    "valeur_meilleur_usage": 0.25,
-    "connectivite": 0.2,
+    "constructibilite": 0.36,
+    "valeur_meilleur_usage": 0.12,
+    "connectivite": 0.22,
     "incitations": 0.15,
     "risque_timing": 0.15
    }
@@ -689,7 +777,7 @@
     ]
    },
    "landbank": {
-    "prioritaire": 65,
+    "prioritaire": 63,
     "a_phaser": 45,
     "labels": [
      "Prioritaire",
