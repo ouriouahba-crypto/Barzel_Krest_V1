@@ -2,7 +2,7 @@
  "meta": {
   "version": "0.1",
   "generated": "2026-07-05",
-  "role": "Params Bruxelles lot 2a (MECANIQUE) : scoring generique sur dataset simule ancre. AUCUNE calibration editoriale fine, aucun actif vedette, aucune formule de signature (= lot 2b). Les knobs (foncier, prime, constructibilite, connectivite, facteurs commerciaux) sont generatifs V0 sous contraintes.",
+  "role": "Params Bruxelles lot 2b-ii (CALIBRATION EDITORIALE + ACTIF VEDETTE) : these Barzel gravee. Momentum (yoy differencie arc canal/premium) + energie (risque PEB par commune) ajoutes au dataset. Foncier/prime/construction/comparables/constructibilite/connectivite recalibres (offsets en euros). Actif vedette Dansaert Quai (conversion bureau->resi, canal/Dansaert). Gaia/Lisbonne/PT intouches.",
   "city": "bruxelles",
   "confidence_legend": {
    "officiel": "Regle ou taux publie par une autorite (fiscalite, reglement, seuil legal).",
@@ -12,12 +12,13 @@
   "edit_note": "value = valeur ; unit = unite ; conf = confiance ; src = source. Ne pas supprimer les cles, corriger les valeurs.",
   "note": "REGIME BE : lot 2b-i a branche l'affichage reel des pages Fiscalite (droits enregistrement 12,5%, TVA neuf 21%, terrain 12,5%, precompte, ISoc 25% ; frais d'entree ~14-15% ; reperes Wallonie 3% / Flandre 2%) et Energie (PEB A-G, objectif PEB 275=classe E en 2033, PEB 150=classe C vers 2045, certificat generalise 2028, sortie mazout 01/06/2025, Ordonnance 07/03/2024 Renolution). Ces textes vivent cote FRONTEND (lib/fiscalBE.ts, lib/energieBE.ts), pas ici. AUCUN score, seuil, curseur ou actif vedette touche par ce lot. Les curseurs (simulateur d'acquisition, simulateur de renovation) et l'actif vedette restent un lot 2b-ii.",
   "todo_2b_bruxelles": [
-   "eur/m2 reels par commune si KREST en dispose (remplacer le simule ancre).",
-   "Actif vedette Bruxelles reel a mettre en scene (curseur + seuils) : lot 2b-ii.",
-   "Fiscalite : confirmer par KREST le taux de precompte immobilier communal effectif et le traitement fiscal exact de leur vehicule (societe / SIR-GVV, share deal a la sortie) ; l'affichage 2b-i tient les taux regionaux publics.",
-   "Energie : remplacer la repartition PEB simulee par commune (lib/energieBE PARC_PEB) par les certificats PEB reels du portefeuille ; grille de reference de l'encadrement des loyers a preciser.",
-   "Hierarchies editoriales par mode, insights, marges cibles, notes d'anomalie : lot 2b-ii."
-  ]
+   "ACTIF VEDETTE : identite, localisation exacte, surface et cout reels de l'actif vedette bruxellois (aujourd'hui 'Dansaert Quai', conversion bureau->resi ~13000 m2, canal/Dansaert/Molenbeek, target 4080 eur/m2 / conversion 1550 / foncier bureau 780 : FICTIF plausible, a remplacer par le vrai actif KREST).",
+   "eur/m2 medians ET yoy reels par commune si KREST en dispose (remplacer le simule ancre ; le yoy actuel porte la these deux vitesses : arc canal +5..+6,8% / premium +1,5..+2,4%, a confirmer sur donnees reelles).",
+   "Profil energetique PEB reel du portefeuille bruxellois de KREST (classes par actif/commune), pour caler le risque energie (detention capex + fenetre d'arbitrage) : aujourd'hui risque_energie par commune aligne sur PARC_PEB simule.",
+   "Couts de construction/conversion reels et taux de rendement cibles KREST a Bruxelles (aujourd'hui construction residentielle 2050, conversion 1550, yield brut residentiel 4,6%, marge normative : hypotheses de travail).",
+   "Fiscalite : confirmer le precompte immobilier communal effectif et le vehicule fiscal (societe / SIR-GVV, share deal) ; l'affichage 2b-i tient les taux regionaux publics."
+  ],
+  "note_2b_ii": "These : la marge de promotion se joue sur l'arc du canal en mutation (Molenbeek, Anderlecht, Forest ; secondaire Saint-Gilles, Saint-Josse), foncier accessible + gentrification tire les prix ; le premium (Woluwe, Uccle, Ixelles, Auderghem) est plafonne par un foncier cher. Levier propre a Bruxelles : arbitrage PEB (mur 2033 classes F/G interdites) decote l'energivore, la fenetre s'ouvre sur le decoté renovable ; la detention est penalisee par le capex PEB (stock energivore) et le precompte. Cibles atteintes (residentiel) : promotion 3 Go / 5 Conditionnel / 11 Passer ; detention 2 Conserver (sud-est vert : Woluwe-SL, Woluwe-SP) / 3 Surveiller / 14 Ceder ; arbitrage 8 Fenetre ouverte (arc) / 11 etroite ; landbank 3 Prioritaire (arc) / 7 A phaser / 9 En attente. Coherence croisee : les 3 communes de l'arc sont Go promotion + Fenetre ouverte + Prioritaire + Ceder detention (construire/repositionner, ne pas detenir l'ancien energivore). Seuils detention Conserver 65->60 et landbank Prioritaire 65->63 : recalibres au plafond d'un marche de detention structurellement bas (precompte + capex PEB). Prix medians et hierarchie INONCHANGES (Woluwe-SP ~4980 en haut, Saint-Josse ~2660 en bas) ; le momentum yoy est une dimension distincte du niveau de prix. TVA 21% neuf BE deja appliquee par le moteur (fiscalite.be.vat_new_pct)."
  },
  "global": {
   "cost_of_capital_pct": {
@@ -256,7 +257,7 @@
   },
   "be": {
    "residential_standard": {
-    "value": 2480,
+    "value": 2050,
     "unit": "eur/m2",
     "conf": "hypothese",
     "src": "cout construction BE standard, recalibre 2025-2026"
@@ -271,49 +272,49 @@
  },
  "new_build_premium_by_zone": {
   "note": "Prime neuf realisable en % de la mediane de l'ancien, par commune (V0 gradient + jitter, a calibrer 2b).",
-  "default": 26,
-  "woluwe": 21.0,
-  "ixelles": 21.0,
-  "uccle": 22.0,
-  "auderghem": 24.0,
-  "watermaelboitsfort": 25.0,
-  "etterbeek": 24.0,
-  "woluwesaintlambert": 25.0,
-  "bxlville": 22.0,
-  "saintgilles": 21.0,
-  "schaerbeek": 24.0,
-  "forest": 23.0,
-  "evere": 22.0,
-  "jette": 25.0,
-  "ganshoren": 28.0,
-  "berchemsainteagathe": 23.0,
-  "koekelberg": 26.0,
-  "anderlecht": 24.0,
-  "molenbeeksaintjean": 29.0,
-  "saintjossetennoode": 27.0
+  "default": 22,
+  "woluwe": 10.0,
+  "ixelles": 12.0,
+  "uccle": 12.0,
+  "auderghem": 14.0,
+  "watermaelboitsfort": 15.0,
+  "etterbeek": 18.0,
+  "woluwesaintlambert": 16.0,
+  "bxlville": 20.0,
+  "saintgilles": 28.0,
+  "schaerbeek": 26.0,
+  "forest": 24.0,
+  "evere": 24.0,
+  "jette": 24.0,
+  "ganshoren": 26.0,
+  "berchemsainteagathe": 26.0,
+  "koekelberg": 30.0,
+  "anderlecht": 40.0,
+  "molenbeeksaintjean": 38.0,
+  "saintjossetennoode": 30.0
  },
  "land_cost_eur_m2_by_zone": {
   "note": "Foncier eur/m2 de surface vendable par commune (V0 : derive par inversion d'une marge cible mecanique, plancher 40, a calibrer 2b).",
   "default": 600,
-  "woluwe": 984.0,
-  "ixelles": 855.0,
-  "uccle": 799.0,
-  "auderghem": 743.0,
-  "watermaelboitsfort": 689.0,
-  "etterbeek": 605.0,
-  "woluwesaintlambert": 548.0,
-  "bxlville": 185.0,
-  "saintgilles": 102.0,
-  "schaerbeek": 110.0,
-  "forest": 40.0,
-  "evere": 40.0,
-  "jette": 40.0,
-  "ganshoren": 40.0,
-  "berchemsainteagathe": 40.0,
-  "koekelberg": 40.0,
-  "anderlecht": 40.0,
-  "molenbeeksaintjean": 40.0,
-  "saintjossetennoode": 40.0
+  "woluwe": 1250.0,
+  "ixelles": 1150.0,
+  "uccle": 1120.0,
+  "auderghem": 980.0,
+  "watermaelboitsfort": 900.0,
+  "etterbeek": 820.0,
+  "woluwesaintlambert": 780.0,
+  "bxlville": 620.0,
+  "saintgilles": 340.0,
+  "schaerbeek": 300.0,
+  "forest": 80.0,
+  "evere": 110.0,
+  "jette": 110.0,
+  "ganshoren": 100.0,
+  "berchemsainteagathe": 120.0,
+  "koekelberg": 90.0,
+  "anderlecht": 55.0,
+  "molenbeeksaintjean": 60.0,
+  "saintjossetennoode": 120.0
  },
  "commercial_gaia": {
   "city": "bruxelles",
@@ -490,14 +491,14 @@
     "src": "residentiel Bruxelles"
    },
    "institutional_appetite": {
-    "value": 80,
+    "value": 55,
     "unit": "0-100",
     "conf": "hypothese",
     "src": "PRS/BTR profond en capitale, poches residentielles institutionnelles"
    },
    "gross_yield_pct_by_city": {
     "bruxelles": {
-     "value": 3.6,
+     "value": 4.6,
      "unit": "%",
      "conf": "rapport",
      "src": "yield brut residentiel Bruxelles (repere marche)"
@@ -603,197 +604,456 @@
   "note": "Overrides V0 Bruxelles (lot 2a) : constructibilite (redeveloppement canal/peripherie vs prime deja bati) et connectivite (metro/tram) par commune, gradient + jitter. A calibrer 2b.",
   "woluwe": {
    "constructibility": {
-    "value": 38,
+    "value": 36,
     "conf": "hypothese"
    },
    "connectivity": {
-    "value": 71,
+    "value": 86,
+    "conf": "hypothese"
+   },
+   "risque_energie": {
+    "value": 26,
+    "conf": "hypothese"
+   },
+   "comparables_eur_m2": {
+    "value": 4880,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 56,
     "conf": "hypothese"
    }
   },
   "ixelles": {
    "constructibility": {
-    "value": 47,
-    "conf": "hypothese"
-   },
-   "connectivity": {
-    "value": 77,
-    "conf": "hypothese"
-   }
-  },
-  "uccle": {
-   "constructibility": {
     "value": 44,
-    "conf": "hypothese"
-   },
-   "connectivity": {
-    "value": 80,
-    "conf": "hypothese"
-   }
-  },
-  "auderghem": {
-   "constructibility": {
-    "value": 43,
-    "conf": "hypothese"
-   },
-   "connectivity": {
-    "value": 79,
-    "conf": "hypothese"
-   }
-  },
-  "watermaelboitsfort": {
-   "constructibility": {
-    "value": 48,
     "conf": "hypothese"
    },
    "connectivity": {
     "value": 84,
     "conf": "hypothese"
+   },
+   "risque_energie": {
+    "value": 52,
+    "conf": "hypothese"
+   },
+   "comparables_eur_m2": {
+    "value": 4689,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 50,
+    "conf": "hypothese"
    }
   },
-  "etterbeek": {
+  "uccle": {
    "constructibility": {
-    "value": 49,
+    "value": 40,
     "conf": "hypothese"
    },
    "connectivity": {
-    "value": 83,
-    "conf": "hypothese"
-   }
-  },
-  "woluwesaintlambert": {
-   "constructibility": {
-    "value": 44,
+    "value": 72,
     "conf": "hypothese"
    },
-   "connectivity": {
-    "value": 86,
+   "risque_energie": {
+    "value": 28,
+    "conf": "hypothese"
+   },
+   "comparables_eur_m2": {
+    "value": 4541,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 56,
     "conf": "hypothese"
    }
   },
-  "bxlville": {
+  "auderghem": {
    "constructibility": {
-    "value": 51,
+    "value": 42,
     "conf": "hypothese"
    },
    "connectivity": {
     "value": 85,
     "conf": "hypothese"
+   },
+   "risque_energie": {
+    "value": 28,
+    "conf": "hypothese"
+   },
+   "comparables_eur_m2": {
+    "value": 4386,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 52,
+    "conf": "hypothese"
    }
   },
-  "saintgilles": {
+  "watermaelboitsfort": {
    "constructibility": {
-    "value": 51,
+    "value": 44,
     "conf": "hypothese"
    },
    "connectivity": {
-    "value": 86,
+    "value": 68,
+    "conf": "hypothese"
+   },
+   "risque_energie": {
+    "value": 32,
+    "conf": "hypothese"
+   },
+   "comparables_eur_m2": {
+    "value": 4269,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 58,
     "conf": "hypothese"
    }
   },
-  "schaerbeek": {
+  "etterbeek": {
    "constructibility": {
-    "value": 48,
+    "value": 46,
     "conf": "hypothese"
    },
    "connectivity": {
     "value": 82,
     "conf": "hypothese"
-   }
-  },
-  "forest": {
-   "constructibility": {
+   },
+   "risque_energie": {
     "value": 54,
     "conf": "hypothese"
    },
-   "connectivity": {
-    "value": 81,
+   "comparables_eur_m2": {
+    "value": 4243,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 50,
     "conf": "hypothese"
    }
   },
-  "evere": {
+  "woluwesaintlambert": {
    "constructibility": {
-    "value": 56,
+    "value": 42,
     "conf": "hypothese"
    },
    "connectivity": {
-    "value": 78,
-    "conf": "hypothese"
-   }
-  },
-  "jette": {
-   "constructibility": {
-    "value": 51,
+    "value": 88,
     "conf": "hypothese"
    },
-   "connectivity": {
-    "value": 83,
+   "risque_energie": {
+    "value": 34,
+    "conf": "hypothese"
+   },
+   "comparables_eur_m2": {
+    "value": 4101,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 52,
     "conf": "hypothese"
    }
   },
-  "ganshoren": {
+  "bxlville": {
    "constructibility": {
     "value": 52,
     "conf": "hypothese"
    },
    "connectivity": {
-    "value": 74,
+    "value": 88,
+    "conf": "hypothese"
+   },
+   "risque_energie": {
+    "value": 60,
+    "conf": "hypothese"
+   },
+   "comparables_eur_m2": {
+    "value": 3765,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 42,
     "conf": "hypothese"
    }
   },
-  "berchemsainteagathe": {
+  "saintgilles": {
    "constructibility": {
-    "value": 63,
+    "value": 50,
     "conf": "hypothese"
    },
    "connectivity": {
-    "value": 79,
+    "value": 84,
     "conf": "hypothese"
-   }
-  },
-  "koekelberg": {
-   "constructibility": {
+   },
+   "risque_energie": {
     "value": 64,
     "conf": "hypothese"
    },
-   "connectivity": {
-    "value": 78,
+   "comparables_eur_m2": {
+    "value": 3896,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 40,
     "conf": "hypothese"
    }
   },
-  "anderlecht": {
+  "schaerbeek": {
    "constructibility": {
-    "value": 56,
+    "value": 52,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 82,
+    "conf": "hypothese"
+   },
+   "risque_energie": {
+    "value": 72,
+    "conf": "hypothese"
+   },
+   "comparables_eur_m2": {
+    "value": 3751,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 42,
+    "conf": "hypothese"
+   }
+  },
+  "forest": {
+   "constructibility": {
+    "value": 70,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 83,
+    "conf": "hypothese"
+   },
+   "risque_energie": {
+    "value": 58,
+    "conf": "hypothese"
+   },
+   "comparables_eur_m2": {
+    "value": 3718,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 32,
+    "conf": "hypothese"
+   }
+  },
+  "evere": {
+   "constructibility": {
+    "value": 58,
     "conf": "hypothese"
    },
    "connectivity": {
     "value": 76,
     "conf": "hypothese"
+   },
+   "risque_energie": {
+    "value": 42,
+    "conf": "hypothese"
+   },
+   "comparables_eur_m2": {
+    "value": 3337,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 44,
+    "conf": "hypothese"
    }
   },
-  "molenbeeksaintjean": {
+  "jette": {
+   "constructibility": {
+    "value": 54,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 76,
+    "conf": "hypothese"
+   },
+   "risque_energie": {
+    "value": 46,
+    "conf": "hypothese"
+   },
+   "comparables_eur_m2": {
+    "value": 3249,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 46,
+    "conf": "hypothese"
+   }
+  },
+  "ganshoren": {
+   "constructibility": {
+    "value": 54,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 72,
+    "conf": "hypothese"
+   },
+   "risque_energie": {
+    "value": 50,
+    "conf": "hypothese"
+   },
+   "comparables_eur_m2": {
+    "value": 3152,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 48,
+    "conf": "hypothese"
+   }
+  },
+  "berchemsainteagathe": {
+   "constructibility": {
+    "value": 60,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 72,
+    "conf": "hypothese"
+   },
+   "risque_energie": {
+    "value": 44,
+    "conf": "hypothese"
+   },
+   "comparables_eur_m2": {
+    "value": 3091,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 46,
+    "conf": "hypothese"
+   }
+  },
+  "koekelberg": {
    "constructibility": {
     "value": 62,
     "conf": "hypothese"
    },
    "connectivity": {
-    "value": 71,
+    "value": 79,
+    "conf": "hypothese"
+   },
+   "risque_energie": {
+    "value": 66,
+    "conf": "hypothese"
+   },
+   "comparables_eur_m2": {
+    "value": 3271,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 40,
+    "conf": "hypothese"
+   }
+  },
+  "anderlecht": {
+   "constructibility": {
+    "value": 70,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 84,
+    "conf": "hypothese"
+   },
+   "risque_energie": {
+    "value": 70,
+    "conf": "hypothese"
+   },
+   "comparables_eur_m2": {
+    "value": 3218,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 28,
+    "conf": "hypothese"
+   }
+  },
+  "molenbeeksaintjean": {
+   "constructibility": {
+    "value": 72,
+    "conf": "hypothese"
+   },
+   "connectivity": {
+    "value": 85,
+    "conf": "hypothese"
+   },
+   "risque_energie": {
+    "value": 76,
+    "conf": "hypothese"
+   },
+   "comparables_eur_m2": {
+    "value": 3096,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 30,
     "conf": "hypothese"
    }
   },
   "saintjossetennoode": {
    "constructibility": {
-    "value": 57,
+    "value": 56,
     "conf": "hypothese"
    },
    "connectivity": {
-    "value": 73,
+    "value": 82,
+    "conf": "hypothese"
+   },
+   "risque_energie": {
+    "value": 82,
+    "conf": "hypothese"
+   },
+   "comparables_eur_m2": {
+    "value": 2979,
+    "conf": "hypothese"
+   },
+   "overlays_risk_0_100": {
+    "value": 34,
     "conf": "hypothese"
    }
   }
  },
  "assets": {
-  "note": "Aucun actif vedette Bruxelles dans le lot 2a (= lot 2b)."
+  "note": "Actif vedette Bruxelles (lot 2b-ii) : conversion bureau vers residentiel, quartier du canal / Dansaert (vacance bureau + gentrification). FICTIF, plausible : identite, localisation, surface et cout reels A FOURNIR PAR KREST.",
+  "dansaert_quai": {
+   "name": "Dansaert Quai",
+   "city": "bruxelles",
+   "zone": "molenbeeksaintjean",
+   "class": "residential",
+   "primary_mode": "promotion",
+   "target_price_eur_m2": {
+    "value": 4080,
+    "unit": "eur/m2",
+    "conf": "hypothese",
+    "src": "prix de sortie vise (Go confortable, marge ~15%), micro-marche canal/Dansaert"
+   },
+   "construction_eur_m2": {
+    "value": 1550,
+    "unit": "eur/m2",
+    "conf": "hypothese",
+    "src": "cout de conversion bureau vers resi, coque conservee + finitions + mise a niveau PEB"
+   },
+   "land_cost_eur_m2": {
+    "value": 780,
+    "unit": "eur/m2",
+    "conf": "hypothese",
+    "src": "acquisition de l immeuble de bureaux vacant, au prix bureau"
+   },
+   "surface_m2": {
+    "value": 13000,
+    "unit": "m2",
+    "conf": "hypothese",
+    "src": "surface constructible de la conversion"
+   }
+  }
  },
  "scoring": {
   "weights": {
@@ -821,9 +1081,9 @@
     "cout_opportunite": 0.1
    },
    "landbank": {
-    "constructibilite": 0.25,
-    "valeur_meilleur_usage": 0.25,
-    "connectivite": 0.2,
+    "constructibilite": 0.36,
+    "valeur_meilleur_usage": 0.12,
+    "connectivite": 0.22,
     "incitations": 0.15,
     "risque_timing": 0.15
    }
@@ -876,7 +1136,7 @@
     ]
    },
    "detention": {
-    "conserver": 65,
+    "conserver": 60,
     "surveiller": 45,
     "labels": [
      "Conserver",
@@ -894,7 +1154,7 @@
     ]
    },
    "landbank": {
-    "prioritaire": 65,
+    "prioritaire": 63,
     "a_phaser": 45,
     "labels": [
      "Prioritaire",
@@ -912,25 +1172,30 @@
  },
  "residential_rent_factor_by_zone": {
   "note": "Facteur de loyer residentiel par commune (V0, encadrement des loyers BXL ~0,90..1,05, a calibrer 2b).",
-  "woluwe": 1.0384,
-  "ixelles": 1.06,
+  "woluwe": 1.08,
+  "ixelles": 1.1,
   "uccle": 1.06,
-  "auderghem": 1.0469,
-  "watermaelboitsfort": 0.9378,
-  "etterbeek": 1.0035,
-  "woluwesaintlambert": 1.0314,
-  "bxlville": 0.9782,
-  "saintgilles": 0.9453,
-  "schaerbeek": 0.9595,
-  "forest": 0.9865,
-  "evere": 0.9501,
-  "jette": 0.9778,
-  "ganshoren": 1.0015,
-  "berchemsainteagathe": 0.9806,
-  "koekelberg": 1.0597,
-  "anderlecht": 1.06,
-  "molenbeeksaintjean": 1.027,
-  "saintjossetennoode": 0.9761
+  "auderghem": 1.15,
+  "watermaelboitsfort": 1.03,
+  "etterbeek": 1.05,
+  "woluwesaintlambert": 1.08,
+  "bxlville": 1.04,
+  "saintgilles": 1.0,
+  "schaerbeek": 0.97,
+  "forest": 0.98,
+  "evere": 0.95,
+  "jette": 0.96,
+  "ganshoren": 0.98,
+  "berchemsainteagathe": 0.97,
+  "koekelberg": 0.98,
+  "anderlecht": 0.95,
+  "molenbeeksaintjean": 0.94,
+  "saintjossetennoode": 0.93
  },
- "socle_scope": "city"
+ "socle_scope": "city",
+ "charges_pct": {
+  "be": {
+   "detention": 0.7
+  }
+ }
 }

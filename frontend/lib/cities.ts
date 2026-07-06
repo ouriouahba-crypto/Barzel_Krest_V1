@@ -14,6 +14,7 @@ import { AcquisitionSimulator } from "@/components/AcquisitionSimulator";
 import { RetrofitSimulator } from "@/components/RetrofitSimulator";
 import { HayaSlider } from "@/components/HayaSlider";
 import { FabricaSlider } from "@/components/FabricaSlider";
+import { DansaertSlider } from "@/components/DansaertSlider";
 
 export type AnalystIcon = "pin" | "building" | "layers" | "bolt" | "compare";
 
@@ -196,22 +197,26 @@ export const CITIES: CityDef[] = [
     // fiscalSimulator omis (curseur = lot 2b-ii) : la page rend la table de contrôle seule.
     energie: energieBE,
     // retrofitSimulator omis (curseur = lot 2b-ii) : la page rend la frise + le parc seuls.
-    // promoAsset absent : la page Prix & marge masque le curseur d'actif (lot 2b-ii).
+    // Actif vedette (lot 2b-ii) : conversion bureau vers résidentiel au canal / Dansaert.
+    promoAsset: { apiName: "dansaert", zoneId: "molenbeeksaintjean", displayName: "Dansaert Quai" },
+    promoAssetSlider: DansaertSlider,
     texts: {
       // Textes V0 neutres et factuels (le terme de maille dit « commune »),
       // à réécrire en 2b avec la signature bruxelloise.
       marketLines: {
-        carte: "Région de Bruxelles-Capitale : marché résidentiel mou, hiérarchie marquée du sud-est résidentiel au canal. Dix-neuf communes, quatre lectures.",
-        vueEnsemble: "Région de Bruxelles-Capitale : demande stable, prix en légère progression, écarts nets entre communes. Quatre lectures d'un même marché.",
+        carte: "Région de Bruxelles-Capitale : marché à deux vitesses, l'arc du canal en mutation face au sud-est résidentiel plafonné. Dix-neuf communes, quatre lectures.",
+        vueEnsemble: "Région de Bruxelles-Capitale : la valeur se crée sur l'arc du canal en mutation, pas dans le premium plafonné par un foncier cher. Quatre lectures d'un même marché.",
         comparer: "Région de Bruxelles-Capitale : un même territoire, quatre lectures (promotion, détention, arbitrage, foncier), commune par commune.",
-        prixMarge: "Région de Bruxelles-Capitale : coûts de construction élevés et TVA sur le neuf ; la marge de promotion se joue commune par commune.",
-        rendement: "Région de Bruxelles-Capitale : loyers encadrés, fiscalité de détention lourde. Conserver ne se justifie qu'au rendement net, après charges et fiscalité.",
-        arbitrage: "Région de Bruxelles-Capitale : les écarts de prix entre communes sont réels. Céder se juge sur la fenêtre, le spread réalisable et la profondeur d'acheteurs.",
-        foncier: "Région de Bruxelles-Capitale : le foncier bien desservi se raréfie. La réserve se juge à sa valeur résiduelle par usage et à son horizon d'activation.",
+        prixMarge: "Région de Bruxelles-Capitale : coûts de construction élevés et TVA sur le neuf. La marge de promotion se joue sur l'arc du canal (Molenbeek, Anderlecht, Forest), là où le foncier reste accessible.",
+        rendement: "Région de Bruxelles-Capitale : précompte lourd et capex PEB sur le stock énergivore. Conserver ne se défend que sur le parc récent du sud-est, après charges et fiscalité.",
+        arbitrage: "Région de Bruxelles-Capitale : le mur PEB 2033 décote l'énergivore. La fenêtre de cession s'ouvre là où acheter décoté, rénover et capturer le saut de classe reste rentable.",
+        foncier: "Région de Bruxelles-Capitale : la réserve à activer est sur l'arc du canal en régénération. Elle se juge à sa constructibilité, son usage et son horizon d'activation.",
         iaAnalyste: "Posez vos questions sur Bruxelles : l'analyste répond à partir des scores, verdicts et cascades de la plateforme.",
       },
       promoContextResidential:
-        "À Bruxelles, la marge de promotion est comprimée par des coûts de construction élevés et la TVA sur le neuf : elle se décide sur le prix de sortie et le coût du foncier, commune par commune.",
+        "À Bruxelles, la marge de promotion est comprimée par des coûts de construction élevés et la TVA sur le neuf : elle se joue sur l'arc du canal en mutation (Molenbeek, Anderlecht, Forest), là où le foncier reste accessible et où la gentrification tire les prix de sortie, quand les communes premium sont plafonnées par un foncier cher.",
+      promoAssetCaption:
+        "Curseur temps réel sur l'actif K-REST au canal (Molenbeek) : ajustez le prix de sortie de la conversion pour voir la marge et le verdict se recalculer.",
       promoSelectiveRest: "de la Région",
       analystSuggestions: [
         { q: "Où lancer une promotion résidentielle à Bruxelles ?", icon: "pin" },
