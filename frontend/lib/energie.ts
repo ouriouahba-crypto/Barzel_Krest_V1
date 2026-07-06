@@ -151,7 +151,12 @@ export function energieInsight(cls: string, zones: string[], cityName: string = 
   const x = median(efs);
   if (x == null) return "Chargement du parc…";
   if (cls === "residential") {
-    return `~${Math.round(x)}% du parc résidentiel de ${cityName} sous la classe D : la pression MEPS se concentre sur le centre historique, déjà pénalisé dans les verdicts de détention.`;
+    // « compté », pas « pénalisé sur le centre historique » : selon la ville, le
+    // parc ancien central n'est pas forcément Céder en détention (à Porto,
+    // Cedofeita, centre historique, est la seule Conserver). Ce qui est vrai
+    // partout : le risque MEPS pèse sur le parc le plus ancien et alimente le
+    // pilier énergie des verdicts de détention.
+    return `~${Math.round(x)}% du parc résidentiel de ${cityName} sous la classe D : la pression MEPS se concentre sur le parc le plus ancien, un risque déjà compté dans le pilier énergie des verdicts de détention.`;
   }
   return `~${Math.round(x)}% du parc ${classLabel(cls).toLowerCase()} de ${cityName} en classes E-F : les seuils MEPS imposent la rénovation des 16% les moins performants d'ici 2030 (26% en 2033), déjà compté dans les verdicts de détention.`;
 }

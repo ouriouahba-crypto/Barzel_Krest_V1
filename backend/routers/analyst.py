@@ -282,7 +282,21 @@ RÈGLES ABSOLUES :
 class AskPayload(BaseModel):
     question: str
     asset_class: str = "residential"
-    city: str = "gaia"
+    city: str | None = None  # requis : plus de défaut silencieux (cf. _require_city).
+
+
+def _require_city(city_in: str | None) -> str:
+    """`city` REQUIS et canonique : 400 si absent OU hors des villes enregistrées
+    (validation symétrique au `class` des endpoints de scoring). Auparavant un
+    défaut « gaia » silencieux répondait « la plateforme couvre Vila Nova de Gaia
+    et non Porto » à un utilisateur Porto : jamais de repli muet ici, le front
+    injecte toujours le slug courant (withCity)."""
+    from ..services.cities import slugs as _city_slugs
+
+    city = (city_in or "").strip()
+    if not city or city not in _city_slugs():
+        raise HTTPException(status_code=400, detail=f"unknown or missing city {city_in!r}")
+    return city
 
 
 @router.post("/ask")
@@ -293,8 +307,7 @@ def ask(payload: AskPayload) -> dict:
     if len(question) > 600:
         raise HTTPException(status_code=400, detail="question trop longue")
     asset_class = payload.asset_class if payload.asset_class in _CLASSES else "residential"
-    from ..services.cities import resolve_slug
-    city = resolve_slug(payload.city)
+    city = _require_city(payload.city)
 
     key = _api_key()
     if not key:

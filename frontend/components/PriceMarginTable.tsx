@@ -20,7 +20,9 @@ const COLS: { key: Key; label: string; unit?: string; num: boolean }[] = [
   { key: "construction", label: "Construction", unit: "€/m²", num: true },
   { key: "land", label: "Foncier", unit: "€/m²", num: true },
   { key: "costTotal", label: "Coût total", unit: "€/m²", num: true },
-  { key: "marginPct", label: "Marge", num: true },
+  // « de zone » : marge du neuf générique de la freguesia, distincte de la marge
+  // de l'actif K-REST (curseur), qui porte son propre programme et sa propre base.
+  { key: "marginPct", label: "Marge de zone", num: true },
 ];
 
 export function PriceMarginTable({

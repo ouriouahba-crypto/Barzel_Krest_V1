@@ -84,7 +84,10 @@ function driverClause(m: Mode, good: ModeScore[]): string {
       .map((r) => (r.pillars.find((p) => p.pillar === "marge")?.breakdown as MargeBreakdown | undefined)?.premium_pct)
       .filter((v): v is number => v != null);
     const mp = median(prems);
-    if (mp != null) return `, portées par une prime neuf de ${Math.round(mp)}%`;
+    // Accord du participe avec la métrique : « marge 24 %, portée » (1 zone) vs
+    // « marges de 24 à 30 %, portées » (plusieurs). La prime citée est celle de
+    // la ZONE (premium_pct), jamais celle de l'actif vedette.
+    if (mp != null) return `, ${good.length > 1 ? "portées" : "portée"} par une prime neuf de ${Math.round(mp)}%`;
   }
   if (m === "arbitrage") {
     const app = pillarValue(good[0]?.pillars ?? [], "appetit_institutionnel");

@@ -847,6 +847,55 @@ def test_no_city_copy_leak_between_cities():
                 assert t not in blk, f"fuite : le bloc {slug!r} contient le tag {other!r} : {t!r}"
 
 
+def test_landbank_uplift_reconciled_across_surfaces():
+    # Lot 2 point 6 : la métrique canonique du profil foncier est UNE seule
+    # valeur, constructibilite.breakdown.uplift_pct. Comparer (cellFor lit /city),
+    # Foncier (fcRows lit /city), /zone et le contexte analyste la lisent TOUS :
+    # Campanhã doit afficher le même uplift partout (le « +2% » observé sur
+    # Comparer était le signal dominant de Bonfim, dont l'uplift RÉEL est ~+2%).
+    from backend.routers.analyst import _build_context, _fmt
+
+    def uplift(z):
+        b = next(p for p in z["pillars"] if p["pillar"] == "constructibilite")["breakdown"]
+        return b["uplift_pct"]
+
+    u_zone = uplift(ms.score_mode("campanha", "landbank", "residential", city="porto"))
+    city_rows = ms.score_city("porto", "landbank", "residential")
+    u_city = uplift(next(z for z in city_rows if z["zone"] == "campanha"))
+    assert u_zone == u_city, (u_zone, u_city)          # /zone == /city (Comparer/Foncier)
+    assert round(u_city) >= 20, u_city                 # ~+26%, pas le +2% de Bonfim
+    # l'analyste lit exactement cette valeur (contexte injecté au LLM).
+    ctx = _build_context("residential", "porto")
+    assert f"uplift {_fmt(u_city)}%" in ctx, f"uplift {_fmt(u_city)}% absent du contexte analyste"
+    # Bonfim (signal dominant landbank de Comparer) a bien un uplift distinct et bas.
+    u_bonfim = uplift(next(z for z in city_rows if z["zone"] == "bonfim"))
+    assert round(u_bonfim) < 10 < round(u_city), (u_bonfim, u_city)
+
+
+def test_analyst_ask_city_required():
+    # Lot 2 point 9 : /api/analyst/ask exige un `city` canonique. Absent -> 400,
+    # non canonique -> 400, valide -> passe la validation (plus de repli muet vers
+    # Gaia qui répondait « couvre Gaia et non Porto » à un utilisateur Porto).
+    from fastapi import HTTPException
+    from backend.routers.analyst import _require_city
+
+    def status(city):
+        try:
+            _require_city(city)
+            return 200
+        except HTTPException as e:
+            return e.status_code
+
+    assert status(None) == 400                     # absent
+    assert status("") == 400                       # vide
+    assert status("   ") == 400                    # blancs
+    assert status("atlantis") == 400               # non canonique
+    assert status("mont_saint_guibert") == 400     # témoin non enregistré -> 400 (pas de repli)
+    for c in ("gaia", "lisbonne", "bruxelles", "porto"):
+        assert status(c) == 200, c                 # ville enregistrée -> validée
+        assert _require_city(c) == c
+
+
 if __name__ == "__main__":  # dependency-free smoke run
     ms.load()
     test_four_distinct_modes()
@@ -873,4 +922,6 @@ if __name__ == "__main__":  # dependency-free smoke run
     test_porto_calibration_2b()
     test_verdict_counts_single_source_no_false_aucune()
     test_no_city_copy_leak_between_cities()
+    test_landbank_uplift_reconciled_across_surfaces()
+    test_analyst_ask_city_required()
     print("OK : all smoke checks passed")
