@@ -14,8 +14,9 @@ import {
 import { VerdictBadge } from "./ui";
 
 // Recalcul live côté client, formule identique au moteur (miroir de HayaSlider,
-// composant distinct : Haya reste strictement intouché). Reconversion de friche
-// industrielle à Marvila ; seul le prix de sortie bouge avec le curseur.
+// composant distinct : Haya reste strictement intouché). Actif Formoso (constante
+// interne FABRICA inchangée) : reconversion d'un entrepôt viticole à Marvila ;
+// seul le prix de sortie bouge avec le curseur.
 export function FabricaSlider({ baseTotal, margeWeight }: { baseTotal: number; margeWeight: number }) {
   const [sale, setSale] = useState<number>(FABRICA.baseSale);
 
@@ -39,7 +40,7 @@ export function FabricaSlider({ baseTotal, margeWeight }: { baseTotal: number; m
       <div className="flex items-center justify-between">
         <div>
           <div className="text-label font-semibold uppercase tracking-widest text-gold">Actif K-REST · Promotion</div>
-          <div className="font-display text-lg">Fábrica Oriente</div>
+          <div className="font-display text-lg">Formoso</div>
         </div>
         <VerdictBadge mode="promotion" verdict={verdict} />
       </div>
@@ -76,8 +77,9 @@ export function FabricaSlider({ baseTotal, margeWeight }: { baseTotal: number; m
       </div>
 
       <p className="mt-4 text-caption leading-relaxed text-cream/85">
-        Reconversion de friche industrielle à Marvila : {FABRICA.surface.toLocaleString("fr-FR")} m² constructibles,
-        coque conservée + finitions {FABRICA.construction.toLocaleString("fr-FR")} €/m², foncier {FABRICA.foncier.toLocaleString("fr-FR")} €/m².
+        Reconversion d'un entrepôt viticole à Marvila, arc oriental : 50 appartements T1 et T2 duplex signés
+        Bak Gordon (livraison 2026-2027), coque conservée + finitions {FABRICA.construction.toLocaleString("fr-FR")} €/m²,
+        foncier {FABRICA.foncier.toLocaleString("fr-FR")} €/m².
         Marge et verdict recalculés en direct (coût = 1,261 × (construction + foncier) ; résidentiel PT sans TVA
         sur le prix de sortie, IMT côté acquéreur).
       </p>

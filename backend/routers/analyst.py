@@ -239,13 +239,14 @@ def _haya_block() -> str:
 
 
 def _fabrica_block() -> str:
-    """L'actif vedette lisboète, depuis le même payload nettoyé que la page
-    Prix & marge (miroir du bloc Haya de Gaia)."""
+    """L'actif vedette lisboète Formoso, depuis le même payload nettoyé que la
+    page Prix & marge (miroir du bloc Haya de Gaia). Identifiant interne inchangé
+    (asset key fabrica_oriente, route asset=fabrica)."""
     try:
         a = _clean(ms.score_asset("fabrica", city="lisbonne"))
         promo = a["scores"]["promotion"]
         b = next(p for p in promo["pillars"] if p["pillar"] == "marge").get("breakdown") or {}
-        return ("## ACTIF K-REST · FÁBRICA ORIENTE (Marvila, résidentiel, promotion, reconversion de friche industrielle, 14 000 m² constructibles)\n"
+        return ("## ACTIF K-REST · FORMOSO (Marvila, résidentiel, promotion, reconversion d'un entrepôt viticole, 50 appartements T1 et T2 duplex)\n"
                 f"- Prix de sortie visé {b.get('realizable_sale')} €/m² "
                 f"(prime +{round(b.get('premium_over_median_pct') or 0)}% sur la médiane réelle de la freguesia), "
                 f"construction (coque + finitions) {b.get('construction')} €/m², foncier {b.get('land')} €/m², "

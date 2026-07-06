@@ -136,7 +136,7 @@ export const CITIES: CityDef[] = [
     fiscalSimulator: AcquisitionSimulator,
     energie: energiePT,
     retrofitSimulator: RetrofitSimulator,
-    promoAsset: { apiName: "fabrica", zoneId: "marvila", displayName: "Fábrica Oriente" },
+    promoAsset: { apiName: "fabrica", zoneId: "marvila", displayName: "Formoso" },
     promoAssetSlider: FabricaSlider,
     texts: {
       // Textes calibrés lot 2b : la signature capitale (foncier rare, marge à
@@ -154,7 +154,7 @@ export const CITIES: CityDef[] = [
       promoContextResidential:
         "Le foncier de marché du centre absorbe 60 à 70% du prix de sortie et écrase la marge : la promotion se décide à l'arc oriental (Marvila, Beato) et sur les réserves du nord, là où le terrain reste accessible.",
       promoAssetCaption:
-        "Curseur temps réel sur l'actif K-REST à Marvila : ajustez le prix de sortie de la reconversion pour voir la marge et le verdict se recalculer.",
+        "Curseur temps réel sur l'actif K-REST Formoso à Marvila (reconversion d'un entrepôt viticole, 50 appartements T1 et T2 duplex) : ajustez le prix de sortie pour voir la marge et le verdict se recalculer.",
       promoSelectiveRest: "de la capitale",
       yieldTrapClause:
         "Les yields faciaux les plus élevés (Santa Maria Maior, Misericórdia) sont touristiques : en zone de contention AL, ils ne sont pas représentatifs d'une détention institutionnelle.",
@@ -212,7 +212,7 @@ export const CITIES: CityDef[] = [
       promoContextResidential:
         "À Porto, la marge de promotion se déplace vers l'arc de régénération est : Campanhã porte le foncier le moins cher de la ville et un pipeline structurant (nouveau terminal intermodal, projet mixte Souto de Moura), quand la Foz reste plafonnée par un foncier cher qui écrase la marge malgré le prix.",
       promoAssetCaption:
-        "Curseur temps réel sur l'actif K-REST à Campanhã (projet mixte Souto de Moura, composante résidentielle) : ajustez le prix de sortie pour voir la marge et le verdict se recalculer.",
+        "Curseur temps réel sur l'actif K-REST à Campanhã (projet mixte Souto de Moura à la gare de Campanhã, composante résidentielle, positionnement accessible) : ajustez le prix de sortie pour voir la marge et le verdict se recalculer.",
       promoSelectiveRest: "de la ville",
       analystSuggestions: [
         { q: "Où lancer une promotion résidentielle à Porto ?", icon: "pin" },

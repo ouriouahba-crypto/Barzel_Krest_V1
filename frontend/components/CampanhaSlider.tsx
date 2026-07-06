@@ -87,11 +87,11 @@ export function CampanhaSlider({ baseTotal, margeWeight }: { baseTotal: number; 
       </div>
 
       <p className="mt-4 text-caption leading-relaxed text-cream/85">
-        Projet mixte (logement, bureaux, hôtel) signé Eduardo Souto de Moura à Campanhã, arc de régénération est :
-        {" "}{CAMPANHA.surface.toLocaleString("fr-FR")} m² constructibles, composante résidentielle prédominante,
-        construction {CAMPANHA.construction.toLocaleString("fr-FR")} €/m², foncier au prix Campanhã {CAMPANHA.foncier.toLocaleString("fr-FR")} €/m².
-        Marge et verdict recalculés en direct (coût = 1,261 × (construction + foncier) ; résidentiel PT sans TVA
-        sur le prix de sortie, IMT côté acquéreur).
+        Projet mixte signé Eduardo Souto de Moura avec Metro Urbe, à 300 m de la gare de Campanhã :
+        plus de 70 000 m² (logement, appart-hôtel, bureaux, commerces), analyse ancrée sur la composante
+        résidentielle, positionnement accessible, arc de régénération est.
+        Marge et verdict recalculés en direct (coût = 1,261 × (construction + foncier) ; marge sur le prix
+        de sortie, résidentiel PT sans TVA, IMT côté acquéreur).
       </p>
     </div>
   );

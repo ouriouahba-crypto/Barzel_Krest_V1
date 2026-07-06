@@ -319,7 +319,7 @@ def _adapt_params(raw: dict) -> dict:
         krest["haya_towers"] = krest["haya"]
     if "fabrica_oriente" in A:
         a = A["fabrica_oriente"]
-        krest["fabrica"] = {"name": "Fábrica Oriente", "city": a.get("city", "lisbonne"),
+        krest["fabrica"] = {"name": "Formoso", "city": a.get("city", "lisbonne"),
                             "zone": a.get("zone", "marvila"), "class": a.get("class", "residential"),
                             "primary_mode": "promotion",
                             "achievable_sale_eur_m2": _pv(a.get("target_price_eur_m2")),
@@ -342,9 +342,10 @@ def _adapt_params(raw: dict) -> dict:
         krest["campanha"] = {"name": "Campanha Souto de Moura", "city": a.get("city", "porto"),
                              "zone": a.get("zone", "campanha"), "class": a.get("class", "residential"),
                              "primary_mode": "promotion",
+                             "margin_basis": a.get("margin_basis", "gdv"),
                              "achievable_sale_eur_m2": _pv(a.get("target_price_eur_m2")),
-                             "construction_eur_m2": _pv(a.get("construction_eur_m2"), 1850),
-                             "land_cost_eur_m2": _pv(a.get("land_cost_eur_m2"), 760),
+                             "construction_eur_m2": _pv(a.get("construction_eur_m2"), 1800),
+                             "land_cost_eur_m2": _pv(a.get("land_cost_eur_m2"), 215),
                              "confidence": RAPPORT}
         krest["campanha_souto"] = krest["campanha"]
     if "alcochete_landbank" in A:
@@ -845,7 +846,15 @@ def _promo_marge(st: State, z: dict, cls: str, asset: dict | None) -> Pillar:
     finance = (build + land) * ltv * debt_rate * years
     cost_total = build + land + soft + finance
     net_sale = sale / (1 + vat / 100.0)
-    margin_pct = (net_sale - cost_total) / cost_total * 100.0
+    # Marge sur cout (profit-on-cost) par defaut. Un actif nomme peut declarer
+    # margin_basis == "gdv" pour une marge sur le prix de sortie (profit-on-GDV :
+    # (prix - cout)/prix), convention d'un positionnement accessible. Flag propre
+    # a l'actif (absent partout ailleurs : zones, Haya/Fabrica/Dansaert) -> aucun
+    # effet sur les autres payloads, snapshot Gaia byte-identical.
+    if is_asset and (asset or {}).get("margin_basis") == "gdv" and net_sale:
+        margin_pct = (net_sale - cost_total) / net_sale * 100.0
+    else:
+        margin_pct = (net_sale - cost_total) / cost_total * 100.0
     sub = _band(st, "marge_pct", margin_pct)
     prime = None
     med = z["residential"].get("median_eur_m2")

@@ -89,66 +89,48 @@ non migrés — à convertir s'ils sont réutilisés.
   Ce sont les *knobs* de params.json qui restent cachés, pas leurs résultats.
 
 ### À remplacer par les données client (avant mise en prod)
-- **Questions ouvertes KREST** : actifs réels au Portugal hors Gaia, notamment
-  Lisbonne, et intérêt pour l'arc oriental (Marvila/Beato) ; l'actif vedette
-  lisboète `Fábrica Oriente` (reconversion de friche, Marvila, 14 000 m²
-  constructibles, constantes `FABRICA` dans `lib/scoring.ts` + asset
-  `fabrica_oriente` des params lisbonne) est fictif, nom vérifié sans
-  correspondance : à remplacer par un actif réel du portefeuille.
-- **Questions ouvertes KREST · Bruxelles (à fournir après le lot 2b-ii)** :
-  la calibration éditoriale et l'actif vedette sont posés (lot 2b-ii, thèse Barzel
-  gravée) sur **données simulées**, à remplacer par les données client.
-  (a) **actif vedette bruxellois réel** : `Dansaert Quai` (conversion bureau vers
-  résidentiel, ~13 000 m², quartier du canal / Dansaert à Molenbeek, target
-  4 080 €/m², conversion 1 550, foncier bureau 780) est **fictif mais plausible** :
-  identité, localisation, surface et coût réels à fournir ; (b) **€/m² médians ET
-  yoy réels par commune** (le simulé ancré porte désormais la thèse deux vitesses :
-  arc canal +5…+6,8 %, premium +1,5…+2,4 % ; prix médians INCHANGÉS depuis 2a,
-  Woluwe-SP ~4 980 → Saint-Josse ~2 660) ; (c) **profil énergétique PEB réel** du
-  portefeuille (le `risque_energie` par commune est aligné sur le parc simulé
-  `PARC_PEB` : il alimente la détention et l'arbitrage) ; (d) **coûts de
-  construction/conversion et taux de rendement cibles réels** (aujourd'hui
-  construction résidentielle 2 050, conversion 1 550, yield brut 4,6 % :
-  hypothèses de travail) ; (e) **taux et régime fiscal exacts** (précompte
-  communal, véhicule société / SIR-GVV, share-deal). Ces points sont aussi listés
-  dans `meta.todo_2b_bruxelles` de `cities/bruxelles/params.json`.
-- **Actifs K-REST vedettes fictifs** : `Ribeira Sul` (détention — immeuble de
-  rapport Santa Marinha, 24 lots / 1 800 m², acquis 2 300 €/m² + 340 €/m² de
-  travaux, constantes `RIBEIRA` dans `lib/scoring.ts`), `Cais Poente`
-  (arbitrage — trophée front de fleuve Santa Marinha, constantes `CAIS`) et
-  `Monte Claro` (landbank — réserve foncière ~12 000 m² à Canidelo, constantes
-  `MONTE` ; **localisation, surface et statut urbanistique réels à fournir par
-  KREST**). Noms vérifiés sans correspondance avec un projet réel de Gaia
-  (2026-07) ; à remplacer par les vrais actifs du portefeuille KREST. Haya
-  Towers vient du brief client (params `assets`).
-- **Actif K-REST vedette bruxellois fictif** : `Dansaert Quai` (promotion,
-  conversion bureau vers résidentiel ~13 000 m², quartier du canal / Dansaert à
-  Molenbeek, coque conservée ; conversion 1 550 €/m² + foncier bureau 780 €/m²,
-  TVA 21 % neuf BE assujettie ; constantes `DANSAERT` dans `lib/scoring.ts` +
-  asset `dansaert_quai` des params bruxelles + `DansaertSlider`). Fictif mais
-  plausible ; **identité, localisation, surface et coût réels à fournir par KREST**.
-- **Questions ouvertes KREST · Porto (à fournir après le lot 2b Porto)** : la
-  signature Campanhã (arc de régénération est) et l'actif vedette sont posés sur
-  **données INE réelles (prix/yoy) + calibration de travail**, à remplacer par les
-  données client. (a) **actif vedette portois réel** : `Campanha Souto de Moura`
-  (projet mixte logement/bureaux/hôtel signé Eduardo Souto de Moura, ~22 000 m²,
-  Campanhã ; vedette ancrée sur la composante **résidentielle** ; construction
-  1 850 €/m² + foncier 760 €/m² au prix Campanhã, target 3 790 €/m² → marge ~15 %,
-  prime +33 % ; constantes `CAMPANHA` dans `lib/scoring.ts` + asset `campanha_souto`
-  des params porto + `CampanhaSlider`) est **fictif mais plausible** : identité,
-  **programme et répartition résidentiel/bureaux/hôtel**, surface et coûts réels à
-  fournir ; (b) **couche momentum/régénération** (`regeneration_momentum` par zone :
-  plancher du momentum de PROMOTION porté par le pipeline est, Campanhã 95 primaire,
-  Bonfim/Paranhos 66/62 secondaires ; le **yoy INE reste réel et non modifié**) à
-  confirmer sur le calendrier réel du **nouveau terminal intermodal de Campanhã** et
-  du plan-guide mixte ; (c) **coûts de construction/foncier et taux de rendement
-  cibles réels** de KREST à Porto (aujourd'hui construction résidentielle 1 700,
-  yield brut 5,0 %, marge normative : hypothèses) ; (d) **€/m² médians par classe
-  commerciale et n_transactions réels** (aujourd'hui n_transactions = proxy, facteurs
-  commerciaux génératifs) ; (e) **parc énergétique SCE réel** du portefeuille (la
-  page Énergie lit un parc simulé par hash, aucun `risque_energie` par zone côté
-  moteur à Porto). Ces points sont aussi listés dans `meta.todo_2b_porto` de
-  `cities/porto/params.json`.
+- **Liste finalisée envoyée à KREST (11 questions)** : au recoupement avec les
+  données publiques, les questions ouvertes ont été consolidées puis transmises.
+  **Belgique (4)** : (1) actif vedette bruxellois réel (`Dansaert Quai` est un
+  placeholder fictif plausible : identité, localisation, surface, coût) ; (2)
+  **profil énergétique PEB** réel du portefeuille (classes PEB par actif, alimente
+  la détention et l'arbitrage) ; (3) **structuration** et régime fiscal exact
+  (véhicule société / SIR-GVV, share-deal, précompte communal) ; (4) coûts de
+  construction et de conversion et taux de rendement cibles réels. **Patrimoine
+  détenu PT (2)** : (5) actifs réellement détenus (les vedettes détention `Ribeira
+  Sul` et arbitrage `Cais Poente` sont fictives : identité, surface, prix
+  d'acquisition) ; (6) réserve foncière réelle détenue (`Monte Claro` fictif :
+  localisation, surface, statut urbanistique). **Projets PT (4)** : (7) **programme
+  et répartition** résidentiel / bureaux / hôtel du projet Campanhã (Souto de Moura)
+  et surface résidentielle exacte ; (8) **calendrier** de livraison et **prix de
+  sortie** cible réels du projet Campanhã ; (9) **coûts** de construction et de
+  foncier réels des projets de promotion (Haya à Gaia, Formoso à Marvila, Campanhã à
+  Porto : valeurs actuelles = hypothèses ou recalages) ; (10) actif `Formoso`
+  (Marvila) : surface constructible et coûts réels. **Cession (1)** : (11) frais et
+  délais réels constatés sur les cessions (aujourd'hui dérivés de la liquidité et du
+  DOM).
+- **Données sourcées en propre** (n'attendent pas KREST) : **Statbel** par commune
+  (€/m² et yoy Bruxelles), **SCE / ADENE** par adresse (parc énergétique PT), et le
+  **calendrier public** du Terminal Intermodal de Campanhã (TIC) et de la gare TGV
+  de Campanhã (pipeline de l'arc est).
+- **Écarts corrigés au recoupement des données publiques** : (a) **surface
+  Campanhã** 22 000 → plus de 70 000 m² (projet mixte réel logement / appart-hôtel /
+  bureaux / commerces, Souto de Moura avec Metro Urbe à 300 m de la gare de
+  Campanhã) ; (b) **positionnement résidentiel accessible** : prix de sortie
+  3 790 → 3 000 €/m² (prime +33 % → +5 % sur la médiane 2 857), foncier 760 → 215
+  €/m² (~15 M€ / ~70 000 m² constructible), marge sur GDV ~15 % (flag `margin_basis`
+  « gdv » de l'actif, gaté : snapshot Gaia inchangé) ; (c) actif lisboète `Fábrica
+  Oriente` renommé **`Formoso`** (nom réel : reconversion d'un entrepôt viticole, 50
+  appartements T1-T2 duplex, architecte Bak Gordon, livraison 2026-2027).
+  Identifiants internes inchangés : asset `fabrica_oriente`, constantes `FABRICA`,
+  `FabricaSlider`, route `asset=fabrica`.
+- **Actifs vedettes, placeholders fictifs vs réels** (constantes dans
+  `lib/scoring.ts`) : Gaia · **Haya Towers** réel (brief client, `HAYA`), plus
+  Ribeira Sul (`RIBEIRA`), Cais Poente (`CAIS`), Monte Claro (`MONTE`) fictifs ;
+  Lisbonne · **Formoso** (`FABRICA`, `fabrica_oriente`) fictif ; Bruxelles ·
+  Dansaert Quai (`DANSAERT`) fictif ; Porto · Campanha Souto de Moura (`CAMPANHA`,
+  `campanha_souto`) fictif, recalé accessible. Détail par ville dans les
+  `meta.todo_2b_*` de `cities/<slug>/params.json`.
 - **Marge promoteur normative de la valeur résiduelle foncière** : 15 % est
   notre hypothèse (`_LAND_NORMATIVE_MARGIN`) — à remplacer par la marge
   normative interne de KREST.
@@ -1922,6 +1904,44 @@ bruxelles 3/5/11 + flagships Haya 87,6/35,5 %, Fábrica 66,4/20,5 %, Dansaert 77
 inchangés ; **0 cadratin** (dataset Porto + fichiers touchés). Questions KREST →
 `meta.todo_2b_porto` + § données client. **À traiter éventuellement 2b+** : mémo PDF Porto,
 insights/notes d'anomalie réécrits par mode, parc SCE Porto réel (ADENE).
+
+### Lot correctif · Recalage KREST (données publiques) : actif Campanhã accessible, Fábrica vers Formoso, questions finalisées · **✅ Livré** (2026-07-06)
+Trois lots correctifs au recoupement avec les données publiques KREST, sur branche
+`fix/recalage-krest-public` (depuis `main` à jour). Aucun fichier hors périmètre,
+staging par chemin explicite, zéro cadratin dans le copy touché.
+1. **Recalage actif Campanhã** (positionnement accessible) : le projet réel fait
+   plus de 70 000 m² à la gare de Campanhã, foncier acquis ~15 M€ / ~70 000 m² =
+   ~215 €/m². Params `porto` (asset `campanha_souto`) : foncier 760 → 215,
+   construction 1 850 → 1 800, prix de sortie 3 790 → 3 000 ; `cost_total` =
+   1,261 × (1 800 + 215) = 2 541, **marge sur GDV ~15,3 %**, prime **+5,0 %** sur la
+   médiane 2 857. Nouveau flag moteur `margin_basis` « gdv » (marge sur le prix de
+   sortie), **propre à cet actif** (absent des zones et de Haya/Fabrica/Dansaert) :
+   snapshot Gaia byte-identical, Lisbonne/Bruxelles/PT inchangés. Frontend `CAMPANHA`
+   : `baseSale` 3 000, bornes 2 500/3 600 (step 10, `goMarginFloorPct` 12, clamp 69
+   hors Go inchangés), `campanhaMargin` sur le prix de sortie (miroir moteur).
+   **Bascule Conditionnel → Go à ~2 887** (premier cran 2 890, marge 12,1 %). Caption
+   recalée (gare de Campanhã, programme réel), mention 22 000 m² retirée. Scoring de
+   **zone intouché** (Campanhã 80,2 Go, 8 zones Porto identiques au dixième) ;
+   detention Surveiller et arbitrage Fenêtre fermée inchangés ; landbank Prioritaire
+   maintenu (68,5).
+2. **Fábrica Oriente vers Formoso** (affichage seul, zéro chiffre) : le projet réel
+   à Marvila s'appelle **Formoso** (reconversion d'un entrepôt viticole, 50
+   appartements T1-T2 duplex, architecte Bak Gordon, livraison 2026-2027). Libellé
+   changé dans le registre, le slider (titre + caption), le bloc contexte IA Analyste
+   et mémo, et le libellé moteur de l'actif. **Identifiants internes inchangés**
+   (`fabrica_oriente`, `FABRICA`, `FabricaSlider`, `asset=fabrica`) ; valeurs moteur
+   identiques (total 66,4 Conditionnel, marge 20,5, sale 5 400). Mention 14 000 m²
+   retirée des surfaces produit.
+3. **CLAUDE.md** : les blocs « Questions ouvertes KREST » (Lisbonne / Bruxelles /
+   Porto) sont remplacés par la **liste finalisée envoyée à KREST (11 questions)**,
+   la note **données sourcées en propre** (Statbel, SCE/ADENE, calendrier TIC et gare
+   TGV Campanhã) et les **écarts corrigés** (surface Campanhã, positionnement
+   accessible, Formoso réel). Le journal historique n'est pas réécrit.
+**Vérifs** : smoke framework vert (Gaia snapshot byte-identical, +assertions bascule
+Go ~2 890 et clamp 69 hors Go) ; `tsc` OK ; **build front vert** (14 pages) ; live
+promotion résidentiel gaia 892,4 (3/5/8), lisbonne 1 356,5 (3/17/5), bruxelles 923,9
+(3/5/11), porto 8 zones identiques ; flagships Haya 87,6 Go, **Formoso** 66,4
+Conditionnel (marge 20,5, sale 5 400), Dansaert 77,1 Go inchangés.
 
 ### État final du gabarit de page de mode
 Les 4 pages partagent : breakdown structuré sur le pilier natif (`marge`,

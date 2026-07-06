@@ -13,7 +13,7 @@
   "note": "Hierarchie des prix = INE reel (Foz 3932 en haut, Campanha 2857 en bas ; yoy INE reels INCHANGES). La calibration 2b grave la these Barzel : Campanha (arc de regeneration est) porte le foncier le moins cher de la ville -> meilleure marge de promotion, soutenue par un pipeline structurant (nouveau terminal intermodal, projet mixte Souto de Moura) ; le premium (Foz) reste plafonne par un foncier cher qui ecrase la marge malgre le prix.",
   "note_2b_ii": "These Campanha : le yoy 12 mois de Campanha consolide (-1,2% apres des flambees +35% puis +18,5%) mais le pipeline est soutient le momentum de PROMOTION (couche regeneration_momentum, plancher applique au SUBSCORE ; le yoy servi reste la donnee INE reelle). Cibles atteintes (residentiel) : promotion 1 Go (Campanha) / 3 Conditionnel (Bonfim, Cedofeita, Paranhos) / 3 Passer ; municipio Conditionnel avec la promotion dominante (la vue ville penche vers la promotion). Detention 1 Conserver (Cedofeita, parc central profond) / 4 Surveiller / 2 Ceder. Arbitrage 5 Fenetre etroite / 2 Fenetre fermee (on construit sur l'arc est, on n'y cede pas : Campanha Fermee). Landbank 2 Prioritaire (Campanha #1, Bonfim) / 1 A phaser (Paranhos) / 4 En attente (Foz effondre : constructibilite basse + repondere valeur_meilleur_usage 0,25->0,12). Coherence croisee Campanha : Go promotion + Prioritaire landbank + Fenetre fermee arbitrage + Surveiller detention (construire et activer la reserve, ne pas ceder ni detenir l'ancien). Seuil landbank Prioritaire recalibre 65->63. L'actif vedette porte une marge conventionnelle ~15% (seuil Go a 12%, plus exigeant que le cap de marche 8%), distincte de la marge du neuf generique de la zone (24%).",
   "todo_2b_porto": [
-   "ACTIF VEDETTE : identite, programme, surface et couts REELS du projet mixte (logement, bureaux, hotel) signe Eduardo Souto de Moura a Campanha (aujourd'hui 'Campanha Souto de Moura' : ~22000 m2, construction 1850 eur/m2, foncier 760 eur/m2, prix de sortie residentiel 3790 eur/m2 -> marge ~15% : FICTIF plausible, a remplacer par le vrai actif KREST).",
+   "ACTIF VEDETTE : programme, repartition et couts REELS du projet mixte signe Eduardo Souto de Moura (avec Metro Urbe) a 300 m de la gare de Campanha. Recale sur donnees publiques (presse 2021) : plus de 70 000 m2 constructibles (logement, appart-hotel, bureaux, commerces), foncier acquis ~15 M eur soit ~215 eur/m2 constructible, positionnement residentiel accessible. Aujourd'hui : construction 1800, foncier 215, prix de sortie residentiel 3000 eur/m2 -> marge sur GDV ~15%, prime +5% sur la mediane Campanha 2857. Surface residentielle exacte et couts a confirmer par KREST.",
    "REPARTITION reelle du programme mixte residentiel/bureaux/hotel du projet Souto de Moura (la vedette est ancree sur la seule composante residentielle).",
    "Taux de rendement cibles et couts de construction/foncier REELS de KREST a Porto (aujourd'hui construction residentielle 1700, yield brut residentiel 5,0%, marges cibles : hypotheses de travail).",
    "regeneration_momentum et pipeline est : confirmer le calendrier reel du nouveau terminal intermodal de Campanha et du plan-guide mixte (le plancher de momentum de promotion en depend ; le yoy INE reste reel).",
@@ -652,29 +652,31 @@
    "zone": "campanha",
    "class": "residential",
    "primary_mode": "promotion",
+   "margin_basis": "gdv",
+   "margin_basis_note": "marge de la couche actif calculee sur le prix de sortie (profit sur GDV : (prix - cout)/prix), positionnement accessible ; le modele de cout reste 1,261 x (construction + foncier). Flag propre a cet actif (absent ailleurs) : Gaia/Lisbonne/Bruxelles/Haya/Fabrica/Dansaert restent sur la marge sur cout, snapshot byte-identical.",
    "target_price_eur_m2": {
-    "value": 3790,
+    "value": 3000,
     "unit": "eur/m2",
     "conf": "hypothese",
-    "src": "prix de sortie vise de la composante residentielle (Go confortable, marge ~15%), prime ~33% sur la mediane Campanha 2857"
+    "src": "prix de sortie residentiel positionne accessible (recale sur donnees publiques KREST), prime ~+5% sur la mediane Campanha 2857 ; marge sur GDV ~15%"
    },
    "construction_eur_m2": {
-    "value": 1850,
+    "value": 1800,
     "unit": "eur/m2",
     "conf": "hypothese",
-    "src": "cout de rehabilitation/developpement mixte a composante residentielle, standard architectural signature"
+    "src": "cout de rehabilitation/developpement mixte a composante residentielle (recale)"
    },
    "land_cost_eur_m2": {
-    "value": 760,
+    "value": 215,
     "unit": "eur/m2",
-    "conf": "hypothese",
-    "src": "foncier de l'emprise de regeneration a Campanha (proche du nouveau terminal intermodal)"
+    "conf": "rapport",
+    "src": "foncier acquis ~15 M eur pour ~70 000 m2 constructibles (presse 2021) = ~215 eur/m2 constructible"
    },
    "surface_m2": {
-    "value": 22000,
+    "value": 70000,
     "unit": "m2",
-    "conf": "hypothese",
-    "src": "surface constructible du projet mixte (logement, bureaux, hotel) ; composante residentielle predominante"
+    "conf": "rapport",
+    "src": "plus de 70 000 m2 constructibles du projet mixte (logement, appart-hotel, bureaux, commerces), presse 2021 ; l'analyse vedette est ancree sur la composante residentielle"
    }
   }
  },

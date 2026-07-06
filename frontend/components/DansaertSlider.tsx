@@ -14,7 +14,7 @@ import {
 import { VerdictBadge } from "./ui";
 
 // Recalcul live côté client, formule identique au moteur (composant distinct :
-// Haya et Fábrica restent strictement intouchés). Conversion d'un immeuble de
+// Haya et Formoso restent strictement intouchés). Conversion d'un immeuble de
 // bureaux vacant en résidentiel, quartier du canal / Dansaert (Molenbeek) ;
 // seul le prix de sortie bouge avec le curseur. Résidentiel neuf BE : TVA 21%
 // assujettie (le prix de sortie est net de TVA avant la marge).
