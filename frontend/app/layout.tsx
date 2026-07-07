@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Montserrat } from "next/font/google";
 import "./globals.css";
 import { CityKey } from "@/components/CityKey";
+import { TransitionCurtain } from "@/components/entry/TransitionCurtain";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -24,7 +25,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className={`${playfair.variable} ${montserrat.variable}`}>
-      <body><CityKey>{children}</CityKey></body>
+      <body>
+        <TransitionCurtain />
+        <CityKey>{children}</CityKey>
+      </body>
     </html>
   );
 }
