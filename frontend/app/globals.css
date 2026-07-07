@@ -13,6 +13,11 @@ html,
 body {
   height: 100%;
 }
+/* Backstop navy : jamais de blanc au tout premier paint / avant le body.
+   Le body (crème) le recouvre en fonctionnement normal (dashboard). */
+html {
+  background: #0a1628;
+}
 body {
   background: rgb(var(--cream));
   color: #243447;
