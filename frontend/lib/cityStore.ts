@@ -21,6 +21,7 @@ import { CITIES, DEFAULT_CITY, isCountryCode, countryOf, type CountryCode } from
 const CITY_KEY = "barzel_city";
 const COUNTRY_KEY = "barzel_country";
 const REVEALED_KEY = "barzel_revealed";
+const ACCUEIL_KEY = "barzel_accueil_seen";
 
 interface CityState {
   slug: string;
@@ -103,6 +104,40 @@ export function markRevealed(slug: string): void {
   seen.add(slug);
   try {
     window.sessionStorage.setItem(REVEALED_KEY, Array.from(seen).join(","));
+  } catch {
+    /* stockage indisponible */
+  }
+}
+
+// --- Play-once de l'accueil ville (session, lot C1) ----------------------
+// Même modèle que la révélation : un slug par ligne, hors état réactif. À la
+// sélection d'une ville, l'accueil ne s'intercale qu'à sa première visite dans
+// la session ; ensuite on va directement au dashboard. L'accueil reste toujours
+// accessible via le fil d'Ariane.
+
+function readAccueilSeen(): Set<string> {
+  try {
+    const raw = window.sessionStorage.getItem(ACCUEIL_KEY);
+    return new Set(raw ? raw.split(",").filter(Boolean) : []);
+  } catch {
+    return new Set();
+  }
+}
+
+/** L'accueil de cette ville a-t-il déjà été vu dans la session ? */
+export function hasAccueilSeen(slug: string): boolean {
+  if (typeof window === "undefined") return false;
+  return readAccueilSeen().has(slug);
+}
+
+/** Marque l'accueil de cette ville comme vu pour la session. */
+export function markAccueilSeen(slug: string): void {
+  if (typeof window === "undefined") return;
+  const seen = readAccueilSeen();
+  if (seen.has(slug)) return;
+  seen.add(slug);
+  try {
+    window.sessionStorage.setItem(ACCUEIL_KEY, Array.from(seen).join(","));
   } catch {
     /* stockage indisponible */
   }
