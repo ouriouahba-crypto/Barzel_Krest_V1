@@ -21,10 +21,13 @@ export function Wordmark({ href = "/" }: { href?: string }) {
 export function EntryShell({
   children,
   step,
+  bleed = false,
 }: {
   children: ReactNode;
   /** repère d'étape discret en haut à droite (ex. « Pays › Ville ») */
   step?: ReactNode;
+  /** plein cadre : le contenu remplit la zone (carte blueprint) au lieu d'être centré */
+  bleed?: boolean;
 }) {
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-navy text-cream">
@@ -41,9 +44,13 @@ export function EntryShell({
         <Wordmark />
         {step ? <div className="text-label uppercase tracking-[0.22em] text-cream/55">{step}</div> : null}
       </header>
-      <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-16">
-        {children}
-      </main>
+      {bleed ? (
+        <main className="relative z-10 flex min-h-0 flex-1 flex-col">{children}</main>
+      ) : (
+        <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-16">
+          {children}
+        </main>
+      )}
     </div>
   );
 }

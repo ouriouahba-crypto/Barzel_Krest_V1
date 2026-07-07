@@ -53,6 +53,9 @@ export interface CityDef {
   fiscalLocale: string;
   /** zone id du municipio (vue « ville » du moteur) */
   cityZoneId: string;
+  /** position géographique [lng, lat] : marqueur de la carte blueprint (lot 2).
+   *  Data-driven ici, jamais en dur dans le composant carte. */
+  coords: [number, number];
   /** contours des freguesias/communes */
   geojson: string;
   /** terme de maille de la ville : « freguesia » (PT), « commune » (BE). Pilote
@@ -84,6 +87,7 @@ export const CITIES: CityDef[] = [
     currency: "EUR",
     fiscalLocale: "pt-PT",
     cityZoneId: "vilanovadegaia",
+    coords: [-8.611, 41.124],
     geojson: "/geo/gaia/freguesias.geojson",
     zoneNoun: "freguesia",
     zoneNounPlural: "freguesias",
@@ -136,6 +140,7 @@ export const CITIES: CityDef[] = [
     currency: "EUR",
     fiscalLocale: "pt-PT",
     cityZoneId: "lisboa",
+    coords: [-9.1393, 38.7223],
     geojson: "/geo/lisbonne/freguesias.geojson",
     zoneNoun: "freguesia",
     zoneNounPlural: "freguesias",
@@ -194,6 +199,7 @@ export const CITIES: CityDef[] = [
     currency: "EUR",
     fiscalLocale: "pt-PT",
     cityZoneId: "porto",
+    coords: [-8.611, 41.1496],
     geojson: "/geo/porto/freguesias.geojson",
     zoneNoun: "freguesia",
     zoneNounPlural: "freguesias",
@@ -254,6 +260,7 @@ export const CITIES: CityDef[] = [
     fiscalLocale: "fr-BE",
     // Pas de municipio : commune représentative pour la vue par défaut de la Carte.
     cityZoneId: "ixelles",
+    coords: [4.3517, 50.8503],
     geojson: "/geo/bruxelles/freguesias.geojson",
     zoneNoun: "commune",
     zoneNounPlural: "communes",
@@ -308,6 +315,14 @@ export type CountryCode = CityDef["country"];
 export const COUNTRY_LABEL: Record<CountryCode, string> = {
   pt: "Portugal",
   be: "Belgique",
+};
+
+// Identifiant numérique ISO 3166-1 des pays dans world-atlas (countries-50m) :
+// Portugal 620 (PRT), Belgique 056 (BEL). Sert à isoler les features du pays sur
+// la carte blueprint (lot 2). Data-driven ici, pas en dur dans le composant.
+export const COUNTRY_GEO_ID: Record<CountryCode, string> = {
+  pt: "620",
+  be: "056",
 };
 
 export interface CountryDef {
