@@ -8,6 +8,7 @@ import { ScoreDial, VerdictBadge } from "@/components/ui";
 import { OverviewRanking } from "@/components/OverviewRanking";
 import { InsightBanner } from "@/components/InsightBanner";
 import { PriceTrend } from "@/components/PriceTrend";
+import { Skeleton } from "@/components/motion/Skeleton";
 import { useGaia, displayName, shortName } from "@/lib/useGaia";
 import { ModeScore } from "@/lib/api";
 import { Mode, MODES, MODE_LABEL, MODE_KPI, MODE_ROUTE, classLabel, fmtNum, fmtSigned, median, pillarValue, verdictColor, verdictTone } from "@/lib/scoring";
@@ -133,7 +134,7 @@ export default function VueEnsemble() {
           </div>
         )}
 
-        <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-6">
+        <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-6 stagger-in">
           {/* a) Verdict banner (shared InsightBanner) */}
           <InsightBanner
             eyebrow={`Verdict marché · ${classLabel(cls)}`}
@@ -166,7 +167,7 @@ export default function VueEnsemble() {
           />
 
           {/* b) Four mode cards */}
-          <div className="grid shrink-0 grid-cols-2 gap-3 xl:grid-cols-4">
+          <div className="grid shrink-0 grid-cols-2 gap-3 stagger-in xl:grid-cols-4">
             {MODES.map((m) => {
               const s = overview.scores[m];
               const isBest = m === bm;
@@ -238,7 +239,13 @@ export default function VueEnsemble() {
                     <ScoreDial score={z.total} size={44} light />
                   </div>
                 ))}
-                {!podium.length && <div className="text-body text-ink-soft">Chargement…</div>}
+                {!podium.length && (
+                  <>
+                    <Skeleton className="h-[52px] w-full" />
+                    <Skeleton className="h-[52px] w-full" />
+                    <Skeleton className="h-[52px] w-full" />
+                  </>
+                )}
               </div>
             </section>
 
@@ -247,7 +254,7 @@ export default function VueEnsemble() {
                 <h3 className="font-display text-[16px] text-navy">Classement des {city.zoneNounPlural}</h3>
                 <span className="text-label text-muted">score {bm ? MODE_LABEL[bm].toLowerCase() : ""} · par verdict</span>
               </div>
-              <div>{bm && rankRows.length ? <OverviewRanking rows={rankRows} mode={bm} /> : null}</div>
+              <div>{bm && rankRows.length ? <OverviewRanking rows={rankRows} mode={bm} /> : <Skeleton className="h-[280px] w-full" />}</div>
             </section>
 
             <section className="flex flex-col rounded-2xl border border-navy/10 bg-white p-5 shadow-card">

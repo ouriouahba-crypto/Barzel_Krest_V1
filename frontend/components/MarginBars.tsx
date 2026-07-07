@@ -3,6 +3,7 @@
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Mode, fmtNum, verdictColor, verdictLabel } from "@/lib/scoring";
 import { useZoneNoun } from "@/lib/useZoneNoun";
+import { usePrefersReducedMotion } from "@/lib/motion";
 
 // Verdict-coloured bars per freguesia, parameterised by metric + labels so each
 // mode page reuses it (promotion: marge %, détention: yield net %, …). Defaults
@@ -47,6 +48,7 @@ export function MarginBars<T extends BarRowBase>({
   digits?: number;
 }) {
   const { sg } = useZoneNoun();
+  const reduce = usePrefersReducedMotion();
   // Titre par défaut piloté par le terme de maille de la ville (« Marge % par
   // commune » à Bruxelles). Les pages qui passent un titre explicite priment.
   const heading = title ?? `Marge % par ${sg}`;
@@ -99,6 +101,9 @@ export function MarginBars<T extends BarRowBase>({
               maxBarSize={30}
               onClick={(d: any) => d?.payload?.zone && onSelect(d.payload.zone)}
               className="cursor-pointer"
+              isAnimationActive={!reduce}
+              animationDuration={800}
+              animationEasing="ease-out"
             >
               {data.map((r) => (
                 <Cell

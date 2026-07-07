@@ -2,6 +2,7 @@
 
 import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Mode, verdictColor, verdictLabel } from "@/lib/scoring";
+import { usePrefersReducedMotion } from "@/lib/motion";
 
 export interface RankRow {
   name: string;
@@ -30,6 +31,7 @@ function RankTooltip({ active, payload, mode }: any) {
 const ROW_H = 24; // ~24px par barre (Gaia 15 × 24 = 360, hauteur historique)
 
 export function OverviewRanking({ rows, mode }: { rows: RankRow[]; mode: Mode }) {
+  const reduce = usePrefersReducedMotion();
   const data = [...rows].sort((a, b) => a.total - b.total); // recharts stacks bottom-up
   return (
     <div style={{ height: Math.max(1, rows.length) * ROW_H }}>
@@ -46,7 +48,7 @@ export function OverviewRanking({ rows, mode }: { rows: RankRow[]; mode: Mode })
           interval={0}
         />
         <Tooltip cursor={{ fill: "rgba(10,22,40,0.05)" }} content={<RankTooltip mode={mode} />} />
-        <Bar dataKey="total" radius={[0, 3, 3, 0]} maxBarSize={16}>
+        <Bar dataKey="total" radius={[0, 3, 3, 0]} maxBarSize={16} isAnimationActive={!reduce} animationDuration={800} animationEasing="ease-out">
           {/* LabelList explicite = une étiquette par barre, sans décimation
               (l'équivalent d'interval 0 ; la prop n'existe pas sur LabelList,
               qui ne décime jamais, contrairement au label d'axe). */}

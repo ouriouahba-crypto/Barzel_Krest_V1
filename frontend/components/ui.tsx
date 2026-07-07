@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Mode, pillarTitle, scoreColor, verdictLabel, verdictTone } from "@/lib/scoring";
+import { useCountUp } from "@/lib/motion";
 
 export function VerdictBadge({ mode, verdict }: { mode: Mode; verdict: string }) {
   const tone = verdictTone(mode, verdict);
@@ -18,9 +19,14 @@ export function VerdictBadge({ mode, verdict }: { mode: Mode; verdict: string })
 }
 
 export function ScoreDial({ score, size = 64, light = false }: { score: number; size?: number; light?: boolean }) {
+  // Count-up d'affichage : l'anneau et le nombre montent jusqu'au score et
+  // FINISSENT exactement dessus (Math.round(score), format inchangé). rAF pilote la
+  // valeur, donc plus de transition CSS sur le dasharray ; la couleur (verdict) reste
+  // sur le score final, stable. reduced-motion : valeur finale directe (useCountUp).
+  const v = useCountUp(score);
   const r = size / 2 - 5;
   const c = 2 * Math.PI * r;
-  const pct = Math.max(0, Math.min(100, score)) / 100;
+  const pct = Math.max(0, Math.min(100, v)) / 100;
   const color = scoreColor(score);
   return (
     <svg width={size} height={size} className="shrink-0">
@@ -35,10 +41,10 @@ export function ScoreDial({ score, size = 64, light = false }: { score: number; 
         strokeLinecap="round"
         strokeDasharray={`${c * pct} ${c}`}
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        style={{ transition: "stroke-dasharray 0.5s cubic-bezier(0.22,1,0.36,1), stroke 0.4s" }}
+        style={{ transition: "stroke 0.4s" }}
       />
       <text x="50%" y="52%" dominantBaseline="middle" textAnchor="middle" className={`${light ? "fill-navy" : "fill-cream"} font-display`} fontSize={size * 0.3}>
-        {Math.round(score)}
+        {Math.round(v)}
       </text>
     </svg>
   );

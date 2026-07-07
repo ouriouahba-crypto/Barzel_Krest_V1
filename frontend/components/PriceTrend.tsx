@@ -2,6 +2,7 @@
 
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { PricePoint } from "@/lib/priceHistory";
+import { usePrefersReducedMotion } from "@/lib/motion";
 
 // Sober city-price trajectory (8 quarters) : one navy 2px line on white, gold
 // final dot, recessive grid, direct labels on first & last points only: the
@@ -26,6 +27,7 @@ function EndDot(props: any) {
 }
 
 export function PriceTrend({ points }: { points: PricePoint[] }) {
+  const reduce = usePrefersReducedMotion();
   if (!points.length) return <div className="flex h-full items-center justify-center text-body text-ink-soft">Chargement…</div>;
   const first = points[0];
   const last = points[points.length - 1];
@@ -59,7 +61,9 @@ export function PriceTrend({ points }: { points: PricePoint[] }) {
           dot={<EndDot dataLength={points.length} />}
           activeDot={{ r: 4, fill: "#1E3559", stroke: "#fff", strokeWidth: 1.5 }}
           label={label}
-          isAnimationActive={false}
+          isAnimationActive={!reduce}
+          animationDuration={1200}
+          animationEasing="ease-out"
         />
       </LineChart>
     </ResponsiveContainer>

@@ -82,6 +82,26 @@ input[type="range"].haya-range::-moz-range-thumb {
   cursor: pointer;
 }
 
+/* Shimmer des skeletons (lot 5). Neutralisé sous prefers-reduced-motion par la
+   règle globale de réduction d'animation ci-dessous. */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(10, 22, 40, 0.06), transparent);
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 @keyframes fadeUp {
   from {
     opacity: 0;
@@ -94,6 +114,54 @@ input[type="range"].haya-range::-moz-range-thumb {
 }
 .fade-up {
   animation: fadeUp 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Transition de route (template.tsx) en CSS : fondu du contenu entrant + voile
+   navy en fondu sortant. Neutralisés sous prefers-reduced-motion (règle globale). */
+.route-fade {
+  animation: routeFade 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes routeFade {
+  from {
+    opacity: 0;
+  }
+}
+.route-veil {
+  animation: veilOut 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes veilOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Révélation cinétique d'un titre (lot 5), rejouée via une clé au changement de
+   texte. Pure CSS (aucune divergence d'hydratation) ; neutralisée sous
+   prefers-reduced-motion par la règle globale de réduction d'animation. */
+.title-reveal {
+  animation: fadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Entrée échelonnée des enfants directs d'un conteneur (lot 5) : fondu + léger
+   rise, en cascade. Scopé à no-preference (sous reduced-motion, aucun opacity:0
+   ni animation : contenu visible d'emblée). fadeUp finit sur transform:none, donc
+   aucun bloc conteneur résiduel pour un position:fixed. */
+@media (prefers-reduced-motion: no-preference) {
+  .stagger-in > * {
+    opacity: 0;
+    animation: fadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .stagger-in > *:nth-child(1) { animation-delay: 0.03s; }
+  .stagger-in > *:nth-child(2) { animation-delay: 0.1s; }
+  .stagger-in > *:nth-child(3) { animation-delay: 0.17s; }
+  .stagger-in > *:nth-child(4) { animation-delay: 0.24s; }
+  .stagger-in > *:nth-child(5) { animation-delay: 0.31s; }
+  .stagger-in > *:nth-child(6) { animation-delay: 0.38s; }
+  .stagger-in > *:nth-child(7) { animation-delay: 0.45s; }
+  .stagger-in > *:nth-child(n + 8) { animation-delay: 0.5s; }
 }
 
 /* Accessibilité : l'utilisateur qui réduit les animations arrive directement à
