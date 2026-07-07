@@ -11,11 +11,12 @@ import { PriceTrend } from "@/components/PriceTrend";
 import { Skeleton } from "@/components/motion/Skeleton";
 import { useGaia, displayName, shortName } from "@/lib/useGaia";
 import { ModeScore } from "@/lib/api";
-import { Mode, MODES, MODE_LABEL, MODE_KPI, MODE_ROUTE, classLabel, fmtNum, fmtSigned, median, pillarValue, verdictColor, verdictTone } from "@/lib/scoring";
+import { Mode, MODES, MODE_LABEL, MODE_KPI, MODE_ROUTE, classLabel, fmtNum, fmtSigned, median, pillarValue, verdictColor, verdictLabel, verdictTone } from "@/lib/scoring";
 import { OverviewByMode, bestMode, cityInsight, modeInsight, trendInsight } from "@/lib/insights";
 import { priceTrajectory, PricePoint } from "@/lib/priceHistory";
 import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
+import { SignalAffordance } from "@/components/collab/SignalAffordance";
 
 // Ligne marché : registre des villes (lib/cities.ts).
 
@@ -56,7 +57,8 @@ function synthCity(fine: ModeScore[]): ModeScore | undefined {
 
 export default function VueEnsemble() {
   const g = useGaia();
-  const city = cityBySlug(useCityStore((s) => s.slug));
+  const slug = useCityStore((s) => s.slug);
+  const city = cityBySlug(slug);
   const [selected, setSelected] = useState<string[]>([]);
   const cls = g.assetClass;
 
@@ -174,10 +176,21 @@ export default function VueEnsemble() {
               return (
                 <div
                   key={m}
-                  className={`flex flex-col rounded-2xl border p-4 ${
+                  className={`group/sig relative flex flex-col rounded-2xl border p-4 ${
                     isBest ? "border-gold/70 bg-navy shadow-card ring-1 ring-gold/40" : "border-navy/10 bg-navy/95"
                   }`}
                 >
+                  {/* Signalement au survol (lot C3) : ancré au verdict ville du mode. */}
+                  {s && (
+                    <SignalAffordance
+                      citySlug={slug}
+                      anchor={{
+                        kind: "verdict",
+                        label: `${MODE_LABEL[m]} · ${verdictLabel(s.verdict)}`,
+                        route: MODE_ROUTE[m] ?? "/vue-ensemble",
+                      }}
+                    />
+                  )}
                   <div className="flex items-center justify-between">
                     <span className="text-label font-semibold uppercase tracking-widest text-gold/90">{MODE_LABEL[m]}</span>
                     {isBest && <span className="rounded-full bg-gold/20 px-2 py-0.5 text-label uppercase tracking-wide text-gold">Dominant</span>}
@@ -224,7 +237,12 @@ export default function VueEnsemble() {
               </div>
               <div className="flex flex-col gap-2.5">
                 {podium.map((z, i) => (
-                  <div key={z.zone} className="flex items-center gap-3 rounded-xl border border-navy/10 bg-cream-200 px-3 py-2.5">
+                  <div key={z.zone} className="group/sig relative flex items-center gap-3 rounded-xl border border-navy/10 bg-cream-200 px-3 py-2.5">
+                    {/* Signalement au survol (lot C3) : ancré à la maille, ramène à la carte. */}
+                    <SignalAffordance
+                      citySlug={slug}
+                      anchor={{ kind: "zone", label: displayName(z.zone_name), zoneId: z.zone, route: "/gaia" }}
+                    />
                     <span className="font-display text-kpi-sm text-gold-700">{i + 1}</span>
                     <span className="h-9 w-1 rounded-full" style={{ background: verdictColor(bm as Mode, z.verdict) }} />
                     <div className="min-w-0 flex-1">

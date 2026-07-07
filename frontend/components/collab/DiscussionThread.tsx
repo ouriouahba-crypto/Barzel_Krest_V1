@@ -6,29 +6,18 @@
 // réponse en bas. Les messages créés en session portent l'horodatage « à
 // l'instant » ; leur auteur est le compte courant au moment de l'envoi.
 
-import type { AnchorKind, Thread } from "@/lib/collab/types";
+import type { Thread } from "@/lib/collab/types";
 import { accountOf } from "@/lib/collab/types";
 import { Avatar } from "./Avatar";
+import { AnchorChip } from "./AnchorChip";
 import { NotifDot } from "./NotifDot";
 import { ReplyComposer } from "./ReplyComposer";
 
-const ANCHOR: Record<AnchorKind, { glyph: string; label: string }> = {
-  zone: { glyph: "▣", label: "Maille" },
-  asset: { glyph: "◈", label: "Actif" },
-  verdict: { glyph: "◆", label: "Verdict" },
-  general: { glyph: "◇", label: "Général" },
-};
-
 export function DiscussionThread({ thread, unread = 0 }: { thread: Thread; unread?: number }) {
-  const a = ANCHOR[thread.anchor.kind] ?? ANCHOR.general;
   return (
     <article className="flex flex-col rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
-      <div className="mb-1.5 inline-flex items-center gap-1.5 self-start rounded-full border border-gold/20 bg-gold/[0.08] px-2.5 py-1 text-label font-medium text-gold-700">
-        <span aria-hidden>{a.glyph}</span>
-        <span className="uppercase tracking-[0.12em]">{a.label}</span>
-        <span className="text-gold-700/70">·</span>
-        <span className="normal-case tracking-normal">{thread.anchor.label}</span>
-      </div>
+      {/* Chip d'objet cliquable (lot C3) : ramène à l'objet dans le dashboard. */}
+      <AnchorChip anchor={thread.anchor} citySlug={thread.citySlug} />
       <div className="flex items-start gap-2">
         <h3 className="min-w-0 flex-1 font-display text-[17px] leading-snug text-navy">{thread.title}</h3>
         {unread > 0 && <span className="mt-1.5 shrink-0"><NotifDot count={unread} /></span>}

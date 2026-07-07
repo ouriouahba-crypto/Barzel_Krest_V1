@@ -1,12 +1,14 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { DetailPanel, KeyFigure } from "@/components/DetailPanel";
 import { MapLegendBar } from "@/components/CityBits";
 import { ScoreDial, VerdictBadge } from "@/components/ui";
+import { SignalAffordance } from "@/components/collab/SignalAffordance";
+import { takePendingFocus } from "@/lib/collab/focusBridge";
 import { useGaia } from "@/lib/useGaia";
 import { Mode, MODE_KPI, fmtSigned } from "@/lib/scoring";
 import { ModeScore } from "@/lib/api";
@@ -42,6 +44,18 @@ export default function CartePage() {
     g.setFocusZone(zoneId);
     setDetailOpen(true);
   };
+
+  // Arrivée depuis un chip d'objet ancré (lot C3) : focalise la maille demandée et
+  // ouvre son détail, via le mécanisme de focus existant (aucun ajout côté carte).
+  // Consommation UNIQUE au montage ; sans demande, rien ne change (rendu identique).
+  useEffect(() => {
+    const p = takePendingFocus();
+    if (p && p.citySlug === city.slug && p.zoneId) {
+      g.setFocusZone(p.zoneId);
+      setDetailOpen(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const panelZone = hover ?? g.focusZone;
   const q = g.quickFor(panelZone);
@@ -90,7 +104,13 @@ export default function CartePage() {
 
           {/* floating compact zone panel */}
           {q && (
-            <div className="absolute right-7 top-7 z-[500] w-72 rounded-2xl border border-gold/40 bg-navy p-4 text-cream shadow-card fade-up">
+            <div className="group/sig absolute right-7 top-7 z-[500] w-72 rounded-2xl border border-gold/40 bg-navy p-4 text-cream shadow-card fade-up">
+              {/* Signalement au survol (lot C3) : ancré à la maille affichée. */}
+              <SignalAffordance
+                citySlug={city.slug}
+                place="br"
+                anchor={{ kind: "zone", label: q.name, zoneId: panelZone, route: "/gaia" }}
+              />
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <div className="text-label uppercase tracking-widest text-gold/90">{q.level === "municipio" ? "Vue ville" : Noun}</div>

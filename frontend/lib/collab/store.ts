@@ -53,6 +53,13 @@ interface CollabState {
   addReply: (threadId: string, authorId: AccountId, text: string) => void;
   /** démarre un nouveau fil de discussion au nom du compte fourni */
   addThread: (input: { citySlug: string; title: string; anchor: Anchor; authorId: AccountId; text: string }) => void;
+  /**
+   * Signale un objet du dashboard (lot C3) : remonte une note dans la discussion de
+   * la ville, ancrée à l'objet. Si un fil ancré au MÊME objet existe déjà (seed ou
+   * créé), la note s'y ajoute ; sinon un fil ancré est ouvert (titre = nom de
+   * l'objet). Même mécanique de séquence/non-lus que `addReply`/`addThread`.
+   */
+  addSignal: (input: { citySlug: string; anchor: Anchor; authorId: AccountId; text: string }) => void;
   /** marque la discussion de la ville comme lue pour le compte (vide la pastille) */
   markSeen: (citySlug: string, account: AccountId) => void;
   // --- Réservé C4 ---------------------------------------------------------
@@ -155,6 +162,37 @@ export const useCollabStore = create<CollabState>((set, get) => ({
     persistSeen(seq, get().lastSeen);
     set({ created: next, seq });
   },
+  addSignal: ({ citySlug, anchor, authorId, text }) => {
+    const body = text.trim();
+    if (!body) return;
+    const s = get().seq;
+    const created = get().created;
+    const message: Message = { id: `sess-m${s}`, authorId, time: "à l'instant", text: body, seq: s };
+    // Fil ancré au même objet (seed OU créé) : on y ajoute la note ; sinon on ouvre
+    // un fil ancré. Correspondance par (type d'ancre, libellé) : les objets signalés
+    // depuis le dashboard portent le libellé exact des ancres du seed (nom de maille,
+    // « Mode · Verdict »), donc une note sur un objet déjà discuté le rejoint.
+    const existing = threadsForCity(citySlug, created).find(
+      (t) => t.anchor.kind === anchor.kind && t.anchor.label === anchor.label,
+    );
+    let next: Created;
+    if (existing) {
+      next = {
+        ...created,
+        messages: {
+          ...created.messages,
+          [existing.id]: [...(created.messages[existing.id] ?? []), message],
+        },
+      };
+    } else {
+      const thread: Thread = { id: `sess-t${s}`, citySlug, title: anchor.label, anchor, messages: [message] };
+      next = { ...created, threads: [...created.threads, thread] };
+    }
+    const seq = s + 1;
+    persistCreated(next);
+    persistSeen(seq, get().lastSeen);
+    set({ created: next, seq });
+  },
   markSeen: (citySlug, account) => {
     const s = get().seq;
     const cur = get().lastSeen[citySlug] ?? {};
@@ -180,11 +218,16 @@ export const useCollabStore = create<CollabState>((set, get) => ({
 // En l'absence de créés, le rendu est exactement le seed.
 
 export function threadsForCity(citySlug: string, created: Created): Thread[] {
-  const seeded = seedThreads(citySlug).map((t) => {
+  // Les réponses/notes ajoutées à un fil vivent dans `created.messages[threadId]`,
+  // qu'il soit SEEDÉ ou CRÉÉ en session : on les fusionne dans les deux cas (sinon
+  // une note remontée vers un fil de session, ou une réponse à un fil de session,
+  // resterait invisible et hors du compte des non-lus).
+  const withExtra = (t: Thread) => {
     const extra = created.messages[t.id];
     return extra && extra.length ? { ...t, messages: [...t.messages, ...extra] } : t;
-  });
-  const sessionThreads = created.threads.filter((t) => t.citySlug === citySlug);
+  };
+  const seeded = seedThreads(citySlug).map(withExtra);
+  const sessionThreads = created.threads.filter((t) => t.citySlug === citySlug).map(withExtra);
   // Les fils créés en session ouvrent la discussion (les plus récents en tête).
   return [...sessionThreads, ...seeded];
 }
