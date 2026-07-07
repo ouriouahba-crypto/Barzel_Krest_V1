@@ -299,3 +299,47 @@ export const DEFAULT_CITY = CITIES[0];
 export function cityBySlug(slug: string): CityDef {
   return CITIES.find((c) => c.slug === slug) ?? DEFAULT_CITY;
 }
+
+// Couche d'entrée : parcours pays puis ville. Le pays est le pays du registre
+// (`country`), jamais codé en dur ; la liste des villes d'un pays se dérive de
+// CITIES. Ajouter une ville au registre suffit à la faire apparaître ici.
+export type CountryCode = CityDef["country"];
+
+export const COUNTRY_LABEL: Record<CountryCode, string> = {
+  pt: "Portugal",
+  be: "Belgique",
+};
+
+export interface CountryDef {
+  code: CountryCode;
+  label: string;
+  cities: CityDef[];
+}
+
+// Pays groupés dans l'ordre de première apparition au registre (Portugal puis
+// Belgique), chacun avec ses villes dans l'ordre du registre.
+export const COUNTRIES: CountryDef[] = (() => {
+  const order: CountryCode[] = [];
+  const byCode = new Map<CountryCode, CityDef[]>();
+  for (const c of CITIES) {
+    if (!byCode.has(c.country)) {
+      byCode.set(c.country, []);
+      order.push(c.country);
+    }
+    byCode.get(c.country)!.push(c);
+  }
+  return order.map((code) => ({ code, label: COUNTRY_LABEL[code], cities: byCode.get(code)! }));
+})();
+
+export function citiesForCountry(code: CountryCode | null | undefined): CityDef[] {
+  if (!code) return [];
+  return COUNTRIES.find((c) => c.code === code)?.cities ?? [];
+}
+
+export function countryOf(slug: string): CountryCode {
+  return cityBySlug(slug).country;
+}
+
+export function isCountryCode(v: string | null | undefined): v is CountryCode {
+  return v === "pt" || v === "be";
+}

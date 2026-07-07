@@ -36,10 +36,10 @@ export function Sidebar() {
   const [memoOpen, setMemoOpen] = useState(false);
   return (
     <aside className="flex h-full w-56 shrink-0 flex-col bg-navy text-cream">
-      <div className="px-5 py-5">
-        <div className="font-display text-lg tracking-wide text-gold">Barzel</div>
+      <Link href="/" className="group block px-5 py-5" aria-label="Barzel, accueil">
+        <div className="font-display text-lg tracking-wide text-gold transition-colors group-hover:text-gold-300">Barzel</div>
         <div className="text-label uppercase tracking-[0.2em] text-cream/60">Analytics</div>
-      </div>
+      </Link>
 
       <nav className="flex-1 overflow-y-auto px-3">
         {MODULES.map((m) => {
