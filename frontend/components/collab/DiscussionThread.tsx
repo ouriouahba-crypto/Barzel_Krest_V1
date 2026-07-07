@@ -13,9 +13,22 @@ import { AnchorChip } from "./AnchorChip";
 import { NotifDot } from "./NotifDot";
 import { ReplyComposer } from "./ReplyComposer";
 
-export function DiscussionThread({ thread, unread = 0 }: { thread: Thread; unread?: number }) {
+export function DiscussionThread({
+  thread,
+  unread = 0,
+  highlight = false,
+}: {
+  thread: Thread;
+  unread?: number;
+  highlight?: boolean;
+}) {
   return (
-    <article className="flex flex-col rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
+    <article
+      id={`thread-${thread.id}`}
+      className={`flex scroll-mt-24 flex-col rounded-2xl border bg-white p-5 shadow-card transition-shadow ${
+        highlight ? "border-gold/70 ring-2 ring-gold/50" : "border-navy/10"
+      }`}
+    >
       {/* Chip d'objet cliquable (lot C3) : ramène à l'objet dans le dashboard. */}
       <AnchorChip anchor={thread.anchor} citySlug={thread.citySlug} />
       <div className="flex items-start gap-2">

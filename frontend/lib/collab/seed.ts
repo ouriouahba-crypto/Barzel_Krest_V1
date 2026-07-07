@@ -292,15 +292,17 @@ const FEED: FeedItem[] = [
     citySlug: "gaia",
     source: "Diário Imobiliário",
     date: "2 juil. 2026",
+    category: "offre",
     title: "Le neuf rive sud du Douro se raréfie",
     summary: "L'offre neuve côté fleuve reste sous la demande, les délais de vente se compriment sur Afurada et Santa Marinha.",
-    impact: { zone: "Santa Marinha", note: "verdict promotion à surveiller" },
+    impact: { zone: "Santa Marinha", note: "verdict promotion à surveiller", zoneId: "santamarinhaesaopedrodaafurada", route: "/gaia" },
   },
   {
     id: "gaia-f2",
     citySlug: "gaia",
     source: "INE Estatísticas",
     date: "30 juin 2026",
+    category: "prix",
     title: "Prix résidentiels : +16,3% sur douze mois à Gaia",
     summary: "La médiane du concelho atteint 2 474 €/m², portée par un second semestre accéléré.",
   },
@@ -309,6 +311,7 @@ const FEED: FeedItem[] = [
     citySlug: "gaia",
     source: "Público Economia",
     date: "27 juin 2026",
+    category: "reglementation",
     title: "IMT : le barème 2026 relève les seuils de 2%",
     summary: "Les tranches d'acquisition sont réévaluées ; l'entrée reste autour de 6% du prix pour la résidence secondaire.",
   },
@@ -317,15 +320,17 @@ const FEED: FeedItem[] = [
     citySlug: "gaia",
     source: "ADENE",
     date: "24 juin 2026",
+    category: "reglementation",
     title: "Certificats énergétiques : la trajectoire EPBD se précise",
     summary: "Le calendrier de rénovation du parc ancien se durcit ; les classes E et F concentrent le risque.",
-    impact: { zone: "Santa Marinha", note: "détention à repricer sur l'énergie" },
+    impact: { zone: "Santa Marinha", note: "détention à repricer sur l'énergie", zoneId: "santamarinhaesaopedrodaafurada", route: "/gaia" },
   },
   {
     id: "gaia-f5",
     citySlug: "gaia",
     source: "Expresso Imobiliário",
     date: "20 juin 2026",
+    category: "offre",
     title: "Le foncier bien desservi devient rare à Gaia",
     summary: "La réserve constructible proche du fleuve se contracte, la valeur résiduelle par usage grimpe.",
   },
@@ -336,15 +341,17 @@ const FEED: FeedItem[] = [
     citySlug: "lisbonne",
     source: "Idealista News",
     date: "1 juil. 2026",
+    category: "offre",
     title: "Marvila et Beato : l'arc oriental accélère",
     summary: "Les projets de reconversion se multiplient, la demande résidentielle suit le nouveau métro.",
-    impact: { zone: "Marvila", note: "promotion à confirmer" },
+    impact: { zone: "Marvila", note: "promotion à confirmer", zoneId: "marvila", route: "/gaia" },
   },
   {
     id: "lisbonne-f2",
     citySlug: "lisbonne",
     source: "INE Habitação",
     date: "29 juin 2026",
+    category: "prix",
     title: "Lisbonne : +12,3% sur douze mois",
     summary: "La médiane municipale atteint 4 875 €/m², portée par le centre et l'axe du Tage.",
   },
@@ -353,15 +360,17 @@ const FEED: FeedItem[] = [
     citySlug: "lisbonne",
     source: "Jornal de Negócios",
     date: "25 juin 2026",
+    category: "reglementation",
     title: "Alojamento Local : nouveau tour de vis attendu",
     summary: "Le cadre AL se resserre dans le centre historique ; la profondeur locative de détention se réduit.",
-    impact: { zone: "Santa Maria Maior", note: "détention à surveiller" },
+    impact: { zone: "Santa Maria Maior", note: "détention à surveiller", zoneId: "santamariamaior", route: "/gaia" },
   },
   {
     id: "lisbonne-f4",
     citySlug: "lisbonne",
     source: "Público Local",
     date: "21 juin 2026",
+    category: "offre",
     title: "Le foncier du centre reste hors de portée",
     summary: "Les valeurs de terrain intra-muros absorbent l'essentiel du prix de sortie, la promotion se déporte vers l'est.",
   },
@@ -370,6 +379,7 @@ const FEED: FeedItem[] = [
     citySlug: "lisbonne",
     source: "ADENE",
     date: "18 juin 2026",
+    category: "reglementation",
     title: "Parc historique : l'exposition énergétique se confirme",
     summary: "Le centre concentre les classes E et F ; les échéances EPBD pèsent sur la détention ancienne.",
   },
@@ -380,15 +390,17 @@ const FEED: FeedItem[] = [
     citySlug: "porto",
     source: "Jornal de Notícias",
     date: "2 juil. 2026",
+    category: "offre",
     title: "Campanhã : le terminal intermodal entre en chantier",
     summary: "Le nouveau hub et la gare à grande vitesse redessinent l'arc est ; les investisseurs se positionnent sur le foncier.",
-    impact: { zone: "Campanhã", note: "foncier à activer, verdict Go" },
+    impact: { zone: "Campanhã", note: "foncier à activer, verdict Go", zoneId: "campanha", route: "/gaia" },
   },
   {
     id: "porto-f2",
     citySlug: "porto",
     source: "INE Habitação",
     date: "28 juin 2026",
+    category: "prix",
     title: "Porto : +10,0% sur douze mois",
     summary: "La médiane du concelho atteint 3 066 €/m² ; l'écart entre Foz et Campanhã reste marqué.",
   },
@@ -397,6 +409,7 @@ const FEED: FeedItem[] = [
     citySlug: "porto",
     source: "Público Porto",
     date: "24 juin 2026",
+    category: "offre",
     title: "Souto de Moura signe un projet mixte à Campanhã",
     summary: "Logement, bureaux et hôtel sur plus de 70 000 m² à la gare, livraison échelonnée.",
   },
@@ -405,6 +418,7 @@ const FEED: FeedItem[] = [
     citySlug: "porto",
     source: "Idealista News",
     date: "19 juin 2026",
+    category: "prix",
     title: "Foz : les prix tiennent, les volumes ralentissent",
     summary: "Le haut de marché se stabilise ; la promotion neuve y reste marginale.",
   },
@@ -413,9 +427,10 @@ const FEED: FeedItem[] = [
     citySlug: "porto",
     source: "Diário Imobiliário",
     date: "16 juin 2026",
+    category: "macro",
     title: "Bonfim et Paranhos : la couronne se réveille",
     summary: "La croissance récente déborde du centre vers l'arc de régénération.",
-    impact: { zone: "Bonfim", note: "landbank secondaire à phaser" },
+    impact: { zone: "Bonfim", note: "landbank secondaire à phaser", zoneId: "bonfim", route: "/gaia" },
   },
 
   // Bruxelles
@@ -424,15 +439,17 @@ const FEED: FeedItem[] = [
     citySlug: "bruxelles",
     source: "L'Echo Immo",
     date: "1 juil. 2026",
+    category: "offre",
     title: "Le canal de Bruxelles attire les reconversions",
     summary: "Molenbeek, Anderlecht et Forest concentrent les projets, portés par un foncier encore accessible.",
-    impact: { zone: "Molenbeek", note: "promotion Go à confirmer" },
+    impact: { zone: "Molenbeek", note: "promotion Go à confirmer", zoneId: "molenbeeksaintjean", route: "/gaia" },
   },
   {
     id: "bruxelles-f2",
     citySlug: "bruxelles",
     source: "Statbel",
     date: "27 juin 2026",
+    category: "prix",
     title: "Prix du logement : l'arc du canal en tête des hausses",
     summary: "Les communes du canal affichent la plus forte progression sur cinq ans ; le sud-est plafonne.",
   },
@@ -441,15 +458,17 @@ const FEED: FeedItem[] = [
     citySlug: "bruxelles",
     source: "Le Soir Immo",
     date: "23 juin 2026",
+    category: "reglementation",
     title: "PEB : l'échéance 2033 se rapproche",
     summary: "Les classes F et G seront interdites à la location ; le stock premium ancien doit se rénover.",
-    impact: { zone: "Ixelles", note: "détention à céder avant le mur" },
+    impact: { zone: "Ixelles", note: "détention à céder avant le mur", zoneId: "ixelles", route: "/gaia" },
   },
   {
     id: "bruxelles-f4",
     citySlug: "bruxelles",
     source: "Trends-Tendances",
     date: "20 juin 2026",
+    category: "reglementation",
     title: "Précompte immobilier : la pression fiscale pèse sur la détention",
     summary: "Le rendement net bruxellois reste bas ; le capex énergétique alourdit encore l'équation.",
   },
@@ -458,10 +477,42 @@ const FEED: FeedItem[] = [
     citySlug: "bruxelles",
     source: "La Libre Éco",
     date: "17 juin 2026",
+    category: "offre",
     title: "Ligne 3 de métro : le nord se désenclave",
     summary: "La future desserte renforce l'attractivité de l'arc du canal et la constructibilité.",
   },
 ];
+
+// Objets d'impact navigables proposés au compositeur du fil d'info (lot C4) : des
+// mailles réelles de la ville (libellé court + zoneId + route carte). Choisis pour
+// couvrir les objets déjà cités dans les items seedés. Un item posté avec un de ces
+// objets porte un tag d'impact cliquable (retour à la maille dans le dashboard).
+const FEED_ANCHOR_TARGETS: Record<string, Anchor[]> = {
+  gaia: [
+    { kind: "zone", label: "Santa Marinha e Afurada", zoneId: "santamarinhaesaopedrodaafurada", route: "/gaia" },
+    { kind: "zone", label: "Madalena", zoneId: "madalena", route: "/gaia" },
+    { kind: "zone", label: "Canidelo", zoneId: "canidelo", route: "/gaia" },
+    { kind: "zone", label: "São Félix da Marinha", zoneId: "saofelixdamarinha", route: "/gaia" },
+  ],
+  lisbonne: [
+    { kind: "zone", label: "Marvila", zoneId: "marvila", route: "/gaia" },
+    { kind: "zone", label: "Beato", zoneId: "beato", route: "/gaia" },
+    { kind: "zone", label: "Santa Maria Maior", zoneId: "santamariamaior", route: "/gaia" },
+    { kind: "zone", label: "Parque das Nações", zoneId: "parquedasnacoes", route: "/gaia" },
+  ],
+  porto: [
+    { kind: "zone", label: "Campanhã", zoneId: "campanha", route: "/gaia" },
+    { kind: "zone", label: "Bonfim", zoneId: "bonfim", route: "/gaia" },
+    { kind: "zone", label: "Foz do Douro", zoneId: "aldoarfoznevogilde", route: "/gaia" },
+    { kind: "zone", label: "Paranhos", zoneId: "paranhos", route: "/gaia" },
+  ],
+  bruxelles: [
+    { kind: "zone", label: "Molenbeek-Saint-Jean", zoneId: "molenbeeksaintjean", route: "/gaia" },
+    { kind: "zone", label: "Forest", zoneId: "forest", route: "/gaia" },
+    { kind: "zone", label: "Anderlecht", zoneId: "anderlecht", route: "/gaia" },
+    { kind: "zone", label: "Ixelles", zoneId: "ixelles", route: "/gaia" },
+  ],
+};
 
 // --- Fil d'activité (dérivé des discussions et du fil d'info) -------------
 
@@ -501,6 +552,12 @@ export function seedFeed(citySlug: string): FeedItem[] {
 }
 export function seedActivity(citySlug: string): ActivityItem[] {
   return ACTIVITY.filter((a) => a.citySlug === citySlug);
+}
+
+// Objets navigables proposés au compositeur du fil d'info (lot C4). Vide pour une
+// ville non listée (le compositeur retombe alors sur « Aucun » impact).
+export function feedAnchorTargets(citySlug: string): Anchor[] {
+  return FEED_ANCHOR_TARGETS[citySlug] ?? [];
 }
 
 // Objets d'ancrage déjà présents dans le seed d'une ville (lot C2) : proposés au
