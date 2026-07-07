@@ -330,7 +330,13 @@ export default function BlueprintMap({ initialStep, onCitySelected }: BlueprintM
                 }}
                 onMouseEnter={() => active && setHoverCountry(h.code)}
                 onMouseLeave={() => setHoverCountry(null)}
-                onClick={() => selectCountry(h.code)}
+                onClick={(e) => {
+                  // Le pays sélectionné vient de l'élément qui reçoit réellement
+                  // le clic (data-country), pas d'une capture de closure : immunise
+                  // contre tout aléa de hit-testing ou d'état obsolète.
+                  const code = (e.currentTarget as SVGPathElement).getAttribute("data-country") as CountryCode | null;
+                  if (code) selectCountry(code);
+                }}
               />
             );
           })}
