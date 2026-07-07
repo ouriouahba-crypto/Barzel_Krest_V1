@@ -3,8 +3,8 @@
 import { ASSET_CLASSES, MODES, MODE_LABEL, Mode } from "@/lib/scoring";
 import { MultiSelect, Segmented } from "./ui";
 import { useEffect } from "react";
-import { CitySelector } from "./CitySelector";
-import { CITIES, cityBySlug } from "@/lib/cities";
+import { EntryBreadcrumb } from "./EntryBreadcrumb";
+import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
 
 export function Header({
@@ -40,6 +40,9 @@ export function Header({
     <header className="relative z-[1000] border-b border-navy/10 bg-cream/80 px-6 py-4 backdrop-blur">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
+          <div className="mb-2 pl-[18px]">
+            <EntryBreadcrumb />
+          </div>
           <div className="flex items-center gap-3">
             <span className="inline-block h-6 w-1.5 rounded-full bg-gold" />
             <h1 className="font-display text-[28px] leading-none text-navy">{city.label}</h1>
@@ -60,8 +63,8 @@ export function Header({
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-x-8 gap-y-3 pl-[18px]">
-        {/* Sélecteur de ville : monté seulement en multi-villes (registre) */}
-        {CITIES.length > 1 && <CitySelector />}
+        {/* La ville se choisit désormais via le parcours d'entrée (fil d'Ariane
+            ci-dessus) : plus de sélecteur de ville dans le dashboard. */}
         {!hideMode && (
           <div className="flex items-center gap-3">
             <span className="text-label font-semibold uppercase tracking-widest text-muted">Mode</span>
