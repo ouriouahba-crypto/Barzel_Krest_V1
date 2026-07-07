@@ -107,7 +107,7 @@ export default function PrixMargePage() {
           </div>
         )}
 
-        <main className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-6">
+        <main className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-6 stagger-in">
           {/* Module header */}
           <div>
             <div className="flex items-center gap-3">

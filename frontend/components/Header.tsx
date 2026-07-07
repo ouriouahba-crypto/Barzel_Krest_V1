@@ -4,6 +4,7 @@ import { ASSET_CLASSES, MODES, MODE_LABEL, Mode } from "@/lib/scoring";
 import { MultiSelect, Segmented } from "./ui";
 import { useEffect } from "react";
 import { EntryBreadcrumb } from "./EntryBreadcrumb";
+import { KineticTitle } from "./motion/KineticTitle";
 import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
 
@@ -45,7 +46,9 @@ export function Header({
           </div>
           <div className="flex items-center gap-3">
             <span className="inline-block h-6 w-1.5 rounded-full bg-gold" />
-            <h1 className="font-display text-[28px] leading-none text-navy">{city.label}</h1>
+            <h1 className="font-display text-[28px] leading-none text-navy">
+              <KineticTitle text={city.label} />
+            </h1>
           </div>
           <p className="mt-1.5 max-w-2xl pl-[18px] text-body text-ink-soft">{marketLine}</p>
         </div>
