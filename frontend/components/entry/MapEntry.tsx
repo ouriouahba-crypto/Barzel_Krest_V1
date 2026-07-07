@@ -12,7 +12,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useReducedMotion } from "framer-motion";
 import { EntryShell } from "./EntryShell";
-import { useCityStore } from "@/lib/cityStore";
+import { useCityStore, hasAccueilSeen } from "@/lib/cityStore";
 import { useTransition } from "@/lib/transitionStore";
 
 const BlueprintMap = dynamic(() => import("./BlueprintMap"), {
@@ -23,6 +23,7 @@ const BlueprintMap = dynamic(() => import("./BlueprintMap"), {
 });
 
 const DASHBOARD_HOME = "/vue-ensemble";
+const ACCUEIL = "/accueil";
 // Délai avant navigation : laisse le rideau navy devenir opaque (fondu 0.32s).
 const COVER_MS = 360;
 
@@ -32,16 +33,18 @@ export function MapEntry({ initialStep }: { initialStep: "country" | "city" }) {
   const cover = useTransition((s) => s.cover);
   const reduce = useReducedMotion();
 
+  // Première visite de la ville dans la session -> accueil ; sinon -> dashboard.
   const pick = (slug: string) => {
+    const dest = hasAccueilSeen(slug) ? DASHBOARD_HOME : ACCUEIL;
     if (reduce) {
       setSlug(slug);
-      router.push(DASHBOARD_HOME);
+      router.push(dest);
       return;
     }
     cover();
     window.setTimeout(() => {
       setSlug(slug);
-      router.push(DASHBOARD_HOME);
+      router.push(dest);
     }, COVER_MS);
   };
 

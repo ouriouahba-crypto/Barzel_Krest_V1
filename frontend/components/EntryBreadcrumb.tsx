@@ -24,6 +24,12 @@ export function EntryBreadcrumb() {
       <Link href="/villes" className="font-semibold text-ink-soft transition-colors hover:text-gold-700">
         {city.label}
       </Link>
+      {/* Accès permanent à l'accueil ville (discussion + fil d'info), lot C1 :
+          navigation seule, aucun contenu collaboratif rendu sur le dashboard. */}
+      <span aria-hidden className="text-muted/60">›</span>
+      <Link href="/accueil" className="text-muted transition-colors hover:text-gold-700">
+        Accueil
+      </Link>
     </nav>
   );
 }
