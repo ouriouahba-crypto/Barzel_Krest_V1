@@ -61,17 +61,42 @@ export interface Thread {
   messages: Message[];
 }
 
+// Catégories du fil d'info (lot C4). Taxonomie fixe, servie aux filtres du panneau.
+// Les puces réellement affichées se limitent aux catégories présentes dans les items
+// de la ville (seed + posts de session) : pas de filtre mort.
+export type FeedCategory = "reglementation" | "financement" | "offre" | "prix" | "macro";
+
+export const FEED_CATEGORIES: { id: FeedCategory; label: string }[] = [
+  { id: "reglementation", label: "Régulation & fiscalité" },
+  { id: "financement", label: "Taux & financement" },
+  { id: "offre", label: "Offre & grands projets" },
+  { id: "prix", label: "Transactions & prix" },
+  { id: "macro", label: "Macro locale" },
+];
+
+export function feedCategoryLabel(id: FeedCategory): string {
+  return FEED_CATEGORIES.find((c) => c.id === id)?.label ?? id;
+}
+
 export interface FeedItem {
   id: string;
   citySlug: string;
   /** source crédible (fictive) */
   source: string;
-  /** date d'affichage (ex. « 2 juil. 2026 ») */
+  /** date d'affichage (ex. « 2 juil. 2026 ») ; « à l'instant » pour un post de session */
   date: string;
   title: string;
   summary: string;
-  /** tag d'impact optionnel : maille concernée + note de verdict */
-  impact?: { zone: string; note: string };
+  /** catégorie du fil (pilote les filtres du panneau) */
+  category: FeedCategory;
+  /**
+   * Tag d'impact optionnel : maille concernée + note. Depuis le lot C4, `zoneId` /
+   * `route` rendent le tag CLIQUABLE (retour à l'objet dans le dashboard, via
+   * AnchorChip / focusBridge du C3). Sans ancrage navigable, pas de tag cliquable.
+   */
+  impact?: { zone: string; note?: string; zoneId?: string; route?: string };
+  /** compte auteur pour un item POSTÉ en session (manager) ; absent du seed */
+  authorId?: AccountId;
 }
 
 export interface ActivityItem {

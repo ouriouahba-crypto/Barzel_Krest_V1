@@ -9,8 +9,9 @@
 // C2 rend la discussion interactive (répondre, démarrer un fil, notifications).
 // Le fil d'info actif (post manager, filtres) reste pour le lot C4.
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useReducedMotion } from "framer-motion";
 import { COUNTRY_LABEL, cityBySlug, countryOf } from "@/lib/cities";
 import {
   useCollabStore,
@@ -34,6 +35,10 @@ export function AccueilScreen({ citySlug }: { citySlug: string }) {
   const role = useCollabStore((s) => s.role);
   const lastSeen = useCollabStore((s) => s.lastSeen);
   const [feedOpen, setFeedOpen] = useState(false);
+  // Fil mis en avant par le pont news -> discussion (lot C4) : on ferme le panneau,
+  // on défile jusqu'au fil créé et on le souligne brièvement.
+  const [focusThreadId, setFocusThreadId] = useState<string | null>(null);
+  const reduce = useReducedMotion();
 
   const threads = useMemo(() => threadsForCity(citySlug, created), [citySlug, created]);
   const feed = useMemo(() => feedForCity(citySlug, created), [citySlug, created]);
@@ -44,6 +49,22 @@ export function AccueilScreen({ citySlug }: { citySlug: string }) {
     () => unreadCountForCity(citySlug, role, created, lastSeen),
     [citySlug, role, created, lastSeen],
   );
+
+  // Défilement + surlignage du fil ciblé, une fois qu'il est rendu (le store a déjà
+  // ajouté le fil, donc l'élément existe au moment de l'effet). Surlignage transitoire.
+  useEffect(() => {
+    if (!focusThreadId) return;
+    const el = document.getElementById(`thread-${focusThreadId}`);
+    if (el) el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+    const t = window.setTimeout(() => setFocusThreadId(null), 2600);
+    return () => window.clearTimeout(t);
+  }, [focusThreadId, reduce]);
+
+  // Pont depuis le fil d'info : referme le panneau et met le fil créé en avant.
+  const openDiscussion = (threadId: string) => {
+    setFeedOpen(false);
+    setFocusThreadId(threadId);
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-cream text-ink">
@@ -123,13 +144,19 @@ export function AccueilScreen({ citySlug }: { citySlug: string }) {
                 key={t.id}
                 thread={t}
                 unread={threadUnreadCount(t, role, citySlug, lastSeen)}
+                highlight={t.id === focusThreadId}
               />
             ))}
           </div>
         </section>
       </main>
 
-      <FeedPanel open={feedOpen} onClose={() => setFeedOpen(false)} items={feed} />
+      <FeedPanel
+        open={feedOpen}
+        onClose={() => setFeedOpen(false)}
+        citySlug={citySlug}
+        onOpenDiscussion={openDiscussion}
+      />
     </div>
   );
 }

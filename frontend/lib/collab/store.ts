@@ -13,7 +13,7 @@
 // une ré-hydratation ultérieure (navigation) ne perd aucune donnée.
 
 import { create } from "zustand";
-import type { AccountId, ActivityItem, Anchor, FeedItem, Message, SeenMap, Thread } from "./types";
+import type { AccountId, ActivityItem, Anchor, FeedCategory, FeedItem, Message, SeenMap, Thread } from "./types";
 import { DEFAULT_ACCOUNT } from "./types";
 import { seedActivity, seedFeed, seedThreads } from "./seed";
 
@@ -27,9 +27,9 @@ export interface Created {
   messages: Record<string, Message[]>;
   /** nouveaux fils créés en session */
   threads: Thread[];
-  /** items de fil d'info postés en session (réservé C4) */
+  /** items de fil d'info postés en session (lot C4, manager) */
   feed: FeedItem[];
-  /** entrées de fil d'activité générées en session (réservé C4) */
+  /** entrées de fil d'activité générées en session (lot C4, dérivées des posts) */
   activity: ActivityItem[];
 }
 
@@ -62,9 +62,22 @@ interface CollabState {
   addSignal: (input: { citySlug: string; anchor: Anchor; authorId: AccountId; text: string }) => void;
   /** marque la discussion de la ville comme lue pour le compte (vide la pastille) */
   markSeen: (citySlug: string, account: AccountId) => void;
-  // --- Réservé C4 ---------------------------------------------------------
-  addFeedItem: (item: FeedItem) => void;
-  addActivity: (item: ActivityItem) => void;
+  // --- Fil d'info actif (lot C4) ------------------------------------------
+  /**
+   * Poste un item de fil d'info au nom du compte fourni (le manager côté UI) : ajoute
+   * l'item au fil ET une entrée de fil d'activité de la ville, en une écriture. Item
+   * de session (daté « à l'instant »), id monotone dérivé de la longueur du fil (le
+   * fil ne fait que croître) : déterministe, sans Date.now ni aléatoire.
+   */
+  postFeedItem: (input: {
+    citySlug: string;
+    source: string;
+    title: string;
+    summary: string;
+    category: FeedCategory;
+    impact?: FeedItem["impact"];
+    authorId: AccountId;
+  }) => void;
 }
 
 function persistRole(role: AccountId) {
@@ -201,13 +214,34 @@ export const useCollabStore = create<CollabState>((set, get) => ({
     persistSeen(s, lastSeen);
     set({ lastSeen });
   },
-  addFeedItem: (item) => {
-    const next = { ...get().created, feed: [...get().created.feed, item] };
-    persistCreated(next);
-    set({ created: next });
-  },
-  addActivity: (item) => {
-    const next = { ...get().created, activity: [...get().created.activity, item] };
+  postFeedItem: ({ citySlug, source, title, summary, category, impact, authorId }) => {
+    const t = title.trim();
+    const sum = summary.trim();
+    const src = source.trim();
+    if (!t || !sum || !src) return;
+    const created = get().created;
+    // Id monotone : le fil de session ne fait que croître, sa longueur donne un
+    // suffixe unique et stable après ré-hydratation (aucun Date.now, aucun aléatoire).
+    const n = created.feed.length + 1;
+    const item: FeedItem = {
+      id: `sess-f${n}`,
+      citySlug,
+      source: src,
+      date: "à l'instant",
+      title: t,
+      summary: sum,
+      category,
+      authorId,
+      ...(impact ? { impact } : {}),
+    };
+    const activity: ActivityItem = {
+      id: `sess-fa${n}`,
+      citySlug,
+      authorId,
+      time: "à l'instant",
+      text: `a publié une info : « ${t} »`,
+    };
+    const next: Created = { ...created, feed: [...created.feed, item], activity: [...created.activity, activity] };
     persistCreated(next);
     set({ created: next });
   },
@@ -233,12 +267,14 @@ export function threadsForCity(citySlug: string, created: Created): Thread[] {
 }
 
 export function feedForCity(citySlug: string, created: Created): FeedItem[] {
-  const sessionFeed = created.feed.filter((f) => f.citySlug === citySlug);
+  // Items postés en session en tête, le plus récent en premier (le fil ne fait que
+  // croître : l'ordre inverse d'insertion place le dernier post au sommet).
+  const sessionFeed = created.feed.filter((f) => f.citySlug === citySlug).reverse();
   return [...sessionFeed, ...seedFeed(citySlug)];
 }
 
 export function activityForCity(citySlug: string, created: Created): ActivityItem[] {
-  const sessionActivity = created.activity.filter((a) => a.citySlug === citySlug);
+  const sessionActivity = created.activity.filter((a) => a.citySlug === citySlug).reverse();
   return [...sessionActivity, ...seedActivity(citySlug)];
 }
 
