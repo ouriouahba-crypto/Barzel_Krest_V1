@@ -1,30 +1,35 @@
-// Store léger de la couche collaborative (lot C1). Deux responsabilités :
+// Store léger de la couche collaborative (lots C1 et C2). Responsabilités :
 //  1) le compte courant (rôle A/B), persisté en sessionStorage, défaut = A ;
-//  2) la place des ÉLÉMENTS CRÉÉS EN SESSION (réponses, notes, posts du fil
-//     d'info), eux aussi persistés : vide en C1, les lots C2 à C4 les rempliront
-//     via addReply / addThread / addFeedItem / addActivity.
+//  2) les ÉLÉMENTS CRÉÉS EN SESSION (réponses, fils, notes, posts du fil d'info),
+//     persistés par-dessus le seed figé ;
+//  3) le suivi des NON-LUS (lot C2) : un compteur de séquence monotone `seq` et
+//     une carte `lastSeen` (ville × compte). Un message créé par l'autre compte
+//     dont le seq est >= lastSeen[ville][compte] est « non lu » pour ce compte.
 //
-// SSR : l'état initial (rôle A, créés vides) est identique côté serveur et au
-// premier rendu client (aucune divergence d'hydratation). `hydrate()` lit le
-// sessionStorage côté client uniquement, après montage.
+// SSR : l'état initial (rôle A, créés vides, seq 1, lastSeen vide) est identique
+// côté serveur et au premier rendu client (aucune divergence d'hydratation).
+// `hydrate()` lit le sessionStorage côté client uniquement, après montage, et ne
+// touche jamais au rendu serveur. Comme chaque mutation persiste immédiatement,
+// une ré-hydratation ultérieure (navigation) ne perd aucune donnée.
 
 import { create } from "zustand";
-import type { AccountId, ActivityItem, FeedItem, Message, Thread } from "./types";
+import type { AccountId, ActivityItem, Anchor, FeedItem, Message, SeenMap, Thread } from "./types";
 import { DEFAULT_ACCOUNT } from "./types";
 import { seedActivity, seedFeed, seedThreads } from "./seed";
 
 const ROLE_KEY = "barzel_collab_role";
 const CREATED_KEY = "barzel_collab_created";
+const SEEN_KEY = "barzel_collab_seen";
 
-/** Éléments créés en session (par-dessus le seed figé). Vide en C1. */
+/** Éléments créés en session (par-dessus le seed figé). */
 export interface Created {
   /** réponses ajoutées à un fil existant, par threadId */
   messages: Record<string, Message[]>;
   /** nouveaux fils créés en session */
   threads: Thread[];
-  /** items de fil d'info postés en session */
+  /** items de fil d'info postés en session (réservé C4) */
   feed: FeedItem[];
-  /** entrées de fil d'activité générées en session */
+  /** entrées de fil d'activité générées en session (réservé C4) */
   activity: ActivityItem[];
 }
 
@@ -34,12 +39,23 @@ interface CollabState {
   /** compte courant ; change le « Vu en tant que » partout */
   role: AccountId;
   created: Created;
+  /** prochain numéro de séquence à attribuer (monotone, persisté) */
+  seq: number;
+  /** dernière consultation de la discussion, par ville et par compte */
+  lastSeen: SeenMap;
+  /** vrai une fois le sessionStorage relu (évite de re-clobber au re-montage) */
+  hydrated: boolean;
   setRole: (id: AccountId) => void;
-  /** hydrate rôle + créés depuis sessionStorage (client, après montage) */
+  /** hydrate rôle + créés + non-lus depuis sessionStorage (client, après montage) */
   hydrate: () => void;
-  // Réservé aux lots C2 à C4 (interactivité). Aucun appel en C1.
-  addReply: (threadId: string, message: Message) => void;
-  addThread: (thread: Thread) => void;
+  // --- Interactivité C2 ---------------------------------------------------
+  /** répond à un fil (seedé ou créé) au nom du compte courant fourni */
+  addReply: (threadId: string, authorId: AccountId, text: string) => void;
+  /** démarre un nouveau fil de discussion au nom du compte fourni */
+  addThread: (input: { citySlug: string; title: string; anchor: Anchor; authorId: AccountId; text: string }) => void;
+  /** marque la discussion de la ville comme lue pour le compte (vide la pastille) */
+  markSeen: (citySlug: string, account: AccountId) => void;
+  // --- Réservé C4 ---------------------------------------------------------
   addFeedItem: (item: FeedItem) => void;
   addActivity: (item: ActivityItem) => void;
 }
@@ -58,16 +74,26 @@ function persistCreated(created: Created) {
     /* stockage indisponible */
   }
 }
+function persistSeen(seq: number, lastSeen: SeenMap) {
+  try {
+    window.sessionStorage.setItem(SEEN_KEY, JSON.stringify({ seq, lastSeen }));
+  } catch {
+    /* stockage indisponible */
+  }
+}
 
 export const useCollabStore = create<CollabState>((set, get) => ({
   role: DEFAULT_ACCOUNT,
   created: emptyCreated(),
+  seq: 1,
+  lastSeen: {},
+  hydrated: false,
   setRole: (id) => {
     persistRole(id);
     set({ role: id });
   },
   hydrate: () => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || get().hydrated) return;
     let role = get().role;
     try {
       const stored = window.sessionStorage.getItem(ROLE_KEY);
@@ -85,21 +111,57 @@ export const useCollabStore = create<CollabState>((set, get) => ({
     } catch {
       /* données illisibles : on garde le seed seul */
     }
-    set({ role, created });
+    let seq = get().seq;
+    let lastSeen = get().lastSeen;
+    try {
+      const raw = window.sessionStorage.getItem(SEEN_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as { seq?: number; lastSeen?: SeenMap };
+        if (typeof parsed.seq === "number" && parsed.seq >= 1) seq = parsed.seq;
+        if (parsed.lastSeen && typeof parsed.lastSeen === "object") lastSeen = parsed.lastSeen;
+      }
+    } catch {
+      /* données illisibles */
+    }
+    // Filet : le compteur doit rester au-dessus de tout seq déjà créé.
+    seq = Math.max(seq, maxCreatedSeq(created) + 1);
+    set({ role, created, seq, lastSeen, hydrated: true });
   },
-  addReply: (threadId, message) => {
+  addReply: (threadId, authorId, text) => {
+    const body = text.trim();
+    if (!body) return;
+    const s = get().seq;
+    const message: Message = { id: `sess-m${s}`, authorId, time: "à l'instant", text: body, seq: s };
     const created = get().created;
     const next: Created = {
       ...created,
       messages: { ...created.messages, [threadId]: [...(created.messages[threadId] ?? []), message] },
     };
+    const seq = s + 1;
     persistCreated(next);
-    set({ created: next });
+    persistSeen(seq, get().lastSeen);
+    set({ created: next, seq });
   },
-  addThread: (thread) => {
+  addThread: ({ citySlug, title, anchor, authorId, text }) => {
+    const cleanTitle = title.trim();
+    const body = text.trim();
+    if (!cleanTitle || !body) return;
+    const s = get().seq;
+    const message: Message = { id: `sess-m${s}`, authorId, time: "à l'instant", text: body, seq: s };
+    const thread: Thread = { id: `sess-t${s}`, citySlug, title: cleanTitle, anchor, messages: [message] };
     const next = { ...get().created, threads: [...get().created.threads, thread] };
+    const seq = s + 1;
     persistCreated(next);
-    set({ created: next });
+    persistSeen(seq, get().lastSeen);
+    set({ created: next, seq });
+  },
+  markSeen: (citySlug, account) => {
+    const s = get().seq;
+    const cur = get().lastSeen[citySlug] ?? {};
+    if (cur[account] === s) return; // déjà à jour : aucun re-render
+    const lastSeen: SeenMap = { ...get().lastSeen, [citySlug]: { ...cur, [account]: s } };
+    persistSeen(s, lastSeen);
+    set({ lastSeen });
   },
   addFeedItem: (item) => {
     const next = { ...get().created, feed: [...get().created.feed, item] };
@@ -114,9 +176,8 @@ export const useCollabStore = create<CollabState>((set, get) => ({
 }));
 
 // --- Sélecteurs de lecture : seed figé fusionné avec les créés en session ---
-// Fonctions pures (prennent `created` en argument) : aucune dépendance à React,
-// réutilisables par les lots suivants. En C1, `created` est vide : le rendu est
-// exactement le seed.
+// Fonctions pures (prennent `created` en argument) : aucune dépendance à React.
+// En l'absence de créés, le rendu est exactement le seed.
 
 export function threadsForCity(citySlug: string, created: Created): Thread[] {
   const seeded = seedThreads(citySlug).map((t) => {
@@ -136,4 +197,40 @@ export function feedForCity(citySlug: string, created: Created): FeedItem[] {
 export function activityForCity(citySlug: string, created: Created): ActivityItem[] {
   const sessionActivity = created.activity.filter((a) => a.citySlug === citySlug);
   return [...sessionActivity, ...seedActivity(citySlug)];
+}
+
+// --- Non-lus (lot C2) -----------------------------------------------------
+// Seuls les messages CRÉÉS (porteurs d'un seq) comptent ; le seed est la baseline
+// « déjà lue ». Un message est non lu pour `account` s'il vient de l'AUTRE compte
+// et que son seq est >= la dernière consultation de ce compte dans cette ville.
+
+function maxCreatedSeq(created: Created): number {
+  let max = 0;
+  for (const list of Object.values(created.messages)) {
+    for (const m of list) if (m.seq && m.seq > max) max = m.seq;
+  }
+  for (const t of created.threads) {
+    for (const m of t.messages) if (m.seq && m.seq > max) max = m.seq;
+  }
+  return max;
+}
+
+/** Nombre de messages non lus pour `account` dans la discussion de la ville. */
+export function unreadCountForCity(
+  citySlug: string,
+  account: AccountId,
+  created: Created,
+  lastSeen: SeenMap,
+): number {
+  const seen = lastSeen[citySlug]?.[account] ?? 0;
+  return threadsForCity(citySlug, created).reduce(
+    (n, t) => n + t.messages.filter((m) => m.seq !== undefined && m.authorId !== account && m.seq >= seen).length,
+    0,
+  );
+}
+
+/** Nombre de messages non lus pour `account` dans un fil précis (déjà fusionné). */
+export function threadUnreadCount(thread: Thread, account: AccountId, citySlug: string, lastSeen: SeenMap): number {
+  const seen = lastSeen[citySlug]?.[account] ?? 0;
+  return thread.messages.filter((m) => m.seq !== undefined && m.authorId !== account && m.seq >= seen).length;
 }

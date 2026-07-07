@@ -5,7 +5,7 @@
 //
 // Villes couvertes : gaia, lisbonne, porto, bruxelles (slugs du registre).
 
-import type { Thread, FeedItem, ActivityItem } from "./types";
+import type { Thread, FeedItem, ActivityItem, Anchor } from "./types";
 
 // --- Fils de discussion (2 à 3 par ville) --------------------------------
 
@@ -501,4 +501,16 @@ export function seedFeed(citySlug: string): FeedItem[] {
 }
 export function seedActivity(citySlug: string): ActivityItem[] {
   return ACTIVITY.filter((a) => a.citySlug === citySlug);
+}
+
+// Objets d'ancrage déjà présents dans le seed d'une ville (lot C2) : proposés au
+// compositeur de nouveau fil, en plus de « Général ville » (défaut). Dédupliqués
+// par libellé, dans l'ordre du seed.
+export function seedAnchors(citySlug: string): Anchor[] {
+  const byLabel = new Map<string, Anchor>();
+  for (const t of THREADS) {
+    if (t.citySlug !== citySlug) continue;
+    if (!byLabel.has(t.anchor.label)) byLabel.set(t.anchor.label, t.anchor);
+  }
+  return [...byLabel.values()];
 }

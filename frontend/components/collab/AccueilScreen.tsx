@@ -1,32 +1,49 @@
 "use client";
 
-// Écran d'accueil ville (lot C1). Contextualisé à la ville courante. Structure :
-//  - en-tête navy : wordmark, fil d'Ariane, bascule de compte, ouverture du fil
-//    d'info ;
+// Écran d'accueil ville (lots C1 et C2). Contextualisé à la ville courante :
+//  - en-tête navy : wordmark, fil d'Ariane (pastille de non-lu sur « Accueil »),
+//    bascule de compte, ouverture du fil d'info ;
 //  - corps crème : titre de ville, fil d'activité compact, DISCUSSION d'équipe
-//    (fils seedés en LECTURE SEULE), et l'accès au dashboard ;
+//    (compositeur de nouveau fil + fils répondables), et l'accès au dashboard ;
 //  - panneau latéral droit : le FIL D'INFO (slide-in, lecture seule).
-// Aucune interaction de création en C1 (pas de saisie, pas de réponse, pas de
-// post) : l'interactivité arrive aux lots C2 à C4.
+// C2 rend la discussion interactive (répondre, démarrer un fil, notifications).
+// Le fil d'info actif (post manager, filtres) reste pour le lot C4.
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { COUNTRY_LABEL, cityBySlug, countryOf } from "@/lib/cities";
-import { useCollabStore, activityForCity, feedForCity, threadsForCity } from "@/lib/collab/store";
+import {
+  useCollabStore,
+  activityForCity,
+  feedForCity,
+  threadsForCity,
+  threadUnreadCount,
+  unreadCountForCity,
+} from "@/lib/collab/store";
 import { AccountSwitch } from "./AccountSwitch";
 import { ActivityStrip } from "./ActivityStrip";
 import { DiscussionThread } from "./DiscussionThread";
+import { NewThreadComposer } from "./NewThreadComposer";
+import { NotifDot } from "./NotifDot";
 import { FeedPanel } from "./FeedPanel";
 import { EnterDashboardButton } from "./EnterDashboardButton";
 
 export function AccueilScreen({ citySlug }: { citySlug: string }) {
   const city = cityBySlug(citySlug);
   const created = useCollabStore((s) => s.created);
+  const role = useCollabStore((s) => s.role);
+  const lastSeen = useCollabStore((s) => s.lastSeen);
   const [feedOpen, setFeedOpen] = useState(false);
 
   const threads = useMemo(() => threadsForCity(citySlug, created), [citySlug, created]);
   const feed = useMemo(() => feedForCity(citySlug, created), [citySlug, created]);
   const activity = useMemo(() => activityForCity(citySlug, created), [citySlug, created]);
+  // Non-lus pour le compte courant (messages postés par l'autre compte depuis sa
+  // dernière consultation). Vidés au montage de l'accueil (voir la page).
+  const unread = useMemo(
+    () => unreadCountForCity(citySlug, role, created, lastSeen),
+    [citySlug, role, created, lastSeen],
+  );
 
   return (
     <div className="flex min-h-screen flex-col bg-cream text-ink">
@@ -46,7 +63,10 @@ export function AccueilScreen({ citySlug }: { citySlug: string }) {
               {city.label}
             </Link>
             <span aria-hidden className="text-cream/30">›</span>
-            <span className="font-semibold text-cream">Accueil</span>
+            <span className="inline-flex items-center gap-1.5 font-semibold text-cream">
+              Accueil
+              <NotifDot count={unread} />
+            </span>
           </nav>
         </div>
         <div className="flex items-center gap-3">
@@ -84,15 +104,26 @@ export function AccueilScreen({ citySlug }: { citySlug: string }) {
 
         {/* Discussion de l'équipe */}
         <section className="mt-8">
-          <div className="mb-4 flex items-baseline justify-between">
-            <h2 className="font-display text-[24px] text-navy">Discussion de l'équipe</h2>
+          <div className="mb-4 flex items-baseline justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <h2 className="font-display text-[24px] text-navy">Discussion de l'équipe</h2>
+              {unread > 0 && <NotifDot count={unread} showCount />}
+            </div>
             <span className="text-label uppercase tracking-[0.14em] text-muted">
               {threads.length} {threads.length > 1 ? "fils" : "fil"}
             </span>
           </div>
+          {/* Compositeur de nouveau fil, en tête de la discussion. */}
+          <div className="mb-4">
+            <NewThreadComposer citySlug={citySlug} />
+          </div>
           <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
             {threads.map((t) => (
-              <DiscussionThread key={t.id} thread={t} />
+              <DiscussionThread
+                key={t.id}
+                thread={t}
+                unread={threadUnreadCount(t, role, citySlug, lastSeen)}
+              />
             ))}
           </div>
         </section>
