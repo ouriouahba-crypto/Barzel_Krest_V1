@@ -27,6 +27,15 @@ export type AnchorKind = "zone" | "asset" | "verdict" | "general";
 export interface Anchor {
   kind: AnchorKind;
   label: string;
+  /**
+   * Identité de navigation (lot C3, optionnelle). Quand une note est SIGNALÉE
+   * depuis un objet du dashboard, l'ancre porte de quoi y revenir : `zoneId` = la
+   * maille à focaliser sur la carte, `route` = la page du dashboard à rouvrir.
+   * Absents du seed et des fils « général ville » (le chip retombe alors sur la
+   * vue d'ensemble). Purement descriptif : aucune valeur, aucun score.
+   */
+  zoneId?: string;
+  route?: string;
 }
 
 export interface Message {
