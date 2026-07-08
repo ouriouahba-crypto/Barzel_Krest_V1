@@ -7,6 +7,7 @@ import { EntryBreadcrumb } from "./EntryBreadcrumb";
 import { KineticTitle } from "./motion/KineticTitle";
 import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
+import { useSidebarStore } from "@/lib/sidebarStore";
 
 export function Header({
   marketLine,
@@ -34,6 +35,7 @@ export function Header({
   hideClass?: boolean;
 }) {
   const city = cityBySlug(useCityStore((s) => s.slug));
+  const sidebarOpen = useSidebarStore((s) => s.open);
   useEffect(() => {
     document.title = `Barzel Analytics · ${city.label}`;
   }, [city.label]);
@@ -41,7 +43,7 @@ export function Header({
     <header className="relative z-[1000] border-b border-navy/10 bg-cream/80 px-6 py-4 backdrop-blur">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="mb-2 pl-[18px]">
+          <div className={`mb-2 ${sidebarOpen ? "pl-[18px]" : "pl-14"}`}>
             <EntryBreadcrumb />
           </div>
           <div className="flex items-center gap-3">
