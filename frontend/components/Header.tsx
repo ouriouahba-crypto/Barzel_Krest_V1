@@ -1,6 +1,6 @@
 "use client";
 
-import { ASSET_CLASSES, MODES, MODE_LABEL, Mode } from "@/lib/scoring";
+import { MODES, Mode } from "@/lib/scoring";
 import { MultiSelect, Segmented } from "./ui";
 import { useEffect } from "react";
 import { EntryBreadcrumb } from "./EntryBreadcrumb";
@@ -10,6 +10,7 @@ import { useCityStore } from "@/lib/cityStore";
 import { useSidebarStore } from "@/lib/sidebarStore";
 import { useLang, useT } from "@/lib/i18n/useT";
 import { cityDisplay } from "@/lib/i18n/display";
+import { modeLabel, assetClassesFor } from "@/lib/i18n/domain";
 import { LangSwitcher } from "./i18n/LangSwitcher";
 
 export function Header({
@@ -88,7 +89,7 @@ export function Header({
             <span className="text-label font-semibold uppercase tracking-widest text-muted">{t("header.mode")}</span>
             <Segmented
               size="lg"
-              options={MODES.map((m) => ({ value: m, label: MODE_LABEL[m] }))}
+              options={MODES.map((m) => ({ value: m, label: modeLabel(m, lang) }))}
               value={mode}
               onChange={onMode}
             />
@@ -97,7 +98,7 @@ export function Header({
         {!hideClass && (
           <div className="flex items-center gap-3">
             <span className="text-label font-semibold uppercase tracking-widest text-muted">{t("header.class")}</span>
-            <Segmented options={ASSET_CLASSES} value={assetClass} onChange={onClass} />
+            <Segmented options={assetClassesFor(lang)} value={assetClass} onChange={onClass} />
           </div>
         )}
       </div>
