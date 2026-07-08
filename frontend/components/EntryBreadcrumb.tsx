@@ -13,15 +13,19 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { COUNTRY_LABEL, cityBySlug, countryOf } from "@/lib/cities";
+import { countryOf } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
 import { useCollabStore, unreadCountForCity } from "@/lib/collab/store";
 import { NotifDot } from "./collab/NotifDot";
+import { useLang, useT } from "@/lib/i18n/useT";
+import { countryDisplay, cityDisplay } from "@/lib/i18n/display";
 
 export function EntryBreadcrumb() {
   const slug = useCityStore((s) => s.slug);
-  const city = cityBySlug(slug);
-  const countryLabel = COUNTRY_LABEL[countryOf(slug)];
+  const lang = useLang();
+  const t = useT();
+  const countryLabel = countryDisplay(countryOf(slug), lang);
+  const cityLabel = cityDisplay(slug, lang);
 
   // Couche collaborative : hydrate une fois (idempotent, gardé), puis calcule les
   // non-lus du compte courant pour la ville courante. Avant hydratation (et au
@@ -44,13 +48,13 @@ export function EntryBreadcrumb() {
         ›
       </span>
       <Link href="/villes" className="font-semibold text-ink-soft transition-colors hover:text-gold-700">
-        {city.label}
+        {cityLabel}
       </Link>
       {/* Accès permanent à l'accueil ville (discussion + fil d'info). La pastille
           reflète le contenu non lu du compte courant (lot C2). */}
       <span aria-hidden className="text-muted/60">›</span>
       <Link href="/accueil" className="inline-flex items-center gap-1.5 text-muted transition-colors hover:text-gold-700">
-        Accueil
+        {t("nav.home")}
         <NotifDot count={unread} />
       </Link>
     </nav>

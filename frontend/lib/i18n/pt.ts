@@ -1,0 +1,32 @@
+import type { Dict } from "./types";
+
+// Dictionnaire portugais. Cles identiques a en.ts et fr.ts.
+export const pt: Dict = {
+  "nav.overview": "Visão geral",
+  "nav.map": "Mapa",
+  "nav.compare": "Comparar",
+  "nav.priceMargin": "Preço e margem",
+  "nav.yield": "Rendimento",
+  "nav.arbitrage": "Arbitragem",
+  "nav.land": "Fundiário",
+  "nav.tax": "Fiscalidade",
+  "nav.energy": "Energia",
+  "nav.aiAnalyst": "Analista IA",
+  "sidebar.memo": "Memorando de investimento",
+  "sidebar.hideMenu": "Ocultar o menu",
+  "sidebar.showMenu": "Mostrar o menu",
+  "sidebar.comingSoon": "Em breve",
+  "sidebar.homeAria": "Barzel, início",
+  "header.mode": "Modo",
+  "header.class": "Classe",
+  "header.allZones": "Todas as {plural}",
+  "header.searchZone": "Procurar uma {noun}…",
+  "nav.home": "Início",
+  "entry.enter": "Entrar",
+  "entry.step": "Etapa {n} de 2",
+  "entry.chooseCountry": "Escolha um país",
+  "entry.chooseCity": "Escolha uma cidade",
+  "entry.backCountry": "País",
+  "entry.skip": "Saltar",
+  "lang.aria": "Idioma",
+};

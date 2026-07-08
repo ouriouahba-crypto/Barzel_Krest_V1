@@ -6,6 +6,7 @@
 
 import Link from "next/link";
 import { ReactNode } from "react";
+import { LangSwitcher } from "@/components/i18n/LangSwitcher";
 
 export function Wordmark({ href = "/" }: { href?: string }) {
   return (
@@ -40,9 +41,14 @@ export function EntryShell({
             "radial-gradient(60% 50% at 50% 0%, rgba(201,168,106,0.10), transparent 70%), radial-gradient(50% 40% at 100% 100%, rgba(30,53,89,0.55), transparent 70%)",
         }}
       />
-      <header className="relative z-10 flex items-center justify-between px-8 py-6">
+      {/* z-20 (au-dessus du main z-10) : le menu déroulant du sélecteur de langue
+          doit se peindre par-dessus la carte blueprint. */}
+      <header className="relative z-20 flex items-center justify-between px-8 py-6">
         <Wordmark />
-        {step ? <div className="text-label uppercase tracking-[0.22em] text-cream/55">{step}</div> : null}
+        <div className="flex items-center gap-4">
+          {step ? <div className="text-label uppercase tracking-[0.22em] text-cream/55">{step}</div> : null}
+          <LangSwitcher tone="navy" />
+        </div>
       </header>
       {bleed ? (
         <main className="relative z-10 flex min-h-0 flex-1 flex-col">{children}</main>

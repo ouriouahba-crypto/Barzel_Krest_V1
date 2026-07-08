@@ -20,8 +20,10 @@ import worldData from "world-atlas/countries-50m.json";
 import { feature } from "topojson-client";
 import { geoMercator, geoPath, geoGraticule10 } from "d3-geo";
 import type { Feature, FeatureCollection } from "geojson";
-import { CITIES, COUNTRY_GEO_ID, COUNTRY_LABEL, type CountryCode } from "@/lib/cities";
+import { CITIES, COUNTRY_GEO_ID, type CountryCode } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
+import { useLang, useT } from "@/lib/i18n/useT";
+import { countryDisplay, cityDisplay } from "@/lib/i18n/display";
 
 // --- Géométrie (calculée une fois, au chargement du chunk client) ----------
 const W = 1000;
@@ -157,6 +159,8 @@ export interface BlueprintMapProps {
 export default function BlueprintMap({ initialStep, onCitySelected }: BlueprintMapProps) {
   const storeCountry = useCityStore((s) => s.country);
   const setCountry = useCityStore((s) => s.setCountry);
+  const lang = useLang();
+  const t = useT();
 
   const [reduce] = useState(
     () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
@@ -362,7 +366,7 @@ export default function BlueprintMap({ initialStep, onCitySelected }: BlueprintM
                 opacity={step === "country" ? (hoverCountry === h.code ? 1 : 0.85) : 0}
                 style={{ transition: "opacity 0.6s ease", pointerEvents: "none" }}
               >
-                {COUNTRY_LABEL[h.code]}
+                {countryDisplay(h.code, lang)}
               </text>
             );
           })}
@@ -424,7 +428,7 @@ export default function BlueprintMap({ initialStep, onCitySelected }: BlueprintM
                       fontSize={13}
                       style={{ pointerEvents: "none" }}
                     >
-                      {m.label}
+                      {cityDisplay(m.slug, lang)}
                     </text>
                   </g>
                 </g>
@@ -437,12 +441,12 @@ export default function BlueprintMap({ initialStep, onCitySelected }: BlueprintM
       {/* Titre d'étape (overlay HTML) */}
       <div className="pointer-events-none absolute inset-x-0 top-1 flex flex-col items-center px-6 text-center">
         <p className="text-label uppercase tracking-[0.32em] text-gold/80">
-          {step === "country" ? "Étape 1 sur 2" : "Étape 2 sur 2"}
+          {t("entry.step", { n: step === "country" ? "1" : "2" })}
         </p>
         <h1 className="mt-2 font-display text-[clamp(24px,4vw,38px)] font-medium text-cream">
           {step === "country"
-            ? "Choisissez un pays"
-            : `Choisissez une ville${selected ? ` · ${COUNTRY_LABEL[selected]}` : ""}`}
+            ? t("entry.chooseCountry")
+            : `${t("entry.chooseCity")}${selected ? ` · ${countryDisplay(selected, lang)}` : ""}`}
         </h1>
       </div>
 
@@ -452,7 +456,7 @@ export default function BlueprintMap({ initialStep, onCitySelected }: BlueprintM
           onClick={backToCountry}
           className="absolute bottom-6 left-6 inline-flex items-center gap-2 rounded-full border border-cream/20 bg-navy-700/60 px-4 py-2 text-btn text-cream/80 transition-colors hover:border-gold/50 hover:text-gold-300"
         >
-          <span aria-hidden>‹</span> Pays
+          <span aria-hidden>‹</span> {t("entry.backCountry")}
         </button>
       )}
 
@@ -462,7 +466,7 @@ export default function BlueprintMap({ initialStep, onCitySelected }: BlueprintM
           onClick={skip}
           className="absolute bottom-6 right-6 inline-flex items-center gap-2 rounded-full border border-cream/20 bg-navy-700/60 px-4 py-2 text-btn text-cream/80 transition-colors hover:border-gold/50 hover:text-gold-300"
         >
-          Passer <span aria-hidden>»</span>
+          {t("entry.skip")} <span aria-hidden>»</span>
         </button>
       )}
     </div>
