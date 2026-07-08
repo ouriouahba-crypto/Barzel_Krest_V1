@@ -5,20 +5,21 @@ import { usePathname } from "next/navigation";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { MemoModal } from "./MemoModal";
 import { useSidebarStore } from "@/lib/sidebarStore";
+import { useT } from "@/lib/i18n/useT";
 
 // Modules du dashboard. Chaque entrée porte une clé stable (indépendante du
-// libellé FR) qui sert d'identifiant React ; libellé, icône et route restent
-// affichés/utilisés à l'identique.
-const MODULES: { key: string; label: string; icon: string; route: string }[] = [
-  { key: "overview", label: "Vue d'ensemble", icon: "▦", route: "/vue-ensemble" },
-  { key: "map", label: "Carte", icon: "◈", route: "/gaia" },
-  { key: "compare", label: "Comparer", icon: "⇄", route: "/comparer" },
-  { key: "price-margin", label: "Prix & marge", icon: "€", route: "/prix-marge" },
-  { key: "yield", label: "Rendement", icon: "%", route: "/rendement" },
-  { key: "arbitrage", label: "Arbitrage", icon: "⇅", route: "/arbitrage" },
-  { key: "landbank", label: "Foncier", icon: "▣", route: "/foncier" },
-  { key: "tax", label: "Fiscalité", icon: "§", route: "/fiscalite" },
-  { key: "energy", label: "Énergie", icon: "⚡", route: "/energie" },
+// libellé) qui sert d'identifiant React ; `tKey` résout le libellé via t(),
+// icône et route restent utilisés à l'identique.
+const MODULES: { key: string; tKey: string; icon: string; route: string }[] = [
+  { key: "overview", tKey: "nav.overview", icon: "▦", route: "/vue-ensemble" },
+  { key: "map", tKey: "nav.map", icon: "◈", route: "/gaia" },
+  { key: "compare", tKey: "nav.compare", icon: "⇄", route: "/comparer" },
+  { key: "price-margin", tKey: "nav.priceMargin", icon: "€", route: "/prix-marge" },
+  { key: "yield", tKey: "nav.yield", icon: "%", route: "/rendement" },
+  { key: "arbitrage", tKey: "nav.arbitrage", icon: "⇅", route: "/arbitrage" },
+  { key: "landbank", tKey: "nav.land", icon: "▣", route: "/foncier" },
+  { key: "tax", tKey: "nav.tax", icon: "§", route: "/fiscalite" },
+  { key: "energy", tKey: "nav.energy", icon: "⚡", route: "/energie" },
 ];
 
 // Hydratation avant paint côté client, repli useEffect côté serveur (même
@@ -27,6 +28,7 @@ const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : use
 
 export function Sidebar() {
   const pathname = usePathname();
+  const t = useT();
   const [memoOpen, setMemoOpen] = useState(false);
   const open = useSidebarStore((s) => s.open);
   const toggle = useSidebarStore((s) => s.toggle);
@@ -43,14 +45,14 @@ export function Sidebar() {
       >
         <div className="flex h-full w-56 flex-col bg-navy text-cream">
           <div className="flex items-start justify-between px-5 py-5">
-            <Link href="/" className="group block" aria-label="Barzel, accueil">
+            <Link href="/" className="group block" aria-label={t("sidebar.homeAria")}>
               <div className="font-display text-lg tracking-wide text-gold transition-colors group-hover:text-gold-300">Barzel</div>
               <div className="text-label uppercase tracking-[0.2em] text-cream/60">Analytics</div>
             </Link>
             <button
               type="button"
               onClick={toggle}
-              aria-label="Masquer le menu"
+              aria-label={t("sidebar.hideMenu")}
               aria-expanded={true}
               aria-controls="dash-sidebar"
               className="-mr-1 flex h-8 w-8 items-center justify-center rounded-lg text-btn text-cream/55 transition-colors hover:bg-white/10 hover:text-gold"
@@ -69,7 +71,7 @@ export function Sidebar() {
               const inner = (
                 <>
                   <span className={`w-4 text-center text-btn ${on ? "text-gold" : "text-cream/55"}`}>{m.icon}</span>
-                  {m.label}
+                  {t(m.tKey)}
                 </>
               );
               return href ? (
@@ -77,7 +79,7 @@ export function Sidebar() {
                   {inner}
                 </Link>
               ) : (
-                <div key={m.key} className={cls} title="Bientôt disponible">
+                <div key={m.key} className={cls} title={t("sidebar.comingSoon")}>
                   {inner}
                 </div>
               );
@@ -91,7 +93,7 @@ export function Sidebar() {
                 }`}
               >
                 <span className={`w-4 text-center ${pathname === "/ia-analyste" ? "text-gold" : "text-gold/60"}`}>✦</span>
-                IA Analyste
+                {t("nav.aiAnalyst")}
               </Link>
             </div>
           </nav>
@@ -101,7 +103,7 @@ export function Sidebar() {
               onClick={() => setMemoOpen(true)}
               className="flex w-full items-center justify-center gap-2 rounded-lg border border-gold/40 bg-gold/10 px-3 py-2.5 text-btn font-medium text-gold transition-colors hover:bg-gold/20"
             >
-              <span>⭳</span> Mémo d'investissement
+              <span>⭳</span> {t("sidebar.memo")}
             </button>
           </div>
         </div>
@@ -111,7 +113,7 @@ export function Sidebar() {
         <button
           type="button"
           onClick={toggle}
-          aria-label="Afficher le menu"
+          aria-label={t("sidebar.showMenu")}
           aria-expanded={false}
           aria-controls="dash-sidebar"
           className="fixed left-3 top-3 z-[1100] flex h-11 w-11 items-center justify-center rounded-lg bg-navy text-lg text-gold shadow-lg transition-colors hover:bg-navy-800"

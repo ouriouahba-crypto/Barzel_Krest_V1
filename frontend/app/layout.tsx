@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Montserrat } from "next/font/google";
 import "./globals.css";
 import { CityKey } from "@/components/CityKey";
+import { HtmlLang } from "@/components/i18n/HtmlLang";
 import { TransitionCurtain } from "@/components/entry/TransitionCurtain";
 
 const playfair = Playfair_Display({
@@ -19,13 +20,14 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   title: "Barzel Analytics",
-  description: "Intelligence immobilière par mode d'investissement.",
+  description: "Real estate intelligence by investment mode.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`${playfair.variable} ${montserrat.variable}`}>
+    <html lang="en" className={`${playfair.variable} ${montserrat.variable}`}>
       <body>
+        <HtmlLang />
         <TransitionCurtain />
         <CityKey>{children}</CityKey>
       </body>
