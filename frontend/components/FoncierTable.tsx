@@ -1,12 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Mode, scoreColor, verdictTextColor, verdictTone } from "@/lib/scoring";
-import { eur0 } from "@/lib/priceMargin";
-import { pctSigned } from "@/lib/arbitrage";
+import { Mode, roundHalfUp, scoreColor, verdictTextColor, verdictTone } from "@/lib/scoring";
 import { FcRow } from "@/lib/foncier";
 import { VerdictBadge } from "./ui";
 import { useZoneNoun } from "@/lib/useZoneNoun";
+import { useLang, useT } from "@/lib/i18n/useT";
+import { fmtNumber } from "@/lib/i18n/format";
 
 // Landbank table: same visual codes as the other mode tables. Default:
 // Prioritaire/À phaser above an "En attente" separator, best score first in
@@ -17,14 +17,17 @@ type Key = "name" | "constructibilite" | "meilleurUsage" | "valeurResiduelle"
 
 type Dir = "asc" | "desc";
 
-const COLS: { key: Key; label: string; unit?: string; num: boolean }[] = [
-  { key: "name", label: "Freguesia", num: false },
-  { key: "constructibilite", label: "Constructibilité", unit: "/100", num: true },
-  { key: "meilleurUsage", label: "Meilleur usage", num: false },
-  { key: "valeurResiduelle", label: "Valeur résiduelle", unit: "€/m²", num: true },
-  { key: "foncierMarche", label: "Foncier marché", unit: "€/m²", num: true },
-  { key: "upliftPct", label: "Uplift", unit: "vs marché", num: true },
-  { key: "horizon", label: "Horizon", num: false },
+// `label` / `unitKey` portent des cles i18n (resolues via t() au rendu). Cas a
+// part : la colonne « name » utilise le terme de maille (useZoneNoun) et
+// « Uplift » n'a pas encore de cle (label litteral sans point, non traduit).
+const COLS: { key: Key; label: string; unit?: string; unitKey?: string; num: boolean }[] = [
+  { key: "name", label: "", num: false },
+  { key: "constructibilite", label: "fc.buildability", unit: "/100", num: true },
+  { key: "meilleurUsage", label: "fc.bestUse", num: false },
+  { key: "valeurResiduelle", label: "fc.residualValue", unit: "€/m²", num: true },
+  { key: "foncierMarche", label: "fc.marketLand", unit: "€/m²", num: true },
+  { key: "upliftPct", label: "Uplift", unitKey: "fc.vsMarket", num: true },
+  { key: "horizon", label: "fc.horizon", num: false },
 ];
 
 export function FoncierTable({
@@ -40,6 +43,17 @@ export function FoncierTable({
 }) {
   const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "upliftPct", dir: "desc" });
   const { Sg, pl } = useZoneNoun();
+  const t = useT();
+  const lang = useLang();
+  // Formatage localise value-preserving : memes valeurs que eur0/pctSigned (seul
+  // le separateur suit la langue). Les helpers partages (lib) restent FR pour le
+  // reste de l'app jusqu'a leur propre lot.
+  const eurL = (v: number | null | undefined) => (v != null ? fmtNumber(Math.round(v), lang) : "–");
+  const pctSignedL = (v: number | null | undefined, d = 1) => {
+    if (v == null) return "–";
+    const r = roundHalfUp(v, d);
+    return `${r > 0 ? "+" : ""}${fmtNumber(r, lang, { minimumFractionDigits: d, maximumFractionDigits: d })}%`;
+  };
   // Until the user sorts: verdict groups, best landbank score first in each;
   // no column carries the ordering, so no arrow lights up.
   const [userSorted, setUserSorted] = useState(false);
@@ -100,8 +114,10 @@ export function FoncierTable({
                     <span className="inline-flex items-center gap-1 text-th leading-tight">
                       {!c.num && <span className="w-1" />}
                       <span className="flex flex-col">
-                        <span>{c.key === "name" ? Sg : c.label}</span>
-                        {c.unit && <span className="text-label font-medium normal-case text-muted">{c.unit}</span>}
+                        <span>{c.key === "name" ? Sg : c.label.includes(".") ? t(c.label) : c.label}</span>
+                        {(c.unit || c.unitKey) && (
+                          <span className="text-label font-medium normal-case text-muted">{c.unitKey ? t(c.unitKey) : c.unit}</span>
+                        )}
                       </span>
                       <span className={`text-[10px] ${active ? "text-gold-700" : "text-transparent"}`}>
                         {active ? (sort.dir === "asc" ? "▲" : "▼") : "▲"}
@@ -152,14 +168,14 @@ export function FoncierTable({
                   </td>
                   <td className="px-3 py-2 text-right tabular-nums text-ink/80">{Math.round(r.constructibilite)}</td>
                   <td className="px-3 py-2 text-ink/80">{r.meilleurUsage}</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-ink">{eur0(r.valeurResiduelle)}</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eur0(r.foncierMarche)}</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-ink">{eurL(r.valeurResiduelle)}</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eurL(r.foncierMarche)}</td>
                   <td className="px-3 py-2 text-right">
                     <span
                       className="font-display text-[16px] font-medium tabular-nums"
                       style={{ color: verdictTextColor(mode, r.verdict) }}
                     >
-                      {pctSigned(r.upliftPct)}
+                      {pctSignedL(r.upliftPct)}
                     </span>
                   </td>
                   <td className="px-3 py-2 text-ink/80">{r.horizon}</td>

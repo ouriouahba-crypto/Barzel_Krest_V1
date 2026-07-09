@@ -1,10 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Mode, scoreColor, verdictTextColor, verdictTone } from "@/lib/scoring";
-import { PmRow, eur0, pct0, pct1 } from "@/lib/priceMargin";
+import { Mode, roundHalfUp, scoreColor, verdictTextColor, verdictTone } from "@/lib/scoring";
+import { PmRow } from "@/lib/priceMargin";
 import { VerdictBadge } from "./ui";
 import { useZoneNoun } from "@/lib/useZoneNoun";
+import { useLang, useT } from "@/lib/i18n/useT";
+import { fmtNumber } from "@/lib/i18n/format";
 
 type Key =
   | "name" | "baseMedian" | "premiumPct" | "realizable"
@@ -12,17 +14,19 @@ type Key =
 
 type Dir = "asc" | "desc";
 
+// `label` porte la cle i18n (resolue via t() au rendu) ; la colonne « name »
+// utilise le terme de maille (useZoneNoun), son label n'est jamais rendu.
 const COLS: { key: Key; label: string; unit?: string; num: boolean }[] = [
-  { key: "name", label: "Freguesia", num: false },
-  { key: "baseMedian", label: "Prix ancien", unit: "€/m²", num: true },
-  { key: "premiumPct", label: "Prime neuf", num: true },
-  { key: "realizable", label: "Prix neuf réal.", unit: "€/m²", num: true },
-  { key: "construction", label: "Construction", unit: "€/m²", num: true },
-  { key: "land", label: "Foncier", unit: "€/m²", num: true },
-  { key: "costTotal", label: "Coût total", unit: "€/m²", num: true },
+  { key: "name", label: "", num: false },
+  { key: "baseMedian", label: "pm.oldPrice", unit: "€/m²", num: true },
+  { key: "premiumPct", label: "pm.newPremium", num: true },
+  { key: "realizable", label: "pm.newPriceReal", unit: "€/m²", num: true },
+  { key: "construction", label: "pm.construction", unit: "€/m²", num: true },
+  { key: "land", label: "pm.land", unit: "€/m²", num: true },
+  { key: "costTotal", label: "pm.costTotal", unit: "€/m²", num: true },
   // « de zone » : marge du neuf générique de la freguesia, distincte de la marge
   // de l'actif K-REST (curseur), qui porte son propre programme et sa propre base.
-  { key: "marginPct", label: "Marge de zone", num: true },
+  { key: "marginPct", label: "pm.zoneMargin", num: true },
 ];
 
 export function PriceMarginTable({
@@ -41,6 +45,14 @@ export function PriceMarginTable({
   // Default: richest margin first (rows already arrive margin-desc).
   const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "marginPct", dir: "desc" });
   const { Sg, pl } = useZoneNoun();
+  const t = useT();
+  const lang = useLang();
+  // Formatage localise value-preserving : memes valeurs que eur0/pct0/pct1 (FR),
+  // seul le separateur suit la langue. Les helpers partages (lib) restent FR pour
+  // le reste de l'app (KPI, cascades, insights) jusqu'a leur propre lot.
+  const eurL = (v: number | null | undefined) => (v != null ? fmtNumber(Math.round(v), lang) : "–");
+  const pctL = (v: number | null | undefined, d: number) =>
+    v != null ? `${fmtNumber(roundHalfUp(v, d), lang, { minimumFractionDigits: d, maximumFractionDigits: d })}%` : "–";
   // Until the user sorts, group viable (Go/Conditionnel) above the rest with a
   // separator. Any sort click switches to a plain global sort (no grouping).
   const [userSorted, setUserSorted] = useState(false);
@@ -104,7 +116,7 @@ export function PriceMarginTable({
                     <span className="inline-flex items-center gap-1 text-th leading-tight">
                       {!c.num && <span className="w-1" />}
                       <span className="flex flex-col">
-                        <span>{c.key === "name" ? Sg : c.label}</span>
+                        <span>{c.key === "name" ? Sg : t(c.label)}</span>
                         {c.unit && <span className="text-label font-medium normal-case text-muted">{c.unit}</span>}
                       </span>
                       <span className={`text-[10px] ${active ? "text-gold-700" : "text-transparent"}`}>
@@ -156,20 +168,20 @@ export function PriceMarginTable({
                   </td>
                   {residential && (
                     <>
-                      <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eur0(r.baseMedian)}</td>
-                      <td className="px-3 py-2 text-right tabular-nums text-ink/80">{pct0(r.premiumPct)}</td>
+                      <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eurL(r.baseMedian)}</td>
+                      <td className="px-3 py-2 text-right tabular-nums text-ink/80">{pctL(r.premiumPct, 0)}</td>
                     </>
                   )}
-                  <td className="px-3 py-2 text-right tabular-nums text-ink">{eur0(r.realizable)}</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eur0(r.construction)}</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eur0(r.land)}</td>
-                  <td className="px-3 py-2 text-right tabular-nums font-medium text-ink">{eur0(r.costTotal)}</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-ink">{eurL(r.realizable)}</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eurL(r.construction)}</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eurL(r.land)}</td>
+                  <td className="px-3 py-2 text-right tabular-nums font-medium text-ink">{eurL(r.costTotal)}</td>
                   <td className="px-3 py-2 text-right">
                     <span
                       className="font-display text-[16px] font-medium tabular-nums"
                       style={{ color: verdictTextColor(mode, r.verdict) }}
                     >
-                      {pct1(r.marginPct)}
+                      {pctL(r.marginPct, 1)}
                     </span>
                   </td>
                   <td className="px-3 py-2">

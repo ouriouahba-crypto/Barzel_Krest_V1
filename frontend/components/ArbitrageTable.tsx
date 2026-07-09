@@ -1,11 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Mode, scoreColor, verdictTextColor, verdictTone } from "@/lib/scoring";
-import { eur0 } from "@/lib/priceMargin";
-import { ArbRow, pctSigned } from "@/lib/arbitrage";
+import { Mode, roundHalfUp, scoreColor, verdictTextColor, verdictTone } from "@/lib/scoring";
+import { ArbRow } from "@/lib/arbitrage";
 import { VerdictBadge } from "./ui";
 import { useZoneNoun } from "@/lib/useZoneNoun";
+import { useLang, useT } from "@/lib/i18n/useT";
+import { fmtNumber } from "@/lib/i18n/format";
 
 // Arbitrage table: same visual codes as the other mode tables. Default:
 // open/narrow windows above a "Fenêtre fermée" separator, best score first in
@@ -35,17 +36,31 @@ export function ArbitrageTable({
 }) {
   const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "spreadPct", dir: "desc" });
   const { Sg, pl } = useZoneNoun();
+  const t = useT();
+  const lang = useLang();
+  // Formatage localise value-preserving : memes valeurs que eur0/pctSigned et le
+  // toFixed(1) du delai (seul le separateur suit la langue). Les helpers partages
+  // (lib) restent FR pour le reste de l'app jusqu'a leur propre lot.
+  const eurL = (v: number | null | undefined) => (v != null ? fmtNumber(Math.round(v), lang) : "–");
+  const pctSignedL = (v: number | null | undefined, d = 1) => {
+    if (v == null) return "–";
+    const r = roundHalfUp(v, d);
+    return `${r > 0 ? "+" : ""}${fmtNumber(r, lang, { minimumFractionDigits: d, maximumFractionDigits: d })}%`;
+  };
+  const fixL = (v: number, d: number) =>
+    fmtNumber(Number(v.toFixed(d)), lang, { minimumFractionDigits: d, maximumFractionDigits: d });
   // "Spread" se compare à la médiane VILLE (base constante : Gaia, Porto) ou à
   // la médiane de la MAILLE (base par ligne : Lisbonne, Bruxelles) : le libellé
-  // le dit, sans hardcode par ville.
+  // le dit, sans hardcode par ville. « vs médiane » et « mois » restent en FR
+  // (pas encore de cle i18n ; signale au lot).
   const COLS = useMemo<{ key: Key; label: string; unit?: string; num: boolean }[]>(
     () => [
-      { key: "name", label: "Freguesia", num: false },
-      { key: "valeurRealisable", label: "Valeur réalisable", unit: "€/m²", num: true },
-      { key: "spreadPct", label: "Spread", unit: `vs médiane ${baseLabel}`, num: true },
-      { key: "delaiMois", label: "Délai", unit: "mois", num: true },
+      { key: "name", label: "", num: false },
+      { key: "valeurRealisable", label: t("ar.realizableValue"), unit: "€/m²", num: true },
+      { key: "spreadPct", label: t("ar.spread"), unit: `vs médiane ${baseLabel}`, num: true },
+      { key: "delaiMois", label: t("ar.delay"), unit: "mois", num: true },
     ],
-    [baseLabel]
+    [baseLabel, t]
   );
   // Until the user sorts: verdict groups, best arbitrage score first in each;
   // no column carries the ordering, so no arrow lights up.
@@ -131,7 +146,7 @@ export function ArbitrageTable({
                       colSpan={COLS.length + 1}
                       className="border-y border-navy/10 bg-cream-200/60 px-3 py-1.5 text-label font-semibold uppercase tracking-widest text-muted"
                     >
-                      Fenêtre fermée
+                      {t("ar.windowClosed")}
                     </td>
                   </tr>
                 );
@@ -157,17 +172,17 @@ export function ArbitrageTable({
                       <span className="text-label text-ink-soft">{Math.round(r.total)}</span>
                     </span>
                   </td>
-                  <td className="px-3 py-2 text-right tabular-nums text-ink">{eur0(r.valeurRealisable)}</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-ink">{eurL(r.valeurRealisable)}</td>
                   <td className="px-3 py-2 text-right">
                     <span
                       className="font-display text-[16px] font-medium tabular-nums"
                       style={{ color: verdictTextColor(mode, r.verdict) }}
                     >
-                      {pctSigned(r.spreadPct)}
+                      {pctSignedL(r.spreadPct)}
                     </span>
                   </td>
                   <td className="px-3 py-2 text-right tabular-nums text-ink/80">
-                    {r.delaiMois != null ? r.delaiMois.toFixed(1) : "–"}
+                    {r.delaiMois != null ? fixL(r.delaiMois, 1) : "–"}
                   </td>
                   <td className="px-3 py-2">
                     <VerdictBadge mode={mode} verdict={r.verdict} />

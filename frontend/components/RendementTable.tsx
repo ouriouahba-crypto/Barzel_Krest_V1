@@ -1,11 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Mode, scoreColor, verdictTextColor, verdictTone } from "@/lib/scoring";
-import { eur0 } from "@/lib/priceMargin";
-import { RdRow, pct2 } from "@/lib/rendement";
+import { Mode, roundHalfUp, scoreColor, verdictTextColor, verdictTone } from "@/lib/scoring";
+import { RdRow } from "@/lib/rendement";
 import { VerdictBadge } from "./ui";
 import { useZoneNoun } from "@/lib/useZoneNoun";
+import { useLang, useT } from "@/lib/i18n/useT";
+import { fmtNumber } from "@/lib/i18n/format";
 
 // Détention table: same visual codes as PriceMarginTable (score liseré, verdict
 // badge, sortable columns). Default grouping: Conserver/Surveiller above an
@@ -15,13 +16,15 @@ type Key = "name" | "loyer" | "yieldBrut" | "chargesPctLoyer" | "fiscPctLoyer" |
 
 type Dir = "asc" | "desc";
 
-const COLS: { key: Key; label: string; unit?: string; num: boolean }[] = [
-  { key: "name", label: "Freguesia", num: false },
-  { key: "loyer", label: "Loyer marché", unit: "€/m²/an", num: true },
-  { key: "yieldBrut", label: "Yield brut", num: true },
-  { key: "chargesPctLoyer", label: "Charges", unit: "% du loyer", num: true },
-  { key: "fiscPctLoyer", label: "Fiscalité", unit: "% du loyer", num: true },
-  { key: "yieldNet", label: "Yield net", num: true },
+// `label` / `unitKey` portent des cles i18n (resolues via t() au rendu) ; la
+// colonne « name » utilise le terme de maille (useZoneNoun).
+const COLS: { key: Key; label: string; unit?: string; unitKey?: string; num: boolean }[] = [
+  { key: "name", label: "", num: false },
+  { key: "loyer", label: "rd.marketRent", unit: "€/m²/an", num: true },
+  { key: "yieldBrut", label: "rd.grossYield", num: true },
+  { key: "chargesPctLoyer", label: "rd.charges", unitKey: "rd.pctRent", num: true },
+  { key: "fiscPctLoyer", label: "rd.tax", unitKey: "rd.pctRent", num: true },
+  { key: "yieldNet", label: "rd.netYield", num: true },
 ];
 
 export function RendementTable({
@@ -37,6 +40,16 @@ export function RendementTable({
 }) {
   const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "yieldNet", dir: "desc" });
   const { Sg, pl } = useZoneNoun();
+  const t = useT();
+  const lang = useLang();
+  // Formatage localise value-preserving : memes valeurs que eur0/pct2 et le
+  // toFixed(1) des charges (seul le separateur suit la langue). Les helpers
+  // partages (lib) restent FR pour le reste de l'app jusqu'a leur propre lot.
+  const eurL = (v: number | null | undefined) => (v != null ? fmtNumber(Math.round(v), lang) : "–");
+  const pctL = (v: number | null | undefined, d: number) =>
+    v != null ? `${fmtNumber(roundHalfUp(v, d), lang, { minimumFractionDigits: d, maximumFractionDigits: d })}%` : "–";
+  const fixL = (v: number, d: number) =>
+    fmtNumber(Number(v.toFixed(d)), lang, { minimumFractionDigits: d, maximumFractionDigits: d });
   // Until the user sorts, group Conserver/Surveiller above Céder with a separator,
   // best detention score first inside each group (the held places open the table,
   // not the yield traps). Any sort click switches to a plain global sort.
@@ -100,8 +113,10 @@ export function RendementTable({
                     <span className="inline-flex items-center gap-1 text-th leading-tight">
                       {!c.num && <span className="w-1" />}
                       <span className="flex flex-col">
-                        <span>{c.key === "name" ? Sg : c.label}</span>
-                        {c.unit && <span className="text-label font-medium normal-case text-muted">{c.unit}</span>}
+                        <span>{c.key === "name" ? Sg : t(c.label)}</span>
+                        {(c.unit || c.unitKey) && (
+                          <span className="text-label font-medium normal-case text-muted">{c.unitKey ? t(c.unitKey) : c.unit}</span>
+                        )}
                       </span>
                       <span className={`text-[10px] ${active ? "text-gold-700" : "text-transparent"}`}>
                         {active ? (sort.dir === "asc" ? "▲" : "▼") : "▲"}
@@ -124,7 +139,7 @@ export function RendementTable({
                       colSpan={COLS.length + 1}
                       className="border-y border-navy/10 bg-cream-200/60 px-3 py-1.5 text-label font-semibold uppercase tracking-widest text-muted"
                     >
-                      À céder
+                      {t("rd.toSell")}
                     </td>
                   </tr>
                 );
@@ -150,16 +165,16 @@ export function RendementTable({
                       <span className="text-label text-ink-soft">{Math.round(r.total)}</span>
                     </span>
                   </td>
-                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eur0(r.loyer)}</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-ink">{pct2(r.yieldBrut)}</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{r.chargesPctLoyer.toFixed(1)}%</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{r.fiscPctLoyer.toFixed(1)}%</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eurL(r.loyer)}</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-ink">{pctL(r.yieldBrut, 2)}</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{fixL(r.chargesPctLoyer, 1)}%</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{fixL(r.fiscPctLoyer, 1)}%</td>
                   <td className="px-3 py-2 text-right">
                     <span
                       className="font-display text-[16px] font-medium tabular-nums"
                       style={{ color: verdictTextColor(mode, r.verdict) }}
                     >
-                      {pct2(r.yieldNet)}
+                      {pctL(r.yieldNet, 2)}
                     </span>
                   </td>
                   <td className="px-3 py-2">
