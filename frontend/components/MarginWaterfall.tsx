@@ -3,6 +3,7 @@
 import { Mode, fmtNum, scoreTextColor, verdictColor, verdictTextColor } from "@/lib/scoring";
 import { PmRow, eur0, eurM2 } from "@/lib/priceMargin";
 import { Waterfall, WaterfallEmpty } from "./Waterfall";
+import { useT } from "@/lib/i18n/useT";
 
 // Promotion cascade: prix de vente − construction − foncier − frais annexes
 // − financement = marge promoteur. Thin wrapper over the generic Waterfall.
@@ -15,6 +16,7 @@ export function MarginWaterfall({
   mode: Mode;
   classLabel: string;
 }) {
+  const t = useT();
   if (!row) return <WaterfallEmpty />;
 
   const margin = row.netSale - row.costTotal;
@@ -38,20 +40,20 @@ export function MarginWaterfall({
       headline={`${fmtNum(row.marginPct, 1)}%`}
       accent={marginColor}
       accentText={inkVerdict}
-      base={{ label: "Prix de vente", value: row.netSale }}
+      base={{ label: t("wf.salePrice"), value: row.netSale }}
       deductions={[
         { label: "Construction", value: row.construction },
-        { label: "Foncier", value: row.land },
+        { label: t("pm.land"), value: row.land },
         { label: "Frais annexes", value: soft },
-        { label: "Financement", value: row.finance },
+        { label: t("wf.financing"), value: row.finance },
       ]}
-      resultLabel="= Marge promoteur"
-      lossLabel="= Perte"
+      resultLabel={t("wf.developerMargin")}
+      lossLabel={t("wf.loss")}
       fmt={eur0}
       stats={[
-        { label: "Coût de revient", value: eurM2(row.costTotal) },
-        { label: margin >= 0 ? "Marge / m²" : "Perte / m²", value: eurM2(margin), accent: inkVerdict },
-        { label: "Score promotion", value: `${Math.round(row.total)}`, accent: scoreTextColor(row.total) },
+        { label: t("wf.costPrice"), value: eurM2(row.costTotal) },
+        { label: margin >= 0 ? t("wf.marginPerM2") : "Perte / m²", value: eurM2(margin), accent: inkVerdict },
+        { label: t("wf.scorePromotion"), value: `${Math.round(row.total)}`, accent: scoreTextColor(row.total) },
       ]}
     />
   );

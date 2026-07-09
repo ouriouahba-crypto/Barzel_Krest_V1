@@ -4,6 +4,7 @@ import type { ComponentType } from "react";
 import { ModeScore } from "@/lib/api";
 import { MODE_LABEL, Mode } from "@/lib/scoring";
 import { PillarBar, ScoreDial, VerdictBadge } from "./ui";
+import { useT } from "@/lib/i18n/useT";
 
 export interface KeyFigure {
   label: string;
@@ -28,6 +29,7 @@ export function DetailPanel({
   assetSlider: ComponentType<{ baseTotal: number; margeWeight: number }> | null;
 }) {
   const AssetSlider = assetSlider;
+  const t = useT();
   return (
     <>
       {/* scrim on small screens */}
@@ -84,7 +86,7 @@ export function DetailPanel({
             )}
 
             <div className="mt-5">
-              <h3 className="mb-1 font-display text-[16px] text-navy">Piliers</h3>
+              <h3 className="mb-1 font-display text-[16px] text-navy">{t("card.pillars")}</h3>
               <div className="rounded-2xl border border-navy/10 bg-white p-3">
                 {score.pillars.map((p) =>
                   p.applicable ? (

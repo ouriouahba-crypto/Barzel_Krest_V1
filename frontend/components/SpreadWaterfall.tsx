@@ -4,6 +4,7 @@ import { Mode, scoreTextColor, verdictColor, verdictTextColor } from "@/lib/scor
 import { eur0, eurM2 } from "@/lib/priceMargin";
 import { ArbRow, pctSigned } from "@/lib/arbitrage";
 import { Waterfall, WaterfallEmpty } from "./Waterfall";
+import { useT } from "@/lib/i18n/useT";
 
 // Arbitrage cascade: valeur réalisable − frais de cession − décote de
 // négociation = produit net, with the spread vs the median as the headline.
@@ -22,6 +23,7 @@ export function SpreadWaterfall({
   // (médiane maille) ; repli « de marché ».
   baseLabel: string;
 }) {
+  const t = useT();
   if (!row || row.valeurRealisable == null) return <WaterfallEmpty />;
 
   const accent = verdictColor(mode, row.verdict);
@@ -39,18 +41,18 @@ export function SpreadWaterfall({
       headline={pctSigned(row.spreadPct)}
       accent={accent}
       accentText={inkVerdict}
-      base={{ label: "Valeur réalisable", value: row.valeurRealisable }}
+      base={{ label: t("ar.realizableValue"), value: row.valeurRealisable }}
       deductions={[
-        { label: "Frais de cession", value: frais },
-        { label: "Décote de négociation", value: decote },
+        { label: t("wf.disposalFees"), value: frais },
+        { label: t("wf.negotiationDiscount"), value: decote },
       ]}
-      resultLabel="= Produit net"
-      lossLabel="= Perte"
+      resultLabel={t("wf.netProceedsEq")}
+      lossLabel={t("wf.loss")}
       fmt={eur0}
       stats={[
-        { label: "Produit net", value: eurM2(produitNet) },
-        { label: "Délai de cession", value: row.delaiMois != null ? `${row.delaiMois.toFixed(1)} mois` : "–" },
-        { label: "Score arbitrage", value: `${Math.round(row.total)}`, accent: scoreTextColor(row.total) },
+        { label: t("wf.netProceeds"), value: eurM2(produitNet) },
+        { label: t("wf.disposalTime"), value: row.delaiMois != null ? `${row.delaiMois.toFixed(1)} mois` : "–" },
+        { label: t("wf.scoreArbitrage"), value: `${Math.round(row.total)}`, accent: scoreTextColor(row.total) },
       ]}
     />
   );

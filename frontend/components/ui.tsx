@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Mode, pillarTitle, scoreColor, verdictTone } from "@/lib/scoring";
+import { Mode, scoreColor, verdictTone } from "@/lib/scoring";
 import { useCountUp } from "@/lib/motion";
 import { useLang, useT } from "@/lib/i18n/useT";
-import { verdictDisplay } from "@/lib/i18n/domain";
+import { pillarLabelFor, verdictDisplay } from "@/lib/i18n/domain";
 
 export function VerdictBadge({ mode, verdict }: { mode: Mode; verdict: string }) {
   const lang = useLang();
@@ -64,6 +64,7 @@ export function PillarBar({
   subscore: number | null;
   dark?: boolean;
 }) {
+  const lang = useLang();
   const s = subscore ?? 0;
   // La valeur native est du contenu : cream ≥ 0.85 sur fond sombre, ink.soft sur clair.
   const textMuted = dark ? "text-cream/85" : "text-ink-soft";
@@ -72,7 +73,7 @@ export function PillarBar({
   return (
     <div className="py-1.5">
       <div className="flex items-baseline justify-between gap-3">
-        <span className={`text-body font-medium capitalize leading-snug ${textMain}`}>{pillarTitle(label)}</span>
+        <span className={`text-body font-medium capitalize leading-snug ${textMain}`}>{pillarLabelFor(label, lang)}</span>
         <span className={`text-td ${textMuted}`}>{native}</span>
       </div>
       <div className={`mt-1 h-1.5 w-full overflow-hidden rounded-full ${track}`}>
