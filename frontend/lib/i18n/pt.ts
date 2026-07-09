@@ -135,4 +135,11 @@ export const pt: Dict = {
   "wf.netProceeds": "Produto líquido",
   "wf.disposalTime": "Prazo de alienação",
   "wf.scoreArbitrage": "Score arbitragem",
+  // Chrome das cascatas (lote i18n-1c-bis) : deducoes restantes, titulos, estado vazio.
+  "wf.ancillaryFees": "Custos acessórios",
+  "wf.lossPerM2": "Perda / m²",
+  "wf.marginBreakdown": "Decomposição da margem · {name}",
+  "wf.yieldBreakdown": "Decomposição do rendimento · {name}",
+  "wf.spreadBreakdown": "Decomposição da alienação · {name}",
+  "wf.emptySelect": "Selecione uma {sg} na tabela.",
 };

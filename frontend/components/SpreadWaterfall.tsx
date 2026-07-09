@@ -34,7 +34,7 @@ export function SpreadWaterfall({
 
   return (
     <Waterfall
-      title={`Décomposition de la cession · ${row.name}`}
+      title={t("wf.spreadBreakdown", { name: row.name })}
       subtitle={`Spread ${pctSigned(row.spreadPct)} vs médiane ${baseLabel} ${eurM2(row.prixMarche)} · ${classLabel}`}
       mode={mode}
       verdict={row.verdict}
@@ -51,7 +51,7 @@ export function SpreadWaterfall({
       fmt={eur0}
       stats={[
         { label: t("wf.netProceeds"), value: eurM2(produitNet) },
-        { label: t("wf.disposalTime"), value: row.delaiMois != null ? `${row.delaiMois.toFixed(1)} mois` : "–" },
+        { label: t("wf.disposalTime"), value: row.delaiMois != null ? `${row.delaiMois.toFixed(1)} ${t("ar.months")}` : "–" },
         { label: t("wf.scoreArbitrage"), value: `${Math.round(row.total)}`, accent: scoreTextColor(row.total) },
       ]}
     />

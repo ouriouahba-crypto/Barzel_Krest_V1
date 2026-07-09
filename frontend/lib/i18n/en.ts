@@ -139,4 +139,11 @@ export const en: Dict = {
   "wf.netProceeds": "Net proceeds",
   "wf.disposalTime": "Disposal time",
   "wf.scoreArbitrage": "Arbitrage score",
+  // Chrome des cascades (lot i18n-1c-bis) : deductions restantes, titres, etat vide.
+  "wf.ancillaryFees": "Ancillary fees",
+  "wf.lossPerM2": "Loss / m²",
+  "wf.marginBreakdown": "Margin breakdown · {name}",
+  "wf.yieldBreakdown": "Yield breakdown · {name}",
+  "wf.spreadBreakdown": "Disposal breakdown · {name}",
+  "wf.emptySelect": "Select a {sg} in the table.",
 };
