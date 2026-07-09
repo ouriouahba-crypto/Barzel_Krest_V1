@@ -15,6 +15,8 @@ import { classLabel, verdictTone } from "@/lib/scoring";
 import { eur0 } from "@/lib/priceMargin";
 import { rdRows, rdSummary, RdRow } from "@/lib/rendement";
 import { detentionInsight, anomalyNote } from "@/lib/insights";
+import { useT, useLang } from "@/lib/i18n/useT";
+import { modeLabel } from "@/lib/i18n/domain";
 
 const SANTA = "santamarinhaesaopedrodaafurada";
 // Ligne marché : registre des villes (lib/cities.ts).
@@ -35,6 +37,8 @@ const CONTEXT: Record<string, string> = {
 
 export default function RendementPage() {
   const g = useGaia();
+  const t = useT();
+  const lang = useLang();
   const city = cityBySlug(useCityStore((s) => s.slug));
   const [selected, setSelected] = useState<string[]>([]);
 
@@ -63,7 +67,7 @@ export default function RendementPage() {
   }, [allRows]);
 
   const zn = { sg: city.zoneNoun, pl: city.zoneNounPlural };
-  const scopeLabel = summary.scope === "viables" ? `${zn.pl} viables` : `toutes ${zn.pl}`;
+  const scopeLabel = summary.scope === "viables" ? t("pg.scopeViable", { zones: zn.pl }) : t("pg.scopeAll", { zones: zn.pl });
 
   // Conclusion layer: page insight + banner right block + anomaly note.
   // Décompte autoritaire (backend, maille fine hors municipio) : le texte de
@@ -119,7 +123,7 @@ export default function RendementPage() {
 
         {g.error && (
           <div className="mx-6 mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-body text-red-700">
-            Backend injoignable : lancez l'API (uvicorn backend.main:app). {g.error}
+            {t("pg.backendError")} {g.error}
           </div>
         )}
 
@@ -128,9 +132,9 @@ export default function RendementPage() {
           <div>
             <div className="flex items-center gap-3">
               <span className="inline-block h-5 w-1.5 rounded-full bg-gold" />
-              <h2 className="font-display text-[24px] leading-none text-navy">Rendement</h2>
+              <h2 className="font-display text-[24px] leading-none text-navy">{t("pgr.title")}</h2>
               <span className="rounded-full border border-gold/40 bg-gold/[0.06] px-2.5 py-0.5 text-label font-medium text-gold-700">
-                Détention · {classLabel(cls)}
+                {modeLabel("detention", lang)} · {classLabel(cls)}
               </span>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
@@ -145,7 +149,7 @@ export default function RendementPage() {
             right={
               bestHold ? (
                 <div className="text-right">
-                  <div className="text-label uppercase tracking-widest text-cream/70">Meilleure détention · {bestHold.short}</div>
+                  <div className="text-label uppercase tracking-widest text-cream/70">{t("pgr.bestHold")} · {bestHold.short}</div>
                   <div className="font-display text-kpi-hero leading-none text-gold">{bestHold.yieldNet.toFixed(1)}%</div>
                 </div>
               ) : undefined
@@ -155,24 +159,24 @@ export default function RendementPage() {
           {/* 4 key figures: medians on viable freguesias (Conserver/Surveiller) */}
           <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
             <Kpi
-              label="Yield net médian"
+              label={t("pgr.medianNetYield")}
               value={summary.medianYieldNet != null ? `${summary.medianYieldNet.toFixed(1)}%` : "–"}
               sub={scopeLabel}
             />
             <Kpi
-              label="Yield brut médian"
+              label={t("pgr.medianGrossYield")}
               value={summary.medianYieldBrut != null ? `${summary.medianYieldBrut.toFixed(1)}%` : "–"}
               sub={scopeLabel}
             />
             <Kpi
-              label="Loyer de marché médian"
+              label={t("pgr.medianMarketRent")}
               value={summary.medianLoyer != null ? `${eur0(summary.medianLoyer)} €/m²/an` : "–"}
               sub={scopeLabel}
             />
             <Kpi
-              label="À céder"
+              label={t("pgr.toSell")}
               value={summary.totalCount ? `${summary.cederCount} / ${summary.totalCount}` : "–"}
-              sub={`${zn.pl} au verdict Céder`}
+              sub={t("pgr.toSellSub", { pl: zn.pl })}
             />
           </div>
 
@@ -187,7 +191,7 @@ export default function RendementPage() {
           {/* Analysis note: the most telling exception (if any) */}
           {note && (
             <div className="-mt-2 shrink-0 pl-1 text-body leading-snug text-ink-soft">
-              <span className="text-label font-semibold uppercase tracking-widest text-gold-700">Note d'analyse</span>
+              <span className="text-label font-semibold uppercase tracking-widest text-gold-700">{t("pg.analysisNote")}</span>
               <span className="mx-2 text-navy/20">·</span>
               {note}
             </div>
@@ -216,8 +220,8 @@ export default function RendementPage() {
               onSelect={g.setFocusZone}
               classLabel={classLabel(cls)}
               metric={(r) => r.yieldNet}
-              title={`Yield net % par ${zn.sg}`}
-              metricLabel="yield net"
+              title={t("pgr.netYieldChartTitle", { sg: zn.sg })}
+              metricLabel={t("pgr.metricLabel")}
               digits={1}
             />
           </div>

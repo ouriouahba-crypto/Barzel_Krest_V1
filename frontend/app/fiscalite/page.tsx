@@ -11,6 +11,7 @@ import { pmRows } from "@/lib/priceMargin";
 import { rdRows } from "@/lib/rendement";
 import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
+import { useT } from "@/lib/i18n/useT";
 
 // Page transverse de contexte fiscal. Tout le contenu spécifique au régime du
 // pays (barèmes, volets, points de contrôle, textes, simulateur) vient de la
@@ -21,12 +22,13 @@ import { useCityStore } from "@/lib/cityStore";
 // 5 classes est remplacé par un toggle local (bureaux alimente l'insight du
 // cycle de détention commercial côté moteur).
 const REGIMES = [
-  { value: "residential", label: "Résidentiel" },
-  { value: "commercial", label: "Commercial" },
+  { value: "residential" },
+  { value: "commercial" },
 ] as const;
 type Regime = (typeof REGIMES)[number]["value"];
 
 export default function FiscalitePage() {
+  const t = useT();
   const g = useGaia();
   const city = cityBySlug(useCityStore((s) => s.slug));
   const F = city.fiscal;
@@ -34,7 +36,11 @@ export default function FiscalitePage() {
   const [selected, setSelected] = useState<string[]>([]);
   const [regime, setRegime] = useState<Regime>("residential");
   const residential = regime === "residential";
-  const regimeLabel = residential ? "Résidentiel" : "Commercial";
+  const regimeOptions: { value: Regime; label: string }[] = [
+    { value: "residential", label: t("fsc.regime_residential") },
+    { value: "commercial", label: t("fsc.regime_commercial") },
+  ];
+  const regimeLabel = residential ? t("fsc.regime_residential") : t("fsc.regime_commercial");
 
   const onRegime = (r: Regime) => {
     setRegime(r);
@@ -75,13 +81,13 @@ export default function FiscalitePage() {
           <div>
             <div className="flex flex-wrap items-center gap-3">
               <span className="inline-block h-5 w-1.5 rounded-full bg-gold" />
-              <h2 className="font-display text-[24px] leading-none text-navy">Fiscalité</h2>
+              <h2 className="font-display text-[24px] leading-none text-navy">{t("fsc.title")}</h2>
               <span className="rounded-full border border-gold/40 bg-gold/[0.06] px-2.5 py-0.5 text-label font-medium text-gold-700">
                 {F.PAGE.chipPrefix} · {regimeLabel}
               </span>
               <div className="ml-2 flex items-center gap-3">
-                <span className="text-label font-semibold uppercase tracking-widest text-muted">Régime</span>
-                <Segmented options={[...REGIMES]} value={regime} onChange={onRegime} />
+                <span className="text-label font-semibold uppercase tracking-widest text-muted">{t("fsc.regime_label")}</span>
+                <Segmented options={regimeOptions} value={regime} onChange={onRegime} />
               </div>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
@@ -199,13 +205,14 @@ function Row({ label, value, sub }: { label: string; value: string; sub?: string
 }
 
 function Platform({ to, label }: { to: string; label: string }) {
+  const t = useT();
   return (
     <div className="mt-auto pt-3">
       <Link
         href={to}
         className="block rounded-xl border border-gold/30 bg-gold/[0.07] px-3 py-2 text-btn leading-snug text-gold-700 transition-colors hover:bg-gold/15"
       >
-        <span className="font-semibold uppercase tracking-wide text-label">Dans la plateforme</span>
+        <span className="font-semibold uppercase tracking-wide text-label">{t("pg.inPlatform")}</span>
         <br />
         {label} →
       </Link>

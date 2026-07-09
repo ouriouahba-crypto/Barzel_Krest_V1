@@ -8,6 +8,7 @@ import { useGaia } from "@/lib/useGaia";
 import { classLabel } from "@/lib/scoring";
 import { AnalystIcon, cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
+import { useT } from "@/lib/i18n/useT";
 
 // Lignes et suggestions par ville : registre lib/cities.ts. Icône fine (trait
 // 1.5) par clé de suggestion.
@@ -63,6 +64,7 @@ function renderAnswer(text: string) {
 const now = () => new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
 
 export default function IaAnalystePage() {
+  const t = useT();
   const g = useGaia();
   const city = cityBySlug(useCityStore((s) => s.slug));
   const SUGGESTIONS = city.texts.analystSuggestions.map(({ q, icon }) => ({ q, icon: ICONS[icon] }));
@@ -87,7 +89,7 @@ export default function IaAnalystePage() {
       const r = await api.analystAsk(q, cls);
       setMessages((m) => [...m, { role: "assistant", text: r.answer, at: now() }]);
     } catch {
-      setMessages((m) => [...m, { role: "error", text: "L'analyste est momentanément indisponible.", at: now() }]);
+      setMessages((m) => [...m, { role: "error", text: t("ai.error"), at: now() }]);
     } finally {
       setBusy(false);
       setTimeout(() => endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }), 60);
@@ -119,10 +121,10 @@ export default function IaAnalystePage() {
               <div className="mx-auto flex w-full max-w-3xl flex-col items-center text-center">
                 <div className="font-display text-[26px] leading-none text-gold">✦</div>
                 <div className="mt-3 text-label font-semibold uppercase tracking-widest text-gold/90">
-                  IA Analyste · Barzel
+                  {t("ai.eyebrow")}
                 </div>
                 <h2 className="mt-4 font-display text-[40px] leading-tight text-cream">
-                  Que voulez-vous savoir sur {cityShort} ?
+                  {t("ai.hero_headline", { city: cityShort })}
                 </h2>
                 <p className="mt-3 text-body text-cream/70">
                   Réponses en {classLabel(cls).toLowerCase()} : scores, verdicts, fiscalité et énergie de la plateforme.
@@ -139,13 +141,13 @@ export default function IaAnalystePage() {
                     <input
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
-                      placeholder={`Votre question sur ${cityShort}…`}
+                      placeholder={t("ai.input_placeholder", { city: cityShort })}
                       className="min-w-0 flex-1 bg-transparent py-2 text-body text-ink outline-none placeholder:text-muted"
                     />
                     <button
                       type="submit"
                       disabled={!input.trim()}
-                      aria-label="Demander"
+                      aria-label={t("ai.send")}
                       className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold text-navy transition-colors hover:bg-gold-600 disabled:opacity-40"
                     >
                       <IconArrow />
@@ -186,7 +188,7 @@ export default function IaAnalystePage() {
                     <div key={i} className="self-start border-l-2 border-gold pl-5 pr-1">
                       <div className="flex items-baseline gap-2">
                         <span className="text-label font-semibold uppercase tracking-widest text-gold-700">
-                          Analyste Barzel
+                          {t("ai.analyst_label")}
                         </span>
                         <span className="text-label text-muted">· {m.at}</span>
                       </div>
@@ -201,13 +203,13 @@ export default function IaAnalystePage() {
                 {busy && (
                   <div className="self-start border-l-2 border-gold/50 pl-5">
                     <span className="text-label font-semibold uppercase tracking-widest text-gold-700/80">
-                      Analyste Barzel
+                      {t("ai.analyst_label")}
                     </span>
                     <div className="mt-2.5 flex items-center gap-2">
                       <span className="flex gap-1.5">
                         <Dot delay="0s" /> <Dot delay="0.15s" /> <Dot delay="0.3s" />
                       </span>
-                      <span className="text-label text-muted">rédige…</span>
+                      <span className="text-label text-muted">{t("ai.typing")}</span>
                     </div>
                   </div>
                 )}
@@ -226,13 +228,13 @@ export default function IaAnalystePage() {
                   <input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder={`Votre question sur ${cityShort} (${classLabel(cls).toLowerCase()})…`}
+                    placeholder={t("ai.input_placeholder_class", { city: cityShort, cls: classLabel(cls).toLowerCase() })}
                     className="min-w-0 flex-1 bg-transparent py-2 text-body text-ink outline-none placeholder:text-muted"
                   />
                   <button
                     type="submit"
                     disabled={busy || !input.trim()}
-                    aria-label="Demander"
+                    aria-label={t("ai.send")}
                     className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-navy text-gold transition-colors hover:bg-navy-800 disabled:opacity-40"
                   >
                     <IconArrow />

@@ -13,6 +13,8 @@ import { pmRows, pmSummary, eurM2 } from "@/lib/priceMargin";
 import { priceMarginInsight, anomalyNote } from "@/lib/insights";
 import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
+import { useT, useLang } from "@/lib/i18n/useT";
+import { modeLabel } from "@/lib/i18n/domain";
 
 // Ligne marché et contexte résidentiel : registre des villes (lib/cities.ts).
 
@@ -32,6 +34,8 @@ const CONTEXT: Record<string, string> = {
 export default function PrixMargePage() {
   const g = useGaia();
   const city = cityBySlug(useCityStore((s) => s.slug));
+  const t = useT();
+  const lang = useLang();
   const [selected, setSelected] = useState<string[]>([]);
 
   // Module promotion : sélection par défaut sur la maille de l'actif vedette
@@ -58,7 +62,8 @@ export default function PrixMargePage() {
   );
 
   const showHaya = g.focusZone === assetZone && cls === "residential" && !!g.hayaProps;
-  const scopeLabel = summary.scope === "viables" ? `${zn.pl} viables` : `toutes ${zn.pl}`;
+  const scopeLabel =
+    summary.scope === "viables" ? t("pg.scopeViable", { zones: zn.pl }) : t("pg.scopeAll", { zones: zn.pl });
 
   // Conclusion layer: page insight + banner right block + margin anomaly note.
   // Le complément du gabarit « marché sélectif » vient du registre des villes
@@ -103,7 +108,7 @@ export default function PrixMargePage() {
 
         {g.error && (
           <div className="mx-6 mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-body text-red-700">
-            Backend injoignable : lancez l’API (uvicorn backend.main:app). {g.error}
+            {t("pg.backendError")} {g.error}
           </div>
         )}
 
@@ -112,9 +117,9 @@ export default function PrixMargePage() {
           <div>
             <div className="flex items-center gap-3">
               <span className="inline-block h-5 w-1.5 rounded-full bg-gold" />
-              <h2 className="font-display text-[24px] leading-none text-navy">Prix & marge</h2>
+              <h2 className="font-display text-[24px] leading-none text-navy">{t("pgm.title")}</h2>
               <span className="rounded-full border border-gold/40 bg-gold/[0.06] px-2.5 py-0.5 text-label font-medium text-gold-700">
-                Promotion · {classLabel(cls)}
+                {modeLabel("promotion", lang)} · {classLabel(cls)}
               </span>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
@@ -129,7 +134,7 @@ export default function PrixMargePage() {
             right={
               maxRow ? (
                 <div className="text-right">
-                  <div className="text-label uppercase tracking-widest text-cream/70">Marge max · {maxRow.short}</div>
+                  <div className="text-label uppercase tracking-widest text-cream/70">{t("pgm.margin_max")} · {maxRow.short}</div>
                   <div className="font-display text-kpi-hero leading-none text-gold">{Math.round(maxRow.marginPct)}%</div>
                 </div>
               ) : undefined
@@ -139,26 +144,26 @@ export default function PrixMargePage() {
           {/* 4 key figures: medians on viable freguesias (Go/Conditionnel) */}
           <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
             <Kpi
-              label="Marge médiane"
+              label={t("pgm.kpi_median_margin")}
               value={summary.medianMargin != null ? `${fmtNum(summary.medianMargin, 1)}%` : "–"}
               sub={scopeLabel}
             />
             {cls === "residential" ? (
               <Kpi
-                label="Prime neuf médiane"
+                label={t("pgm.kpi_median_premium")}
                 value={summary.medianPremium != null ? `${Math.round(summary.medianPremium)}%` : "–"}
                 sub={scopeLabel}
               />
             ) : (
-              <Kpi label="Foncier médian" value={eurM2(summary.medianLand)} sub={scopeLabel} />
+              <Kpi label={t("pgm.kpi_median_land")} value={eurM2(summary.medianLand)} sub={scopeLabel} />
             )}
             <Kpi
-              label="Prix neuf réalisable médian"
+              label={t("pgm.kpi_median_realizable")}
               value={eurM2(summary.medianRealizable)}
               sub={scopeLabel}
             />
             <Kpi
-              label="Coût de revient médian"
+              label={t("pgm.kpi_median_cost")}
               value={eurM2(summary.medianCost)}
               sub={scopeLabel}
             />
@@ -176,7 +181,7 @@ export default function PrixMargePage() {
           {/* Analysis note: the most telling exception (if any) */}
           {note && (
             <div className="-mt-2 shrink-0 pl-1 text-body leading-snug text-ink-soft">
-              <span className="text-label font-semibold uppercase tracking-widest text-gold-700">Note d’analyse</span>
+              <span className="text-label font-semibold uppercase tracking-widest text-gold-700">{t("pgm.analysisNote")}</span>
               <span className="mx-2 text-navy/20">·</span>
               {note}
             </div>
