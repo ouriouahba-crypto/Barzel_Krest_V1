@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Mode, pillarTitle, scoreColor, verdictLabel, verdictTone } from "@/lib/scoring";
+import { Mode, pillarTitle, scoreColor, verdictTone } from "@/lib/scoring";
 import { useCountUp } from "@/lib/motion";
+import { useLang, useT } from "@/lib/i18n/useT";
+import { verdictDisplay } from "@/lib/i18n/domain";
 
 export function VerdictBadge({ mode, verdict }: { mode: Mode; verdict: string }) {
+  const lang = useLang();
   const tone = verdictTone(mode, verdict);
   const cls = {
     good: "bg-[#284E3A] text-[#CDE7D6] border-[#3C6E51]",
@@ -13,7 +16,7 @@ export function VerdictBadge({ mode, verdict }: { mode: Mode; verdict: string })
   }[tone];
   return (
     <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-label font-medium tracking-wide ${cls}`}>
-      {verdictLabel(verdict)}
+      {verdictDisplay(verdict, lang)}
     </span>
   );
 }
@@ -131,6 +134,7 @@ export function MultiSelect({
   placeholder?: string;
   searchPlaceholder?: string;
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const ref = useRef<HTMLDivElement>(null);
@@ -147,7 +151,12 @@ export function MultiSelect({
     onChange(selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id]);
 
   const filtered = options.filter((o) => o.label.toLowerCase().includes(q.toLowerCase()));
-  const summary = selected.length === 0 ? placeholder : `${selected.length} sélectionnée${selected.length > 1 ? "s" : ""}`;
+  const summary =
+    selected.length === 0
+      ? placeholder
+      : selected.length > 1
+        ? t("ui.selectedMany", { n: selected.length })
+        : t("ui.selectedOne", { n: selected.length });
 
   return (
     <div ref={ref} className="relative">
@@ -176,7 +185,7 @@ export function MultiSelect({
           <div className="max-h-64 overflow-auto pr-1">
             {selected.length > 0 && (
               <button onClick={() => onChange([])} className="mb-1 w-full rounded-md px-2 py-1 text-left text-label text-gold-700 hover:bg-cream">
-                Effacer la sélection
+                {t("ui.clearSelection")}
               </button>
             )}
             {filtered.map((o) => {
@@ -198,7 +207,7 @@ export function MultiSelect({
                 </button>
               );
             })}
-            {filtered.length === 0 && <div className="px-2 py-3 text-center text-label text-muted">Aucun résultat</div>}
+            {filtered.length === 0 && <div className="px-2 py-3 text-center text-label text-muted">{t("ui.noResult")}</div>}
           </div>
         </div>
       )}

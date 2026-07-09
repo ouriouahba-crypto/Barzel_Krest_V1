@@ -5,6 +5,7 @@ import { Mode, scoreColor, verdictTextColor, verdictTone } from "@/lib/scoring";
 import { PmRow, eur0, pct0, pct1 } from "@/lib/priceMargin";
 import { VerdictBadge } from "./ui";
 import { useZoneNoun } from "@/lib/useZoneNoun";
+import { useT } from "@/lib/i18n/useT";
 
 type Key =
   | "name" | "baseMedian" | "premiumPct" | "realizable"
@@ -12,17 +13,19 @@ type Key =
 
 type Dir = "asc" | "desc";
 
+// `label` porte la cle i18n (resolue via t() au rendu) ; la colonne « name »
+// utilise le terme de maille (useZoneNoun), son label n'est jamais rendu.
 const COLS: { key: Key; label: string; unit?: string; num: boolean }[] = [
-  { key: "name", label: "Freguesia", num: false },
-  { key: "baseMedian", label: "Prix ancien", unit: "€/m²", num: true },
-  { key: "premiumPct", label: "Prime neuf", num: true },
-  { key: "realizable", label: "Prix neuf réal.", unit: "€/m²", num: true },
-  { key: "construction", label: "Construction", unit: "€/m²", num: true },
-  { key: "land", label: "Foncier", unit: "€/m²", num: true },
-  { key: "costTotal", label: "Coût total", unit: "€/m²", num: true },
+  { key: "name", label: "", num: false },
+  { key: "baseMedian", label: "pm.oldPrice", unit: "€/m²", num: true },
+  { key: "premiumPct", label: "pm.newPremium", num: true },
+  { key: "realizable", label: "pm.newPriceReal", unit: "€/m²", num: true },
+  { key: "construction", label: "pm.construction", unit: "€/m²", num: true },
+  { key: "land", label: "pm.land", unit: "€/m²", num: true },
+  { key: "costTotal", label: "pm.costTotal", unit: "€/m²", num: true },
   // « de zone » : marge du neuf générique de la freguesia, distincte de la marge
   // de l'actif K-REST (curseur), qui porte son propre programme et sa propre base.
-  { key: "marginPct", label: "Marge de zone", num: true },
+  { key: "marginPct", label: "pm.zoneMargin", num: true },
 ];
 
 export function PriceMarginTable({
@@ -41,6 +44,7 @@ export function PriceMarginTable({
   // Default: richest margin first (rows already arrive margin-desc).
   const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "marginPct", dir: "desc" });
   const { Sg, pl } = useZoneNoun();
+  const t = useT();
   // Until the user sorts, group viable (Go/Conditionnel) above the rest with a
   // separator. Any sort click switches to a plain global sort (no grouping).
   const [userSorted, setUserSorted] = useState(false);
@@ -99,12 +103,12 @@ export function PriceMarginTable({
                     className={`cursor-pointer select-none px-3 py-2.5 font-semibold uppercase tracking-wide ${
                       c.num ? "text-right" : "text-left"
                     } ${active ? "text-navy" : "text-ink-soft hover:text-navy"}`}
-                    title="Trier"
+                    title={t("table.sort")}
                   >
                     <span className="inline-flex items-center gap-1 text-th leading-tight">
                       {!c.num && <span className="w-1" />}
                       <span className="flex flex-col">
-                        <span>{c.key === "name" ? Sg : c.label}</span>
+                        <span>{c.key === "name" ? Sg : t(c.label)}</span>
                         {c.unit && <span className="text-label font-medium normal-case text-muted">{c.unit}</span>}
                       </span>
                       <span className={`text-[10px] ${active ? "text-gold-700" : "text-transparent"}`}>
@@ -115,7 +119,7 @@ export function PriceMarginTable({
                 );
               })}
               <th className="px-3 py-2.5 text-left text-th font-semibold uppercase tracking-wide text-ink-soft">
-                Verdict
+                {t("table.verdict")}
               </th>
             </tr>
           </thead>
@@ -128,7 +132,7 @@ export function PriceMarginTable({
                       colSpan={cols.length + 1}
                       className="border-y border-navy/10 bg-cream-200/60 px-3 py-1.5 text-label font-semibold uppercase tracking-widest text-muted"
                     >
-                      Sous le seuil de viabilité
+                      {t("pm.belowViability")}
                     </td>
                   </tr>
                 );
@@ -181,7 +185,7 @@ export function PriceMarginTable({
             {items.length === 0 && (
               <tr>
                 <td colSpan={cols.length + 1} className="px-4 py-10 text-center text-body text-ink-soft">
-                  Chargement des {pl}…
+                  {t("table.loading", { pl })}
                 </td>
               </tr>
             )}

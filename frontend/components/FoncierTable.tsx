@@ -7,6 +7,8 @@ import { pctSigned } from "@/lib/arbitrage";
 import { FcRow } from "@/lib/foncier";
 import { VerdictBadge } from "./ui";
 import { useZoneNoun } from "@/lib/useZoneNoun";
+import { useLang, useT } from "@/lib/i18n/useT";
+import { verdictDisplay } from "@/lib/i18n/domain";
 
 // Landbank table: same visual codes as the other mode tables. Default:
 // Prioritaire/À phaser above an "En attente" separator, best score first in
@@ -17,14 +19,16 @@ type Key = "name" | "constructibilite" | "meilleurUsage" | "valeurResiduelle"
 
 type Dir = "asc" | "desc";
 
-const COLS: { key: Key; label: string; unit?: string; num: boolean }[] = [
-  { key: "name", label: "Freguesia", num: false },
-  { key: "constructibilite", label: "Constructibilité", unit: "/100", num: true },
-  { key: "meilleurUsage", label: "Meilleur usage", num: false },
-  { key: "valeurResiduelle", label: "Valeur résiduelle", unit: "€/m²", num: true },
-  { key: "foncierMarche", label: "Foncier marché", unit: "€/m²", num: true },
-  { key: "upliftPct", label: "Uplift", unit: "vs marché", num: true },
-  { key: "horizon", label: "Horizon", num: false },
+// `label` / `unitKey` portent des cles i18n (resolues via t() au rendu) ; la
+// colonne « name » utilise le terme de maille (useZoneNoun).
+const COLS: { key: Key; label: string; unit?: string; unitKey?: string; num: boolean }[] = [
+  { key: "name", label: "", num: false },
+  { key: "constructibilite", label: "fc.buildability", unit: "/100", num: true },
+  { key: "meilleurUsage", label: "fc.bestUse", num: false },
+  { key: "valeurResiduelle", label: "fc.residualValue", unit: "€/m²", num: true },
+  { key: "foncierMarche", label: "fc.marketLand", unit: "€/m²", num: true },
+  { key: "upliftPct", label: "fc.uplift", unitKey: "fc.vsMarket", num: true },
+  { key: "horizon", label: "fc.horizon", num: false },
 ];
 
 export function FoncierTable({
@@ -40,6 +44,8 @@ export function FoncierTable({
 }) {
   const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "upliftPct", dir: "desc" });
   const { Sg, pl } = useZoneNoun();
+  const t = useT();
+  const lang = useLang();
   // Until the user sorts: verdict groups, best landbank score first in each;
   // no column carries the ordering, so no arrow lights up.
   const [userSorted, setUserSorted] = useState(false);
@@ -95,13 +101,15 @@ export function FoncierTable({
                     className={`cursor-pointer select-none px-3 py-2.5 font-semibold uppercase tracking-wide ${
                       c.num ? "text-right" : "text-left"
                     } ${active ? "text-navy" : "text-ink-soft hover:text-navy"}`}
-                    title="Trier"
+                    title={t("table.sort")}
                   >
                     <span className="inline-flex items-center gap-1 text-th leading-tight">
                       {!c.num && <span className="w-1" />}
                       <span className="flex flex-col">
-                        <span>{c.key === "name" ? Sg : c.label}</span>
-                        {c.unit && <span className="text-label font-medium normal-case text-muted">{c.unit}</span>}
+                        <span>{c.key === "name" ? Sg : t(c.label)}</span>
+                        {(c.unit || c.unitKey) && (
+                          <span className="text-label font-medium normal-case text-muted">{c.unitKey ? t(c.unitKey) : c.unit}</span>
+                        )}
                       </span>
                       <span className={`text-[10px] ${active ? "text-gold-700" : "text-transparent"}`}>
                         {active ? (sort.dir === "asc" ? "▲" : "▼") : "▲"}
@@ -111,7 +119,7 @@ export function FoncierTable({
                 );
               })}
               <th className="px-3 py-2.5 text-left text-th font-semibold uppercase tracking-wide text-ink-soft">
-                Verdict
+                {t("table.verdict")}
               </th>
             </tr>
           </thead>
@@ -124,7 +132,7 @@ export function FoncierTable({
                       colSpan={COLS.length + 1}
                       className="border-y border-navy/10 bg-cream-200/60 px-3 py-1.5 text-label font-semibold uppercase tracking-widest text-muted"
                     >
-                      En attente
+                      {verdictDisplay("En attente", lang)}
                     </td>
                   </tr>
                 );
@@ -172,7 +180,7 @@ export function FoncierTable({
             {items.length === 0 && (
               <tr>
                 <td colSpan={COLS.length + 1} className="px-4 py-10 text-center text-body text-ink-soft">
-                  Chargement des {pl}…
+                  {t("table.loading", { pl })}
                 </td>
               </tr>
             )}
