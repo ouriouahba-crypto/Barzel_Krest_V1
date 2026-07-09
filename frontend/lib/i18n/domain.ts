@@ -33,6 +33,13 @@ export function kpiLabelFor(mode: Mode, lang: Lang): string {
   return dicts[lang]?.[key] ?? dicts[DEFAULT_LANG][key] ?? mode;
 }
 
+// Titre de pilier lang-aware (lot i18n-1c). Repli identique a pillarTitle
+// (scoring.ts) : cle inconnue -> key.replace("_"," "). scoring.ts reste inchange.
+export function pillarLabelFor(key: string, lang: Lang): string {
+  const k = "pillar." + key;
+  return dicts[lang]?.[k] ?? dicts[DEFAULT_LANG][k] ?? key.replace(/_/g, " ");
+}
+
 // Verdict : l'entree peut arriver accentuee ("Ceder"->"Céder", "A phaser"->"À
 // phaser", "Fenetre ouverte"->"Fenêtre ouverte") ou en ASCII moteur. On
 // canonicalise (retrait des diacritiques U+0300-U+036F) avant lookup, repli sur

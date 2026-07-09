@@ -4,6 +4,7 @@ import { Mode, scoreTextColor, verdictColor, verdictTextColor } from "@/lib/scor
 import { eur0 } from "@/lib/priceMargin";
 import { RdRow, pct2 } from "@/lib/rendement";
 import { Waterfall, WaterfallEmpty } from "./Waterfall";
+import { useT } from "@/lib/i18n/useT";
 
 // Détention cascade: yield brut − charges (vacance incluse) − fiscalité = yield
 // net, in yield points. Thin wrapper over the generic Waterfall.
@@ -16,6 +17,7 @@ export function YieldWaterfall({
   mode: Mode;
   classLabel: string;
 }) {
+  const t = useT();
   if (!row) return <WaterfallEmpty />;
 
   const accent = verdictColor(mode, row.verdict);
@@ -38,18 +40,18 @@ export function YieldWaterfall({
       headline={pct2(row.yieldNet)}
       accent={accent}
       accentText={inkVerdict}
-      base={{ label: "Yield brut", value: row.yieldBrut }}
+      base={{ label: t("rd.grossYield"), value: row.yieldBrut }}
       deductions={[
-        { label: "Charges & vacance", value: charges },
-        { label: "Fiscalité", value: fisc },
+        { label: t("wf.chargesVacancy"), value: charges },
+        { label: t("rd.tax"), value: fisc },
       ]}
-      resultLabel="= Yield net"
-      lossLabel="= Rendement négatif"
+      resultLabel={t("wf.netYieldEq")}
+      lossLabel={t("wf.negativeYield")}
       fmt={pct2}
       stats={[
-        { label: "Loyer de marché", value: row.loyer != null ? `${eur0(row.loyer)} €/m²/an` : "–" },
-        { label: "Yield net", value: pct2(row.yieldNet), accent: inkVerdict },
-        { label: "Score détention", value: `${Math.round(row.total)}`, accent: scoreTextColor(row.total) },
+        { label: t("wf.marketRent"), value: row.loyer != null ? `${eur0(row.loyer)} €/m²/an` : "–" },
+        { label: t("rd.netYield"), value: pct2(row.yieldNet), accent: inkVerdict },
+        { label: t("wf.scoreDetention"), value: `${Math.round(row.total)}`, accent: scoreTextColor(row.total) },
       ]}
     />
   );

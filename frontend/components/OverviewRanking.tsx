@@ -1,8 +1,11 @@
 "use client";
 
 import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Mode, verdictColor, verdictLabel } from "@/lib/scoring";
+import { Mode, verdictColor } from "@/lib/scoring";
 import { usePrefersReducedMotion } from "@/lib/motion";
+import { useLang } from "@/lib/i18n/useT";
+import { verdictDisplay } from "@/lib/i18n/domain";
+import type { Lang } from "@/lib/i18n/types";
 
 export interface RankRow {
   name: string;
@@ -11,14 +14,14 @@ export interface RankRow {
   verdict: string;
 }
 
-function RankTooltip({ active, payload, mode }: any) {
+function RankTooltip({ active, payload, lang }: any) {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload as RankRow;
   return (
     <div className="rounded-lg border border-gold/40 bg-navy px-3 py-2 text-cream shadow-card">
       <div className="text-label font-semibold">{d.name}</div>
       <div className="text-label text-gold">
-        {Math.round(d.total)} / 100 · {verdictLabel(d.verdict)}
+        {Math.round(d.total)} / 100 · {verdictDisplay(d.verdict, lang as Lang)}
       </div>
     </div>
   );
@@ -32,6 +35,7 @@ const ROW_H = 24; // ~24px par barre (Gaia 15 × 24 = 360, hauteur historique)
 
 export function OverviewRanking({ rows, mode }: { rows: RankRow[]; mode: Mode }) {
   const reduce = usePrefersReducedMotion();
+  const lang = useLang();
   const data = [...rows].sort((a, b) => a.total - b.total); // recharts stacks bottom-up
   return (
     <div style={{ height: Math.max(1, rows.length) * ROW_H }}>
@@ -47,7 +51,7 @@ export function OverviewRanking({ rows, mode }: { rows: RankRow[]; mode: Mode })
           axisLine={false}
           interval={0}
         />
-        <Tooltip cursor={{ fill: "rgba(10,22,40,0.05)" }} content={<RankTooltip mode={mode} />} />
+        <Tooltip cursor={{ fill: "rgba(10,22,40,0.05)" }} content={<RankTooltip lang={lang} />} />
         <Bar dataKey="total" radius={[0, 3, 3, 0]} maxBarSize={16} isAnimationActive={!reduce} animationDuration={800} animationEasing="ease-out">
           {/* LabelList explicite = une étiquette par barre, sans décimation
               (l'équivalent d'interval 0 ; la prop n'existe pas sur LabelList,
