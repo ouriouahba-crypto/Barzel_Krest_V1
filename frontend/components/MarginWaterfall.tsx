@@ -29,7 +29,7 @@ export function MarginWaterfall({
 
   return (
     <Waterfall
-      title={`Décomposition de la marge · ${row.name}`}
+      title={t("wf.marginBreakdown", { name: row.name })}
       subtitle={
         row.baseMedian != null && row.premiumPct != null
           ? `Prix neuf réalisable ${eurM2(row.realizable)} = médiane ancien ${eur0(row.baseMedian)} +${Math.round(row.premiumPct)}% · ${classLabel}`
@@ -42,9 +42,9 @@ export function MarginWaterfall({
       accentText={inkVerdict}
       base={{ label: t("wf.salePrice"), value: row.netSale }}
       deductions={[
-        { label: "Construction", value: row.construction },
+        { label: t("pm.construction"), value: row.construction },
         { label: t("pm.land"), value: row.land },
-        { label: "Frais annexes", value: soft },
+        { label: t("wf.ancillaryFees"), value: soft },
         { label: t("wf.financing"), value: row.finance },
       ]}
       resultLabel={t("wf.developerMargin")}
@@ -52,7 +52,7 @@ export function MarginWaterfall({
       fmt={eur0}
       stats={[
         { label: t("wf.costPrice"), value: eurM2(row.costTotal) },
-        { label: margin >= 0 ? t("wf.marginPerM2") : "Perte / m²", value: eurM2(margin), accent: inkVerdict },
+        { label: margin >= 0 ? t("wf.marginPerM2") : t("wf.lossPerM2"), value: eurM2(margin), accent: inkVerdict },
         { label: t("wf.scorePromotion"), value: `${Math.round(row.total)}`, accent: scoreTextColor(row.total) },
       ]}
     />

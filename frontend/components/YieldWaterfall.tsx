@@ -29,7 +29,7 @@ export function YieldWaterfall({
 
   return (
     <Waterfall
-      title={`Décomposition du rendement · ${row.name}`}
+      title={t("wf.yieldBreakdown", { name: row.name })}
       subtitle={
         row.loyer != null
           ? `Loyer de marché ${eur0(row.loyer)} €/m²/an · yield brut ${pct2(row.yieldBrut)} · ${classLabel}`

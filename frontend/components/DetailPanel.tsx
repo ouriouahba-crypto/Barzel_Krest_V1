@@ -2,9 +2,10 @@
 
 import type { ComponentType } from "react";
 import { ModeScore } from "@/lib/api";
-import { MODE_LABEL, Mode } from "@/lib/scoring";
+import { Mode } from "@/lib/scoring";
 import { PillarBar, ScoreDial, VerdictBadge } from "./ui";
-import { useT } from "@/lib/i18n/useT";
+import { useLang, useT } from "@/lib/i18n/useT";
+import { modeLabel } from "@/lib/i18n/domain";
 
 export interface KeyFigure {
   label: string;
@@ -30,6 +31,7 @@ export function DetailPanel({
 }) {
   const AssetSlider = assetSlider;
   const t = useT();
+  const lang = useLang();
   return (
     <>
       {/* scrim on small screens */}
@@ -52,7 +54,7 @@ export function DetailPanel({
             <div className="flex items-start justify-between gap-3">
               <div>
                 <div className="text-label font-semibold uppercase tracking-widest text-gold-700">
-                  {MODE_LABEL[mode]}
+                  {modeLabel(mode, lang)}
                 </div>
                 <h2 className="font-display text-xl leading-tight text-navy">{score.zone_name}</h2>
               </div>

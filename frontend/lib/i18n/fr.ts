@@ -138,4 +138,11 @@ export const fr: Dict = {
   "wf.netProceeds": "Produit net",
   "wf.disposalTime": "Délai de cession",
   "wf.scoreArbitrage": "Score arbitrage",
+  // Chrome des cascades (lot i18n-1c-bis) : valeurs identiques aux chaines FR d'origine.
+  "wf.ancillaryFees": "Frais annexes",
+  "wf.lossPerM2": "Perte / m²",
+  "wf.marginBreakdown": "Décomposition de la marge · {name}",
+  "wf.yieldBreakdown": "Décomposition du rendement · {name}",
+  "wf.spreadBreakdown": "Décomposition de la cession · {name}",
+  "wf.emptySelect": "Sélectionnez une {sg} dans le tableau.",
 };
