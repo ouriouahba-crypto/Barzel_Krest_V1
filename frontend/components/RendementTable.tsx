@@ -6,6 +6,7 @@ import { eur0 } from "@/lib/priceMargin";
 import { RdRow, pct2 } from "@/lib/rendement";
 import { VerdictBadge } from "./ui";
 import { useZoneNoun } from "@/lib/useZoneNoun";
+import { useT } from "@/lib/i18n/useT";
 
 // Détention table: same visual codes as PriceMarginTable (score liseré, verdict
 // badge, sortable columns). Default grouping: Conserver/Surveiller above an
@@ -15,13 +16,15 @@ type Key = "name" | "loyer" | "yieldBrut" | "chargesPctLoyer" | "fiscPctLoyer" |
 
 type Dir = "asc" | "desc";
 
-const COLS: { key: Key; label: string; unit?: string; num: boolean }[] = [
-  { key: "name", label: "Freguesia", num: false },
-  { key: "loyer", label: "Loyer marché", unit: "€/m²/an", num: true },
-  { key: "yieldBrut", label: "Yield brut", num: true },
-  { key: "chargesPctLoyer", label: "Charges", unit: "% du loyer", num: true },
-  { key: "fiscPctLoyer", label: "Fiscalité", unit: "% du loyer", num: true },
-  { key: "yieldNet", label: "Yield net", num: true },
+// `label` / `unitKey` portent des cles i18n (resolues via t() au rendu) ; la
+// colonne « name » utilise le terme de maille (useZoneNoun).
+const COLS: { key: Key; label: string; unit?: string; unitKey?: string; num: boolean }[] = [
+  { key: "name", label: "", num: false },
+  { key: "loyer", label: "rd.marketRent", unit: "€/m²/an", num: true },
+  { key: "yieldBrut", label: "rd.grossYield", num: true },
+  { key: "chargesPctLoyer", label: "rd.charges", unitKey: "rd.pctRent", num: true },
+  { key: "fiscPctLoyer", label: "rd.tax", unitKey: "rd.pctRent", num: true },
+  { key: "yieldNet", label: "rd.netYield", num: true },
 ];
 
 export function RendementTable({
@@ -37,6 +40,7 @@ export function RendementTable({
 }) {
   const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "yieldNet", dir: "desc" });
   const { Sg, pl } = useZoneNoun();
+  const t = useT();
   // Until the user sorts, group Conserver/Surveiller above Céder with a separator,
   // best detention score first inside each group (the held places open the table,
   // not the yield traps). Any sort click switches to a plain global sort.
@@ -95,13 +99,15 @@ export function RendementTable({
                     className={`cursor-pointer select-none px-3 py-2.5 font-semibold uppercase tracking-wide ${
                       c.num ? "text-right" : "text-left"
                     } ${active ? "text-navy" : "text-ink-soft hover:text-navy"}`}
-                    title="Trier"
+                    title={t("table.sort")}
                   >
                     <span className="inline-flex items-center gap-1 text-th leading-tight">
                       {!c.num && <span className="w-1" />}
                       <span className="flex flex-col">
-                        <span>{c.key === "name" ? Sg : c.label}</span>
-                        {c.unit && <span className="text-label font-medium normal-case text-muted">{c.unit}</span>}
+                        <span>{c.key === "name" ? Sg : t(c.label)}</span>
+                        {(c.unit || c.unitKey) && (
+                          <span className="text-label font-medium normal-case text-muted">{c.unitKey ? t(c.unitKey) : c.unit}</span>
+                        )}
                       </span>
                       <span className={`text-[10px] ${active ? "text-gold-700" : "text-transparent"}`}>
                         {active ? (sort.dir === "asc" ? "▲" : "▼") : "▲"}
@@ -111,7 +117,7 @@ export function RendementTable({
                 );
               })}
               <th className="px-3 py-2.5 text-left text-th font-semibold uppercase tracking-wide text-ink-soft">
-                Verdict
+                {t("table.verdict")}
               </th>
             </tr>
           </thead>
@@ -124,7 +130,7 @@ export function RendementTable({
                       colSpan={COLS.length + 1}
                       className="border-y border-navy/10 bg-cream-200/60 px-3 py-1.5 text-label font-semibold uppercase tracking-widest text-muted"
                     >
-                      À céder
+                      {t("rd.toSell")}
                     </td>
                   </tr>
                 );
@@ -171,7 +177,7 @@ export function RendementTable({
             {items.length === 0 && (
               <tr>
                 <td colSpan={COLS.length + 1} className="px-4 py-10 text-center text-body text-ink-soft">
-                  Chargement des {pl}…
+                  {t("table.loading", { pl })}
                 </td>
               </tr>
             )}

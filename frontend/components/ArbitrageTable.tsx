@@ -6,6 +6,7 @@ import { eur0 } from "@/lib/priceMargin";
 import { ArbRow, pctSigned } from "@/lib/arbitrage";
 import { VerdictBadge } from "./ui";
 import { useZoneNoun } from "@/lib/useZoneNoun";
+import { useT } from "@/lib/i18n/useT";
 
 // Arbitrage table: same visual codes as the other mode tables. Default:
 // open/narrow windows above a "Fenêtre fermée" separator, best score first in
@@ -35,17 +36,18 @@ export function ArbitrageTable({
 }) {
   const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "spreadPct", dir: "desc" });
   const { Sg, pl } = useZoneNoun();
+  const t = useT();
   // "Spread" se compare à la médiane VILLE (base constante : Gaia, Porto) ou à
   // la médiane de la MAILLE (base par ligne : Lisbonne, Bruxelles) : le libellé
-  // le dit, sans hardcode par ville.
+  // le dit, sans hardcode par ville. `baseLabel` est une donnee (page), non traduite.
   const COLS = useMemo<{ key: Key; label: string; unit?: string; num: boolean }[]>(
     () => [
-      { key: "name", label: "Freguesia", num: false },
-      { key: "valeurRealisable", label: "Valeur réalisable", unit: "€/m²", num: true },
-      { key: "spreadPct", label: "Spread", unit: `vs médiane ${baseLabel}`, num: true },
-      { key: "delaiMois", label: "Délai", unit: "mois", num: true },
+      { key: "name", label: "", num: false },
+      { key: "valeurRealisable", label: t("ar.realizableValue"), unit: "€/m²", num: true },
+      { key: "spreadPct", label: t("ar.spread"), unit: `${t("ar.vsMedian")} ${baseLabel}`, num: true },
+      { key: "delaiMois", label: t("ar.delay"), unit: t("ar.months"), num: true },
     ],
-    [baseLabel]
+    [baseLabel, t]
   );
   // Until the user sorts: verdict groups, best arbitrage score first in each;
   // no column carries the ordering, so no arrow lights up.
@@ -102,7 +104,7 @@ export function ArbitrageTable({
                     className={`cursor-pointer select-none px-3 py-2.5 font-semibold uppercase tracking-wide ${
                       c.num ? "text-right" : "text-left"
                     } ${active ? "text-navy" : "text-ink-soft hover:text-navy"}`}
-                    title="Trier"
+                    title={t("table.sort")}
                   >
                     <span className="inline-flex items-center gap-1 text-th leading-tight">
                       {!c.num && <span className="w-1" />}
@@ -118,7 +120,7 @@ export function ArbitrageTable({
                 );
               })}
               <th className="px-3 py-2.5 text-left text-th font-semibold uppercase tracking-wide text-ink-soft">
-                Verdict
+                {t("table.verdict")}
               </th>
             </tr>
           </thead>
@@ -131,7 +133,7 @@ export function ArbitrageTable({
                       colSpan={COLS.length + 1}
                       className="border-y border-navy/10 bg-cream-200/60 px-3 py-1.5 text-label font-semibold uppercase tracking-widest text-muted"
                     >
-                      Fenêtre fermée
+                      {t("ar.windowClosed")}
                     </td>
                   </tr>
                 );
@@ -178,7 +180,7 @@ export function ArbitrageTable({
             {items.length === 0 && (
               <tr>
                 <td colSpan={COLS.length + 1} className="px-4 py-10 text-center text-body text-ink-soft">
-                  Chargement des {pl}…
+                  {t("table.loading", { pl })}
                 </td>
               </tr>
             )}
