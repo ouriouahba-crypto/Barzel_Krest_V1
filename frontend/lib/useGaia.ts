@@ -2,12 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { api, AssetResponse, CityResponse, ModeScore, ZoneAllModes } from "./api";
-import { Mode, MODES, MODE_KPI, MODE_LABEL, fmtNum, fmtSigned, median, pillarValue } from "./scoring";
+import { Mode, MODES, MODE_KPI, fmtNum, fmtSigned, median, pillarValue } from "./scoring";
 import { PARC_SCE, parcFor } from "./energie";
 import { setMemoDefaults } from "./session";
 import { normFreguesia } from "./normalize";
 import { cityBySlug } from "./cities";
 import { useCityStore } from "./cityStore";
+import { useT, useLang } from "@/lib/i18n/useT";
+import { kpiShortLabelFor, kpiLabelFor, modeLabel } from "@/lib/i18n/domain";
 import type { Figure } from "@/components/KeyFigures";
 import type { ChartRow } from "@/components/CityCharts";
 import type { ZoneScore } from "@/components/GaiaMap";
@@ -32,6 +34,8 @@ const eur = (v: number | null | undefined) =>
   v != null ? `${Math.round(v).toLocaleString("fr-FR")} €/m²` : "–";
 
 export function useGaia() {
+  const t = useT();
+  const lang = useLang();
   const citySlug = useCityStore((s) => s.slug);
   const cityReady = useCityStore((s) => s.ready);
   const CITY = citySlug;
@@ -113,11 +117,11 @@ export function useGaia() {
       const medRend = median(det.map((z) => pillarValue(z.pillars, "rendement_net") ?? NaN));
       const medKpi = median(rows.map((z) => pillarValue(z.pillars, kpi.pillar) ?? NaN));
       return [
-        { label: "Prix médian", value: eur(medPrice), sub: "freguesias" },
-        { label: "Croissance annuelle", value: medYoy != null ? `${fmtSigned(medYoy, 1)}%` : "–", sub: "sur 12 mois" },
-        { label: "Rendement net indicatif", value: medRend != null ? `${fmtNum(medRend, 1)}%` : "…", sub: MODE_LABEL[mode] === "Détention" ? "détention" : "indicatif" },
-        { label: "Transactions / an", value: totalTx ? totalTx.toLocaleString("fr-FR") : "–", sub: "logements vendus" },
-        { label: `${kpi.label}`, value: medKpi != null ? `${fmtNum(medKpi, kpi.digits)}${kpi.unit}` : "–", sub: "médiane freguesias" },
+        { label: t("pg.medianPrice"), value: eur(medPrice), sub: "freguesias" },
+        { label: t("fig.annualGrowth"), value: medYoy != null ? `${fmtSigned(medYoy, 1)}%` : "–", sub: t("fig.over12Months") },
+        { label: t("fig.indicativeNetYield"), value: medRend != null ? `${fmtNum(medRend, 1)}%` : "…", sub: mode === "detention" ? t("fig.holdSub") : t("fig.indicativeSub") },
+        { label: t("fig.transactionsPerYear"), value: totalTx ? totalTx.toLocaleString("fr-FR") : "–", sub: t("fig.unitsSold") },
+        { label: kpiLabelFor(mode, lang), value: medKpi != null ? `${fmtNum(medKpi, kpi.digits)}${kpi.unit}` : "–", sub: `${t("fig.median")} freguesias` },
       ];
     }
     // Focused freguesia
@@ -125,13 +129,13 @@ export function useGaia() {
     const rend = focusDetRow ? pillarValue(focusDetRow.pillars, "rendement_net") : null;
     const kpiVal = r ? pillarValue(r.pillars, kpi.pillar) : null;
     return [
-      { label: "Prix médian", value: eur(r?.price_eur_m2 ?? null), sub: "cette zone" },
-      { label: "Croissance annuelle", value: r?.yoy_pct != null ? `${fmtSigned(r.yoy_pct, 1)}%` : "–", sub: "sur 12 mois" },
-      { label: "Rendement net indicatif", value: rend != null ? `${fmtNum(rend, 1)}%` : "…", sub: "détention" },
-      { label: "Transactions / an", value: r?.n_transactions != null ? r.n_transactions.toLocaleString("fr-FR") : "–", sub: "logements vendus" },
-      { label: kpi.label.replace(" médiane", "").replace(" méd.", ""), value: kpiVal != null ? `${fmtNum(kpiVal, kpi.digits)}${kpi.unit}` : "–", sub: MODE_LABEL[mode] },
+      { label: t("pg.medianPrice"), value: eur(r?.price_eur_m2 ?? null), sub: t("fig.thisZone") },
+      { label: t("fig.annualGrowth"), value: r?.yoy_pct != null ? `${fmtSigned(r.yoy_pct, 1)}%` : "–", sub: t("fig.over12Months") },
+      { label: t("fig.indicativeNetYield"), value: rend != null ? `${fmtNum(rend, 1)}%` : "…", sub: t("fig.holdSub") },
+      { label: t("fig.transactionsPerYear"), value: r?.n_transactions != null ? r.n_transactions.toLocaleString("fr-FR") : "–", sub: t("fig.unitsSold") },
+      { label: kpiShortLabelFor(mode, lang), value: kpiVal != null ? `${fmtNum(kpiVal, kpi.digits)}${kpi.unit}` : "–", sub: modeLabel(mode, lang) },
     ];
-  }, [city, detentionCity, mode, isCityView, focusRow, focusDetRow]);
+  }, [city, detentionCity, mode, isCityView, focusRow, focusDetRow, lang, t]);
 
   const chartRows: ChartRow[] = useMemo(
     () =>
@@ -194,10 +198,10 @@ export function useGaia() {
         r.level === "municipio"
           ? median(Object.keys(PARC_SCE).map((z) => parcFor(z, assetClass)?.ef ?? NaN))
           : parcFor(zoneId, assetClass)?.ef ?? null;
-      extra = { label: "Parc E-F", value: ef != null ? `${Math.round(ef)}%` : "–" };
+      extra = { label: t("fig.efStock"), value: ef != null ? `${Math.round(ef)}%` : "–" };
     } else {
       const rend = d ? pillarValue(d.pillars, "rendement_net") : null;
-      extra = { label: "Rendement net", value: rend != null ? `${fmtNum(rend, 1)}%` : "…" };
+      extra = { label: t("fig.netYield"), value: rend != null ? `${fmtNum(rend, 1)}%` : "…" };
     }
     return {
       name: displayName(r.zone_name),
@@ -207,7 +211,7 @@ export function useGaia() {
       price: r.price_eur_m2,
       yoy: r.yoy_pct,
       extra,
-      kpiLabel: kpi.label.replace(" médiane", "").replace(" méd.", ""),
+      kpiLabel: kpiShortLabelFor(mode, lang),
       kpiValue: kv != null ? `${fmtNum(kv, kpi.digits)}${kpi.unit}` : null,
     };
   };

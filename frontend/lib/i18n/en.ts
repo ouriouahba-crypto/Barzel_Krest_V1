@@ -317,4 +317,21 @@ export const en: Dict = {
   "wg.compression": "Compression",
   "wg.firstDecade": "first decade",
   "wg.retrofitCaption": "The {from}→{to} upgrade costs ~{capex} €/m² and compresses net yield by {compression} point in the first decade. Rent unchanged, typical asset in {place} ({value} €/m²).",
+  // --- Chiffres-cles useGaia (lot i18n-useGaia). FR byte-identique aux litteraux d'origine. ---
+  "fig.annualGrowth": "Annual growth",
+  "fig.indicativeNetYield": "Indicative net yield",
+  "fig.transactionsPerYear": "Transactions / yr",
+  "fig.over12Months": "over 12 months",
+  "fig.holdSub": "hold",
+  "fig.indicativeSub": "indicative",
+  "fig.unitsSold": "units sold",
+  "fig.thisZone": "this zone",
+  "fig.median": "median",
+  "fig.efStock": "E-F stock",
+  "fig.netYield": "Net yield",
+  // Forme courte du libelle KPI par mode (helper kpiShortLabelFor). FR = sortie du .replace() historique.
+  "kpiShort.promotion": "Margin",
+  "kpiShort.detention": "Net yield",
+  "kpiShort.arbitrage": "Spread",
+  "kpiShort.landbank": "Buildability",
 };
