@@ -115,7 +115,7 @@ export default function VueEnsemble() {
     () => (nn(market.price) && nn(market.yoy) ? priceTrajectory(market.price, market.yoy, cls) : []),
     [market.price, market.yoy, cls]
   );
-  const trendLine = trendInsight(trajectory, market.yoy, cls, city.label === "Vila Nova de Gaia" ? "Gaia" : city.label);
+  const trendLine = trendInsight(trajectory, market.yoy, cls, city.label === "Vila Nova de Gaia" ? "Gaia" : city.label, lang);
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -213,7 +213,7 @@ export default function VueEnsemble() {
                     </div>
                   </div>
                   <p className="mt-3 min-h-[32px] text-body leading-snug text-cream/90">
-                    {s ? modeInsight(s, cls) : ""}
+                    {s ? modeInsight(s, cls, lang) : ""}
                   </p>
                   {MODE_ROUTE[m] ? (
                     <Link

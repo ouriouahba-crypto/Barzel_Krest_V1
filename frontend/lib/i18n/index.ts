@@ -17,4 +17,13 @@ export const LANGS: { code: Lang; endonym: string }[] = [
 
 export const dicts: Record<Lang, Dict> = { en, fr, pt };
 
+// Traducteur NON-HOOK (miroir de useT sans React) : pour les modules purs comme
+// insights.ts. Repli langue courante -> EN -> clef brute ; interpole les tokens
+// {x} depuis params.
+export function translate(key: string, lang: Lang, params?: Record<string, string | number>): string {
+  let t = dicts[lang]?.[key] ?? dicts[DEFAULT_LANG]?.[key] ?? key;
+  if (params) t = t.replace(/\{(\w+)\}/g, (m, n) => (n in params ? String(params[n]) : m));
+  return t;
+}
+
 export type { Lang, Dict } from "./types";
