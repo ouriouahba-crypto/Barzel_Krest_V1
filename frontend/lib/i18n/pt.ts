@@ -333,25 +333,25 @@ export const pt: Dict = {
   // --- Prose statique CONTEXT + eyebrows des pages de mode (lot i18n-context P1). ---
   // Stub temporaire : en.ts et pt.ts portent la MEME valeur FR (traduction en P2).
   // Prix & marge (promotion) : office/hotel/logistics/retail ; le residentiel vient du registre.
-  "ctx.pm.office": "Bureaux : la marge repose sur le loyer de marché capitalisé et sur un foncier plus lourd dans la valeur. Le front de fleuve concentre la demande.",
-  "ctx.pm.hotel": "Hôtellerie : prix de sortie élevés côté fleuve, mais construction et foncier plus lourds ; la marge récompense les emplacements à forte fréquentation.",
-  "ctx.pm.logistics": "Logistique : construction modérée mais prix de sortie bas ; la marge se gagne sur un foncier bon marché en périphérie.",
-  "ctx.pm.retail": "Commerce : loyers prime élevés mais foncier très lourd dans la valeur ; la marge de promotion reste étroite hors emplacements n°1.",
+  "ctx.pm.office": "Escritórios: a margem assenta na renda de mercado capitalizada e num terreno com maior peso no valor. A frente ribeirinha concentra a procura.",
+  "ctx.pm.hotel": "Hotelaria: preços de saída elevados do lado do rio, mas construção e terreno mais pesados; a margem recompensa as localizações de grande afluência.",
+  "ctx.pm.logistics": "Logística: construção moderada mas preços de saída baixos; a margem ganha-se em terreno barato na periferia.",
+  "ctx.pm.retail": "Retalho: rendas prime elevadas mas terreno com peso muito elevado no valor; a margem de promoção permanece estreita fora das localizações nº1.",
   // Rendement (détention).
-  "ctx.rd.residential": "Les prix ont couru plus vite que les loyers : le rendement net se joue sur les charges, la vacance et l'IMI, et la pression énergétique (MEPS) pèsera d'abord sur le parc ancien.",
-  "ctx.rd.office": "Bureaux : loyers stables mais demande concentrée sur le front de fleuve ; charges plus lourdes, et l'obsolescence énergétique guette les plateaux anciens.",
-  "ctx.rd.hotel": "Hôtellerie : le loyer suit la fréquentation touristique ; charges d'exploitation élevées. Le net ne récompense que les murs les mieux placés.",
-  "ctx.rd.logistics": "Logistique : loyers modestes mais réguliers et charges contenues. Le rendement net résiste mieux qu'ailleurs à la vacance.",
-  "ctx.rd.retail": "Commerce : loyers prime élevés en pied d'immeuble mais vacance sensible à la conjoncture ; le net dépend de l'emplacement plus que du m².",
+  "ctx.rd.residential": "Os preços correram mais depressa do que as rendas: o rendimento líquido joga-se nos encargos, na vacância e no IMI, e a pressão energética (MEPS) pesará primeiro sobre o parque antigo.",
+  "ctx.rd.office": "Escritórios: rendas estáveis mas procura concentrada na frente ribeirinha; encargos mais pesados, e a obsolescência energética espreita os pisos antigos.",
+  "ctx.rd.hotel": "Hotelaria: a renda segue a afluência turística; custos de exploração elevados. O líquido só recompensa os imóveis mais bem localizados.",
+  "ctx.rd.logistics": "Logística: rendas modestas mas regulares e encargos contidos. O rendimento líquido resiste melhor à vacância do que noutros segmentos.",
+  "ctx.rd.retail": "Retalho: rendas prime elevadas ao nível da rua mas vacância sensível à conjuntura; o líquido depende da localização mais do que da área.",
   // Arbitrage : le résidentiel porte le token {maille} (interpolé par t()).
-  "ctx.arb.residential": "Le résidentiel a couru : les écarts face à la médiane sont réels, mais l'acheteur institutionnel reste rare. La fenêtre de cession se juge {maille} par {maille}.",
-  "ctx.arb.office": "Bureaux : appétit institutionnel soutenu et offre prime rare. Les meilleurs actifs trouvent preneur, le reste attend son cycle.",
-  "ctx.arb.hotel": "Hôtellerie : appétit fort porté par la fréquentation, mais peu d'actifs de taille institutionnelle. La fenêtre dépend de l'emplacement.",
-  "ctx.arb.logistics": "Logistique : demande investisseurs profonde mais spreads minces face à la médiane. Céder vite, à prix serré.",
-  "ctx.arb.retail": "Commerce : acheteurs sélectifs et valeurs dispersées ; la fenêtre ne s'ouvre que sur les emplacements n°1.",
+  "ctx.arb.residential": "O residencial correu: os desvios face à mediana são reais, mas o comprador institucional continua raro. A janela de alienação avalia-se {maille} a {maille}.",
+  "ctx.arb.office": "Escritórios: apetite institucional sustentado e oferta prime escassa. Os melhores ativos encontram comprador, o resto aguarda o seu ciclo.",
+  "ctx.arb.hotel": "Hotelaria: apetite forte impulsionado pela afluência, mas poucos ativos de dimensão institucional. A janela depende da localização.",
+  "ctx.arb.logistics": "Logística: procura de investidores profunda mas spreads finos face à mediana. Vender depressa, a preço apertado.",
+  "ctx.arb.retail": "Retalho: compradores seletivos e valores dispersos; a janela só se abre nas localizações nº1.",
   // Eyebrows (prefixes fixes des InsightBanner ; le · classe est ajouté par classLabelFor).
-  "eyb.verdictPromotion": "Verdict promotion",
-  "eyb.verdictDetention": "Verdict détention",
-  "eyb.verdictArbitrage": "Verdict arbitrage",
-  "eyb.comparativeSynthesis": "Synthèse comparative",
+  "eyb.verdictPromotion": "Veredito promoção",
+  "eyb.verdictDetention": "Veredito detenção",
+  "eyb.verdictArbitrage": "Veredito arbitragem",
+  "eyb.comparativeSynthesis": "Síntese comparativa",
 };
