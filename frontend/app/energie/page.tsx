@@ -12,6 +12,7 @@ import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
 import { useT, useLang } from "@/lib/i18n/useT";
 import { classLabelFor } from "@/lib/i18n/domain";
+import { cityShortName } from "@/lib/i18n/display";
 
 // Page transverse de contexte énergie. Tout le contenu spécifique au régime du
 // pays (échelle SCE, parc, frise réglementaire, textes, simulateur) vient de la
@@ -79,7 +80,7 @@ export default function EnergiePage() {
       .sort((a, b) => b.parc.ef - a.parc.ef);
   }, [E, g.detentionCity, cls]);
 
-  const cityName = city.label === "Vila Nova de Gaia" ? "Gaia" : city.label;
+  const cityName = cityShortName(city.slug, lang);
   const sentence = useMemo(
     () => E.energieInsight(cls, rows.map((r) => r.zone), cityName, lang),
     [E, cls, rows, cityName, lang]

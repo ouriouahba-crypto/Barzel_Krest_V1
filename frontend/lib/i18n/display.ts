@@ -29,3 +29,12 @@ function capitalize(s: string): string {
 export function cityDisplay(slug: string, lang: Lang): string {
   return CITY_DISPLAY[slug]?.[lang] ?? capitalize(slug);
 }
+
+// Forme COURTE du nom de ville, celle qui entre dans les phrases d'insight (« ~24%
+// du parc résidentiel de Gaia… ») : seul Gaia a une forme courte, « Vila Nova de
+// Gaia » étant réservé au titre. Les autres villes reprennent `cityDisplay`, donc
+// se localisent (Bruxelles / Brussels / Bruxelas). Remplace le ternaire en dur
+// `city.label === "Vila Nova de Gaia" ? "Gaia" : city.label` des pages.
+export function cityShortName(slug: string, lang: Lang): string {
+  return slug === "gaia" ? "Gaia" : cityDisplay(slug, lang);
+}

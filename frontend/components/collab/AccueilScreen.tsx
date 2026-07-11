@@ -12,7 +12,9 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useReducedMotion } from "framer-motion";
-import { COUNTRY_LABEL, cityBySlug, countryOf } from "@/lib/cities";
+import { COUNTRY_LABEL, countryOf } from "@/lib/cities";
+import { useLang } from "@/lib/i18n/useT";
+import { cityDisplay } from "@/lib/i18n/display";
 import {
   useCollabStore,
   activityForCity,
@@ -30,7 +32,8 @@ import { FeedPanel } from "./FeedPanel";
 import { EnterDashboardButton } from "./EnterDashboardButton";
 
 export function AccueilScreen({ citySlug }: { citySlug: string }) {
-  const city = cityBySlug(citySlug);
+  const lang = useLang();
+  const cityName = cityDisplay(citySlug, lang);
   const created = useCollabStore((s) => s.created);
   const role = useCollabStore((s) => s.role);
   const lastSeen = useCollabStore((s) => s.lastSeen);
@@ -81,7 +84,7 @@ export function AccueilScreen({ citySlug }: { citySlug: string }) {
             </Link>
             <span aria-hidden className="text-cream/30">›</span>
             <Link href="/villes" className="text-cream/70 transition-colors hover:text-gold-300">
-              {city.label}
+              {cityName}
             </Link>
             <span aria-hidden className="text-cream/30">›</span>
             <span className="inline-flex items-center gap-1.5 font-semibold text-cream">
@@ -110,7 +113,7 @@ export function AccueilScreen({ citySlug }: { citySlug: string }) {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-label uppercase tracking-[0.28em] text-gold-700">Espace d'équipe</p>
-            <h1 className="mt-2 font-display text-[clamp(30px,4vw,44px)] leading-none text-navy">{city.label}</h1>
+            <h1 className="mt-2 font-display text-[clamp(30px,4vw,44px)] leading-none text-navy">{cityName}</h1>
             <p className="mt-2 max-w-2xl text-insight text-ink-soft">
               Discussion d'équipe, fil d'info et signaux de marché, avant d'entrer dans l'analyse.
             </p>
