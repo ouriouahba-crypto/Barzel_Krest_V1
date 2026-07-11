@@ -5,7 +5,8 @@ import { MONTE, landbankVerdict, scoreTextColorDark, upliftSubscore } from "@/li
 import { pctSigned } from "@/lib/arbitrage";
 import { FcRow } from "@/lib/foncier";
 import { VerdictBadge } from "./ui";
-import { useT } from "@/lib/i18n/useT";
+import { useT, useLang } from "@/lib/i18n/useT";
+import { fmtNumber } from "@/lib/i18n/format";
 
 const USAGE_ORDER = ["residential", "office", "hotel", "logistics", "retail"];
 
@@ -23,6 +24,7 @@ export function MonteClaroSelector({
   weight: number;      // valeur_meilleur_usage pillar weight
 }) {
   const t = useT();
+  const lang = useLang();
   const keys = USAGE_ORDER.filter((k) => row.usages[k]);
   const optimalKey = keys.reduce((a, b) => (row.usages[b].uplift_pct > row.usages[a].uplift_pct ? b : a), keys[0]);
   const [usage, setUsage] = useState<string>(optimalKey);
@@ -77,20 +79,20 @@ export function MonteClaroSelector({
       <div className="mt-4 grid grid-cols-3 gap-3">
         <Metric
           label={t("wg.residualValue")}
-          value={`${u.valeur_residuelle_eur_m2.toLocaleString("fr-FR")} €/m²`}
-          sub={t("wg.realizableEurM2", { v: u.prix_realisable_eur_m2.toLocaleString("fr-FR") })}
+          value={`${fmtNumber(u.valeur_residuelle_eur_m2, lang)} €/m²`}
+          sub={t("wg.realizableEurM2", { v: fmtNumber(u.prix_realisable_eur_m2, lang) })}
         />
         <Metric
           label={t("wg.upliftVsMarket")}
           value={pctSigned(u.uplift_pct, 0)}
-          sub={t("wg.landEurM2", { v: u.foncier_marche_eur_m2.toLocaleString("fr-FR") })}
+          sub={t("wg.landEurM2", { v: fmtNumber(u.foncier_marche_eur_m2, lang) })}
           color={scoreTextColorDark(upliftSubscore(u.uplift_pct))}
         />
         <Metric label={t("wg.scoreLandbank")} value={`${Math.round(total)}`} color={scoreTextColorDark(total)} />
       </div>
 
       <p className="mt-4 text-caption leading-relaxed text-cream/85">
-        {t("wg.monteCaption", { surface: MONTE.surface.toLocaleString("fr-FR") })}
+        {t("wg.monteCaption", { surface: fmtNumber(MONTE.surface, lang) })}
       </p>
     </div>
   );

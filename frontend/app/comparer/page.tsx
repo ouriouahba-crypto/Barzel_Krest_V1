@@ -14,6 +14,7 @@ import { Mode, MODES, MODE_ROUTE, classLabel, fmtNum, fmtSigned, pillarValue } f
 import { pctSigned } from "@/lib/arbitrage";
 import { CompareColumn, CompareModeCell, compareInsight, compareSynthesis } from "@/lib/insights";
 import { useT, useLang } from "@/lib/i18n/useT";
+import { fmtNumber } from "@/lib/i18n/format";
 import { modeLabel, classLabelFor } from "@/lib/i18n/domain";
 
 // Ligne marché : registre des villes (lib/cities.ts).
@@ -212,9 +213,9 @@ export default function ComparerPage() {
 
                 {/* a) carte d'identité */}
                 <div className="mt-3 grid grid-cols-3 gap-2">
-                  <Ident label={t("pg.medianPrice")} value={col.price != null ? `${Math.round(col.price).toLocaleString("fr-FR")} €/m²` : "–"} />
+                  <Ident label={t("pg.medianPrice")} value={col.price != null ? `${fmtNumber(Math.round(col.price), lang)} €/m²` : "–"} />
                   <Ident label={t("cmp.over12Months")} value={col.yoy != null ? `${fmtSigned(col.yoy, 1)}%` : "–"} />
-                  <Ident label={t("cmp.transactions")} value={col.tx != null ? `${col.tx.toLocaleString("fr-FR")} / an` : "–"} sub={t("cmp.allSegments")} />
+                  <Ident label={t("cmp.transactions")} value={col.tx != null ? `${fmtNumber(col.tx, lang)} / an` : "–"} sub={t("cmp.allSegments")} />
                 </div>
 
                 {/* b) les 4 modes empilés */}

@@ -3,18 +3,21 @@
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { PricePoint } from "@/lib/priceHistory";
 import { usePrefersReducedMotion } from "@/lib/motion";
+import { useLang } from "@/lib/i18n/useT";
+import { fmtNumber } from "@/lib/i18n/format";
+import type { Lang } from "@/lib/i18n/types";
 
 // Sober city-price trajectory (8 quarters) : one navy 2px line on white, gold
 // final dot, recessive grid, direct labels on first & last points only: the
 // third "Où" panel of the overview. Single series → no legend, the title names it.
 
-function TrendTooltip({ active, payload }: any) {
+function TrendTooltip({ active, payload, lang }: any) {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload as PricePoint;
   return (
     <div className="rounded-lg border border-gold/40 bg-navy px-3 py-2 text-cream shadow-card">
       <div className="text-label font-semibold">{d.t}</div>
-      <div className="text-label text-gold">{d.price.toLocaleString("fr-FR")} €/m²</div>
+      <div className="text-label text-gold">{fmtNumber(d.price, lang as Lang)} €/m²</div>
     </div>
   );
 }
@@ -28,6 +31,7 @@ function EndDot(props: any) {
 
 export function PriceTrend({ points }: { points: PricePoint[] }) {
   const reduce = usePrefersReducedMotion();
+  const lang = useLang();
   if (!points.length) return <div className="flex h-full items-center justify-center text-body text-ink-soft">Chargement…</div>;
   const first = points[0];
   const last = points[points.length - 1];
@@ -37,7 +41,7 @@ export function PriceTrend({ points }: { points: PricePoint[] }) {
     const anchor = index === 0 ? "start" : "end";
     return (
       <text key={index} x={x} y={y - 9} textAnchor={anchor} fontSize={12} fill="#243447" fontWeight={index === 0 ? 400 : 600}>
-        {p.price.toLocaleString("fr-FR")}
+        {fmtNumber(p.price, lang)}
       </text>
     );
   };
@@ -53,7 +57,7 @@ export function PriceTrend({ points }: { points: PricePoint[] }) {
           interval={1}
         />
         <YAxis hide domain={["dataMin - 90", "dataMax + 70"]} />
-        <Tooltip cursor={{ stroke: "rgba(10,22,40,0.15)" }} content={<TrendTooltip />} />
+        <Tooltip cursor={{ stroke: "rgba(10,22,40,0.15)" }} content={<TrendTooltip lang={lang} />} />
         <Line
           dataKey="price"
           stroke="#1E3559"

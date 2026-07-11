@@ -4,7 +4,7 @@ import { Mode, scoreTextColor, verdictColor, verdictTextColor } from "@/lib/scor
 import { eur0, eurM2 } from "@/lib/priceMargin";
 import { ArbRow, pctSigned } from "@/lib/arbitrage";
 import { Waterfall, WaterfallEmpty } from "./Waterfall";
-import { useT } from "@/lib/i18n/useT";
+import { useT, useLang } from "@/lib/i18n/useT";
 
 // Arbitrage cascade: valeur réalisable − frais de cession − décote de
 // négociation = produit net, with the spread vs the median as the headline.
@@ -24,6 +24,7 @@ export function SpreadWaterfall({
   baseLabel: string;
 }) {
   const t = useT();
+  const lang = useLang();
   if (!row || row.valeurRealisable == null) return <WaterfallEmpty />;
 
   const accent = verdictColor(mode, row.verdict);
@@ -35,7 +36,7 @@ export function SpreadWaterfall({
   return (
     <Waterfall
       title={t("wf.spreadBreakdown", { name: row.name })}
-      subtitle={`Spread ${pctSigned(row.spreadPct)} vs médiane ${baseLabel} ${eurM2(row.prixMarche)} · ${classLabel}`}
+      subtitle={`Spread ${pctSigned(row.spreadPct)} vs médiane ${baseLabel} ${eurM2(row.prixMarche, lang)} · ${classLabel}`}
       mode={mode}
       verdict={row.verdict}
       headline={pctSigned(row.spreadPct)}
@@ -48,9 +49,9 @@ export function SpreadWaterfall({
       ]}
       resultLabel={t("wf.netProceedsEq")}
       lossLabel={t("wf.loss")}
-      fmt={eur0}
+      fmt={(v) => eur0(v, lang)}
       stats={[
-        { label: t("wf.netProceeds"), value: eurM2(produitNet) },
+        { label: t("wf.netProceeds"), value: eurM2(produitNet, lang) },
         { label: t("wf.disposalTime"), value: row.delaiMois != null ? `${row.delaiMois.toFixed(1)} ${t("ar.months")}` : "–" },
         { label: t("wf.scoreArbitrage"), value: `${Math.round(row.total)}`, accent: scoreTextColor(row.total) },
       ]}

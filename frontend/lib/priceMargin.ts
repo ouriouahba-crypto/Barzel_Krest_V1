@@ -5,6 +5,8 @@
 import { CityResponse, MargeBreakdown } from "./api";
 import { fmtNum, median, verdictTone } from "./scoring";
 import { displayName, shortName } from "./useGaia";
+import { fmtNumber } from "./i18n/format";
+import type { Lang } from "./i18n/types";
 
 export interface PmRow {
   zone: string;
@@ -86,10 +88,11 @@ export function pmSummary(rows: PmRow[]): PmSummary {
   };
 }
 
-export const eurM2 = (v: number | null | undefined) =>
-  v != null ? `${Math.round(v).toLocaleString("fr-FR")} €/m²` : "–";
-export const eur0 = (v: number | null | undefined) =>
-  v != null ? Math.round(v).toLocaleString("fr-FR") : "–";
+// Separateur de milliers localise ; la valeur, elle, ne change pas de langue.
+export const eurM2 = (v: number | null | undefined, lang: Lang) =>
+  v != null ? `${fmtNumber(Math.round(v), lang)} €/m²` : "–";
+export const eur0 = (v: number | null | undefined, lang: Lang) =>
+  v != null ? fmtNumber(Math.round(v), lang) : "–";
 export const pct1 = (v: number | null | undefined) =>
   v != null ? `${fmtNum(v, 1)}%` : "–";
 export const pct0 = (v: number | null | undefined) =>

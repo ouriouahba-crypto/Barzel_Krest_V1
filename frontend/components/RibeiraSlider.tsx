@@ -4,7 +4,8 @@ import { useState } from "react";
 import { RIBEIRA, detentionVerdict, fmtSigned, scoreTextColorDark, yieldNetSubscore } from "@/lib/scoring";
 import { RdRow } from "@/lib/rendement";
 import { VerdictBadge } from "./ui";
-import { useT } from "@/lib/i18n/useT";
+import { useT, useLang } from "@/lib/i18n/useT";
+import { fmtNumber } from "@/lib/i18n/format";
 
 // Live, client-side recompute for the K-REST détention asset (Ribeira Sul,
 // immeuble de rapport à Santa Marinha). Market data (charges/fiscalité rates,
@@ -20,6 +21,7 @@ export function RibeiraSlider({
   weight: number;      // rendement_net pillar weight
 }) {
   const t = useT();
+  const lang = useLang();
   const [rent, setRent] = useState<number>(RIBEIRA.rentDefault);
 
   // Identity brut × (1 − charges − fiscalité) = net, with the freguesia's rates.
@@ -47,7 +49,7 @@ export function RibeiraSlider({
         <div className="flex items-baseline justify-between">
           <span className="text-label text-cream/70">{t("wg.avgRent")}</span>
           <span className="font-display text-xl text-gold">
-            {rent.toLocaleString("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} €/m²/mois
+            {fmtNumber(rent, lang, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} €/m²/mois
           </span>
         </div>
         <input
@@ -61,8 +63,8 @@ export function RibeiraSlider({
           style={{ ["--pct" as any]: `${pct}%` }}
         />
         <div className="mt-1 flex justify-between text-label text-cream/60">
-          <span>{RIBEIRA.rentMin.toLocaleString("fr-FR")}</span>
-          <span>{RIBEIRA.rentMax.toLocaleString("fr-FR")}</span>
+          <span>{fmtNumber(RIBEIRA.rentMin, lang)}</span>
+          <span>{fmtNumber(RIBEIRA.rentMax, lang)}</span>
         </div>
       </div>
 
@@ -71,7 +73,7 @@ export function RibeiraSlider({
         <Metric
           label={t("wg.rentVsMarket")}
           value={vsMarket != null ? `${fmtSigned(vsMarket)}%` : "–"}
-          sub={row.loyer ? t("wg.marketEurM2Year", { v: row.loyer.toLocaleString("fr-FR") }) : undefined}
+          sub={row.loyer ? t("wg.marketEurM2Year", { v: fmtNumber(row.loyer, lang) }) : undefined}
         />
         <Metric label={t("wg.scoreDetention")} value={`${Math.round(total)}`} color={scoreTextColorDark(total)} />
       </div>
@@ -79,8 +81,8 @@ export function RibeiraSlider({
       <p className="mt-4 text-caption leading-relaxed text-cream/85">
         {t("wg.ribeiraCaption", {
           lots: RIBEIRA.lots,
-          surface: RIBEIRA.surface.toLocaleString("fr-FR"),
-          acquisition: RIBEIRA.acquisition.toLocaleString("fr-FR"),
+          surface: fmtNumber(RIBEIRA.surface, lang),
+          acquisition: fmtNumber(RIBEIRA.acquisition, lang),
           travaux: RIBEIRA.travaux,
         })}
       </p>

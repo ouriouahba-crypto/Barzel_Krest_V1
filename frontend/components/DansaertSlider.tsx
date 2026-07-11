@@ -12,7 +12,8 @@ import {
   scoreTextColorDark,
 } from "@/lib/scoring";
 import { VerdictBadge } from "./ui";
-import { useT } from "@/lib/i18n/useT";
+import { useT, useLang } from "@/lib/i18n/useT";
+import { fmtNumber } from "@/lib/i18n/format";
 
 // Recalcul live côté client, formule identique au moteur (composant distinct :
 // Haya et Formoso restent strictement intouchés). Conversion d'un immeuble de
@@ -21,6 +22,7 @@ import { useT } from "@/lib/i18n/useT";
 // assujettie (le prix de sortie est net de TVA avant la marge).
 export function DansaertSlider({ baseTotal, margeWeight }: { baseTotal: number; margeWeight: number }) {
   const t = useT();
+  const lang = useLang();
   const [sale, setSale] = useState<number>(DANSAERT.baseSale);
 
   const baseMargeSub = margeSubscore(dansaertMargin(DANSAERT.baseSale));
@@ -59,7 +61,7 @@ export function DansaertSlider({ baseTotal, margeWeight }: { baseTotal: number; 
       <div className="mt-4">
         <div className="flex items-baseline justify-between">
           <span className="text-label text-cream/70">{t("wg.targetSalePrice")}</span>
-          <span className="font-display text-xl text-gold">{Math.round(sale).toLocaleString("fr-FR")} €/m²</span>
+          <span className="font-display text-xl text-gold">{fmtNumber(Math.round(sale), lang)} €/m²</span>
         </div>
         <input
           type="range"
@@ -72,8 +74,8 @@ export function DansaertSlider({ baseTotal, margeWeight }: { baseTotal: number; 
           style={{ ["--pct" as any]: `${pct}%` }}
         />
         <div className="mt-1 flex justify-between text-label text-cream/60">
-          <span>{DANSAERT.saleMin.toLocaleString("fr-FR")}</span>
-          <span>{DANSAERT.saleMax.toLocaleString("fr-FR")}</span>
+          <span>{fmtNumber(DANSAERT.saleMin, lang)}</span>
+          <span>{fmtNumber(DANSAERT.saleMax, lang)}</span>
         </div>
       </div>
 
@@ -82,16 +84,16 @@ export function DansaertSlider({ baseTotal, margeWeight }: { baseTotal: number; 
         <Metric
           label={t("wg.premiumVsMedian")}
           value={`${fmtSigned(premium)}%`}
-          sub={t("wg.medianEurM2", { v: DANSAERT.communeMedian.toLocaleString("fr-FR") })}
+          sub={t("wg.medianEurM2", { v: fmtNumber(DANSAERT.communeMedian, lang) })}
         />
         <Metric label={t("wg.scorePromotion")} value={`${scoreAffiche}`} color={scoreTextColorDark(total)} />
       </div>
 
       <p className="mt-4 text-caption leading-relaxed text-cream/85">
         {t("wg.dansaertCaption", {
-          surface: DANSAERT.surface.toLocaleString("fr-FR"),
-          construction: DANSAERT.construction.toLocaleString("fr-FR"),
-          foncier: DANSAERT.foncier.toLocaleString("fr-FR"),
+          surface: fmtNumber(DANSAERT.surface, lang),
+          construction: fmtNumber(DANSAERT.construction, lang),
+          foncier: fmtNumber(DANSAERT.foncier, lang),
         })}
       </p>
     </div>

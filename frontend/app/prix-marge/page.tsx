@@ -163,16 +163,16 @@ export default function PrixMargePage() {
                 sub={scopeLabel}
               />
             ) : (
-              <Kpi label={t("pgm.kpi_median_land")} value={eurM2(summary.medianLand)} sub={scopeLabel} />
+              <Kpi label={t("pgm.kpi_median_land")} value={eurM2(summary.medianLand, lang)} sub={scopeLabel} />
             )}
             <Kpi
               label={t("pgm.kpi_median_realizable")}
-              value={eurM2(summary.medianRealizable)}
+              value={eurM2(summary.medianRealizable, lang)}
               sub={scopeLabel}
             />
             <Kpi
               label={t("pgm.kpi_median_cost")}
-              value={eurM2(summary.medianCost)}
+              value={eurM2(summary.medianCost, lang)}
               sub={scopeLabel}
             />
           </div>

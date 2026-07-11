@@ -174,7 +174,7 @@ export default function RendementPage() {
             />
             <Kpi
               label={t("pgr.medianMarketRent")}
-              value={summary.medianLoyer != null ? `${eur0(summary.medianLoyer)} €/m²/an` : "–"}
+              value={summary.medianLoyer != null ? `${eur0(summary.medianLoyer, lang)} €/m²/an` : "–"}
               sub={scopeLabel}
             />
             <Kpi

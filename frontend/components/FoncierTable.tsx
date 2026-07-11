@@ -160,8 +160,8 @@ export function FoncierTable({
                   </td>
                   <td className="px-3 py-2 text-right tabular-nums text-ink/80">{Math.round(r.constructibilite)}</td>
                   <td className="px-3 py-2 text-ink/80">{r.meilleurUsage}</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-ink">{eur0(r.valeurResiduelle)}</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eur0(r.foncierMarche)}</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-ink">{eur0(r.valeurResiduelle, lang)}</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eur0(r.foncierMarche, lang)}</td>
                   <td className="px-3 py-2 text-right">
                     <span
                       className="font-display text-[16px] font-medium tabular-nums"

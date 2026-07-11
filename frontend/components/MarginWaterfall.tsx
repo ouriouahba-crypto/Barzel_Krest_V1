@@ -3,7 +3,7 @@
 import { Mode, fmtNum, scoreTextColor, verdictColor, verdictTextColor } from "@/lib/scoring";
 import { PmRow, eur0, eurM2 } from "@/lib/priceMargin";
 import { Waterfall, WaterfallEmpty } from "./Waterfall";
-import { useT } from "@/lib/i18n/useT";
+import { useT, useLang } from "@/lib/i18n/useT";
 
 // Promotion cascade: prix de vente − construction − foncier − frais annexes
 // − financement = marge promoteur. Thin wrapper over the generic Waterfall.
@@ -17,6 +17,7 @@ export function MarginWaterfall({
   classLabel: string;
 }) {
   const t = useT();
+  const lang = useLang();
   if (!row) return <WaterfallEmpty />;
 
   const margin = row.netSale - row.costTotal;
@@ -32,8 +33,8 @@ export function MarginWaterfall({
       title={t("wf.marginBreakdown", { name: row.name })}
       subtitle={
         row.baseMedian != null && row.premiumPct != null
-          ? `Prix neuf réalisable ${eurM2(row.realizable)} = médiane ancien ${eur0(row.baseMedian)} +${Math.round(row.premiumPct)}% · ${classLabel}`
-          : `Prix ${classLabel.toLowerCase()} réalisable ${eurM2(row.realizable)}`
+          ? `Prix neuf réalisable ${eurM2(row.realizable, lang)} = médiane ancien ${eur0(row.baseMedian, lang)} +${Math.round(row.premiumPct)}% · ${classLabel}`
+          : `Prix ${classLabel.toLowerCase()} réalisable ${eurM2(row.realizable, lang)}`
       }
       mode={mode}
       verdict={row.verdict}
@@ -49,10 +50,10 @@ export function MarginWaterfall({
       ]}
       resultLabel={t("wf.developerMargin")}
       lossLabel={t("wf.loss")}
-      fmt={eur0}
+      fmt={(v) => eur0(v, lang)}
       stats={[
-        { label: t("wf.costPrice"), value: eurM2(row.costTotal) },
-        { label: margin >= 0 ? t("wf.marginPerM2") : t("wf.lossPerM2"), value: eurM2(margin), accent: inkVerdict },
+        { label: t("wf.costPrice"), value: eurM2(row.costTotal, lang) },
+        { label: margin >= 0 ? t("wf.marginPerM2") : t("wf.lossPerM2"), value: eurM2(margin, lang), accent: inkVerdict },
         { label: t("wf.scorePromotion"), value: `${Math.round(row.total)}`, accent: scoreTextColor(row.total) },
       ]}
     />

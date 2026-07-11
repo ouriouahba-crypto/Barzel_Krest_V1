@@ -12,7 +12,8 @@ import {
   scoreTextColorDark,
 } from "@/lib/scoring";
 import { VerdictBadge } from "./ui";
-import { useT } from "@/lib/i18n/useT";
+import { useT, useLang } from "@/lib/i18n/useT";
+import { fmtNumber } from "@/lib/i18n/format";
 
 // Recalcul live cote client, formule identique au moteur (composant distinct :
 // Haya, Fabrica et Dansaert restent strictement intouches). Projet mixte
@@ -22,6 +23,7 @@ import { useT } from "@/lib/i18n/useT";
 // contrairement au neuf BE.
 export function CampanhaSlider({ baseTotal, margeWeight }: { baseTotal: number; margeWeight: number }) {
   const t = useT();
+  const lang = useLang();
   const [sale, setSale] = useState<number>(CAMPANHA.baseSale);
 
   const baseMargeSub = margeSubscore(campanhaMargin(CAMPANHA.baseSale));
@@ -60,7 +62,7 @@ export function CampanhaSlider({ baseTotal, margeWeight }: { baseTotal: number; 
       <div className="mt-4">
         <div className="flex items-baseline justify-between">
           <span className="text-label text-cream/70">{t("wg.targetSalePrice")}</span>
-          <span className="font-display text-xl text-gold">{Math.round(sale).toLocaleString("fr-FR")} €/m²</span>
+          <span className="font-display text-xl text-gold">{fmtNumber(Math.round(sale), lang)} €/m²</span>
         </div>
         <input
           type="range"
@@ -73,8 +75,8 @@ export function CampanhaSlider({ baseTotal, margeWeight }: { baseTotal: number; 
           style={{ ["--pct" as any]: `${pct}%` }}
         />
         <div className="mt-1 flex justify-between text-label text-cream/60">
-          <span>{CAMPANHA.saleMin.toLocaleString("fr-FR")}</span>
-          <span>{CAMPANHA.saleMax.toLocaleString("fr-FR")}</span>
+          <span>{fmtNumber(CAMPANHA.saleMin, lang)}</span>
+          <span>{fmtNumber(CAMPANHA.saleMax, lang)}</span>
         </div>
       </div>
 
@@ -83,7 +85,7 @@ export function CampanhaSlider({ baseTotal, margeWeight }: { baseTotal: number; 
         <Metric
           label={t("wg.premiumVsMedian")}
           value={`${fmtSigned(premium)}%`}
-          sub={t("wg.medianEurM2", { v: CAMPANHA.freguesiaMedian.toLocaleString("fr-FR") })}
+          sub={t("wg.medianEurM2", { v: fmtNumber(CAMPANHA.freguesiaMedian, lang) })}
         />
         <Metric label={t("wg.scorePromotion")} value={`${scoreAffiche}`} color={scoreTextColorDark(total)} />
       </div>

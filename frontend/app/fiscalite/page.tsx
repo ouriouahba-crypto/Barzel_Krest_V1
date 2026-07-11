@@ -104,7 +104,7 @@ export default function FiscalitePage() {
             right={
               <div className="text-right">
                 <div className="text-label uppercase tracking-widest text-cream/70">{t(F.PAGE.entryMaxLabel)}</div>
-                <div className="font-display text-kpi-hero leading-none text-gold">{F.pctFR(entryMax)}</div>
+                <div className="font-display text-kpi-hero leading-none text-gold">{F.pctFR(entryMax, lang)}</div>
                 <div className="text-label text-cream/70">{t(F.PAGE.entryMaxSub)}</div>
               </div>
             }
@@ -146,10 +146,10 @@ export default function FiscalitePage() {
                     const tax = F.acquisitionTaxes(p, residential);
                     return (
                       <tr key={p} className="border-b border-navy/[0.06]">
-                        <td className="py-2.5 pr-3 font-medium text-ink">{F.eurFR(p)}</td>
-                        <td className="px-3 py-2.5 text-right tabular-nums text-ink/80">{F.eurFR(tax.imt)}</td>
-                        <td className="px-3 py-2.5 text-right tabular-nums text-ink/80">{F.eurFR(tax.selo)}</td>
-                        <td className="px-3 py-2.5 text-right tabular-nums font-medium text-ink">{F.eurFR(tax.total)}</td>
+                        <td className="py-2.5 pr-3 font-medium text-ink">{F.eurFR(p, lang)}</td>
+                        <td className="px-3 py-2.5 text-right tabular-nums text-ink/80">{F.eurFR(tax.imt, lang)}</td>
+                        <td className="px-3 py-2.5 text-right tabular-nums text-ink/80">{F.eurFR(tax.selo, lang)}</td>
+                        <td className="px-3 py-2.5 text-right tabular-nums font-medium text-ink">{F.eurFR(tax.total, lang)}</td>
                         <td className="px-3 py-2.5 text-right">
                           <span className="font-display text-[16px] text-navy">{tax.pct.toFixed(1)}%</span>
                         </td>

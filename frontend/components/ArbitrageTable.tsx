@@ -6,7 +6,7 @@ import { eur0 } from "@/lib/priceMargin";
 import { ArbRow, pctSigned } from "@/lib/arbitrage";
 import { VerdictBadge } from "./ui";
 import { useZoneNoun } from "@/lib/useZoneNoun";
-import { useT } from "@/lib/i18n/useT";
+import { useT, useLang } from "@/lib/i18n/useT";
 
 // Arbitrage table: same visual codes as the other mode tables. Default:
 // open/narrow windows above a "Fenêtre fermée" separator, best score first in
@@ -37,6 +37,7 @@ export function ArbitrageTable({
   const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "spreadPct", dir: "desc" });
   const { Sg, pl } = useZoneNoun();
   const t = useT();
+  const lang = useLang();
   // "Spread" se compare à la médiane VILLE (base constante : Gaia, Porto) ou à
   // la médiane de la MAILLE (base par ligne : Lisbonne, Bruxelles) : le libellé
   // le dit, sans hardcode par ville. `baseLabel` est une donnee (page), non traduite.
@@ -159,7 +160,7 @@ export function ArbitrageTable({
                       <span className="text-label text-ink-soft">{Math.round(r.total)}</span>
                     </span>
                   </td>
-                  <td className="px-3 py-2 text-right tabular-nums text-ink">{eur0(r.valeurRealisable)}</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-ink">{eur0(r.valeurRealisable, lang)}</td>
                   <td className="px-3 py-2 text-right">
                     <span
                       className="font-display text-[16px] font-medium tabular-nums"

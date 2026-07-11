@@ -10,6 +10,7 @@ import { RdRow } from "./rendement";
 import { median, verdictTone } from "./scoring";
 import { translate, type Lang } from "./i18n";
 import { classLabelFor } from "./i18n/domain";
+import { fmtNumber } from "./i18n/format";
 
 // IMT 2026 : prédios urbanos destinés à l'habitation NON própria e permanente
 // (« habitação secundária », le cas investisseur), continent. Tranches
@@ -94,7 +95,7 @@ export function fiscalInsight(
     city: cityName,
     x: x.toFixed(0),
     cls: classLabelFor(cls, lang).toLowerCase(),
-    entry: ENTRY_PCT.toLocaleString("fr-FR"),
+    entry: fmtNumber(ENTRY_PCT, lang),
   });
 }
 
@@ -103,9 +104,13 @@ export function fiscalInsight(
 // la même interface (PAGE, volets, CHECKPOINTS…) : la page ne change pas.      #
 // --------------------------------------------------------------------------- #
 
-export const eurFR = (v: number) => `${Math.round(v).toLocaleString("fr-FR")} €`;
-export const pctFR = (v: number, d = 1) =>
-  `${v.toLocaleString("fr-FR", { minimumFractionDigits: d, maximumFractionDigits: d })}%`;
+// Barèmes de la page Fiscalité. Milliers localisés (eurFR) ET décimale localisée
+// (pctFR : « 6,5% » en fr/pt, « 6.5% » en en). pctFR est le seul formateur à
+// décimale localisée de la plateforme : le scoring (fmtNum/fmtSigned/pctSigned)
+// garde son point décimal dans les 3 langues, par choix.
+export const eurFR = (v: number, lang: Lang) => `${fmtNumber(Math.round(v), lang)} €`;
+export const pctFR = (v: number, lang: Lang, d = 1) =>
+  `${fmtNumber(v, lang, { minimumFractionDigits: d, maximumFractionDigits: d })}%`;
 
 // Points de contrôle fixes, rendus des mêmes fonctions que le simulateur.
 export const CHECKPOINTS = [400_000, 1_500_000, 4_000_000];
@@ -140,21 +145,21 @@ export function volets(lang: Lang): FiscalVolet[] {
           label: T("fsx.pt.acq.imtHab.label"),
           value: "1% → 8%",
           sub: T("fsx.pt.acq.imtHab.sub", {
-            a: (660_982).toLocaleString("fr-FR"),
-            b: (1_150_853).toLocaleString("fr-FR"),
+            a: fmtNumber(660_982, lang),
+            b: fmtNumber(1_150_853, lang),
           }),
         },
         {
           label: T("fsx.pt.acq.imtCom.label"),
-          value: pctFR(IMT_COMMERCIAL_PCT),
+          value: pctFR(IMT_COMMERCIAL_PCT, lang),
           sub: T("fsx.pt.acq.imtCom.sub"),
         },
         {
           label: T("fsx.pt.acq.nonRes.label"),
-          value: pctFR(7.5),
+          value: pctFR(7.5, lang),
           sub: T("fsx.pt.acq.nonRes.sub"),
         },
-        { label: T("fsx.pt.acq.selo.label"), value: pctFR(SELO_PCT), sub: T("fsx.pt.acq.selo.sub") },
+        { label: T("fsx.pt.acq.selo.label"), value: pctFR(SELO_PCT, lang), sub: T("fsx.pt.acq.selo.sub") },
       ],
       platform: { to: "/prix-marge", label: T("fsx.pt.acq.platform") },
     },
@@ -164,17 +169,17 @@ export function volets(lang: Lang): FiscalVolet[] {
       rows: [
         {
           label: T("fsx.pt.det.imi.label"),
-          value: `${pctFR(IMI_MIN_PCT, 2)} – ${pctFR(IMI_MAX_PCT, 2)}`,
+          value: `${pctFR(IMI_MIN_PCT, lang, 2)} – ${pctFR(IMI_MAX_PCT, lang, 2)}`,
           sub: T("fsx.pt.det.imi.sub"),
         },
         {
           label: T("fsx.pt.det.aimi.label"),
-          value: pctFR(AIMI_COMPANY_PCT),
+          value: pctFR(AIMI_COMPANY_PCT, lang),
           sub: T("fsx.pt.det.aimi.sub"),
         },
         {
           label: T("fsx.pt.det.irc.label"),
-          value: pctFR(IRC_BASE_PCT, 0),
+          value: pctFR(IRC_BASE_PCT, lang, 0),
           sub: T("fsx.pt.det.irc.sub"),
         },
       ],
@@ -186,7 +191,7 @@ export function volets(lang: Lang): FiscalVolet[] {
       rows: [
         {
           label: T("fsx.pt.ced.pv.label"),
-          value: pctFR(IRC_BASE_PCT, 0),
+          value: pctFR(IRC_BASE_PCT, lang, 0),
           sub: T("fsx.pt.ced.pv.sub"),
         },
         {
@@ -196,7 +201,7 @@ export function volets(lang: Lang): FiscalVolet[] {
         },
         {
           label: T("fsx.pt.ced.effectif.label"),
-          value: `~${pctFR(IRC_EFFECTIVE_PCT, 0)}`,
+          value: `~${pctFR(IRC_EFFECTIVE_PCT, lang, 0)}`,
           sub: T("fsx.pt.ced.effectif.sub"),
         },
       ],

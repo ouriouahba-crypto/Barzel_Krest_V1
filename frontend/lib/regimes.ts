@@ -46,8 +46,9 @@ export interface RegimeFiscal {
   acquisitionTaxes: (price: number, residential: boolean) => { imt: number; selo: number; total: number; pct: number };
   volets: (lang: Lang) => FiscalVolet[];
   CHECKPOINTS: number[];
-  eurFR: (v: number) => string;
-  pctFR: (v: number, d?: number) => string;
+  // Formateurs de barème : milliers ET décimale localisés (lot i18n-numbers-1).
+  eurFR: (v: number, lang: Lang) => string;
+  pctFR: (v: number, lang: Lang, d?: number) => string;
   PAGE: FiscalPage;
 }
 
