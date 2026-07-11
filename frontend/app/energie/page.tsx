@@ -6,11 +6,12 @@ import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { InsightBanner } from "@/components/InsightBanner";
 import { useGaia } from "@/lib/useGaia";
-import { classLabel, pillarValue } from "@/lib/scoring";
+import { pillarValue } from "@/lib/scoring";
 import { rdRows } from "@/lib/rendement";
 import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
-import { useT } from "@/lib/i18n/useT";
+import { useT, useLang } from "@/lib/i18n/useT";
+import { classLabelFor } from "@/lib/i18n/domain";
 
 // Page transverse de contexte énergie. Tout le contenu spécifique au régime du
 // pays (échelle SCE, parc, frise réglementaire, textes, simulateur) vient de la
@@ -29,6 +30,7 @@ const tonePill = {
 
 export default function EnergiePage() {
   const t = useT();
+  const lang = useLang();
   const g = useGaia();
   const city = cityBySlug(useCityStore((s) => s.slug));
   const E = city.energie;
@@ -79,8 +81,8 @@ export default function EnergiePage() {
 
   const cityName = city.label === "Vila Nova de Gaia" ? "Gaia" : city.label;
   const sentence = useMemo(
-    () => E.energieInsight(cls, rows.map((r) => r.zone), cityName),
-    [E, cls, rows, cityName]
+    () => E.energieInsight(cls, rows.map((r) => r.zone), cityName, lang),
+    [E, cls, rows, cityName, lang]
   );
   const maxRow = rows[0];
 
@@ -89,7 +91,7 @@ export default function EnergiePage() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={city.texts.energieMarketLine ? t(city.texts.energieMarketLine) : E.PAGE.marketLine}
+          marketLine={city.texts.energieMarketLine ? t(city.texts.energieMarketLine) : t(E.PAGE.marketLine)}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}
@@ -107,24 +109,24 @@ export default function EnergiePage() {
               <span className="inline-block h-5 w-1.5 rounded-full bg-gold" />
               <h2 className="font-display text-[24px] leading-none text-navy">{t("nrg.title")}</h2>
               <span className="rounded-full border border-gold/40 bg-gold/[0.06] px-2.5 py-0.5 text-label font-medium text-gold-700">
-                {E.PAGE.chipPrefix} · {classLabel(cls)}
+                {E.PAGE.chipPrefix} · {classLabelFor(cls, lang)}
               </span>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
-              {city.texts.energieIntro ? t(city.texts.energieIntro) : E.PAGE.intro}
+              {city.texts.energieIntro ? t(city.texts.energieIntro) : t(E.PAGE.intro)}
             </p>
           </div>
 
           {/* Exposure of the stock */}
           <InsightBanner
-            eyebrow={`${E.PAGE.bannerEyebrowPrefix} · ${classLabel(cls)}`}
+            eyebrow={`${t(E.PAGE.bannerEyebrowPrefix)} · ${classLabelFor(cls, lang)}`}
             sentence={sentence}
             right={
               maxRow ? (
                 <div className="text-right">
-                  <div className="text-label uppercase tracking-widest text-cream/70">{E.PAGE.maxLabelPrefix} · {maxRow.name.split(/ e |,/)[0]}</div>
+                  <div className="text-label uppercase tracking-widest text-cream/70">{t(E.PAGE.maxLabelPrefix)} · {maxRow.name.split(/ e |,/)[0]}</div>
                   <div className="font-display text-kpi-hero leading-none text-gold">{maxRow.parc.ef}%</div>
-                  <div className="text-label text-cream/70">{E.PAGE.maxSub}</div>
+                  <div className="text-label text-cream/70">{t(E.PAGE.maxSub)}</div>
                 </div>
               ) : undefined
             }
@@ -134,16 +136,17 @@ export default function EnergiePage() {
               lot 2b-ii → la frise réglementaire occupe alors toute la largeur) */}
           <div className={`grid shrink-0 grid-cols-1 gap-4 ${Retrofit ? "xl:grid-cols-[1.35fr_1fr]" : ""}`}>
             <section className="rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
-              <h3 className="font-display text-[16px] leading-tight text-navy">{E.PAGE.timelineTitle}</h3>
-              <p className="mt-0.5 text-label text-muted">{E.PAGE.timelineSub}</p>
+              <h3 className="font-display text-[16px] leading-tight text-navy">{t(E.PAGE.timelineTitle)}</h3>
+              <p className="mt-0.5 text-label text-muted">{t(E.PAGE.timelineSub)}</p>
               <div className="mt-3 flex flex-col">
-                {E.TIMELINE.map((t) => (
-                  <div key={t.when} className="flex gap-3 border-l-2 border-gold/30 pb-3 pl-4 last:pb-0">
+                {/* `item` (et non `t`) : la frise est rendue via le traducteur t(). */}
+                {E.TIMELINE.map((item) => (
+                  <div key={item.when} className="flex gap-3 border-l-2 border-gold/30 pb-3 pl-4 last:pb-0">
                     <div className="relative -ml-[21px] mt-1 h-2.5 w-2.5 shrink-0 rounded-full border-2 border-gold bg-white" />
                     <div>
-                      <span className="text-body font-semibold text-navy">{t.when}</span>
+                      <span className="text-body font-semibold text-navy">{t(item.when)}</span>
                       <span className="mx-2 text-navy/20">·</span>
-                      <span className="text-body leading-snug text-ink-soft">{t.what}</span>
+                      <span className="text-body leading-snug text-ink-soft">{t(item.what)}</span>
                     </div>
                   </div>
                 ))}
@@ -154,7 +157,7 @@ export default function EnergiePage() {
               >
                 <span className="text-label font-semibold uppercase tracking-wide">{t("pg.inPlatform")}</span>
                 <br />
-                {E.PAGE.platform.label}
+                {t(E.PAGE.platform.label)}
               </Link>
             </section>
 
@@ -172,7 +175,7 @@ export default function EnergiePage() {
                   </div>
                 )}
                 <p className="px-1 text-caption leading-snug text-ink-soft">
-                  {E.PAGE.simulatorCaption}
+                  {t(E.PAGE.simulatorCaption)}
                 </p>
               </div>
             )}
@@ -185,7 +188,7 @@ export default function EnergiePage() {
                 <thead className="bg-cream-200">
                   <tr className="border-b border-navy/10 text-th font-semibold uppercase tracking-wide text-ink-soft">
                     {E.PAGE.tableCols.map((c, i) => (
-                      <th key={c} className={`px-3 py-2.5 ${i === 0 || i === E.PAGE.tableCols.length - 1 ? "text-left" : "text-right"}`}>{i === 0 ? city.zoneNoun.charAt(0).toUpperCase() + city.zoneNoun.slice(1) : c}</th>
+                      <th key={c} className={`px-3 py-2.5 ${i === 0 || i === E.PAGE.tableCols.length - 1 ? "text-left" : "text-right"}`}>{i === 0 ? city.zoneNoun.charAt(0).toUpperCase() + city.zoneNoun.slice(1) : t(c)}</th>
                     ))}
                   </tr>
                 </thead>
@@ -207,7 +210,7 @@ export default function EnergiePage() {
                       <td className="px-3 py-2 text-right tabular-nums text-ink/80">{r.risk}</td>
                       <td className="px-3 py-2">
                         <span className={`rounded-full px-2.5 py-0.5 text-label font-medium ${tonePill[r.verdict.tone]}`}>
-                          {r.verdict.label}
+                          {t(r.verdict.label)}
                         </span>
                       </td>
                     </tr>
@@ -226,7 +229,7 @@ export default function EnergiePage() {
 
           {/* Discreet source line */}
           <p className="shrink-0 pl-1 text-label text-muted">
-            {E.PAGE.sources}
+            {t(E.PAGE.sources)}
           </p>
         </main>
       </div>

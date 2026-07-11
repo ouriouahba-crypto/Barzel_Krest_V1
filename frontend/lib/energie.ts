@@ -7,7 +7,8 @@
 
 import { RdRow } from "./rendement";
 import { median } from "./scoring";
-import { classLabel } from "./scoring";
+import { translate, type Lang } from "./i18n";
+import { classLabelFor } from "./i18n/domain";
 
 // Répartition simulée du parc résidentiel par classes SCE (A+-B / C-D / E-F),
 // en % : somme 100, gradient âge du bâti (aucun multiple de 5 systématique).
@@ -98,10 +99,13 @@ function parcV0(zone: string): ParcRow {
 export function riskMeps(engineRisk: number, ef: number, efMax: number): number {
   return Math.round(engineRisk * (0.5 + 0.5 * (ef / Math.max(1, efMax))));
 }
+// Verdict énergie : SEUILS et tone inchangés ; `label` est une CLÉ i18n PARTAGÉE
+// avec le régime BE (le vocabulaire de verdict ne dépend pas du pays), résolue
+// par la page via t().
 export function energyVerdict(risk: number): { label: string; tone: "good" | "mid" | "low" } {
-  if (risk >= 32) return { label: "Exposé", tone: "low" };
-  if (risk >= 27) return { label: "À surveiller", tone: "mid" };
-  return { label: "Contenu", tone: "good" };
+  if (risk >= 32) return { label: "nrgx.verdict.exposed", tone: "low" };
+  if (risk >= 27) return { label: "nrgx.verdict.watch", tone: "mid" };
+  return { label: "nrgx.verdict.contained", tone: "good" };
 }
 
 // ---------------------------------------------------------------------------
@@ -147,22 +151,33 @@ export function retrofitImpact(row: RdRow, capex: number) {
   return { value, netBefore: row.yieldNet, netAfter, compression: row.yieldNet - netAfter };
 }
 
-// Phrase déterministe par classe sur l'exposition du parc.
-export function energieInsight(cls: string, zones: string[], cityName: string = "Gaia"): string {
+// Phrase déterministe par classe sur l'exposition du parc. Le CALCUL (médiane
+// des parts E-F, arrondi) est inchangé ; seule la prose sort du module (clés
+// i18n, traducteur non-hook).
+export function energieInsight(
+  cls: string,
+  zones: string[],
+  cityName: string = "Gaia",
+  lang: Lang = "fr",
+): string {
   const efs = zones
     .map((z) => parcFor(z, cls)?.ef)
     .filter((v): v is number => v != null);
   const x = median(efs);
-  if (x == null) return "Chargement du parc…";
+  if (x == null) return translate("nrgx.pt.insight.loading", lang);
   if (cls === "residential") {
     // « compté », pas « pénalisé sur le centre historique » : selon la ville, le
     // parc ancien central n'est pas forcément Céder en détention (à Porto,
     // Cedofeita, centre historique, est la seule Conserver). Ce qui est vrai
     // partout : le risque MEPS pèse sur le parc le plus ancien et alimente le
     // pilier énergie des verdicts de détention.
-    return `~${Math.round(x)}% du parc résidentiel de ${cityName} sous la classe D : la pression MEPS se concentre sur le parc le plus ancien, un risque déjà compté dans le pilier énergie des verdicts de détention.`;
+    return translate("nrgx.pt.insight.residential", lang, { x: Math.round(x), city: cityName });
   }
-  return `~${Math.round(x)}% du parc ${classLabel(cls).toLowerCase()} de ${cityName} en classes E-F : les seuils MEPS imposent la rénovation des 16% les moins performants d'ici 2030 (26% en 2033), déjà compté dans les verdicts de détention.`;
+  return translate("nrgx.pt.insight.commercial", lang, {
+    x: Math.round(x),
+    city: cityName,
+    cls: classLabelFor(cls, lang).toLowerCase(),
+  });
 }
 
 // --------------------------------------------------------------------------- #
@@ -171,38 +186,48 @@ export function energieInsight(cls: string, zones: string[], cityName: string = 
 // --------------------------------------------------------------------------- #
 
 // Jalons réglementaires vérifiés (EPBD (UE) 2024/1275 ; SCE DL 101-D/2020).
+// `when` et `what` sont des CLÉS i18n (la date elle-même se dit dans la langue :
+// « 28 mai 2024 » / « 28 May 2024 ») ; la page les résout via t(). Ordre et
+// nombre d'entrées portés par le module, comme avant.
 export const TIMELINE: { when: string; what: string }[] = [
-  { when: "28 mai 2024", what: "Directive EPBD (UE) 2024/1275 en vigueur (refonte)." },
-  { when: "29 mai 2026", what: "Transposition nationale ; Portugal : révision du SCE (DL 101-D/2020, classes A+ → F)." },
-  { when: "2028", what: "Neuf public zéro émission ; carbone du cycle de vie calculé au-delà de 1 000 m²." },
-  { when: "2030", what: "Non-résidentiel : les 16% les moins performants rénovés ; tout le neuf zéro émission ; résidentiel : énergie primaire moyenne −16%." },
-  { when: "2033", what: "Non-résidentiel : seuil porté aux 26% les moins performants." },
-  { when: "2035", what: "Résidentiel : −20 à 22%, dont ≥ 55% de l'effort sur les 43% les plus énergivores." },
-  { when: "2040", what: "Sortie des chaudières à combustibles fossiles." },
+  { when: "nrgx.pt.tl.0.when", what: "nrgx.pt.tl.0.what" },
+  { when: "nrgx.pt.tl.1.when", what: "nrgx.pt.tl.1.what" },
+  { when: "nrgx.pt.tl.2.when", what: "nrgx.pt.tl.2.what" },
+  { when: "nrgx.pt.tl.3.when", what: "nrgx.pt.tl.3.what" },
+  { when: "nrgx.pt.tl.4.when", what: "nrgx.pt.tl.4.what" },
+  { when: "nrgx.pt.tl.5.when", what: "nrgx.pt.tl.5.what" },
+  { when: "nrgx.pt.tl.6.when", what: "nrgx.pt.tl.6.what" },
 ];
 
-// Textes de page du régime PT. `marketLine`/`intro` sont NEUTRES (aucun nom de
-// ville) : ce repli commun ne doit fuir l'identité éditoriale d'aucune ville.
-// Chaque ville PT porte son propre libellé dans le registre
-// (`texts.energieMarketLine` / `texts.energieIntro`, cf. lib/cities.ts) ; ces
-// valeurs génériques ne servent que de dernier recours.
+// Textes de page du régime PT : tous les champs de prose/libellé sont des CLÉS
+// i18n, résolues par la page via t() (lot i18n-energie). Font exception les
+// DONNÉES : `chipPrefix` (sigle réglementaire, non traduit), `platform.to`
+// (route) et `defaultZone` (id de zone).
+// `marketLine`/`intro` restent NEUTRES (aucun nom de ville) : ce repli commun ne
+// doit fuir l'identité éditoriale d'aucune ville. Chaque ville PT porte son
+// propre libellé dans le registre (`texts.energieMarketLine` /
+// `texts.energieIntro`, cf. lib/cities.ts) ; ces valeurs génériques ne servent
+// que de dernier recours.
 export const PAGE = {
-  marketLine:
-    "Ce que la réglementation énergétique va coûter au parc, où, et comment c'est déjà compté dans nos verdicts.",
+  marketLine: "nrgx.pt.page.marketLine",
   chipPrefix: "EPBD",
-  intro:
-    "La directive EPBD impose une trajectoire de rénovation au parc européen ; le certificat SCE (A+ → F) en est l'instrument portugais. Exposition du parc, échéances, et coût d'une mise à niveau.",
-  bannerEyebrowPrefix: "Exposition du parc",
-  maxLabelPrefix: "Parc le plus exposé",
-  maxSub: "du parc en classes E-F",
-  timelineTitle: "Trajectoire réglementaire",
-  timelineSub: "EPBD (UE) 2024/1275 : échéances applicables au parc existant et au neuf.",
-  platform: { to: "/rendement", label: "pilier énergie de la cascade Rendement →" },
-  simulatorCaption:
-    "Simulateur temps réel : sélectionnez une freguesia dans le champ de recherche, puis la classe actuelle et la cible pour voir le CAPEX et la compression du yield net se recalculer.",
-  tableCols: ["Freguesia", "Classes A+-B", "Classes C-D", "Classes E-F", "Risque MEPS /100", "Verdict énergie"],
-  sources:
-    "Directive EPBD (UE) 2024/1275 · SCE (DL 101-D/2020, classes A+ → F) · coûts de rénovation : ordres de grandeur ADENE / marché 2026. Répartition du parc par freguesia : estimation Barzel.",
+  intro: "nrgx.pt.page.intro",
+  bannerEyebrowPrefix: "nrgx.pt.page.bannerEyebrowPrefix",
+  maxLabelPrefix: "nrgx.pt.page.maxLabelPrefix",
+  maxSub: "nrgx.pt.page.maxSub",
+  timelineTitle: "nrgx.pt.page.timelineTitle",
+  timelineSub: "nrgx.pt.page.timelineSub",
+  platform: { to: "/rendement", label: "nrgx.pt.page.platform" },
+  simulatorCaption: "nrgx.pt.page.simulatorCaption",
+  tableCols: [
+    "nrgx.pt.page.col.zone",
+    "nrgx.pt.page.col.ab",
+    "nrgx.pt.page.col.cd",
+    "nrgx.pt.page.col.ef",
+    "nrgx.pt.page.col.risk",
+    "nrgx.pt.page.col.verdict",
+  ],
+  sources: "nrgx.pt.page.sources",
   // Freguesia par défaut du simulateur (actif type) quand rien n'est sélectionné.
   defaultZone: "santamarinhaesaopedrodaafurada",
 };

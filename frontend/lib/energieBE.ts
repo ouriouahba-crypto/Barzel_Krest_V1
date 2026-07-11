@@ -14,7 +14,9 @@
 // rénovation interactif (curseur) est un lot 2b-ii distinct.
 
 import type { RegimeEnergie, ParcRow } from "./regimes";
-import { classLabel, median } from "./scoring";
+import { median } from "./scoring";
+import { translate, type Lang } from "./i18n";
+import { classLabelFor } from "./i18n/domain";
 
 // Répartition PEB simulée par commune (%): ab = classes A-C, cd = classes D-E,
 // ef = classes F-G (pire seau, interdit dès 2033 / se décote). Somme 100.
@@ -76,51 +78,70 @@ export function parcFor(zone: string, cls: string): ParcRow | null {
 export function riskMeps(engineRisk: number, ef: number, efMax: number): number {
   return Math.round(engineRisk * (0.5 + 0.5 * (ef / Math.max(1, efMax))));
 }
+// Verdict PEB : SEUILS et tone inchangés ; `label` est une CLÉ i18n PARTAGÉE
+// avec le régime PT (même vocabulaire de verdict), résolue par la page via t().
 export function energyVerdict(risk: number): { label: string; tone: "good" | "mid" | "low" } {
-  if (risk >= 32) return { label: "Exposé", tone: "low" };
-  if (risk >= 27) return { label: "À surveiller", tone: "mid" };
-  return { label: "Contenu", tone: "good" };
+  if (risk >= 32) return { label: "nrgx.verdict.exposed", tone: "low" };
+  if (risk >= 27) return { label: "nrgx.verdict.watch", tone: "mid" };
+  return { label: "nrgx.verdict.contained", tone: "good" };
 }
 
-// Phrase déterministe par classe sur l'exposition du parc.
-export function energieInsight(cls: string, zones: string[], cityName = "Bruxelles"): string {
+// Phrase déterministe par classe sur l'exposition du parc. Le CALCUL (médiane
+// des parts F-G, arrondi) est inchangé ; seule la prose sort du module.
+export function energieInsight(
+  cls: string,
+  zones: string[],
+  cityName = "Bruxelles",
+  lang: Lang = "fr",
+): string {
   const efs = zones
     .map((z) => parcFor(z, cls)?.ef)
     .filter((v): v is number => v != null);
   const x = median(efs);
-  if (x == null) return "Chargement du parc…";
+  if (x == null) return translate("nrgx.be.insight.loading", lang);
   if (cls === "residential") {
-    return `~${Math.round(x)}% du parc résidentiel de ${cityName} en classes F et G, non admises dès 2033 (objectif PEB 275) : ces biens se décotent quand les logements rénovés prennent une prime, un écart déjà pénalisé dans les verdicts de détention.`;
+    return translate("nrgx.be.insight.residential", lang, { x: Math.round(x), city: cityName });
   }
-  return `~${Math.round(x)}% du parc ${classLabel(cls).toLowerCase()} de ${cityName} en classes F et G : l'objectif PEB 150 vers 2045 vise en plus les classes D-E, et les bureaux de plus de 500 m² relèvent d'un certificat PEB tertiaire ; l'exposition est déjà comptée dans les verdicts de détention.`;
+  return translate("nrgx.be.insight.commercial", lang, {
+    x: Math.round(x),
+    city: cityName,
+    cls: classLabelFor(cls, lang).toLowerCase(),
+  });
 }
 
 // Jalons réglementaires vérifiés (Ordonnance PEB bruxelloise, Renolution).
+// `when`/`what` = CLÉS i18n (cf. régime PT) ; ordre et nombre d'entrées portés
+// par le module.
 export const TIMELINE: { when: string; what: string }[] = [
-  { when: "7 mars 2024", what: "Ordonnance PEB (Région de Bruxelles-Capitale) ; stratégie de rénovation Renolution." },
-  { when: "1er juin 2025", what: "Sortie des combustibles fossiles : interdiction d'installer des chaudières au mazout." },
-  { when: "2028", what: "Certificat PEB généralisé à tous les bâtiments (auparavant : à la vente ou à la location uniquement)." },
-  { when: "1er janvier 2033", what: "Objectif PEB 275 kWh/m²/an (classe E) : les classes F et G ne sont plus admises." },
-  { when: "vers 2045", what: "Objectif PEB 150 kWh/m²/an (classe C) : cible les classes D et E." },
+  { when: "nrgx.be.tl.0.when", what: "nrgx.be.tl.0.what" },
+  { when: "nrgx.be.tl.1.when", what: "nrgx.be.tl.1.what" },
+  { when: "nrgx.be.tl.2.when", what: "nrgx.be.tl.2.what" },
+  { when: "nrgx.be.tl.3.when", what: "nrgx.be.tl.3.what" },
+  { when: "nrgx.be.tl.4.when", what: "nrgx.be.tl.4.what" },
 ];
 
+// Textes de page du régime BE : CLÉS i18n (résolues par la page via t()), sauf
+// les DONNÉES `chipPrefix` (sigle) et `platform.to` (route).
 export const PAGE = {
-  marketLine:
-    "Région de Bruxelles-Capitale : ce que la réglementation PEB va coûter au parc, où, et comment c'est déjà compté dans nos verdicts.",
+  marketLine: "nrgx.be.page.marketLine",
   chipPrefix: "PEB",
-  intro:
-    "L'Ordonnance PEB bruxelloise (stratégie Renolution) impose une trajectoire de rénovation : objectif PEB 275 (classe E) au 1er janvier 2033, puis PEB 150 (classe C) vers 2045. Exposition du parc de Bruxelles, échéances, et effet sur la valeur.",
-  bannerEyebrowPrefix: "Exposition du parc",
-  maxLabelPrefix: "Parc le plus exposé",
-  maxSub: "du parc en classes F-G",
-  timelineTitle: "Trajectoire réglementaire",
-  timelineSub: "Ordonnance PEB du 7 mars 2024 (Renolution) : échéances applicables au parc bruxellois.",
-  platform: { to: "/rendement", label: "pilier énergie de la cascade Rendement →" },
-  simulatorCaption:
-    "Rénovation PEB : CAPEX par saut de classe et effet sur le rendement net (simulateur, lot 2b-ii).",
-  tableCols: ["Commune", "Classes A-C", "Classes D-E", "Classes F-G", "Risque PEB /100", "Verdict PEB"],
-  sources:
-    "Ordonnance PEB (Région de Bruxelles-Capitale, 7 mars 2024), stratégie Renolution ; certificat PEB tertiaire spécifique pour les bureaux de plus de 500 m² ; encadrement des loyers renforcé (mai 2025 : loyer présumé abusif au-delà de 20% du loyer de référence régional). Répartition du parc par commune : estimation Barzel.",
+  intro: "nrgx.be.page.intro",
+  bannerEyebrowPrefix: "nrgx.be.page.bannerEyebrowPrefix",
+  maxLabelPrefix: "nrgx.be.page.maxLabelPrefix",
+  maxSub: "nrgx.be.page.maxSub",
+  timelineTitle: "nrgx.be.page.timelineTitle",
+  timelineSub: "nrgx.be.page.timelineSub",
+  platform: { to: "/rendement", label: "nrgx.be.page.platform" },
+  simulatorCaption: "nrgx.be.page.simulatorCaption",
+  tableCols: [
+    "nrgx.be.page.col.zone",
+    "nrgx.be.page.col.ab",
+    "nrgx.be.page.col.cd",
+    "nrgx.be.page.col.ef",
+    "nrgx.be.page.col.risk",
+    "nrgx.be.page.col.verdict",
+  ],
+  sources: "nrgx.be.page.sources",
 };
 
 // Vérification structurelle : ce module satisfait le contrat RegimeEnergie.
