@@ -11,7 +11,9 @@ import { PriceTrend } from "@/components/PriceTrend";
 import { Skeleton } from "@/components/motion/Skeleton";
 import { useGaia, displayName, shortName } from "@/lib/useGaia";
 import { ModeScore } from "@/lib/api";
-import { Mode, MODES, MODE_LABEL, MODE_KPI, MODE_ROUTE, classLabel, fmtNum, fmtSigned, median, pillarValue, verdictColor, verdictLabel, verdictTone } from "@/lib/scoring";
+import { Mode, MODES, MODE_KPI, MODE_ROUTE, classLabel, fmtNum, fmtSigned, median, pillarValue, verdictColor, verdictTone } from "@/lib/scoring";
+import { useT, useLang } from "@/lib/i18n/useT";
+import { modeLabel, verdictDisplay } from "@/lib/i18n/domain";
 import { OverviewByMode, bestMode, cityInsight, modeInsight, trendInsight } from "@/lib/insights";
 import { priceTrajectory, PricePoint } from "@/lib/priceHistory";
 import { cityBySlug } from "@/lib/cities";
@@ -56,6 +58,8 @@ function synthCity(fine: ModeScore[]): ModeScore | undefined {
 }
 
 export default function VueEnsemble() {
+  const t = useT();
+  const lang = useLang();
   const g = useGaia();
   const slug = useCityStore((s) => s.slug);
   const city = cityBySlug(slug);
@@ -132,7 +136,7 @@ export default function VueEnsemble() {
 
         {g.error && (
           <div className="mx-6 mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-body text-red-700">
-            Backend injoignable : lancez l’API (uvicorn backend.main:app). {g.error}
+            {t("pg.backendError")} {g.error}
           </div>
         )}
 
@@ -145,7 +149,7 @@ export default function VueEnsemble() {
               bm && topOpp ? (
                 <>
                   <div className="text-right">
-                    <div className="text-label uppercase tracking-widest text-cream/70">Meilleure opportunité · {MODE_LABEL[bm]}</div>
+                    <div className="text-label uppercase tracking-widest text-cream/70">{t("ov.best_opportunity", { mode: modeLabel(bm, lang) })}</div>
                     <div className="font-display text-lg text-cream">{shortName(topOpp.zone_name)}</div>
                     <div className="mt-1">
                       <VerdictBadge mode={bm} verdict={topOpp.verdict} />
@@ -156,8 +160,8 @@ export default function VueEnsemble() {
               ) : bmScore && bm ? (
                 <>
                   <div className="text-right">
-                    <div className="text-label uppercase tracking-widest text-cream/70">Meilleur mode</div>
-                    <div className="font-display text-lg text-cream">{MODE_LABEL[bm]}</div>
+                    <div className="text-label uppercase tracking-widest text-cream/70">{t("ov.best_mode")}</div>
+                    <div className="font-display text-lg text-cream">{modeLabel(bm, lang)}</div>
                     <div className="mt-1">
                       <VerdictBadge mode={bm} verdict={bmScore.verdict} />
                     </div>
@@ -186,14 +190,14 @@ export default function VueEnsemble() {
                       citySlug={slug}
                       anchor={{
                         kind: "verdict",
-                        label: `${MODE_LABEL[m]} · ${verdictLabel(s.verdict)}`,
+                        label: `${modeLabel(m, lang)} · ${verdictDisplay(s.verdict, lang)}`,
                         route: MODE_ROUTE[m] ?? "/vue-ensemble",
                       }}
                     />
                   )}
                   <div className="flex items-center justify-between">
-                    <span className="text-label font-semibold uppercase tracking-widest text-gold/90">{MODE_LABEL[m]}</span>
-                    {isBest && <span className="rounded-full bg-gold/20 px-2 py-0.5 text-label uppercase tracking-wide text-gold">Dominant</span>}
+                    <span className="text-label font-semibold uppercase tracking-widest text-gold/90">{modeLabel(m, lang)}</span>
+                    {isBest && <span className="rounded-full bg-gold/20 px-2 py-0.5 text-label uppercase tracking-wide text-gold">{t("ov.dominant")}</span>}
                   </div>
                   <div className="mt-2 flex items-center gap-3">
                     {s ? <ScoreDial score={s.total} size={54} /> : <div className="h-[54px] w-[54px] animate-pulse rounded-full bg-white/10" />}
@@ -216,10 +220,10 @@ export default function VueEnsemble() {
                       href={MODE_ROUTE[m]!}
                       className="mt-2 inline-flex items-center gap-1 self-start rounded-lg border border-gold/40 bg-gold/10 px-2.5 py-1 text-btn font-medium text-gold transition-colors hover:bg-gold/20"
                     >
-                      Explorer →
+                      {t("ov.explore")}
                     </Link>
                   ) : (
-                    <span className="mt-2 inline-flex self-start text-label uppercase tracking-wide text-cream/50">Bientôt</span>
+                    <span className="mt-2 inline-flex self-start text-label uppercase tracking-wide text-cream/50">{t("ov.soon")}</span>
                   )}
                 </div>
               );
@@ -232,8 +236,8 @@ export default function VueEnsemble() {
           <div className="grid shrink-0 grid-cols-1 gap-3 xl:grid-cols-[1fr_1.35fr_1fr]">
             <section className="flex flex-col rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
               <div className="mb-3 flex items-baseline justify-between">
-                <h3 className="font-display text-[16px] text-navy">Où : top 3 {city.zoneNounPlural}</h3>
-                <span className="text-label text-muted">{bm ? MODE_LABEL[bm] : ""}</span>
+                <h3 className="font-display text-[16px] text-navy">{t("ov.podium_title", { zones: city.zoneNounPlural })}</h3>
+                <span className="text-label text-muted">{bm ? modeLabel(bm, lang) : ""}</span>
               </div>
               <div className="flex flex-col gap-2.5">
                 {podium.map((z, i) => (
@@ -269,16 +273,16 @@ export default function VueEnsemble() {
 
             <section className="flex flex-col rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
               <div className="mb-2 flex items-baseline justify-between">
-                <h3 className="font-display text-[16px] text-navy">Classement des {city.zoneNounPlural}</h3>
-                <span className="text-label text-muted">score {bm ? MODE_LABEL[bm].toLowerCase() : ""} · par verdict</span>
+                <h3 className="font-display text-[16px] text-navy">{t("ov.ranking_title", { zones: city.zoneNounPlural })}</h3>
+                <span className="text-label text-muted">{t("ov.ranking_subtitle", { mode: bm ? modeLabel(bm, lang).toLowerCase() : "" })}</span>
               </div>
               <div>{bm && rankRows.length ? <OverviewRanking rows={rankRows} mode={bm} /> : <Skeleton className="h-[280px] w-full" />}</div>
             </section>
 
             <section className="flex flex-col rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
               <div className="mb-1 flex items-baseline justify-between">
-                <h3 className="font-display text-[16px] text-navy">Trajectoire des prix</h3>
-                <span className="text-label text-muted">médiane ville · 8 trimestres</span>
+                <h3 className="font-display text-[16px] text-navy">{t("ov.price_trajectory")}</h3>
+                <span className="text-label text-muted">{t("ov.city_median_8q")}</span>
               </div>
               <p className="mb-2 text-body leading-snug text-ink-soft">{trendLine}</p>
               <div className="h-[280px]">
@@ -289,15 +293,15 @@ export default function VueEnsemble() {
 
           {/* d) Market context: one discrete line */}
           <div className="shrink-0 rounded-xl border border-navy/10 bg-cream-200 px-4 py-2.5 text-caption text-ink-soft">
-            <span className="font-medium text-ink">Contexte marché</span>
+            <span className="font-medium text-ink">{t("ov.market_context")}</span>
             <span className="mx-2 text-navy/20">·</span>
-            Prix médian {eur(market.price)}
+            {t("ov.median_price", { v: eur(market.price) })}
             <span className="mx-2 text-navy/20">·</span>
-            évolution {nn(market.yoy) ? `${fmtSigned(market.yoy, 1)}%` : "–"} sur 12 mois
+            {t("ov.yoy_12m", { v: nn(market.yoy) ? `${fmtSigned(market.yoy, 1)}%` : "–" })}
             <span className="mx-2 text-navy/20">·</span>
-            {market.tx.toLocaleString("fr-FR")} transactions / an
+            {t("ov.transactions_per_year", { n: market.tx.toLocaleString("fr-FR") })}
             <span className="mx-2 text-navy/20">·</span>
-            {market.count} {city.zoneNounPlural} suivies
+            {t("ov.zones_tracked", { n: market.count, zones: city.zoneNounPlural })}
           </div>
         </main>
       </div>

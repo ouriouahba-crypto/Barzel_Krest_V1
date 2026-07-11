@@ -14,23 +14,30 @@ import { Mode, MODE_KPI, fmtSigned } from "@/lib/scoring";
 import { ModeScore } from "@/lib/api";
 import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
+import { useT } from "@/lib/i18n/useT";
 
 const GaiaMap = dynamic(() => import("@/components/GaiaMap"), {
   ssr: false,
-  loading: () => <div className="flex h-full items-center justify-center bg-navy text-body text-cream/70">Carte…</div>,
+  loading: () => <MapLoading />,
 });
+
+function MapLoading() {
+  const t = useT();
+  return <div className="flex h-full items-center justify-center bg-navy text-body text-cream/70">{t("pg.mapLoading")}</div>;
+}
 
 // Ligne marché : registre des villes (lib/cities.ts).
 
-function detailFigures(score: ModeScore, mode: Mode): KeyFigure[] {
+function detailFigures(score: ModeScore, mode: Mode, t: (key: string, params?: Record<string, string | number>) => string): KeyFigure[] {
   const figs: KeyFigure[] = [];
-  if (score.price_eur_m2 != null) figs.push({ label: "Prix médian", value: `${Math.round(score.price_eur_m2).toLocaleString("fr-FR")} €/m²` });
+  if (score.price_eur_m2 != null) figs.push({ label: t("pg.medianPrice"), value: `${Math.round(score.price_eur_m2).toLocaleString("fr-FR")} €/m²` });
   const p = score.pillars.find((x) => x.pillar === MODE_KPI[mode].pillar && x.applicable);
   if (p) figs.push({ label: p.pillar.replace(/_/g, " "), value: p.native.label });
   return figs;
 }
 
 export default function CartePage() {
+  const t = useT();
   const g = useGaia();
   const city = cityBySlug(useCityStore((s) => s.slug));
   const noun = city.zoneNoun;              // « freguesia » (PT) / « commune » (BE)
@@ -113,7 +120,7 @@ export default function CartePage() {
               />
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                  <div className="text-label uppercase tracking-widest text-gold/90">{q.level === "municipio" ? "Vue ville" : Noun}</div>
+                  <div className="text-label uppercase tracking-widest text-gold/90">{q.level === "municipio" ? t("mp.city_view") : Noun}</div>
                   <div className="font-display text-[17px] leading-tight">{q.name}</div>
                 </div>
                 <ScoreDial score={q.total} size={52} />
@@ -122,12 +129,12 @@ export default function CartePage() {
                 <VerdictBadge mode={g.mode} verdict={q.verdict} />
               </div>
               <div className="mt-3 grid grid-cols-2 gap-2">
-                <Stat label="Prix médian" value={q.price != null ? `${Math.round(q.price).toLocaleString("fr-FR")} €/m²` : "–"} />
-                <Stat label="Croissance" value={q.yoy != null ? `${fmtSigned(q.yoy, 1)}%` : "–"} />
+                <Stat label={t("pg.medianPrice")} value={q.price != null ? `${Math.round(q.price).toLocaleString("fr-FR")} €/m²` : "–"} />
+                <Stat label={t("mp.growth")} value={q.yoy != null ? `${fmtSigned(q.yoy, 1)}%` : "–"} />
                 <Stat label={q.extra.label} value={q.extra.value} />
                 <Stat label={q.kpiLabel} value={q.kpiValue ?? "–"} />
               </div>
-              <div className="mt-3 text-label text-cream/60">Survolez une {noun} · cliquez pour le détail</div>
+              <div className="mt-3 text-label text-cream/60">{t("mp.hover_hint", { noun })}</div>
             </div>
           )}
         </main>
@@ -138,7 +145,7 @@ export default function CartePage() {
         onClose={() => setDetailOpen(false)}
         score={g.detailScore}
         mode={g.mode}
-        keyFigures={g.detailScore ? detailFigures(g.detailScore, g.mode) : []}
+        keyFigures={g.detailScore ? detailFigures(g.detailScore, g.mode, t) : []}
         haya={g.hayaProps}
         assetSlider={showAsset ? AssetSlider : null}
       />

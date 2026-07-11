@@ -10,9 +10,11 @@ import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
 import { useGaia, displayName, shortName } from "@/lib/useGaia";
 import { LandbankBreakdown, ModeScore } from "@/lib/api";
-import { Mode, MODES, MODE_LABEL, MODE_ROUTE, classLabel, fmtNum, fmtSigned, pillarValue } from "@/lib/scoring";
+import { Mode, MODES, MODE_ROUTE, classLabel, fmtNum, fmtSigned, pillarValue } from "@/lib/scoring";
 import { pctSigned } from "@/lib/arbitrage";
 import { CompareColumn, CompareModeCell, compareInsight, compareSynthesis } from "@/lib/insights";
+import { useT, useLang } from "@/lib/i18n/useT";
+import { modeLabel } from "@/lib/i18n/domain";
 
 // Ligne marché : registre des villes (lib/cities.ts).
 
@@ -42,6 +44,8 @@ function metricDisplay(c: CompareModeCell): string {
 }
 
 export default function ComparerPage() {
+  const t = useT();
+  const lang = useLang();
   const g = useGaia();
   const city = cityBySlug(useCityStore((s) => s.slug));
   const [selected, setSelected] = useState<string[]>([]);
@@ -151,7 +155,7 @@ export default function ComparerPage() {
 
         {g.error && (
           <div className="mx-6 mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-body text-red-700">
-            Backend injoignable : lancez l'API (uvicorn backend.main:app). {g.error}
+            {t("pg.backendError")} {g.error}
           </div>
         )}
 
@@ -160,14 +164,13 @@ export default function ComparerPage() {
           <div>
             <div className="flex items-center gap-3">
               <span className="inline-block h-5 w-1.5 rounded-full bg-gold" />
-              <h2 className="font-display text-[24px] leading-none text-navy">Comparer</h2>
+              <h2 className="font-display text-[24px] leading-none text-navy">{t("cmp.title")}</h2>
               <span className="rounded-full border border-gold/40 bg-gold/[0.06] px-2.5 py-0.5 text-label font-medium text-gold-700">
-                4 modes · {classLabel(cls)}
+                {t("cmp.fourModes")} · {classLabel(cls)}
               </span>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
-              Deux ou trois {city.zoneNounPlural} côte à côte, à travers les quatre lectures du même marché :
-              la couche de décision avant d'entrer dans chaque module.
+              {t("cmp.lead", { plural: city.zoneNounPlural })}
             </p>
           </div>
 
@@ -187,9 +190,9 @@ export default function ComparerPage() {
                   }`}
                 >
                   {slot === 2 ? (
-                    <option value="">{value ? "– Retirer –" : `+ Ajouter une ${city.zoneNoun}`}</option>
+                    <option value="">{value ? t("cmp.remove") : t("cmp.addZone", { noun: city.zoneNoun })}</option>
                   ) : (
-                    !value && <option value="">Choisir une {city.zoneNoun}…</option>
+                    !value && <option value="">{t("cmp.chooseZone", { noun: city.zoneNoun })}</option>
                   )}
                   {options.map((f) => (
                     <option key={f.id} value={f.id}>
@@ -209,9 +212,9 @@ export default function ComparerPage() {
 
                 {/* a) carte d'identité */}
                 <div className="mt-3 grid grid-cols-3 gap-2">
-                  <Ident label="Prix médian" value={col.price != null ? `${Math.round(col.price).toLocaleString("fr-FR")} €/m²` : "–"} />
-                  <Ident label="Sur 12 mois" value={col.yoy != null ? `${fmtSigned(col.yoy, 1)}%` : "–"} />
-                  <Ident label="Transactions" value={col.tx != null ? `${col.tx.toLocaleString("fr-FR")} / an` : "–"} sub="tous segments" />
+                  <Ident label={t("pg.medianPrice")} value={col.price != null ? `${Math.round(col.price).toLocaleString("fr-FR")} €/m²` : "–"} />
+                  <Ident label={t("cmp.over12Months")} value={col.yoy != null ? `${fmtSigned(col.yoy, 1)}%` : "–"} />
+                  <Ident label={t("cmp.transactions")} value={col.tx != null ? `${col.tx.toLocaleString("fr-FR")} / an` : "–"} sub={t("cmp.allSegments")} />
                 </div>
 
                 {/* b) les 4 modes empilés */}
@@ -222,7 +225,7 @@ export default function ComparerPage() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <span className="text-label font-semibold uppercase tracking-widest text-muted">
-                            {MODE_LABEL[c.mode]}
+                            {modeLabel(c.mode, lang)}
                           </span>
                           <VerdictBadge mode={c.mode} verdict={c.verdict} />
                         </div>
@@ -232,7 +235,7 @@ export default function ComparerPage() {
                         href={MODE_ROUTE[c.mode]}
                         className="shrink-0 text-btn font-medium text-gold-700 transition-colors hover:text-gold-600"
                       >
-                        Voir en détail →
+                        {t("cmp.viewDetail")}
                       </Link>
                     </div>
                   ))}
@@ -240,14 +243,14 @@ export default function ComparerPage() {
 
                 {/* c) signal dominant */}
                 <div className="mt-auto border-t border-dashed border-navy/15 pt-3">
-                  <span className="text-label font-semibold uppercase tracking-widest text-gold-700">Signal dominant</span>
+                  <span className="text-label font-semibold uppercase tracking-widest text-gold-700">{t("cmp.dominantSignal")}</span>
                   <p className="mt-1 text-body leading-snug text-ink">{compareInsight(col.cells)}</p>
                 </div>
               </section>
             ))}
             {columns.length === 0 && (
               <div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-navy/10 bg-white text-body text-ink-soft shadow-card xl:col-span-2">
-                {dataReady ? `Sélectionnez une ${city.zoneNoun} à comparer` : `Chargement des ${city.zoneNounPlural}…`}
+                {dataReady ? t("cmp.emptySelect", { noun: city.zoneNoun }) : t("table.loading", { pl: city.zoneNounPlural })}
               </div>
             )}
           </div>
@@ -260,9 +263,9 @@ export default function ComparerPage() {
               right={
                 advantage ? (
                   <div className="text-right">
-                    <div className="text-label uppercase tracking-widest text-cream/70">Avantage · {advantage.short}</div>
+                    <div className="text-label uppercase tracking-widest text-cream/70">{t("cmp.advantage")} · {advantage.short}</div>
                     <div className="font-display text-kpi-hero leading-none text-gold">{advantage.won} / 4</div>
-                    <div className="text-label text-cream/70">modes en tête</div>
+                    <div className="text-label text-cream/70">{t("cmp.modesLeading")}</div>
                   </div>
                 ) : undefined
               }

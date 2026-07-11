@@ -14,6 +14,7 @@ import { useGaia } from "@/lib/useGaia";
 import { classLabel, verdictTone } from "@/lib/scoring";
 import { arbRows, arbSummary, ArbRow, pctSigned } from "@/lib/arbitrage";
 import { arbitrageInsight, anomalyNote } from "@/lib/insights";
+import { useT } from "@/lib/i18n/useT";
 
 const SANTA = "santamarinhaesaopedrodaafurada";
 // Ligne marché : registre des villes (lib/cities.ts).
@@ -33,6 +34,7 @@ const CONTEXT: Record<string, string> = {
 };
 
 export default function ArbitragePage() {
+  const t = useT();
   const g = useGaia();
   const city = cityBySlug(useCityStore((s) => s.slug));
   const [selected, setSelected] = useState<string[]>([]);
@@ -73,7 +75,7 @@ export default function ArbitragePage() {
   }, [allRows]);
 
   const zn = { sg: city.zoneNoun, pl: city.zoneNounPlural };
-  const scopeLabel = summary.scope === "viables" ? `${zn.pl} viables` : `toutes ${zn.pl}`;
+  const scopeLabel = summary.scope === "viables" ? t("pg.scopeViable", { zones: zn.pl }) : t("pg.scopeAll", { zones: zn.pl });
 
   // Conclusion layer: page insight + banner right block + anomaly note.
   // Décompte autoritaire (backend, maille fine hors municipio) : le texte de
@@ -123,7 +125,7 @@ export default function ArbitragePage() {
 
         {g.error && (
           <div className="mx-6 mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-body text-red-700">
-            Backend injoignable : lancez l'API (uvicorn backend.main:app). {g.error}
+            {t("pg.backendError")} {g.error}
           </div>
         )}
 
@@ -132,9 +134,9 @@ export default function ArbitragePage() {
           <div>
             <div className="flex items-center gap-3">
               <span className="inline-block h-5 w-1.5 rounded-full bg-gold" />
-              <h2 className="font-display text-[24px] leading-none text-navy">Arbitrage</h2>
+              <h2 className="font-display text-[24px] leading-none text-navy">{t("pga.title")}</h2>
               <span className="rounded-full border border-gold/40 bg-gold/[0.06] px-2.5 py-0.5 text-label font-medium text-gold-700">
-                Arbitrage · {classLabel(cls)}
+                {t("pga.title")} · {classLabel(cls)}
               </span>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
@@ -149,7 +151,7 @@ export default function ArbitragePage() {
             right={
               bestWindow ? (
                 <div className="text-right">
-                  <div className="text-label uppercase tracking-widest text-cream/70">Meilleure fenêtre · {bestWindow.short}</div>
+                  <div className="text-label uppercase tracking-widest text-cream/70">{t("pga.best_window")} · {bestWindow.short}</div>
                   <div className="font-display text-kpi-hero leading-none text-gold">{pctSigned(bestWindow.spreadPct, 0)}</div>
                 </div>
               ) : undefined
@@ -159,24 +161,24 @@ export default function ArbitragePage() {
           {/* 4 key figures: medians on viable freguesias (ouverte/étroite) */}
           <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
             <Kpi
-              label="Spread médian"
+              label={t("pga.kpi_spread")}
               value={summary.medianSpread != null ? pctSigned(summary.medianSpread, 0) : "–"}
               sub={scopeLabel}
             />
             <Kpi
-              label="Délai de cession médian"
+              label={t("pga.kpi_delai")}
               value={summary.medianDelai != null ? `${summary.medianDelai.toFixed(1)} mois` : "–"}
               sub={scopeLabel}
             />
             <Kpi
-              label="Appétit dominant"
+              label={t("pga.kpi_appetit")}
               value={summary.appetit ? summary.appetit.charAt(0).toUpperCase() + summary.appetit.slice(1) : "–"}
-              sub="appétit institutionnel"
+              sub={t("pga.kpi_appetit_sub")}
             />
             <Kpi
-              label="Fenêtres ouvertes"
+              label={t("pga.kpi_open")}
               value={summary.totalCount ? `${summary.openCount} / ${summary.totalCount}` : "–"}
-              sub="verdict Fenêtre ouverte"
+              sub={t("pga.kpi_open_sub")}
             />
           </div>
 
@@ -192,7 +194,7 @@ export default function ArbitragePage() {
           {/* Analysis note: the most telling exception (if any) */}
           {note && (
             <div className="-mt-2 shrink-0 pl-1 text-body leading-snug text-ink-soft">
-              <span className="text-label font-semibold uppercase tracking-widest text-gold-700">Note d'analyse</span>
+              <span className="text-label font-semibold uppercase tracking-widest text-gold-700">{t("pg.analysisNote")}</span>
               <span className="mx-2 text-navy/20">·</span>
               {note}
             </div>
@@ -205,8 +207,7 @@ export default function ArbitragePage() {
               <div className="flex flex-col gap-2">
                 <CaisSlider {...assetProps} />
                 <p className="px-1 text-caption leading-snug text-ink-soft">
-                  Curseur temps réel sur l'actif K-REST à Santa Marinha : ajustez le prix de
-                  cession visé pour voir le spread, le délai et le verdict se recalculer.
+                  {t("pga.asset_caption")}
                 </p>
               </div>
             )}
@@ -221,7 +222,7 @@ export default function ArbitragePage() {
               onSelect={g.setFocusZone}
               classLabel={classLabel(cls)}
               metric={(r) => r.spreadPct}
-              title={`Spread % par ${zn.sg}`}
+              title={t("pga.chart_title", { zone: zn.sg })}
               metricLabel="spread"
               digits={1}
             />

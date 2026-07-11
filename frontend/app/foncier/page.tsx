@@ -14,6 +14,7 @@ import { verdictTone } from "@/lib/scoring";
 import { pctSigned } from "@/lib/arbitrage";
 import { fcRows, fcSummary, FcRow } from "@/lib/foncier";
 import { landbankInsight, anomalyNote } from "@/lib/insights";
+import { useT } from "@/lib/i18n/useT";
 
 const CANIDELO = "canidelo";
 // Ligne marché : registre des villes (lib/cities.ts).
@@ -21,11 +22,9 @@ const CANIDELO = "canidelo";
 // Landbank reads the land itself, not an asset class: the residual value per
 // usage answers the class question: the class selector is hidden (hideClass)
 // and the context line says why. Monte Claro's usage selector stays fully live.
-const CONTEXT =
-  "Le foncier ne vaut que par ce qu'on peut y construire : valeur résiduelle par usage (marge promoteur normative 15 %), uplift face au foncier de marché, horizon d'activation. " +
-  "Le foncier est analysé tous usages confondus : la colonne meilleur usage arbitre entre les cinq classes.";
 
 export default function FoncierPage() {
+  const t = useT();
   const g = useGaia();
   const city = cityBySlug(useCityStore((s) => s.slug));
   const [selected, setSelected] = useState<string[]>([]);
@@ -53,7 +52,8 @@ export default function FoncierPage() {
   }, [allRows]);
 
   const zn = { sg: city.zoneNoun, pl: city.zoneNounPlural };
-  const scopeLabel = summary.scope === "viables" ? `${zn.pl} viables` : `toutes ${zn.pl}`;
+  const scopeLabel =
+    summary.scope === "viables" ? t("pg.scopeViable", { zones: zn.pl }) : t("pg.scopeAll", { zones: zn.pl });
 
   // Conclusion layer: page insight + banner right block + anomaly note.
   // Décompte autoritaire (backend, maille fine hors municipio) : le texte de
@@ -104,7 +104,7 @@ export default function FoncierPage() {
 
         {g.error && (
           <div className="mx-6 mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-body text-red-700">
-            Backend injoignable : lancez l'API (uvicorn backend.main:app). {g.error}
+            {t("pg.backendError")} {g.error}
           </div>
         )}
 
@@ -113,12 +113,12 @@ export default function FoncierPage() {
           <div>
             <div className="flex items-center gap-3">
               <span className="inline-block h-5 w-1.5 rounded-full bg-gold" />
-              <h2 className="font-display text-[24px] leading-none text-navy">Foncier</h2>
+              <h2 className="font-display text-[24px] leading-none text-navy">{t("pgf.title")}</h2>
               <span className="rounded-full border border-gold/40 bg-gold/[0.06] px-2.5 py-0.5 text-label font-medium text-gold-700">
-                Landbank · Tous usages
+                {t("pgf.chip")}
               </span>
             </div>
-            <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">{CONTEXT}</p>
+            <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">{t("pgf.context")}</p>
           </div>
 
           {/* Conclusion banner (shared InsightBanner) */}
@@ -128,7 +128,7 @@ export default function FoncierPage() {
             right={
               bestPotential ? (
                 <div className="text-right">
-                  <div className="text-label uppercase tracking-widest text-cream/70">Meilleur potentiel · {bestPotential.short}</div>
+                  <div className="text-label uppercase tracking-widest text-cream/70">{t("pgf.bestPotential", { short: bestPotential.short })}</div>
                   <div className="font-display text-kpi-hero leading-none text-gold">{pctSigned(bestPotential.upliftPct, 0)}</div>
                 </div>
               ) : undefined
@@ -138,24 +138,24 @@ export default function FoncierPage() {
           {/* 4 key figures: medians on viable freguesias (Prioritaire/À phaser) */}
           <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
             <Kpi
-              label="Uplift médian"
+              label={t("pgf.kpiMedianUplift")}
               value={summary.medianUplift != null ? pctSigned(summary.medianUplift, 0) : "–"}
               sub={scopeLabel}
             />
             <Kpi
-              label="Constructibilité médiane"
+              label={t("pgf.kpiMedianBuildability")}
               value={summary.medianConstructibilite != null ? `${Math.round(summary.medianConstructibilite)}` : "–"}
               sub={scopeLabel}
             />
             <Kpi
-              label="Meilleur usage dominant"
+              label={t("pgf.kpiDominantUse")}
               value={summary.usageDominant ? summary.usageDominant.charAt(0).toUpperCase() + summary.usageDominant.slice(1) : "–"}
               sub={scopeLabel}
             />
             <Kpi
-              label="Prioritaires"
+              label={t("pgf.kpiPriority")}
               value={summary.totalCount ? `${summary.prioCount} / ${summary.totalCount}` : "–"}
-              sub="verdict Prioritaire"
+              sub={t("pgf.kpiPrioritySub")}
             />
           </div>
 
@@ -170,7 +170,7 @@ export default function FoncierPage() {
           {/* Analysis note: the most telling exception (if any) */}
           {note && (
             <div className="-mt-2 shrink-0 pl-1 text-body leading-snug text-ink-soft">
-              <span className="text-label font-semibold uppercase tracking-widest text-gold-700">Note d'analyse</span>
+              <span className="text-label font-semibold uppercase tracking-widest text-gold-700">{t("pg.analysisNote")}</span>
               <span className="mx-2 text-navy/20">·</span>
               {note}
             </div>
@@ -185,16 +185,15 @@ export default function FoncierPage() {
               onSelect={g.setFocusZone}
               classLabel="tous usages"
               metric={(r) => r.upliftPct}
-              title={`Uplift % par ${zn.sg}`}
-              metricLabel="uplift"
+              title={t("pgf.chartTitle", { noun: zn.sg })}
+              metricLabel={t("pgf.metricUplift")}
               digits={1}
             />
             {assetProps && (
               <div className="flex flex-col gap-2">
                 <MonteClaroSelector {...assetProps} />
                 <p className="px-1 text-caption leading-snug text-ink-soft">
-                  Sélecteur temps réel sur l'actif K-REST à Canidelo : changez l'usage du terrain
-                  pour voir la valeur résiduelle, l'uplift et le verdict se recalculer.
+                  {t("pgf.monteClaroCaption")}
                 </p>
               </div>
             )}

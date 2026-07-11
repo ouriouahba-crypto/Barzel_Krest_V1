@@ -10,6 +10,7 @@ import { classLabel, pillarValue } from "@/lib/scoring";
 import { rdRows } from "@/lib/rendement";
 import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
+import { useT } from "@/lib/i18n/useT";
 
 // Page transverse de contexte énergie. Tout le contenu spécifique au régime du
 // pays (échelle SCE, parc, frise réglementaire, textes, simulateur) vient de la
@@ -27,6 +28,7 @@ const tonePill = {
 } as const;
 
 export default function EnergiePage() {
+  const t = useT();
   const g = useGaia();
   const city = cityBySlug(useCityStore((s) => s.slug));
   const E = city.energie;
@@ -103,7 +105,7 @@ export default function EnergiePage() {
           <div>
             <div className="flex items-center gap-3">
               <span className="inline-block h-5 w-1.5 rounded-full bg-gold" />
-              <h2 className="font-display text-[24px] leading-none text-navy">Énergie</h2>
+              <h2 className="font-display text-[24px] leading-none text-navy">{t("nrg.title")}</h2>
               <span className="rounded-full border border-gold/40 bg-gold/[0.06] px-2.5 py-0.5 text-label font-medium text-gold-700">
                 {E.PAGE.chipPrefix} · {classLabel(cls)}
               </span>
@@ -150,7 +152,7 @@ export default function EnergiePage() {
                 href={E.PAGE.platform.to}
                 className="mt-4 block rounded-xl border border-gold/30 bg-gold/[0.07] px-3 py-2 text-btn leading-snug text-gold-700 transition-colors hover:bg-gold/15"
               >
-                <span className="text-label font-semibold uppercase tracking-wide">Dans la plateforme</span>
+                <span className="text-label font-semibold uppercase tracking-wide">{t("pg.inPlatform")}</span>
                 <br />
                 {E.PAGE.platform.label}
               </Link>
@@ -166,7 +168,7 @@ export default function EnergiePage() {
                   />
                 ) : (
                   <div className="flex min-h-[280px] items-center justify-center rounded-2xl bg-navy text-body text-cream/70 shadow-card">
-                    Chargement…
+                    {t("pg.loading")}
                   </div>
                 )}
                 <p className="px-1 text-caption leading-snug text-ink-soft">
@@ -213,7 +215,7 @@ export default function EnergiePage() {
                   {rows.length === 0 && (
                     <tr>
                       <td colSpan={6} className="px-4 py-10 text-center text-body text-ink-soft">
-                        Chargement des {city.zoneNounPlural}…
+                        {t("table.loading", { pl: city.zoneNounPlural })}
                       </td>
                     </tr>
                   )}
