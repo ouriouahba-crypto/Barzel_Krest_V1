@@ -33,6 +33,13 @@ export function kpiLabelFor(mode: Mode, lang: Lang): string {
   return dicts[lang]?.[key] ?? dicts[DEFAULT_LANG][key] ?? mode;
 }
 
+// Forme courte du libelle KPI (ex-`kpi.label.replace(" médiane","").replace(" méd.","")`
+// dans useGaia). Cle dediee kpiShort.<mode> ; repli EN puis mode brut.
+export function kpiShortLabelFor(mode: Mode, lang: Lang): string {
+  const key = "kpiShort." + mode;
+  return dicts[lang]?.[key] ?? dicts[DEFAULT_LANG][key] ?? mode;
+}
+
 // Titre de pilier lang-aware (lot i18n-1c). Repli identique a pillarTitle
 // (scoring.ts) : cle inconnue -> key.replace("_"," "). scoring.ts reste inchange.
 export function pillarLabelFor(key: string, lang: Lang): string {
