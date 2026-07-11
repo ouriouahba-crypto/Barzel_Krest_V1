@@ -70,7 +70,15 @@ export default function RendementPage() {
   // synthèse ne recompte pas seul, il consomme le même décompte que le tableau.
   const keepCount = g.detentionCity?.verdict_counts?.["Conserver"];
   const rdLine = useMemo(
-    () => detentionInsight(allRows, cls, cls === "residential" ? city.texts.yieldTrapClause : undefined, zn, keepCount, lang),
+    () =>
+      detentionInsight(
+        allRows,
+        cls,
+        cls === "residential" && city.texts.yieldTrapClause ? t(city.texts.yieldTrapClause) : undefined,
+        zn,
+        keepCount,
+        lang
+      ),
     [allRows, cls, city.texts.yieldTrapClause, keepCount, zn.sg, zn.pl, lang]
   );
   // Banner right block: the best-held freguesia (top-score Conserver, else top
@@ -88,7 +96,7 @@ export default function RendementPage() {
   const autoNote = useMemo(() => anomalyNote("detention", fregScores, lang), [fregScores, lang]);
   // Note dédiée de la ville (clause AL lisboète) prioritaire sur la note auto,
   // en résidentiel seulement ; Gaia garde sa note générée (São Félix intacte).
-  const note = (cls === "residential" && city.texts.detentionNote) || autoNote;
+  const note = (cls === "residential" && city.texts.detentionNote ? t(city.texts.detentionNote) : null) || autoNote;
 
   // K-REST featured asset (Ribeira Sul), shown for Santa Marinha / résidentiel,
   // fed by the freguesia's own rates, market rent and score.
@@ -106,7 +114,7 @@ export default function RendementPage() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={city.texts.marketLines.rendement}
+          marketLine={t(city.texts.marketLines.rendement)}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}

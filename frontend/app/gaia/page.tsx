@@ -78,7 +78,7 @@ export default function CartePage() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={city.texts.marketLines.carte}
+          marketLine={t(city.texts.marketLines.carte)}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}

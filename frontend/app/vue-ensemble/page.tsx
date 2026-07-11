@@ -122,7 +122,7 @@ export default function VueEnsemble() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={city.texts.marketLines.vueEnsemble}
+          marketLine={t(city.texts.marketLines.vueEnsemble)}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}

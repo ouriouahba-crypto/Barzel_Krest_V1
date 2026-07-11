@@ -73,7 +73,15 @@ export default function PrixMargePage() {
     return vc ? (vc["Go"] ?? 0) + (vc["Conditionnel"] ?? 0) : undefined;
   }, [g.promoCity]);
   const pmLine = useMemo(
-    () => priceMarginInsight(allRows, cls, city.texts.promoSelectiveRest, zn, viableCount, lang),
+    () =>
+      priceMarginInsight(
+        allRows,
+        cls,
+        city.texts.promoSelectiveRest ? t(city.texts.promoSelectiveRest) : undefined,
+        zn,
+        viableCount,
+        lang
+      ),
     [allRows, cls, city.texts.promoSelectiveRest, zn.sg, zn.pl, viableCount, lang]
   );
   const maxRow = useMemo(
@@ -91,7 +99,7 @@ export default function PrixMargePage() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={city.texts.marketLines.prixMarge}
+          marketLine={t(city.texts.marketLines.prixMarge)}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}
@@ -119,7 +127,11 @@ export default function PrixMargePage() {
               </span>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
-              {cls === "residential" ? city.texts.promoContextResidential : CONTEXT[cls] ? t(CONTEXT[cls]) : city.texts.promoContextResidential}
+              {cls === "residential"
+                ? t(city.texts.promoContextResidential)
+                : CONTEXT[cls]
+                ? t(CONTEXT[cls])
+                : t(city.texts.promoContextResidential)}
             </p>
           </div>
 
@@ -190,7 +202,7 @@ export default function PrixMargePage() {
               <div className="flex flex-col gap-2">
                 <AssetSlider {...g.hayaProps} />
                 <p className="px-1 text-caption leading-snug text-ink-soft">
-                  {city.texts.promoAssetCaption}
+                  {city.texts.promoAssetCaption && t(city.texts.promoAssetCaption)}
                 </p>
               </div>
             )}

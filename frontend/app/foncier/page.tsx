@@ -91,7 +91,7 @@ export default function FoncierPage() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={city.texts.marketLines.foncier}
+          marketLine={t(city.texts.marketLines.foncier)}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}
