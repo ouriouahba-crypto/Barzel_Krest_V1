@@ -85,7 +85,7 @@ export default function RendementPage() {
     () => (g.detentionCity?.zones ?? []).filter((z) => z.level !== "municipio"),
     [g.detentionCity]
   );
-  const autoNote = useMemo(() => anomalyNote("detention", fregScores), [fregScores]);
+  const autoNote = useMemo(() => anomalyNote("detention", fregScores, lang), [fregScores, lang]);
   // Note dédiée de la ville (clause AL lisboète) prioritaire sur la note auto,
   // en résidentiel seulement ; Gaia garde sa note générée (São Félix intacte).
   const note = (cls === "residential" && city.texts.detentionNote) || autoNote;

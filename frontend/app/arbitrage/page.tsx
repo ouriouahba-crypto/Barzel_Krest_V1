@@ -92,7 +92,7 @@ export default function ArbitragePage() {
     () => (g.arbitrageCity?.zones ?? []).filter((z) => z.level !== "municipio"),
     [g.arbitrageCity]
   );
-  const note = useMemo(() => anomalyNote("arbitrage", fregScores), [fregScores]);
+  const note = useMemo(() => anomalyNote("arbitrage", fregScores, lang), [fregScores, lang]);
 
   // K-REST featured asset (Cais Poente), shown for Santa Marinha / résidentiel,
   // fed by the freguesia's own médiane, realizable value, rotation and score.

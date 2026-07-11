@@ -84,7 +84,7 @@ export default function PrixMargePage() {
     () => (g.promoCity?.zones ?? []).filter((z) => z.level !== "municipio"),
     [g.promoCity]
   );
-  const note = useMemo(() => anomalyNote("promotion", fregScores), [fregScores]);
+  const note = useMemo(() => anomalyNote("promotion", fregScores, lang), [fregScores, lang]);
 
   return (
     <div className="flex h-screen overflow-hidden">
