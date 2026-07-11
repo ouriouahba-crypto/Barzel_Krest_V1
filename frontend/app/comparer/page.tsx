@@ -14,7 +14,7 @@ import { Mode, MODES, MODE_ROUTE, classLabel, fmtNum, fmtSigned, pillarValue } f
 import { pctSigned } from "@/lib/arbitrage";
 import { CompareColumn, CompareModeCell, compareInsight, compareSynthesis } from "@/lib/insights";
 import { useT, useLang } from "@/lib/i18n/useT";
-import { modeLabel } from "@/lib/i18n/domain";
+import { modeLabel, classLabelFor } from "@/lib/i18n/domain";
 
 // Ligne marché : registre des villes (lib/cities.ts).
 
@@ -258,7 +258,7 @@ export default function ComparerPage() {
           {/* Comparative synthesis */}
           {synthesis && (
             <InsightBanner
-              eyebrow={`Synthèse comparative · ${classLabel(cls)}`}
+              eyebrow={`${t("eyb.comparativeSynthesis")} · ${classLabelFor(cls, lang)}`}
               sentence={synthesis}
               right={
                 advantage ? (

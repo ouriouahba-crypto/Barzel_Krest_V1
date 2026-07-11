@@ -14,21 +14,17 @@ import { priceMarginInsight, anomalyNote } from "@/lib/insights";
 import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
 import { useT, useLang } from "@/lib/i18n/useT";
-import { modeLabel } from "@/lib/i18n/domain";
+import { modeLabel, classLabelFor } from "@/lib/i18n/domain";
 
 // Ligne marché et contexte résidentiel : registre des villes (lib/cities.ts).
 
-// Promotion economics, one line per class.
+// Promotion economics, one line per class (prose résolue par t() ; clés ctx.pm.*).
+// Le résidentiel vient du registre (city.texts.promoContextResidential).
 const CONTEXT: Record<string, string> = {
-
-  office:
-    "Bureaux : la marge repose sur le loyer de marché capitalisé et sur un foncier plus lourd dans la valeur. Le front de fleuve concentre la demande.",
-  hotel:
-    "Hôtellerie : prix de sortie élevés côté fleuve, mais construction et foncier plus lourds ; la marge récompense les emplacements à forte fréquentation.",
-  logistics:
-    "Logistique : construction modérée mais prix de sortie bas ; la marge se gagne sur un foncier bon marché en périphérie.",
-  retail:
-    "Commerce : loyers prime élevés mais foncier très lourd dans la valeur ; la marge de promotion reste étroite hors emplacements n°1.",
+  office: "ctx.pm.office",
+  hotel: "ctx.pm.hotel",
+  logistics: "ctx.pm.logistics",
+  retail: "ctx.pm.retail",
 };
 
 export default function PrixMargePage() {
@@ -123,13 +119,13 @@ export default function PrixMargePage() {
               </span>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
-              {cls === "residential" ? city.texts.promoContextResidential : CONTEXT[cls] ?? city.texts.promoContextResidential}
+              {cls === "residential" ? city.texts.promoContextResidential : CONTEXT[cls] ? t(CONTEXT[cls]) : city.texts.promoContextResidential}
             </p>
           </div>
 
           {/* Conclusion banner (shared InsightBanner) */}
           <InsightBanner
-            eyebrow={`Verdict promotion · ${classLabel(cls)}`}
+            eyebrow={`${t("eyb.verdictPromotion")} · ${classLabelFor(cls, lang)}`}
             sentence={pmLine}
             right={
               maxRow ? (
