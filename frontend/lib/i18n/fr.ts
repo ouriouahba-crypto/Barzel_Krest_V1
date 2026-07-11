@@ -420,4 +420,18 @@ export const fr: Dict = {
   "arb.clause.momentum_cycle": "un cycle de prix défavorable au timing de cession",
   "arb.clause.frictions_sortie": "des frictions de sortie trop lourdes",
   "arb.clause.cout_opportunite": "un coût du capital qui mange l'écart",
+  // --- landbankInsight trilingue (lot i18n-insights-5). FR byte-identique.
+  // La clause de queue reutilise det.whyRest (deja trilingue). ---
+  "lb.headN": "L'activation foncière est prioritaire sur {n} {pl}, menées par {list}.",
+  "lb.head2": "L'activation foncière est prioritaire sur 2 {pl} : {list}.",
+  "lb.head1": "Une seule {sg} est prioritaire à l'activation foncière : {list}.",
+  "lb.noneTrap": "Aucune {sg} n'est prioritaire à l'activation foncière ce cycle.{trap}",
+  "lb.none": "Aucune {sg} n'est prioritaire à l'activation foncière ce cycle{tail}.",
+  "lb.noneTail": " : meilleur uplift {u} à {short}",
+  "lb.trapDefault": "Constructible ne veut pas dire activable : {short} (constructibilité {c}) attend encore son marché.",
+  "lb.clause.constructibilite": "des droits à bâtir trop contraints",
+  "lb.clause.valeur_meilleur_usage": "des valeurs de sortie trop basses pour couvrir le foncier",
+  "lb.clause.connectivite": "une desserte insuffisante pour porter un programme",
+  "lb.clause.incitations": "des incitations locales trop faibles",
+  "lb.clause.risque_timing": "un risque réglementaire qui repousse l'activation",
 };

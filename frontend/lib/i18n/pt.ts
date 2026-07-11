@@ -417,4 +417,18 @@ export const pt: Dict = {
   "arb.clause.momentum_cycle": "um ciclo de preços desfavorável ao timing de alienação",
   "arb.clause.frictions_sortie": "atritos de saída demasiado pesados",
   "arb.clause.cout_opportunite": "um custo de capital que consome o diferencial",
+  // --- landbankInsight trilingue (lot i18n-insights-5). A clausula final
+  // reutiliza det.whyRest (ja trilingue). ---
+  "lb.headN": "A ativação fundiária é prioritária em {n} {pl}, lideradas por {list}.",
+  "lb.head2": "A ativação fundiária é prioritária em 2 {pl}: {list}.",
+  "lb.head1": "Só uma {sg} é prioritária para a ativação fundiária: {list}.",
+  "lb.noneTrap": "Nenhuma {sg} é prioritária para a ativação fundiária este ciclo.{trap}",
+  "lb.none": "Nenhuma {sg} é prioritária para a ativação fundiária este ciclo{tail}.",
+  "lb.noneTail": ": melhor uplift {u} em {short}",
+  "lb.trapDefault": "Edificável não significa ativável: {short} (edificabilidade {c}) ainda espera pelo seu mercado.",
+  "lb.clause.constructibilite": "direitos de construção demasiado limitados",
+  "lb.clause.valeur_meilleur_usage": "valores de saída demasiado baixos para cobrir o terreno",
+  "lb.clause.connectivite": "acessibilidade insuficiente para suportar um programa",
+  "lb.clause.incitations": "incentivos locais demasiado fracos",
+  "lb.clause.risque_timing": "um risco regulamentar que adia a ativação",
 };

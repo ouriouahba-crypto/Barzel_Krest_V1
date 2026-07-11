@@ -421,4 +421,18 @@ export const en: Dict = {
   "arb.clause.momentum_cycle": "a price cycle unfavourable to disposal timing",
   "arb.clause.frictions_sortie": "exit frictions too heavy",
   "arb.clause.cout_opportunite": "a cost of capital that eats the gap",
+  // --- landbankInsight trilingue (lot i18n-insights-5). Tail clause reuses
+  // det.whyRest (already trilingual). ---
+  "lb.headN": "Land activation is a priority on {n} {pl}, led by {list}.",
+  "lb.head2": "Land activation is a priority on 2 {pl}: {list}.",
+  "lb.head1": "A single {sg} is a priority for land activation: {list}.",
+  "lb.noneTrap": "No {sg} is a priority for land activation this cycle.{trap}",
+  "lb.none": "No {sg} is a priority for land activation this cycle{tail}.",
+  "lb.noneTail": ": best uplift {u} in {short}",
+  "lb.trapDefault": "Buildable does not mean activatable: {short} (buildability {c}) is still waiting for its market.",
+  "lb.clause.constructibilite": "building rights too constrained",
+  "lb.clause.valeur_meilleur_usage": "exit values too low to cover the land",
+  "lb.clause.connectivite": "insufficient access to support a programme",
+  "lb.clause.incitations": "local incentives too weak",
+  "lb.clause.risque_timing": "a regulatory risk that pushes back activation",
 };

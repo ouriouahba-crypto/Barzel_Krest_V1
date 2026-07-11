@@ -486,16 +486,23 @@ const LAND_CLAUSE: Record<string, string> = {
   risque_timing: "un risque réglementaire qui repousse l'activation",
 };
 
-// "Name (+47%)" list with a French final "et".
-function upliftList(rows: FcRow[]): string {
+// "Name (+47%)" list with a language-aware final conjunction (« et » / " and " /
+// " e "). Le formatage du nombre (pctSigned, signe inclus) reste inchangé.
+function upliftList(rows: FcRow[], lang: Lang): string {
   const parts = rows.map((r) => `${r.name} (${pctSigned(r.upliftPct, 0)})`);
   if (parts.length <= 1) return parts.join("");
-  return parts.slice(0, -1).join(", ") + " et " + parts[parts.length - 1];
+  const and = lang === "en" ? " and " : lang === "pt" ? " e " : " et ";
+  return parts.slice(0, -1).join(", ") + and + parts[parts.length - 1];
 }
 
 // `prioCount` : décompte autoritaire des Prioritaire servi par le backend
 // (verdict_counts, maille fine hors municipio) ; le texte ne recompte pas seul.
-export function landbankInsight(rows: FcRow[], noun: ZoneNoun = FREG_NOUN, prioCount?: number): string {
+export function landbankInsight(
+  rows: FcRow[],
+  noun: ZoneNoun = FREG_NOUN,
+  prioCount?: number,
+  lang: Lang = "fr"
+): string {
   if (!rows.length) return LOADING;
   const prio = rows
     .filter((r) => verdictTone("landbank", r.verdict) === "good")
@@ -507,15 +514,19 @@ export function landbankInsight(rows: FcRow[], noun: ZoneNoun = FREG_NOUN, prioC
   const maxC = rows.length ? rows.reduce((a, b) => (b.constructibilite > a.constructibilite ? b : a)) : null;
   const trap =
     maxC && verdictTone("landbank", maxC.verdict) !== "good"
-      ? ` Constructible ne veut pas dire activable : ${maxC.short} (constructibilité ${Math.round(maxC.constructibilite)}) attend encore son marché.`
+      ? " " + translate("lb.trapDefault", lang, { short: maxC.short, c: Math.round(maxC.constructibilite) })
       : "";
 
   if (n === 0) {
-    if (trap) return `Aucune ${noun.sg} n'est prioritaire à l'activation foncière ce cycle.${trap}`;
+    if (trap) return translate("lb.noneTrap", lang, { sg: noun.sg, trap });
     const best = [...rows].sort((a, b) => b.upliftPct - a.upliftPct)[0];
-    const tail = best ? ` : meilleur uplift ${pctSigned(best.upliftPct, 0)} à ${best.short}` : "";
-    return `Aucune ${noun.sg} n'est prioritaire à l'activation foncière ce cycle${tail}.`;
+    const tail = best ? translate("lb.noneTail", lang, { u: pctSigned(best.upliftPct, 0), short: best.short }) : "";
+    return translate("lb.none", lang, { sg: noun.sg, tail });
   }
+  // Closing clause: the buildable-not-activatable trap when it applies, else the
+  // most common weakest pillar across the non-priority set. `reason` n'est
+  // localisé que pour les 5 piliers connus (LAND_CLAUSE) : tout autre `weakest`
+  // -> pas de clause. La phrase de queue est partagée (det.whyRest).
   let why = "";
   if (!trap) {
     const rest = rows.filter((r) => verdictTone("landbank", r.verdict) !== "good");
@@ -523,17 +534,17 @@ export function landbankInsight(rows: FcRow[], noun: ZoneNoun = FREG_NOUN, prioC
       const counts = new Map<string, number>();
       for (const r of rest) if (r.weakest) counts.set(r.weakest, (counts.get(r.weakest) ?? 0) + 1);
       const top = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
-      const reason = top ? LAND_CLAUSE[top[0]] : undefined;
-      if (reason) why = ` Le reste bute sur ${reason}.`;
+      const reason = top && LAND_CLAUSE[top[0]] ? translate("lb.clause." + top[0], lang) : undefined;
+      if (reason) why = translate("det.whyRest", lang, { reason });
     }
   }
-  const list = upliftList(prio.slice(0, 3));
+  const list = upliftList(prio.slice(0, 3), lang);
   const head =
     n >= 3
-      ? `L'activation foncière est prioritaire sur ${n} ${noun.pl}, menées par ${list}.`
+      ? translate("lb.headN", lang, { n, pl: noun.pl, list })
       : n === 2
-      ? `L'activation foncière est prioritaire sur 2 ${noun.pl} : ${list}.`
-      : `Une seule ${noun.sg} est prioritaire à l'activation foncière : ${list}.`;
+      ? translate("lb.head2", lang, { pl: noun.pl, list })
+      : translate("lb.head1", lang, { sg: noun.sg, list });
   return `${head}${trap || why}`;
 }
 

@@ -14,7 +14,7 @@ import { verdictTone } from "@/lib/scoring";
 import { pctSigned } from "@/lib/arbitrage";
 import { fcRows, fcSummary, FcRow } from "@/lib/foncier";
 import { landbankInsight, anomalyNote } from "@/lib/insights";
-import { useT } from "@/lib/i18n/useT";
+import { useT, useLang } from "@/lib/i18n/useT";
 
 const CANIDELO = "canidelo";
 // Ligne marché : registre des villes (lib/cities.ts).
@@ -25,6 +25,7 @@ const CANIDELO = "canidelo";
 
 export default function FoncierPage() {
   const t = useT();
+  const lang = useLang();
   const g = useGaia();
   const city = cityBySlug(useCityStore((s) => s.slug));
   const [selected, setSelected] = useState<string[]>([]);
@@ -59,7 +60,7 @@ export default function FoncierPage() {
   // Décompte autoritaire (backend, maille fine hors municipio) : le texte de
   // synthèse ne recompte pas seul, il consomme le même décompte que le tableau.
   const prioCount = g.landbankCity?.verdict_counts?.["Prioritaire"];
-  const fcLine = useMemo(() => landbankInsight(allRows, zn, prioCount), [allRows, prioCount, zn.sg, zn.pl]);
+  const fcLine = useMemo(() => landbankInsight(allRows, zn, prioCount, lang), [allRows, prioCount, zn.sg, zn.pl, lang]);
   // Banner right block: the best potential = the max uplift AMONG the
   // Prioritaires (the sentence leads with it), falling back to the max uplift
   // among viables when no Prioritaire exists.
