@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { IMT_COMMERCIAL_PCT, acquisitionTaxes } from "@/lib/fiscal";
+import { useT } from "@/lib/i18n/useT";
 
 const MIN = 200_000;
 const MAX = 5_000_000;
@@ -11,6 +12,7 @@ const eur = (v: number) => `${Math.round(v).toLocaleString("fr-FR")} €`;
 // neutral labelling (not a K-REST asset). The class drives the applicable IMT:
 // residential = progressive "habitação secundária" table, commercial = 6,5%.
 export function AcquisitionSimulator({ residential }: { residential: boolean }) {
+  const tr = useT();
   const [price, setPrice] = useState<number>(1_000_000);
   const t = acquisitionTaxes(price, residential);
   const pct = ((price - MIN) / (MAX - MIN)) * 100;
@@ -20,18 +22,18 @@ export function AcquisitionSimulator({ residential }: { residential: boolean }) 
       <div className="flex items-center justify-between">
         <div>
           <div className="text-label font-semibold uppercase tracking-widest text-gold">
-            Simulateur d'acquisition · Portugal
+            {tr("wg.acquisitionSimulator")}
           </div>
-          <div className="font-display text-lg">Frais d'entrée {residential ? "résidentiel" : "commercial"}</div>
+          <div className="font-display text-lg">{residential ? tr("wg.entryFeesResidential") : tr("wg.entryFeesCommercial")}</div>
         </div>
         <span className="rounded-full border border-gold/40 bg-gold/10 px-2.5 py-1 text-label font-medium text-gold">
-          {t.pct.toFixed(1)}% du prix
+          {t.pct.toFixed(1)}% {tr("wg.ofPrice")}
         </span>
       </div>
 
       <div className="mt-4">
         <div className="flex items-baseline justify-between">
-          <span className="text-label text-cream/70">Prix d'acquisition</span>
+          <span className="text-label text-cream/70">{tr("wg.acquisitionPrice")}</span>
           <span className="font-display text-xl text-gold">{eur(price)}</span>
         </div>
         <input
@@ -52,18 +54,16 @@ export function AcquisitionSimulator({ residential }: { residential: boolean }) 
 
       <div className="mt-4 grid grid-cols-3 gap-3">
         <Metric
-          label="IMT"
+          label={tr("wg.imt")}
           value={eur(t.imt)}
-          sub={residential ? "barème habitação secundária" : `taux unique ${IMT_COMMERCIAL_PCT.toLocaleString("fr-FR")}%`}
+          sub={residential ? tr("wg.imtResidentialScale") : tr("wg.singleRate", { v: IMT_COMMERCIAL_PCT.toLocaleString("fr-FR") })}
         />
-        <Metric label="Imposto do selo" value={eur(t.selo)} sub="0,8% du prix" />
-        <Metric label="Total à l'entrée" value={eur(t.total)} sub={`${t.pct.toFixed(1)}% du prix`} color="#E0CBA0" />
+        <Metric label={tr("wg.impostoSelo")} value={eur(t.selo)} sub={`0,8% ${tr("wg.ofPrice")}`} />
+        <Metric label={tr("wg.totalAtEntry")} value={eur(t.total)} sub={`${t.pct.toFixed(1)}% ${tr("wg.ofPrice")}`} color="#E0CBA0" />
       </div>
 
       <p className="mt-4 text-caption leading-relaxed text-cream/85">
-        Barème IMT 2026 en vigueur (continent) : tranches marginales avec parcela a abater
-        jusqu'à 660 982 €, taux uniques 6% puis 7,5% au-delà de 1 150 853 € ; prédios não
-        habitacionais et terrains à bâtir au taux unique de 6,5%.
+        {tr("wg.acquisitionCaption")}
       </p>
     </div>
   );

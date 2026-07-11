@@ -5,6 +5,7 @@ import { MONTE, landbankVerdict, scoreTextColorDark, upliftSubscore } from "@/li
 import { pctSigned } from "@/lib/arbitrage";
 import { FcRow } from "@/lib/foncier";
 import { VerdictBadge } from "./ui";
+import { useT } from "@/lib/i18n/useT";
 
 const USAGE_ORDER = ["residential", "office", "hotel", "logistics", "retail"];
 
@@ -21,6 +22,7 @@ export function MonteClaroSelector({
   baseTotal: number;   // zone landbank total /100
   weight: number;      // valeur_meilleur_usage pillar weight
 }) {
+  const t = useT();
   const keys = USAGE_ORDER.filter((k) => row.usages[k]);
   const optimalKey = keys.reduce((a, b) => (row.usages[b].uplift_pct > row.usages[a].uplift_pct ? b : a), keys[0]);
   const [usage, setUsage] = useState<string>(optimalKey);
@@ -36,7 +38,7 @@ export function MonteClaroSelector({
     <div className="rounded-2xl bg-navy p-5 text-cream shadow-card fade-up">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-label font-semibold uppercase tracking-widest text-gold">Actif K-REST · Landbank</div>
+          <div className="text-label font-semibold uppercase tracking-widest text-gold">{t("wg.assetLandbank")}</div>
           <div className="font-display text-lg">Monte Claro</div>
         </div>
         <VerdictBadge mode="landbank" verdict={verdict} />
@@ -44,7 +46,7 @@ export function MonteClaroSelector({
 
       {/* Usage selector */}
       <div className="mt-4">
-        <div className="text-label text-cream/70">Usage du terrain</div>
+        <div className="text-label text-cream/70">{t("wg.landUse")}</div>
         <div className="mt-2 flex flex-wrap gap-1.5">
           {keys.map((k) => {
             const on = k === usage;
@@ -63,7 +65,7 @@ export function MonteClaroSelector({
                   <span className={`ml-1.5 rounded-full px-1.5 py-0.5 text-label uppercase tracking-wide ${
                     on ? "bg-gold/25 text-gold-300" : "bg-white/10 text-cream/70"
                   }`}>
-                    optimal
+                    {t("wg.optimal")}
                   </span>
                 )}
               </button>
@@ -74,23 +76,21 @@ export function MonteClaroSelector({
 
       <div className="mt-4 grid grid-cols-3 gap-3">
         <Metric
-          label="Valeur résiduelle"
+          label={t("wg.residualValue")}
           value={`${u.valeur_residuelle_eur_m2.toLocaleString("fr-FR")} €/m²`}
-          sub={`réalisable ${u.prix_realisable_eur_m2.toLocaleString("fr-FR")} €/m²`}
+          sub={t("wg.realizableEurM2", { v: u.prix_realisable_eur_m2.toLocaleString("fr-FR") })}
         />
         <Metric
-          label="Uplift vs marché"
+          label={t("wg.upliftVsMarket")}
           value={pctSigned(u.uplift_pct, 0)}
-          sub={`foncier ${u.foncier_marche_eur_m2.toLocaleString("fr-FR")} €/m²`}
+          sub={t("wg.landEurM2", { v: u.foncier_marche_eur_m2.toLocaleString("fr-FR") })}
           color={scoreTextColorDark(upliftSubscore(u.uplift_pct))}
         />
-        <Metric label="Score landbank" value={`${Math.round(total)}`} color={scoreTextColorDark(total)} />
+        <Metric label={t("wg.scoreLandbank")} value={`${Math.round(total)}`} color={scoreTextColorDark(total)} />
       </div>
 
       <p className="mt-4 text-caption leading-relaxed text-cream/85">
-        Réserve foncière de {MONTE.surface.toLocaleString("fr-FR")} m² à Canidelo. Valeur résiduelle
-        et verdict recalculés en direct par usage (prix réalisable ÷ (1,15 × pile de coûts) −
-        construction, marge promoteur normative 15 %).
+        {t("wg.monteCaption", { surface: MONTE.surface.toLocaleString("fr-FR") })}
       </p>
     </div>
   );

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { RdRow } from "@/lib/rendement";
 import { SCE_SCALE, SceGrade, capexPerM2, retrofitImpact } from "@/lib/energie";
+import { useT } from "@/lib/i18n/useT";
 
 const CURRENT: SceGrade[] = ["F", "E", "D"];
 const TARGET: SceGrade[] = ["D", "C", "B"];
@@ -13,6 +14,7 @@ const TARGET: SceGrade[] = ["D", "C", "B"];
 // added to the value base, rent unchanged). The header selector drives which
 // freguesia feeds it; defaults to Santa Marinha.
 export function RetrofitSimulator({ row, placeLabel, efShare }: { row: RdRow; placeLabel: string; efShare: number | null }) {
+  const tr = useT();
   const [from, setFrom] = useState<SceGrade>("F");
   const [to, setTo] = useState<SceGrade>("C");
 
@@ -37,13 +39,13 @@ export function RetrofitSimulator({ row, placeLabel, efShare }: { row: RdRow; pl
       <div className="flex items-center justify-between">
         <div>
           <div className="text-label font-semibold uppercase tracking-widest text-gold">
-            Simulateur de mise à niveau · Énergie
+            {tr("wg.retrofitSimulator")}
           </div>
-          <div className="font-display text-lg">Rénovation énergétique (SCE)</div>
+          <div className="font-display text-lg">{tr("wg.energyRetrofit")}</div>
           <div className="mt-0.5 text-caption text-cream/85">
-            actif type à {placeLabel}
+            {tr("wg.typicalAssetAt", { place: placeLabel })}
             {value != null ? ` · ${Math.round(value).toLocaleString("fr-FR")} €/m²` : ""}
-            {efShare != null ? ` · parc E-F ${efShare}%` : ""}
+            {efShare != null ? ` · ${tr("wg.efStock")} ${efShare}%` : ""}
           </div>
         </div>
         {capex != null && (
@@ -55,7 +57,7 @@ export function RetrofitSimulator({ row, placeLabel, efShare }: { row: RdRow; pl
 
       <div className="mt-4 grid grid-cols-2 gap-4">
         <div>
-          <div className="text-label text-cream/70">Classe actuelle</div>
+          <div className="text-label text-cream/70">{tr("wg.currentClass")}</div>
           <div className="mt-2 flex gap-1.5">
             {CURRENT.map((g) => (
               <Chip key={g} label={g} on={g === from} onClick={() => pick(g, "from")} />
@@ -63,7 +65,7 @@ export function RetrofitSimulator({ row, placeLabel, efShare }: { row: RdRow; pl
           </div>
         </div>
         <div>
-          <div className="text-label text-cream/70">Classe cible</div>
+          <div className="text-label text-cream/70">{tr("wg.targetClass")}</div>
           <div className="mt-2 flex gap-1.5">
             {TARGET.map((g) => (
               <Chip key={g} label={g} on={g === to} disabled={rank(g) <= rank(from)} onClick={() => pick(g, "to")} />
@@ -74,28 +76,33 @@ export function RetrofitSimulator({ row, placeLabel, efShare }: { row: RdRow; pl
 
       <div className="mt-4 grid grid-cols-3 gap-3">
         <Metric
-          label="CAPEX estimé"
+          label={tr("wg.estimatedCapex")}
           value={capex != null ? `~${capex} €/m²` : "–"}
-          sub="isolation, menuiseries, PAC"
+          sub={tr("wg.retrofitScope")}
         />
         <Metric
-          label="Yield net après"
+          label={tr("wg.netYieldAfter")}
           value={impact ? `${impact.netAfter.toFixed(2)}%` : "–"}
-          sub={impact ? `avant ${impact.netBefore.toFixed(2)}%` : undefined}
+          sub={impact ? `${tr("wg.before")} ${impact.netBefore.toFixed(2)}%` : undefined}
         />
         <Metric
-          label="Compression"
+          label={tr("wg.compression")}
           value={impact ? `−${impact.compression.toFixed(2)} pt` : "–"}
-          sub="première décennie"
+          sub={tr("wg.firstDecade")}
           color="#E0CBA0"
         />
       </div>
 
       {capex != null && impact && (
         <p className="mt-4 text-caption leading-relaxed text-cream/85">
-          La mise à niveau {from}→{to} coûte ~{capex} €/m² et comprime le yield net de{" "}
-          {impact.compression.toFixed(2).replace(".", ",")} point la première décennie. Loyer
-          inchangé, actif type à {placeLabel} ({Math.round(value ?? impact.value).toLocaleString("fr-FR")} €/m²).
+          {tr("wg.retrofitCaption", {
+            from,
+            to,
+            capex,
+            compression: impact.compression.toFixed(2).replace(".", ","),
+            place: placeLabel,
+            value: Math.round(value ?? impact.value).toLocaleString("fr-FR"),
+          })}
         </p>
       )}
     </div>
