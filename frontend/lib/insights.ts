@@ -212,11 +212,34 @@ const CLASS_ADJ_FR: Record<string, string> = {
   retail: "commerciale",
 };
 
-// "Name (30%)" list with a French final "et".
-function marginList(rows: PmRow[]): string {
+// Accord PT de « promoção <classe> » (miroir de CLASS_ADJ_FR).
+const CLASS_ADJ_PT: Record<string, string> = {
+  residential: "residencial",
+  office: "de escritórios",
+  hotel: "hoteleira",
+  logistics: "logística",
+  retail: "comercial",
+};
+
+// Phrase « promotion <classe> » localisée, en minuscule (mid-phrase FR/PT) et en
+// capitale (début de phrase EN). FR byte-identique à l'ancien `adj` préfixé de
+// « promotion ».
+function sectorPhrase(assetClass: string, lang: Lang): { sector: string; Sector: string } {
+  const s =
+    lang === "en"
+      ? `${classLabelFor(assetClass, "en").toLowerCase()} development`
+      : lang === "pt"
+      ? `promoção ${CLASS_ADJ_PT[assetClass] ?? classLabelFor(assetClass, "pt").toLowerCase()}`
+      : `promotion ${CLASS_ADJ_FR[assetClass] ?? classLabel(assetClass).toLowerCase()}`;
+  return { sector: s, Sector: cap(s) };
+}
+
+// "Name (30%)" list with a language-aware final conjunction (« et » / " and " / " e ").
+function marginList(rows: PmRow[], lang: Lang): string {
   const parts = rows.map((r) => `${r.name} (${fmtNum(r.marginPct)}%)`);
   if (parts.length <= 1) return parts.join("");
-  return parts.slice(0, -1).join(", ") + " et " + parts[parts.length - 1];
+  const and = lang === "en" ? " and " : lang === "pt" ? " e " : " et ";
+  return parts.slice(0, -1).join(", ") + and + parts[parts.length - 1];
 }
 
 // 1-2 sentences: how many freguesias carry promotion, the 2-3 best (with margin),
@@ -226,9 +249,16 @@ function marginList(rows: PmRow[]): string {
 // `viableCount` : décompte autoritaire des viables (Go + Conditionnel) servi
 // par le backend (verdict_counts, maille fine hors municipio) ; le texte ne
 // recompte pas seul. Repli sur le comptage local des rows si absent.
-export function priceMarginInsight(rows: PmRow[], assetClass: string, selectiveRest?: string, noun: ZoneNoun = FREG_NOUN, viableCount?: number): string {
+export function priceMarginInsight(
+  rows: PmRow[],
+  assetClass: string,
+  selectiveRest?: string,
+  noun: ZoneNoun = FREG_NOUN,
+  viableCount?: number,
+  lang: Lang = "fr"
+): string {
   if (!rows.length) return LOADING;
-  const adj = CLASS_ADJ_FR[assetClass] ?? classLabel(assetClass).toLowerCase();
+  const { sector, Sector } = sectorPhrase(assetClass, lang);
   const viable = rows
     .filter((r) => verdictTone("promotion", r.verdict) !== "low")
     .sort((a, b) => b.marginPct - a.marginPct);
@@ -242,18 +272,18 @@ export function priceMarginInsight(rows: PmRow[], assetClass: string, selectiveR
   const good = viable.filter((r) => verdictTone("promotion", r.verdict) === "good");
   const midCount = viable.length - good.length;
   if (good.length > 0 && midCount > rows.length / 2) {
-    const list = marginList(good.slice(0, 3));
+    const list = marginList(good.slice(0, 3), lang);
     const head =
       good.length === 1
-        ? `La promotion ${adj} ne tient vraiment que sur une ${noun.sg} : ${list}.`
-        : `La promotion ${adj} ne tient vraiment que sur ${good.length} ${noun.pl} : ${list}.`;
-    return `${head} Le reste ${selectiveRest ?? "de la ville"} reste sous conditions, la marge écrasée par le foncier.`;
+        ? translate("pm.selectiveOne", lang, { sector, Sector, sg: noun.sg, list })
+        : translate("pm.selectiveN", lang, { sector, Sector, n: good.length, pl: noun.pl, list });
+    return head + translate("pm.selectiveRest", lang, { selectiveRest: selectiveRest ?? translate("pm.restDefault", lang) });
   }
 
   if (n === 0) {
     const best = [...rows].sort((a, b) => b.marginPct - a.marginPct)[0];
-    const tail = best ? ` : meilleure marge ${Math.round(best.marginPct)}% à ${best.short}` : "";
-    return `Aucune ${noun.sg} ne porte la promotion ${adj} ce cycle${tail}.`;
+    const tail = best ? translate("pm.noneTail", lang, { m: Math.round(best.marginPct), short: best.short }) : "";
+    return translate("pm.none", lang, { sg: noun.sg, sector, Sector, tail });
   }
   // Closing clause computed on the non-viable set: pure loss vs thin/absorption.
   const nonViable = rows.filter((r) => verdictTone("promotion", r.verdict) === "low");
@@ -262,15 +292,15 @@ export function priceMarginInsight(rows: PmRow[], assetClass: string, selectiveR
     nonViable.length === 0
       ? ""
       : allNeg
-      ? " Au-delà, le prix neuf réalisable ne couvre plus le coût de revient."
-      : " Au-delà, marges trop minces ou marchés trop étroits pour absorber le neuf.";
-  const list = marginList(viable.slice(0, 3));
+      ? translate("pm.whyLoss", lang)
+      : translate("pm.whyThin", lang);
+  const list = marginList(viable.slice(0, 3), lang);
   const head =
     n >= 3
-      ? `La promotion ${adj} tient sur ${n} ${noun.pl}, menées par ${list}.`
+      ? translate("pm.headN", lang, { sector, Sector, n, pl: noun.pl, list })
       : n === 2
-      ? `La promotion ${adj} tient sur 2 ${noun.pl} : ${list}.`
-      : `La promotion ${adj} ne tient que sur une ${noun.sg} : ${list}.`;
+      ? translate("pm.head2", lang, { sector, Sector, pl: noun.pl, list })
+      : translate("pm.head1", lang, { sector, Sector, sg: noun.sg, list });
   return `${head}${why}`;
 }
 

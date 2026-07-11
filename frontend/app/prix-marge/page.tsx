@@ -73,8 +73,8 @@ export default function PrixMargePage() {
     return vc ? (vc["Go"] ?? 0) + (vc["Conditionnel"] ?? 0) : undefined;
   }, [g.promoCity]);
   const pmLine = useMemo(
-    () => priceMarginInsight(allRows, cls, city.texts.promoSelectiveRest, zn, viableCount),
-    [allRows, cls, city.texts.promoSelectiveRest, zn.sg, zn.pl, viableCount]
+    () => priceMarginInsight(allRows, cls, city.texts.promoSelectiveRest, zn, viableCount, lang),
+    [allRows, cls, city.texts.promoSelectiveRest, zn.sg, zn.pl, viableCount, lang]
   );
   const maxRow = useMemo(
     () => (allRows.length ? allRows.reduce((a, b) => (b.marginPct > a.marginPct ? b : a)) : null),

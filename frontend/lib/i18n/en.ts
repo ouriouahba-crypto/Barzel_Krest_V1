@@ -380,4 +380,16 @@ export const en: Dict = {
   "ins.priceOf.hotel": "hotel",
   "ins.priceOf.logistics": "logistics",
   "ins.priceOf.retail": "retail",
+  // --- priceMarginInsight trilingue (lot i18n-insights-2). ---
+  "pm.headN": "{Sector} holds on {n} {pl}, led by {list}.",
+  "pm.head2": "{Sector} holds on 2 {pl}: {list}.",
+  "pm.head1": "{Sector} only holds on one {sg}: {list}.",
+  "pm.selectiveOne": "{Sector} really only holds on one {sg}: {list}.",
+  "pm.selectiveN": "{Sector} really only holds on {n} {pl}: {list}.",
+  "pm.selectiveRest": " The rest {selectiveRest} stays conditional, the margin crushed by land.",
+  "pm.restDefault": "of the city",
+  "pm.none": "No {sg} carries {sector} this cycle{tail}.",
+  "pm.noneTail": ": best margin {m}% in {short}",
+  "pm.whyLoss": " Beyond that, the achievable new-build price no longer covers the cost price.",
+  "pm.whyThin": " Beyond that, margins too thin or markets too narrow to absorb new-build.",
 };
