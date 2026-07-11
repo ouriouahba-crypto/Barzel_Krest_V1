@@ -144,11 +144,11 @@ export const api = {
         (assetClass ? `&class=${assetClass}` : "")
     ),
   asset: (asset: string) => get<AssetResponse>(`/api/scoring/asset?asset=${asset}&city=${encodeURIComponent(currentCitySlug())}`),
-  analystAsk: async (question: string, assetClass: string): Promise<{ answer: string }> => {
+  analystAsk: async (question: string, assetClass: string, lang: string): Promise<{ answer: string }> => {
     const res = await fetch(`${BASE}/api/analyst/ask`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(withCity({ question, asset_class: assetClass })),
+      body: JSON.stringify(withCity({ question, asset_class: assetClass, lang })),
     });
     if (!res.ok) throw new Error(`API ${res.status}`);
     return res.json();
