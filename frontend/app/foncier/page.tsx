@@ -74,7 +74,7 @@ export default function FoncierPage() {
     () => (g.landbankCity?.zones ?? []).filter((z) => z.level !== "municipio"),
     [g.landbankCity]
   );
-  const note = useMemo(() => anomalyNote("landbank", fregScores), [fregScores]);
+  const note = useMemo(() => anomalyNote("landbank", fregScores, lang), [fregScores, lang]);
 
   // K-REST featured asset (Monte Claro), fed by Canidelo's real per-usage
   // residual table and score.

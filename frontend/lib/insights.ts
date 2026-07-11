@@ -3,7 +3,7 @@
 // filler). Reused by the overview page and, later, the mode pages.
 
 import { MargeBreakdown, ModeScore } from "./api";
-import { Mode, MODES, MODE_LABEL, MODE_KPI, classLabel, fmtNum, median, pillarValue, verdictLabel, verdictTone } from "./scoring";
+import { Mode, MODES, MODE_LABEL, MODE_KPI, classLabel, fmtNum, median, pillarValue, verdictTone } from "./scoring";
 import { displayName, shortName } from "./useGaia";
 import { PmRow } from "./priceMargin";
 import { RdRow } from "./rendement";
@@ -705,7 +705,7 @@ const PILLAR_REASON: Record<string, string> = {
 //    a real premium the market cannot exit.
 //  - landbank: constructibilité >= 50 (above the country default) but verdict
 //    En attente : buildable land whose market is not there yet.
-export function anomalyNote(mode: Mode, scores: ModeScore[]): string | null {
+export function anomalyNote(mode: Mode, scores: ModeScore[], lang: Lang = "fr"): string | null {
   const kpi = MODE_KPI[mode].pillar;
   const isLow = (s: ModeScore) => verdictTone(mode, s.verdict) === "low";
   let cands: ModeScore[];
@@ -730,13 +730,20 @@ export function anomalyNote(mode: Mode, scores: ModeScore[]): string | null {
   const weak = s.pillars
     .filter((p) => p.applicable && p.pillar !== kpi && p.subscore != null && PILLAR_REASON[p.pillar])
     .sort((a, b) => (a.subscore ?? 100) - (b.subscore ?? 100))[0];
-  const reason = weak ? PILLAR_REASON[weak.pillar] : "des fondamentaux trop faibles";
+  // `weak` est déjà garanti dans PILLAR_REASON par le .filter ci-dessus : la
+  // whitelist reste la source de vérité, an.pillar.* n'en est que le rendu.
+  const reason = weak ? translate("an.pillar." + weak.pillar, lang) : translate("an.reasonFallback", lang);
   const metric =
-    mode === "promotion" ? `${fmtNum(v)}% de marge`
-    : mode === "detention" ? `${fmtNum(v, 1)}% de yield net`
-    : mode === "arbitrage" ? `${pctSigned(v, 0)} de spread`
-    : `une constructibilité de ${Math.round(v)}`;
-  return `${displayName(s.zone_name)} affiche ${metric} mais ${reason} : verdict ${verdictLabel(s.verdict)}.`;
+    mode === "promotion" ? translate("an.metric.promotion", lang, { v: fmtNum(v) })
+    : mode === "detention" ? translate("an.metric.detention", lang, { v: fmtNum(v, 1) })
+    : mode === "arbitrage" ? translate("an.metric.arbitrage", lang, { s: pctSigned(v, 0) })
+    : translate("an.metric.landbank", lang, { c: Math.round(v) });
+  return translate("an.sentence", lang, {
+    name: displayName(s.zone_name),
+    metric,
+    reason,
+    verdict: verdictDisplay(s.verdict, lang),
+  });
 }
 
 /* ------------------------------------------------------------------ */
