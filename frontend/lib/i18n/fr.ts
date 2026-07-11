@@ -406,4 +406,18 @@ export const fr: Dict = {
   "det.clause.fiscalite": "une fiscalité qui érode le loyer",
   "det.clause.risque_energie": "un risque énergétique qui pèse sur le parc",
   "det.clause.portage": "un coût de portage supérieur au rendement",
+  // --- arbitrageInsight trilingue (lot i18n-insights-4). FR byte-identique.
+  // La clause de queue reutilise det.whyRest (deja trilingue). ---
+  "arb.headN": "La fenêtre de cession est ouverte sur {n} {pl}{suffix}, menées par {list}.",
+  "arb.head2": "La fenêtre de cession est ouverte sur 2 {pl}{suffix} : {list}.",
+  "arb.head1": "Une seule fenêtre de cession est ouverte{suffix} : {list}.",
+  "arb.noneTrap": "Aucune fenêtre de cession n'est ouverte{suffix} ce cycle.{trap}",
+  "arb.none": "Aucune fenêtre de cession n'est ouverte{suffix} ce cycle{tail}.",
+  "arb.noneTail": " : meilleur spread {s} à {short}",
+  "arb.trapDefault": "Les spreads les plus larges ({short} {s}) sont théoriques : sans acheteur institutionnel, la fenêtre reste fermée.",
+  "arb.clause.spread": "des spreads trop minces face à la médiane",
+  "arb.clause.appetit_institutionnel": "un appétit institutionnel insuffisant",
+  "arb.clause.momentum_cycle": "un cycle de prix défavorable au timing de cession",
+  "arb.clause.frictions_sortie": "des frictions de sortie trop lourdes",
+  "arb.clause.cout_opportunite": "un coût du capital qui mange l'écart",
 };

@@ -403,4 +403,18 @@ export const pt: Dict = {
   "det.clause.fiscalite": "uma fiscalidade que corrói a renda",
   "det.clause.risque_energie": "um risco energético que pesa sobre o parque",
   "det.clause.portage": "um custo de carregamento superior ao rendimento",
+  // --- arbitrageInsight trilingue (lot i18n-insights-4). A clausula final
+  // reutiliza det.whyRest (ja trilingue). ---
+  "arb.headN": "A janela de alienação está aberta em {n} {pl}{suffix}, lideradas por {list}.",
+  "arb.head2": "A janela de alienação está aberta em 2 {pl}{suffix}: {list}.",
+  "arb.head1": "Só uma janela de alienação está aberta{suffix}: {list}.",
+  "arb.noneTrap": "Nenhuma janela de alienação está aberta{suffix} este ciclo.{trap}",
+  "arb.none": "Nenhuma janela de alienação está aberta{suffix} este ciclo{tail}.",
+  "arb.noneTail": ": melhor spread {s} em {short}",
+  "arb.trapDefault": "Os spreads mais largos ({short} {s}) são teóricos: sem comprador institucional, a janela permanece fechada.",
+  "arb.clause.spread": "spreads demasiado finos face à mediana",
+  "arb.clause.appetit_institutionnel": "apetite institucional insuficiente",
+  "arb.clause.momentum_cycle": "um ciclo de preços desfavorável ao timing de alienação",
+  "arb.clause.frictions_sortie": "atritos de saída demasiado pesados",
+  "arb.clause.cout_opportunite": "um custo de capital que consome o diferencial",
 };

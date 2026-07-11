@@ -79,7 +79,7 @@ export default function ArbitragePage() {
   // Décompte autoritaire (backend, maille fine hors municipio) : le texte de
   // synthèse ne recompte pas seul. 0 fenêtre ouverte reste un état réel (Porto).
   const openCount = g.arbitrageCity?.verdict_counts?.["Fenetre ouverte"];
-  const arbLine = useMemo(() => arbitrageInsight(allRows, cls, zn, openCount), [allRows, cls, openCount, zn.sg, zn.pl]);
+  const arbLine = useMemo(() => arbitrageInsight(allRows, cls, zn, openCount, lang), [allRows, cls, openCount, zn.sg, zn.pl, lang]);
   // Banner right block: the best window (top-score open, else top viable),
   // never a global spread max that would contradict the sentence.
   const bestWindow: ArbRow | null = useMemo(() => {

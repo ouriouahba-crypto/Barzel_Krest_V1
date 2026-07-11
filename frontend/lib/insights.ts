@@ -406,20 +406,31 @@ const ARB_CLAUSE: Record<string, string> = {
   cout_opportunite: "un coût du capital qui mange l'écart",
 };
 
-// "Name (+21%)" list with a French final "et".
-function spreadList(rows: ArbRow[]): string {
+// "Name (+21%)" list with a language-aware final conjunction (« et » / " and " /
+// " e "). Le formatage du nombre (pctSigned, signe inclus) reste inchangé.
+function spreadList(rows: ArbRow[], lang: Lang): string {
   const parts = rows.map((r) => `${r.name} (${pctSigned(r.spreadPct, 0)})`);
   if (parts.length <= 1) return parts.join("");
-  return parts.slice(0, -1).join(", ") + " et " + parts[parts.length - 1];
+  const and = lang === "en" ? " and " : lang === "pt" ? " e " : " et ";
+  return parts.slice(0, -1).join(", ") + and + parts[parts.length - 1];
 }
 
 // `openCount` : décompte autoritaire des Fenêtre ouverte servi par le backend
 // (verdict_counts, maille fine hors municipio) ; le texte ne recompte pas seul.
 // À la différence des autres modes, 0 fenêtre ouverte EST un état de marché réel
 // (ex. Porto) : le garde-fou ne porte que sur rows vide (données non chargées).
-export function arbitrageInsight(rows: ArbRow[], assetClass: string, noun: ZoneNoun = FREG_NOUN, openCount?: number): string {
+export function arbitrageInsight(
+  rows: ArbRow[],
+  assetClass: string,
+  noun: ZoneNoun = FREG_NOUN,
+  openCount?: number,
+  lang: Lang = "fr"
+): string {
   if (!rows.length) return LOADING;
-  const suffix = classSuffix(assetClass);
+  const suffix =
+    assetClass === "residential"
+      ? ""
+      : translate("ins.suffixIn", lang, { cls: classLabelFor(assetClass, lang).toLowerCase() });
   const open = rows
     .filter((r) => verdictTone("arbitrage", r.verdict) === "good")
     .sort((a, b) => b.spreadPct - a.spreadPct);
@@ -430,15 +441,19 @@ export function arbitrageInsight(rows: ArbRow[], assetClass: string, noun: ZoneN
   const maxS = rows.length ? rows.reduce((a, b) => (b.spreadPct > a.spreadPct ? b : a)) : null;
   const trap =
     maxS && verdictTone("arbitrage", maxS.verdict) !== "good"
-      ? ` Les spreads les plus larges (${maxS.short} ${pctSigned(maxS.spreadPct, 0)}) sont théoriques : sans acheteur institutionnel, la fenêtre reste fermée.`
+      ? " " + translate("arb.trapDefault", lang, { short: maxS.short, s: pctSigned(maxS.spreadPct, 0) })
       : "";
 
   if (n === 0) {
-    if (trap) return `Aucune fenêtre de cession n'est ouverte${suffix} ce cycle.${trap}`;
+    if (trap) return translate("arb.noneTrap", lang, { suffix, trap });
     const best = [...rows].sort((a, b) => b.spreadPct - a.spreadPct)[0];
-    const tail = best ? ` : meilleur spread ${pctSigned(best.spreadPct, 0)} à ${best.short}` : "";
-    return `Aucune fenêtre de cession n'est ouverte${suffix} ce cycle${tail}.`;
+    const tail = best ? translate("arb.noneTail", lang, { s: pctSigned(best.spreadPct, 0), short: best.short }) : "";
+    return translate("arb.none", lang, { suffix, tail });
   }
+  // Closing clause: the paper-spread trap when it applies, else the most common
+  // weakest pillar across the non-open set. `reason` n'est localisé que pour les
+  // 5 piliers connus (ARB_CLAUSE) : tout autre `weakest` -> pas de clause.
+  // La phrase de queue est partagée avec la détention (det.whyRest).
   let why = "";
   if (!trap) {
     const rest = rows.filter((r) => verdictTone("arbitrage", r.verdict) !== "good");
@@ -446,17 +461,17 @@ export function arbitrageInsight(rows: ArbRow[], assetClass: string, noun: ZoneN
       const counts = new Map<string, number>();
       for (const r of rest) if (r.weakest) counts.set(r.weakest, (counts.get(r.weakest) ?? 0) + 1);
       const top = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
-      const reason = top ? ARB_CLAUSE[top[0]] : undefined;
-      if (reason) why = ` Le reste bute sur ${reason}.`;
+      const reason = top && ARB_CLAUSE[top[0]] ? translate("arb.clause." + top[0], lang) : undefined;
+      if (reason) why = translate("det.whyRest", lang, { reason });
     }
   }
-  const list = spreadList(open.slice(0, 3));
+  const list = spreadList(open.slice(0, 3), lang);
   const head =
     n >= 3
-      ? `La fenêtre de cession est ouverte sur ${n} ${noun.pl}${suffix}, menées par ${list}.`
+      ? translate("arb.headN", lang, { n, pl: noun.pl, suffix, list })
       : n === 2
-      ? `La fenêtre de cession est ouverte sur 2 ${noun.pl}${suffix} : ${list}.`
-      : `Une seule fenêtre de cession est ouverte${suffix} : ${list}.`;
+      ? translate("arb.head2", lang, { pl: noun.pl, suffix, list })
+      : translate("arb.head1", lang, { suffix, list });
   return `${head}${trap || why}`;
 }
 

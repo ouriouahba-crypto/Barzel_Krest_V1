@@ -407,4 +407,18 @@ export const en: Dict = {
   "det.clause.fiscalite": "taxation that erodes the rent",
   "det.clause.risque_energie": "energy risk weighing on the stock",
   "det.clause.portage": "a carry cost above the yield",
+  // --- arbitrageInsight trilingue (lot i18n-insights-4). Tail clause reuses
+  // det.whyRest (already trilingual). ---
+  "arb.headN": "The disposal window is open on {n} {pl}{suffix}, led by {list}.",
+  "arb.head2": "The disposal window is open on 2 {pl}{suffix}: {list}.",
+  "arb.head1": "A single disposal window is open{suffix}: {list}.",
+  "arb.noneTrap": "No disposal window is open{suffix} this cycle.{trap}",
+  "arb.none": "No disposal window is open{suffix} this cycle{tail}.",
+  "arb.noneTail": ": best spread {s} in {short}",
+  "arb.trapDefault": "The widest spreads ({short} {s}) are on paper: no institutional buyer, no window.",
+  "arb.clause.spread": "spreads too thin against the median",
+  "arb.clause.appetit_institutionnel": "insufficient institutional appetite",
+  "arb.clause.momentum_cycle": "a price cycle unfavourable to disposal timing",
+  "arb.clause.frictions_sortie": "exit frictions too heavy",
+  "arb.clause.cout_opportunite": "a cost of capital that eats the gap",
 };
