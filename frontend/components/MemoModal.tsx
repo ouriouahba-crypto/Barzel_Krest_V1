@@ -7,6 +7,8 @@ import { displayName } from "@/lib/useGaia";
 import { ASSET_CLASSES, MODES, MODE_LABEL, Mode, classLabel, verdictLabel } from "@/lib/scoring";
 import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
+import { useLang } from "@/lib/i18n/useT";
+import { cityDisplay } from "@/lib/i18n/display";
 
 const ANGLES = [
   { value: "synthese", label: "Synthèse d'opportunités" },
@@ -24,6 +26,7 @@ const SECTION_LABELS: Record<string, string> = {
 // read-only figures) → deterministic PDF render.
 export function MemoModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const city = cityBySlug(useCityStore((s) => s.slug));
+  const lang = useLang();
   const [step, setStep] = useState<"form" | "review">("form");
   const [scope, setScope] = useState<string>("ville");
   const [assetClass, setAssetClass] = useState("residential");
@@ -199,7 +202,7 @@ export function MemoModal({ open, onClose }: { open: boolean; onClose: () => voi
             <div className="flex flex-col gap-5">
               <Field label="Périmètre">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Choice on={scope === "ville"} onClick={() => setScope("ville")} label={`Ville entière · ${city.label}`} />
+                  <Choice on={scope === "ville"} onClick={() => setScope("ville")} label={`Ville entière · ${cityDisplay(city.slug, lang)}`} />
                   <select
                     value={scope === "ville" ? "" : scope}
                     onChange={(e) => setScope(e.target.value || "ville")}

@@ -9,6 +9,7 @@ import { classLabel } from "@/lib/scoring";
 import { AnalystIcon, cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
 import { useT, useLang } from "@/lib/i18n/useT";
+import { cityShortName } from "@/lib/i18n/display";
 
 // Lignes et suggestions par ville : registre lib/cities.ts. Icône fine (trait
 // 1.5) par clé de suggestion.
@@ -69,7 +70,7 @@ export default function IaAnalystePage() {
   const g = useGaia();
   const city = cityBySlug(useCityStore((s) => s.slug));
   const SUGGESTIONS = city.texts.analystSuggestions.map(({ q, icon }) => ({ q: t(q), icon: ICONS[icon] }));
-  const cityShort = city.label === "Vila Nova de Gaia" ? "Gaia" : city.label;
+  const cityShort = cityShortName(city.slug, lang);
   const [selected, setSelected] = useState<string[]>([]);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");

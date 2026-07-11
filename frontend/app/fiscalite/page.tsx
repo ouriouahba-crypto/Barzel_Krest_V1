@@ -12,6 +12,7 @@ import { rdRows } from "@/lib/rendement";
 import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
 import { useT, useLang } from "@/lib/i18n/useT";
+import { cityShortName } from "@/lib/i18n/display";
 
 // Page transverse de contexte fiscal. Tout le contenu spécifique au régime du
 // pays (barèmes, volets, points de contrôle, textes, simulateur) vient de la
@@ -51,7 +52,7 @@ export default function FiscalitePage() {
   // Banner sentence computed from the same engine-served rows as the mode pages.
   const pm = useMemo(() => pmRows(g.promoCity), [g.promoCity]);
   const rd = useMemo(() => rdRows(g.detentionCity), [g.detentionCity]);
-  const cityName = city.label === "Vila Nova de Gaia" ? "Gaia" : city.label;
+  const cityName = cityShortName(city.slug, lang);
   const sentence = useMemo(
     () => F.fiscalInsight(residential ? "residential" : "commercial", pm, rd, cityName, lang),
     [F, residential, pm, rd, cityName, lang]

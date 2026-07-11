@@ -14,6 +14,7 @@ import { ModeScore } from "@/lib/api";
 import { Mode, MODES, MODE_KPI, MODE_ROUTE, classLabel, fmtNum, fmtSigned, median, pillarValue, verdictColor, verdictTone } from "@/lib/scoring";
 import { useT, useLang } from "@/lib/i18n/useT";
 import { modeLabel, verdictDisplay } from "@/lib/i18n/domain";
+import { cityShortName } from "@/lib/i18n/display";
 import { OverviewByMode, bestMode, cityInsight, modeInsight, trendInsight } from "@/lib/insights";
 import { priceTrajectory, PricePoint } from "@/lib/priceHistory";
 import { cityBySlug } from "@/lib/cities";
@@ -115,7 +116,7 @@ export default function VueEnsemble() {
     () => (nn(market.price) && nn(market.yoy) ? priceTrajectory(market.price, market.yoy, cls) : []),
     [market.price, market.yoy, cls]
   );
-  const trendLine = trendInsight(trajectory, market.yoy, cls, city.label === "Vila Nova de Gaia" ? "Gaia" : city.label, lang);
+  const trendLine = trendInsight(trajectory, market.yoy, cls, cityShortName(city.slug, lang), lang);
 
   return (
     <div className="flex h-screen overflow-hidden">
