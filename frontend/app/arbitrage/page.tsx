@@ -14,27 +14,25 @@ import { useGaia } from "@/lib/useGaia";
 import { classLabel, verdictTone } from "@/lib/scoring";
 import { arbRows, arbSummary, ArbRow, pctSigned } from "@/lib/arbitrage";
 import { arbitrageInsight, anomalyNote } from "@/lib/insights";
-import { useT } from "@/lib/i18n/useT";
+import { useT, useLang } from "@/lib/i18n/useT";
+import { classLabelFor } from "@/lib/i18n/domain";
 
 const SANTA = "santamarinhaesaopedrodaafurada";
 // Ligne marché : registre des villes (lib/cities.ts).
 
-// Arbitrage economics, one line per class.
+// Arbitrage economics, one line per class (prose résolue par t() ; clés ctx.arb.*).
+// Le résidentiel porte le token {maille}, interpolé par t() au point d'usage.
 const CONTEXT: Record<string, string> = {
-  residential:
-    "Le résidentiel a couru : les écarts face à la médiane sont réels, mais l'acheteur institutionnel reste rare. La fenêtre de cession se juge {maille} par {maille}.",
-  office:
-    "Bureaux : appétit institutionnel soutenu et offre prime rare. Les meilleurs actifs trouvent preneur, le reste attend son cycle.",
-  hotel:
-    "Hôtellerie : appétit fort porté par la fréquentation, mais peu d'actifs de taille institutionnelle. La fenêtre dépend de l'emplacement.",
-  logistics:
-    "Logistique : demande investisseurs profonde mais spreads minces face à la médiane. Céder vite, à prix serré.",
-  retail:
-    "Commerce : acheteurs sélectifs et valeurs dispersées ; la fenêtre ne s'ouvre que sur les emplacements n°1.",
+  residential: "ctx.arb.residential",
+  office: "ctx.arb.office",
+  hotel: "ctx.arb.hotel",
+  logistics: "ctx.arb.logistics",
+  retail: "ctx.arb.retail",
 };
 
 export default function ArbitragePage() {
   const t = useT();
+  const lang = useLang();
   const g = useGaia();
   const city = cityBySlug(useCityStore((s) => s.slug));
   const [selected, setSelected] = useState<string[]>([]);
@@ -140,13 +138,13 @@ export default function ArbitragePage() {
               </span>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
-              {(CONTEXT[cls] ?? CONTEXT.residential).replaceAll("{maille}", city.zoneNoun)}
+              {t(CONTEXT[cls] ?? CONTEXT.residential, { maille: city.zoneNoun })}
             </p>
           </div>
 
           {/* Conclusion banner (shared InsightBanner) */}
           <InsightBanner
-            eyebrow={`Verdict arbitrage · ${classLabel(cls)}`}
+            eyebrow={`${t("eyb.verdictArbitrage")} · ${classLabelFor(cls, lang)}`}
             sentence={arbLine}
             right={
               bestWindow ? (

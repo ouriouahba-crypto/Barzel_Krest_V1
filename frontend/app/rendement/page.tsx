@@ -16,23 +16,19 @@ import { eur0 } from "@/lib/priceMargin";
 import { rdRows, rdSummary, RdRow } from "@/lib/rendement";
 import { detentionInsight, anomalyNote } from "@/lib/insights";
 import { useT, useLang } from "@/lib/i18n/useT";
-import { modeLabel } from "@/lib/i18n/domain";
+import { modeLabel, classLabelFor } from "@/lib/i18n/domain";
 
 const SANTA = "santamarinhaesaopedrodaafurada";
 // Ligne marché : registre des villes (lib/cities.ts).
 
 // Détention economics, one line per class.
+// Prose de contexte par classe, résolue par t() (clés ctx.rd.*).
 const CONTEXT: Record<string, string> = {
-  residential:
-    "Les prix ont couru plus vite que les loyers : le rendement net se joue sur les charges, la vacance et l'IMI, et la pression énergétique (MEPS) pèsera d'abord sur le parc ancien.",
-  office:
-    "Bureaux : loyers stables mais demande concentrée sur le front de fleuve ; charges plus lourdes, et l'obsolescence énergétique guette les plateaux anciens.",
-  hotel:
-    "Hôtellerie : le loyer suit la fréquentation touristique ; charges d'exploitation élevées. Le net ne récompense que les murs les mieux placés.",
-  logistics:
-    "Logistique : loyers modestes mais réguliers et charges contenues. Le rendement net résiste mieux qu'ailleurs à la vacance.",
-  retail:
-    "Commerce : loyers prime élevés en pied d'immeuble mais vacance sensible à la conjoncture ; le net dépend de l'emplacement plus que du m².",
+  residential: "ctx.rd.residential",
+  office: "ctx.rd.office",
+  hotel: "ctx.rd.hotel",
+  logistics: "ctx.rd.logistics",
+  retail: "ctx.rd.retail",
 };
 
 export default function RendementPage() {
@@ -138,13 +134,13 @@ export default function RendementPage() {
               </span>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
-              {CONTEXT[cls] ?? CONTEXT.residential}
+              {t(CONTEXT[cls] ?? CONTEXT.residential)}
             </p>
           </div>
 
           {/* Conclusion banner (shared InsightBanner) */}
           <InsightBanner
-            eyebrow={`Verdict détention · ${classLabel(cls)}`}
+            eyebrow={`${t("eyb.verdictDetention")} · ${classLabelFor(cls, lang)}`}
             sentence={rdLine}
             right={
               bestHold ? (
