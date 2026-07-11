@@ -9,6 +9,9 @@ import { PmRow } from "./priceMargin";
 import { RdRow } from "./rendement";
 import { ArbRow, pctSigned } from "./arbitrage";
 import { FcRow } from "./foncier";
+import { translate } from "@/lib/i18n";
+import { verdictDisplay, classLabelFor } from "@/lib/i18n/domain";
+import type { Lang } from "@/lib/i18n/types";
 
 // City-level (municipio) score + freguesia rows, per mode, for one class.
 export interface OverviewByMode {
@@ -159,18 +162,23 @@ export function cityInsight(data: OverviewByMode, assetClass: string, noun: Zone
 }
 
 // 1 short sentence per mode, citing at least one real number from its KPI.
-export function modeInsight(score: ModeScore, assetClass: string): string {
+export function modeInsight(score: ModeScore, assetClass: string, lang: Lang): string {
   const m = score.mode;
   const kv = pillarValue(score.pillars, MODE_KPI[m].pillar);
-  if (kv == null) return `${score.verdict} au niveau ville${classSuffix(assetClass)}.`;
+  const suffix =
+    assetClass === "residential"
+      ? ""
+      : translate("ins.suffixIn", lang, { cls: classLabelFor(assetClass, lang).toLowerCase() });
+  if (kv == null)
+    return translate("ins.mode.cityFallback", lang, { verdict: verdictDisplay(score.verdict, lang), suffix });
   const v = num(m, kv);
   switch (m) {
     case "promotion":
-      return `Marge de ${v} sur le prix neuf réalisable.`;
+      return translate("ins.mode.promotion", lang, { v });
     case "detention":
-      return `Rendement net de ${v} après charges et fiscalité.`;
+      return translate("ins.mode.detention", lang, { v });
     case "arbitrage":
-      return `Spread de ${v} face à la médiane de marché.`;
+      return translate("ins.mode.arbitrage", lang, { v });
     case "landbank": {
       // Don't repeat the native indicator (constructibilité). Frame the reserve
       // by its best use + achievable value instead.
@@ -179,12 +187,15 @@ export function modeInsight(score: ModeScore, assetClass: string): string {
         // Le pilier valorisation a pour label "{usage} {prix} €/m²" (plus de
         // préfixe "meilleur usage") : l'usage est le premier token.
         const usage = /^(\S+)/.exec(bu.native.label)?.[1] ?? "mixte";
-        return `Réserve foncière à activer : valorisation max ${usage} à ${Math.round(bu.native.value).toLocaleString("fr-FR")} €/m².`;
+        return translate("ins.mode.landbankUse", lang, {
+          usage,
+          prix: Math.round(bu.native.value).toLocaleString("fr-FR"),
+        });
       }
-      return `Réserve foncière à activer : ${verdictLabel(score.verdict)}.`;
+      return translate("ins.mode.landbankFallback", lang, { verdict: verdictDisplay(score.verdict, lang) });
     }
     default:
-      return `${score.verdict} : ${v}.`;
+      return translate("ins.mode.default", lang, { verdict: verdictDisplay(score.verdict, lang), v });
   }
 }
 
@@ -641,14 +652,6 @@ export function anomalyNote(mode: Mode, scores: ModeScore[]): string | null {
 /* ------------------------------------------------------------------ */
 
 // "Le prix <classe> de Gaia…" : noun-complement per class (masculine "prix").
-const PRICE_OF: Record<string, string> = {
-  residential: "résidentiel",
-  office: "des bureaux",
-  hotel: "hôtelier",
-  logistics: "logistique",
-  retail: "du commerce",
-};
-
 // One sentence under the trajectory title: 12-month move + shape of the recent
 // year (second-half acceleration / steady / easing), computed from the series
 // itself, no free text. Pure, no JSX.
@@ -656,17 +659,20 @@ export function trendInsight(
   points: { t: string; price: number }[],
   yoyPct: number | null,
   assetClass: string,
-  cityName: string = "Gaia"
+  cityName: string = "Gaia",
+  lang: Lang
 ): string {
-  if (points.length < 8 || yoyPct == null) return "Chargement de la trajectoire…";
-  const of = PRICE_OF[assetClass] ?? assetClass;
-  const move = `${yoyPct >= 0 ? "progresse de +" : "recule de "}${Math.abs(yoyPct).toFixed(1).replace(".", ",")}% sur 12 mois`;
+  if (points.length < 8 || yoyPct == null) return translate("ins.trend.loading", lang);
+  const of = translate("ins.priceOf." + assetClass, lang);
+  const x = Math.abs(yoyPct).toFixed(1);
+  const xLoc = lang === "en" ? x : x.replace(".", ",");
+  const move = yoyPct >= 0 ? translate("ins.trend.up", lang, { x: xLoc }) : translate("ins.trend.down", lang, { x: xLoc });
   // Last 12 months split in halves: t3→t5 vs t5→t7 (growth in %).
   const h1 = (points[5].price / points[3].price - 1) * 100;
   const h2 = (points[7].price / points[5].price - 1) * 100;
   const shape =
-    h2 > h1 + 1 ? "accélération au second semestre"
-    : h2 < h1 - 1 ? "le rythme se tasse en fin de période"
-    : "à un rythme régulier sur l'année";
-  return `Le prix ${of} de ${cityName} ${move}, ${shape}.`;
+    h2 > h1 + 1 ? translate("ins.trend.accel", lang)
+    : h2 < h1 - 1 ? translate("ins.trend.slow", lang)
+    : translate("ins.trend.steady", lang);
+  return translate("ins.trend.sentence", lang, { of, city: cityName, move, shape });
 }
