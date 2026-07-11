@@ -70,8 +70,8 @@ export default function RendementPage() {
   // synthèse ne recompte pas seul, il consomme le même décompte que le tableau.
   const keepCount = g.detentionCity?.verdict_counts?.["Conserver"];
   const rdLine = useMemo(
-    () => detentionInsight(allRows, cls, cls === "residential" ? city.texts.yieldTrapClause : undefined, zn, keepCount),
-    [allRows, cls, city.texts.yieldTrapClause, keepCount, zn.sg, zn.pl]
+    () => detentionInsight(allRows, cls, cls === "residential" ? city.texts.yieldTrapClause : undefined, zn, keepCount, lang),
+    [allRows, cls, city.texts.yieldTrapClause, keepCount, zn.sg, zn.pl, lang]
   );
   // Banner right block: the best-held freguesia (top-score Conserver, else top
   // viable), never a global yield max that would contradict the sentence.
