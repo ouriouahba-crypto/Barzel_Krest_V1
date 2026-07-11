@@ -10,11 +10,13 @@ import {
   scoreTextColorDark,
 } from "@/lib/scoring";
 import { VerdictBadge } from "./ui";
-import { useT } from "@/lib/i18n/useT";
+import { useT, useLang } from "@/lib/i18n/useT";
+import { fmtNumber } from "@/lib/i18n/format";
 
 // Live, client-side recompute: formula identical to the backend.
 export function HayaSlider({ baseTotal, margeWeight }: { baseTotal: number; margeWeight: number }) {
   const t = useT();
+  const lang = useLang();
   const [sale, setSale] = useState<number>(HAYA.baseSale);
 
   // Anchor on the client band at the base sale so the total lands exactly on
@@ -40,7 +42,7 @@ export function HayaSlider({ baseTotal, margeWeight }: { baseTotal: number; marg
       <div className="mt-4">
         <div className="flex items-baseline justify-between">
           <span className="text-label text-cream/70">{t("wg.achievableSalePrice")}</span>
-          <span className="font-display text-xl text-gold">{Math.round(sale).toLocaleString("fr-FR")} €/m²</span>
+          <span className="font-display text-xl text-gold">{fmtNumber(Math.round(sale), lang)} €/m²</span>
         </div>
         <input
           type="range"
@@ -53,8 +55,8 @@ export function HayaSlider({ baseTotal, margeWeight }: { baseTotal: number; marg
           style={{ ["--pct" as any]: `${pct}%` }}
         />
         <div className="mt-1 flex justify-between text-label text-cream/60">
-          <span>{HAYA.saleMin.toLocaleString("fr-FR")}</span>
-          <span>{HAYA.saleMax.toLocaleString("fr-FR")}</span>
+          <span>{fmtNumber(HAYA.saleMin, lang)}</span>
+          <span>{fmtNumber(HAYA.saleMax, lang)}</span>
         </div>
       </div>
 
@@ -63,7 +65,7 @@ export function HayaSlider({ baseTotal, margeWeight }: { baseTotal: number; marg
         <Metric
           label={t("wg.premiumVsMedian")}
           value={`+${premium.toFixed(0)}%`}
-          sub={t("wg.medianEurM2", { v: HAYA.freguesiaMedian.toLocaleString("fr-FR") })}
+          sub={t("wg.medianEurM2", { v: fmtNumber(HAYA.freguesiaMedian, lang) })}
         />
         <Metric label={t("wg.scorePromotion")} value={`${Math.round(total)}`} color={scoreTextColorDark(total)} />
       </div>

@@ -14,7 +14,9 @@ import { Mode, MODE_KPI, fmtSigned } from "@/lib/scoring";
 import { ModeScore } from "@/lib/api";
 import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
-import { useT } from "@/lib/i18n/useT";
+import { useT, useLang } from "@/lib/i18n/useT";
+import { fmtNumber } from "@/lib/i18n/format";
+import type { Lang } from "@/lib/i18n/types";
 
 const GaiaMap = dynamic(() => import("@/components/GaiaMap"), {
   ssr: false,
@@ -28,9 +30,9 @@ function MapLoading() {
 
 // Ligne marché : registre des villes (lib/cities.ts).
 
-function detailFigures(score: ModeScore, mode: Mode, t: (key: string, params?: Record<string, string | number>) => string): KeyFigure[] {
+function detailFigures(score: ModeScore, mode: Mode, t: (key: string, params?: Record<string, string | number>) => string, lang: Lang): KeyFigure[] {
   const figs: KeyFigure[] = [];
-  if (score.price_eur_m2 != null) figs.push({ label: t("pg.medianPrice"), value: `${Math.round(score.price_eur_m2).toLocaleString("fr-FR")} €/m²` });
+  if (score.price_eur_m2 != null) figs.push({ label: t("pg.medianPrice"), value: `${fmtNumber(Math.round(score.price_eur_m2), lang)} €/m²` });
   const p = score.pillars.find((x) => x.pillar === MODE_KPI[mode].pillar && x.applicable);
   if (p) figs.push({ label: p.pillar.replace(/_/g, " "), value: p.native.label });
   return figs;
@@ -38,6 +40,7 @@ function detailFigures(score: ModeScore, mode: Mode, t: (key: string, params?: R
 
 export default function CartePage() {
   const t = useT();
+  const lang = useLang();
   const g = useGaia();
   const city = cityBySlug(useCityStore((s) => s.slug));
   const noun = city.zoneNoun;              // « freguesia » (PT) / « commune » (BE)
@@ -129,7 +132,7 @@ export default function CartePage() {
                 <VerdictBadge mode={g.mode} verdict={q.verdict} />
               </div>
               <div className="mt-3 grid grid-cols-2 gap-2">
-                <Stat label={t("pg.medianPrice")} value={q.price != null ? `${Math.round(q.price).toLocaleString("fr-FR")} €/m²` : "–"} />
+                <Stat label={t("pg.medianPrice")} value={q.price != null ? `${fmtNumber(Math.round(q.price), lang)} €/m²` : "–"} />
                 <Stat label={t("mp.growth")} value={q.yoy != null ? `${fmtSigned(q.yoy, 1)}%` : "–"} />
                 <Stat label={q.extra.label} value={q.extra.value} />
                 <Stat label={q.kpiLabel} value={q.kpiValue ?? "–"} />
@@ -145,7 +148,7 @@ export default function CartePage() {
         onClose={() => setDetailOpen(false)}
         score={g.detailScore}
         mode={g.mode}
-        keyFigures={g.detailScore ? detailFigures(g.detailScore, g.mode, t) : []}
+        keyFigures={g.detailScore ? detailFigures(g.detailScore, g.mode, t, lang) : []}
         haya={g.hayaProps}
         assetSlider={showAsset ? AssetSlider : null}
       />

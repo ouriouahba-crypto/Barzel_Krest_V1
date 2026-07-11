@@ -2,6 +2,9 @@
 
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Mode, MODE_LABEL, scoreColor } from "@/lib/scoring";
+import { useLang } from "@/lib/i18n/useT";
+import { fmtNumber } from "@/lib/i18n/format";
+import type { Lang } from "@/lib/i18n/types";
 
 export interface ChartRow {
   name: string;
@@ -11,7 +14,7 @@ export interface ChartRow {
   verdict: string;
 }
 
-function ChartTooltip({ active, payload, unit }: any) {
+function ChartTooltip({ active, payload, unit, lang }: any) {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload as ChartRow;
   const v = payload[0].value;
@@ -19,7 +22,7 @@ function ChartTooltip({ active, payload, unit }: any) {
     <div className="rounded-lg border border-gold/40 bg-navy px-3 py-2 text-cream shadow-card">
       <div className="text-[12px] font-semibold">{d.name}</div>
       <div className="text-[12px] text-gold">
-        {unit === "€/m²" ? `${Math.round(v).toLocaleString("fr-FR")} €/m²` : `${Math.round(v)} / 100 · ${d.verdict}`}
+        {unit === "€/m²" ? `${fmtNumber(Math.round(v), lang as Lang)} €/m²` : `${Math.round(v)} / 100 · ${d.verdict}`}
       </div>
     </div>
   );
@@ -37,6 +40,7 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
 const axis = { fontSize: 10, fill: "#6B7A8D" };
 
 export function CityCharts({ rows, mode, classLabel }: { rows: ChartRow[]; mode: Mode; classLabel: string }) {
+  const lang = useLang();
   const priceRows = rows.filter((r) => r.price != null);
   return (
     <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
@@ -45,7 +49,7 @@ export function CityCharts({ rows, mode, classLabel }: { rows: ChartRow[]; mode:
           <BarChart data={rows} margin={{ top: 4, right: 6, left: -6, bottom: 28 }}>
             <XAxis dataKey="short" tick={axis} interval={0} angle={-38} textAnchor="end" tickLine={false} axisLine={{ stroke: "#E3DCCB" }} />
             <YAxis domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} tick={axis} tickLine={false} axisLine={false} width={30} />
-            <Tooltip cursor={{ fill: "rgba(10,22,40,0.05)" }} content={<ChartTooltip unit="score" />} />
+            <Tooltip cursor={{ fill: "rgba(10,22,40,0.05)" }} content={<ChartTooltip unit="score" lang={lang} />} />
             <Bar dataKey="score" radius={[3, 3, 0, 0]} maxBarSize={26}>
               {rows.map((r) => (
                 <Cell key={r.name} fill={scoreColor(r.score)} />
@@ -60,7 +64,7 @@ export function CityCharts({ rows, mode, classLabel }: { rows: ChartRow[]; mode:
           <BarChart data={priceRows} margin={{ top: 4, right: 6, left: -6, bottom: 28 }}>
             <XAxis dataKey="short" tick={axis} interval={0} angle={-38} textAnchor="end" tickLine={false} axisLine={{ stroke: "#E3DCCB" }} />
             <YAxis tick={axis} tickLine={false} axisLine={false} width={44} tickFormatter={(v) => `${(v / 1000).toFixed(1)}k`} />
-            <Tooltip cursor={{ fill: "rgba(10,22,40,0.05)" }} content={<ChartTooltip unit="€/m²" />} />
+            <Tooltip cursor={{ fill: "rgba(10,22,40,0.05)" }} content={<ChartTooltip unit="€/m²" lang={lang} />} />
             <Bar dataKey="price" radius={[3, 3, 0, 0]} maxBarSize={26} fill="#C9A86A" />
           </BarChart>
         </ResponsiveContainer>

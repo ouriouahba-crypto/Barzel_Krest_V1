@@ -4,7 +4,8 @@ import { useState } from "react";
 import { CAIS, arbitrageVerdict, scoreTextColorDark, spreadSubscore } from "@/lib/scoring";
 import { ArbRow, pctSigned } from "@/lib/arbitrage";
 import { VerdictBadge } from "./ui";
-import { useT } from "@/lib/i18n/useT";
+import { useT, useLang } from "@/lib/i18n/useT";
+import { fmtNumber } from "@/lib/i18n/format";
 
 // Live, client-side recompute for the K-REST arbitrage asset (Cais Poente,
 // actif trophée front de fleuve à Santa Marinha). Market data (médiane Gaia,
@@ -20,6 +21,7 @@ export function CaisSlider({
   weight: number;      // spread pillar weight
 }) {
   const t = useT();
+  const lang = useLang();
   const [price, setPrice] = useState<number>(CAIS.priceDefault);
 
   const spread = row.prixMarche ? (price / row.prixMarche - 1) * 100 : 0;
@@ -47,7 +49,7 @@ export function CaisSlider({
       <div className="mt-4">
         <div className="flex items-baseline justify-between">
           <span className="text-label text-cream/70">{t("wg.targetDisposalPrice")}</span>
-          <span className="font-display text-xl text-gold">{Math.round(price).toLocaleString("fr-FR")} €/m²</span>
+          <span className="font-display text-xl text-gold">{fmtNumber(Math.round(price), lang)} €/m²</span>
         </div>
         <input
           type="range"
@@ -60,8 +62,8 @@ export function CaisSlider({
           style={{ ["--pct" as any]: `${pct}%` }}
         />
         <div className="mt-1 flex justify-between text-label text-cream/60">
-          <span>{CAIS.priceMin.toLocaleString("fr-FR")}</span>
-          <span>{CAIS.priceMax.toLocaleString("fr-FR")}</span>
+          <span>{fmtNumber(CAIS.priceMin, lang)}</span>
+          <span>{fmtNumber(CAIS.priceMax, lang)}</span>
         </div>
       </div>
 
@@ -69,13 +71,13 @@ export function CaisSlider({
         <Metric
           label={t("wg.spread")}
           value={pctSigned(spread, 0)}
-          sub={row.prixMarche ? t("wg.medianEurM2", { v: row.prixMarche.toLocaleString("fr-FR") }) : undefined}
+          sub={row.prixMarche ? t("wg.medianEurM2", { v: fmtNumber(row.prixMarche, lang) }) : undefined}
           color={scoreTextColorDark(spreadSubscore(spread))}
         />
         <Metric
           label={t("wg.estimatedTime")}
           value={delai != null ? t("wg.timeMonths", { v: delai.toFixed(1) }) : "–"}
-          sub={row.valeurRealisable ? t("wg.realizableEurM2", { v: row.valeurRealisable.toLocaleString("fr-FR") }) : undefined}
+          sub={row.valeurRealisable ? t("wg.realizableEurM2", { v: fmtNumber(row.valeurRealisable, lang) }) : undefined}
         />
         <Metric label={t("wg.scoreArbitrage")} value={`${Math.round(total)}`} color={scoreTextColorDark(total)} />
       </div>

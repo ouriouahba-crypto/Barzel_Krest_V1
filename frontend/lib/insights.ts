@@ -6,6 +6,7 @@ import { MargeBreakdown, ModeScore } from "./api";
 import { Mode, MODES, MODE_KPI, classLabel, fmtNum, median, pillarValue, verdictTone } from "./scoring";
 import { displayName, shortName } from "./useGaia";
 import { PmRow } from "./priceMargin";
+import { fmtNumber } from "./i18n/format";
 import { RdRow } from "./rendement";
 import { ArbRow, pctSigned } from "./arbitrage";
 import { FcRow } from "./foncier";
@@ -217,7 +218,7 @@ export function modeInsight(score: ModeScore, assetClass: string, lang: Lang): s
         const usage = /^(\S+)/.exec(bu.native.label)?.[1] ?? "mixte";
         return translate("ins.mode.landbankUse", lang, {
           usage,
-          prix: Math.round(bu.native.value).toLocaleString("fr-FR"),
+          prix: fmtNumber(Math.round(bu.native.value), lang),
         });
       }
       return translate("ins.mode.landbankFallback", lang, { verdict: verdictDisplay(score.verdict, lang) });
@@ -634,10 +635,10 @@ export function compareInsight(cells: CompareModeCell[], lang: Lang = "fr"): str
 
 // Winner-vs-runner value pair per mode, for the synthesis parenthetical. The
 // landbank compares residual land value (874 vs 814 €/m²), the money figure.
-function vsPhrase(mode: Mode, win: CompareModeCell, run: CompareModeCell): string {
+function vsPhrase(mode: Mode, win: CompareModeCell, run: CompareModeCell, lang: Lang): string {
   if (mode === "landbank") {
     if (win.residual == null || run.residual == null) return "";
-    return ` (${Math.round(win.residual).toLocaleString("fr-FR")} vs ${Math.round(run.residual).toLocaleString("fr-FR")} €/m²)`;
+    return ` (${fmtNumber(Math.round(win.residual), lang)} vs ${fmtNumber(Math.round(run.residual), lang)} €/m²)`;
   }
   if (win.metric == null || run.metric == null) return "";
   switch (mode) {
@@ -687,7 +688,7 @@ export function compareSynthesis(cols: CompareColumn[], lang: Lang = "fr"): stri
   const order = [...wins.entries()].sort((a, b) => b[1].length - a[1].length);
   order.forEach(([colIdx, modes], k) => {
     const names = modes.map(
-      (w, j) => translate("cmp.vs." + w.mode, lang) + (j === 0 ? vsPhrase(w.mode, w.win, w.run) : "")
+      (w, j) => translate("cmp.vs." + w.mode, lang) + (j === 0 ? vsPhrase(w.mode, w.win, w.run, lang) : "")
     );
     const list =
       names.length > 1

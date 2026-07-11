@@ -13,6 +13,8 @@ import { useGaia, displayName, shortName } from "@/lib/useGaia";
 import { ModeScore } from "@/lib/api";
 import { Mode, MODES, MODE_KPI, MODE_ROUTE, classLabel, fmtNum, fmtSigned, median, pillarValue, verdictColor, verdictTone } from "@/lib/scoring";
 import { useT, useLang } from "@/lib/i18n/useT";
+import { fmtNumber } from "@/lib/i18n/format";
+import type { Lang } from "@/lib/i18n/types";
 import { modeLabel, verdictDisplay } from "@/lib/i18n/domain";
 import { cityShortName } from "@/lib/i18n/display";
 import { OverviewByMode, bestMode, cityInsight, modeInsight, trendInsight } from "@/lib/insights";
@@ -34,7 +36,7 @@ const KPI_NOUN: Record<Mode, string> = {
 // Every mode now has its page (MODE_ROUTE): no "Bientôt" left on the overview.
 
 const nn = (v: number | null | undefined): v is number => v != null && !Number.isNaN(v);
-const eur = (v: number | null | undefined) => (nn(v) ? `${Math.round(v).toLocaleString("fr-FR")} €/m²` : "–");
+const eur = (v: number | null | undefined, lang: Lang) => (nn(v) ? `${fmtNumber(Math.round(v), lang)} €/m²` : "–");
 const kpiVal = (s: ModeScore, m: Mode) => {
   const v = pillarValue(s.pillars, MODE_KPI[m].pillar);
   return v != null ? `${fmtNum(v, MODE_KPI[m].digits)}${MODE_KPI[m].unit}` : "–";
@@ -296,11 +298,11 @@ export default function VueEnsemble() {
           <div className="shrink-0 rounded-xl border border-navy/10 bg-cream-200 px-4 py-2.5 text-caption text-ink-soft">
             <span className="font-medium text-ink">{t("ov.market_context")}</span>
             <span className="mx-2 text-navy/20">·</span>
-            {t("ov.median_price", { v: eur(market.price) })}
+            {t("ov.median_price", { v: eur(market.price, lang) })}
             <span className="mx-2 text-navy/20">·</span>
             {t("ov.yoy_12m", { v: nn(market.yoy) ? `${fmtSigned(market.yoy, 1)}%` : "–" })}
             <span className="mx-2 text-navy/20">·</span>
-            {t("ov.transactions_per_year", { n: market.tx.toLocaleString("fr-FR") })}
+            {t("ov.transactions_per_year", { n: fmtNumber(market.tx, lang) })}
             <span className="mx-2 text-navy/20">·</span>
             {t("ov.zones_tracked", { n: market.count, zones: city.zoneNounPlural })}
           </div>

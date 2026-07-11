@@ -16,6 +16,7 @@ import type { RdRow } from "./rendement";
 import { median, verdictTone } from "./scoring";
 import { translate, type Lang } from "./i18n";
 import { classLabelFor } from "./i18n/domain";
+import { fmtNumber } from "./i18n/format";
 
 // Taux réels (Région de Bruxelles-Capitale, 2025).
 export const DROITS_BXL_PCT = 12.5;   // droits d'enregistrement, existant, pleine base
@@ -25,9 +26,11 @@ export const ISOC_PCT = 25;           // impôt des sociétés
 export const WALLONIE_PROPRE_PCT = 3; // habitation propre et unique
 export const FLANDRE_PROPRE_PCT = 2;  // habitation propre et unique
 
-export const eurFR = (v: number) => `${Math.round(v).toLocaleString("fr-FR")} €`;
-export const pctFR = (v: number, d = 1) =>
-  `${v.toLocaleString("fr-FR", { minimumFractionDigits: d, maximumFractionDigits: d })}%`;
+// Milliers localisés (eurFR) et décimale localisée (pctFR), comme le régime PT :
+// « 12,5% » en fr/pt, « 12.5% » en en. Le scoring garde son point décimal.
+export const eurFR = (v: number, lang: Lang) => `${fmtNumber(Math.round(v), lang)} €`;
+export const pctFR = (v: number, lang: Lang, d = 1) =>
+  `${fmtNumber(v, lang, { minimumFractionDigits: d, maximumFractionDigits: d })}%`;
 
 // Droits + notaire à l'acquisition (existant, société). Résidentiel et
 // commercial existant : même base 12,5% en Belgique (barème plat, contrairement
@@ -75,7 +78,7 @@ export function fiscalInsight(
     city: cityName,
     x: x.toFixed(0),
     cls: classLabelFor(cls, lang).toLowerCase(),
-    entry: pctFR(DROITS_BXL_PCT + NOTAIRE_FRAIS_PCT),
+    entry: pctFR(DROITS_BXL_PCT + NOTAIRE_FRAIS_PCT, lang),
   });
 }
 
@@ -92,22 +95,22 @@ export function volets(lang: Lang): FiscalVolet[] {
       rows: [
         {
           label: T("fsx.be.acq.droits.label"),
-          value: pctFR(DROITS_BXL_PCT),
+          value: pctFR(DROITS_BXL_PCT, lang),
           sub: T("fsx.be.acq.droits.sub"),
         },
         {
           label: T("fsx.be.acq.tva.label"),
-          value: pctFR(TVA_NEUF_PCT, 0),
+          value: pctFR(TVA_NEUF_PCT, lang, 0),
           sub: T("fsx.be.acq.tva.sub"),
         },
         {
           label: T("fsx.be.acq.terrain.label"),
-          value: pctFR(DROITS_BXL_PCT),
+          value: pctFR(DROITS_BXL_PCT, lang),
           sub: T("fsx.be.acq.terrain.sub"),
         },
         {
           label: T("fsx.be.acq.notaire.label"),
-          value: `~${pctFR(NOTAIRE_FRAIS_PCT)}`,
+          value: `~${pctFR(NOTAIRE_FRAIS_PCT, lang)}`,
           sub: T("fsx.be.acq.notaire.sub"),
         },
       ],
@@ -124,7 +127,7 @@ export function volets(lang: Lang): FiscalVolet[] {
         },
         {
           label: T("fsx.be.det.isoc.label"),
-          value: pctFR(ISOC_PCT, 0),
+          value: pctFR(ISOC_PCT, lang, 0),
           sub: T("fsx.be.det.isoc.sub"),
         },
         {
@@ -141,7 +144,7 @@ export function volets(lang: Lang): FiscalVolet[] {
       rows: [
         {
           label: T("fsx.be.ced.pv.label"),
-          value: pctFR(ISOC_PCT, 0),
+          value: pctFR(ISOC_PCT, lang, 0),
           sub: T("fsx.be.ced.pv.sub"),
         },
         {

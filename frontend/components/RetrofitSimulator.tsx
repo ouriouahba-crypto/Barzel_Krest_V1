@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { RdRow } from "@/lib/rendement";
 import { SCE_SCALE, SceGrade, capexPerM2, retrofitImpact } from "@/lib/energie";
-import { useT } from "@/lib/i18n/useT";
+import { useT, useLang } from "@/lib/i18n/useT";
+import { fmtNumber } from "@/lib/i18n/format";
 
 const CURRENT: SceGrade[] = ["F", "E", "D"];
 const TARGET: SceGrade[] = ["D", "C", "B"];
@@ -15,6 +16,7 @@ const TARGET: SceGrade[] = ["D", "C", "B"];
 // freguesia feeds it; defaults to Santa Marinha.
 export function RetrofitSimulator({ row, placeLabel, efShare }: { row: RdRow; placeLabel: string; efShare: number | null }) {
   const tr = useT();
+  const lang = useLang();
   const [from, setFrom] = useState<SceGrade>("F");
   const [to, setTo] = useState<SceGrade>("C");
 
@@ -44,7 +46,7 @@ export function RetrofitSimulator({ row, placeLabel, efShare }: { row: RdRow; pl
           <div className="font-display text-lg">{tr("wg.energyRetrofit")}</div>
           <div className="mt-0.5 text-caption text-cream/85">
             {tr("wg.typicalAssetAt", { place: placeLabel })}
-            {value != null ? ` · ${Math.round(value).toLocaleString("fr-FR")} €/m²` : ""}
+            {value != null ? ` · ${fmtNumber(Math.round(value), lang)} €/m²` : ""}
             {efShare != null ? ` · ${tr("wg.efStock")} ${efShare}%` : ""}
           </div>
         </div>
@@ -101,7 +103,7 @@ export function RetrofitSimulator({ row, placeLabel, efShare }: { row: RdRow; pl
             capex,
             compression: impact.compression.toFixed(2).replace(".", ","),
             place: placeLabel,
-            value: Math.round(value ?? impact.value).toLocaleString("fr-FR"),
+            value: fmtNumber(Math.round(value ?? impact.value), lang),
           })}
         </p>
       )}

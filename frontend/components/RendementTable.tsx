@@ -6,7 +6,7 @@ import { eur0 } from "@/lib/priceMargin";
 import { RdRow, pct2 } from "@/lib/rendement";
 import { VerdictBadge } from "./ui";
 import { useZoneNoun } from "@/lib/useZoneNoun";
-import { useT } from "@/lib/i18n/useT";
+import { useT, useLang } from "@/lib/i18n/useT";
 
 // Détention table: same visual codes as PriceMarginTable (score liseré, verdict
 // badge, sortable columns). Default grouping: Conserver/Surveiller above an
@@ -41,6 +41,7 @@ export function RendementTable({
   const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "yieldNet", dir: "desc" });
   const { Sg, pl } = useZoneNoun();
   const t = useT();
+  const lang = useLang();
   // Until the user sorts, group Conserver/Surveiller above Céder with a separator,
   // best detention score first inside each group (the held places open the table,
   // not the yield traps). Any sort click switches to a plain global sort.
@@ -156,7 +157,7 @@ export function RendementTable({
                       <span className="text-label text-ink-soft">{Math.round(r.total)}</span>
                     </span>
                   </td>
-                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eur0(r.loyer)}</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eur0(r.loyer, lang)}</td>
                   <td className="px-3 py-2 text-right tabular-nums text-ink">{pct2(r.yieldBrut)}</td>
                   <td className="px-3 py-2 text-right tabular-nums text-ink/80">{r.chargesPctLoyer.toFixed(1)}%</td>
                   <td className="px-3 py-2 text-right tabular-nums text-ink/80">{r.fiscPctLoyer.toFixed(1)}%</td>

@@ -1,18 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { IMT_COMMERCIAL_PCT, acquisitionTaxes } from "@/lib/fiscal";
-import { useT } from "@/lib/i18n/useT";
+import { IMT_COMMERCIAL_PCT, SELO_PCT, acquisitionTaxes, eurFR, pctFR } from "@/lib/fiscal";
+import { useT, useLang } from "@/lib/i18n/useT";
+import { fmtNumber } from "@/lib/i18n/format";
 
 const MIN = 200_000;
 const MAX = 5_000_000;
-const eur = (v: number) => `${Math.round(v).toLocaleString("fr-FR")} €`;
 
 // Live acquisition-tax simulator on the official 2026 Portuguese scales,
 // neutral labelling (not a K-REST asset). The class drives the applicable IMT:
 // residential = progressive "habitação secundária" table, commercial = 6,5%.
 export function AcquisitionSimulator({ residential }: { residential: boolean }) {
   const tr = useT();
+  const lang = useLang();
   const [price, setPrice] = useState<number>(1_000_000);
   const t = acquisitionTaxes(price, residential);
   const pct = ((price - MIN) / (MAX - MIN)) * 100;
@@ -34,7 +35,7 @@ export function AcquisitionSimulator({ residential }: { residential: boolean }) 
       <div className="mt-4">
         <div className="flex items-baseline justify-between">
           <span className="text-label text-cream/70">{tr("wg.acquisitionPrice")}</span>
-          <span className="font-display text-xl text-gold">{eur(price)}</span>
+          <span className="font-display text-xl text-gold">{eurFR(price, lang)}</span>
         </div>
         <input
           type="range"
@@ -47,19 +48,19 @@ export function AcquisitionSimulator({ residential }: { residential: boolean }) 
           style={{ ["--pct" as any]: `${pct}%` }}
         />
         <div className="mt-1 flex justify-between text-label text-cream/60">
-          <span>200 000</span>
-          <span>5 000 000</span>
+          <span>{fmtNumber(MIN, lang)}</span>
+          <span>{fmtNumber(MAX, lang)}</span>
         </div>
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-3">
         <Metric
           label={tr("wg.imt")}
-          value={eur(t.imt)}
-          sub={residential ? tr("wg.imtResidentialScale") : tr("wg.singleRate", { v: IMT_COMMERCIAL_PCT.toLocaleString("fr-FR") })}
+          value={eurFR(t.imt, lang)}
+          sub={residential ? tr("wg.imtResidentialScale") : tr("wg.singleRate", { v: fmtNumber(IMT_COMMERCIAL_PCT, lang) })}
         />
-        <Metric label={tr("wg.impostoSelo")} value={eur(t.selo)} sub={`0,8% ${tr("wg.ofPrice")}`} />
-        <Metric label={tr("wg.totalAtEntry")} value={eur(t.total)} sub={`${t.pct.toFixed(1)}% ${tr("wg.ofPrice")}`} color="#E0CBA0" />
+        <Metric label={tr("wg.impostoSelo")} value={eurFR(t.selo, lang)} sub={`${pctFR(SELO_PCT, lang)} ${tr("wg.ofPrice")}`} />
+        <Metric label={tr("wg.totalAtEntry")} value={eurFR(t.total, lang)} sub={`${t.pct.toFixed(1)}% ${tr("wg.ofPrice")}`} color="#E0CBA0" />
       </div>
 
       <p className="mt-4 text-caption leading-relaxed text-cream/85">

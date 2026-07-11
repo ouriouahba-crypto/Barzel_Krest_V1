@@ -12,7 +12,8 @@ import {
   scoreTextColorDark,
 } from "@/lib/scoring";
 import { VerdictBadge } from "./ui";
-import { useT } from "@/lib/i18n/useT";
+import { useT, useLang } from "@/lib/i18n/useT";
+import { fmtNumber } from "@/lib/i18n/format";
 
 // Recalcul live côté client, formule identique au moteur (miroir de HayaSlider,
 // composant distinct : Haya reste strictement intouché). Actif Formoso (constante
@@ -20,6 +21,7 @@ import { useT } from "@/lib/i18n/useT";
 // seul le prix de sortie bouge avec le curseur.
 export function FabricaSlider({ baseTotal, margeWeight }: { baseTotal: number; margeWeight: number }) {
   const t = useT();
+  const lang = useLang();
   const [sale, setSale] = useState<number>(FABRICA.baseSale);
 
   const baseMargeSub = margeSubscore(fabricaMargin(FABRICA.baseSale));
@@ -50,7 +52,7 @@ export function FabricaSlider({ baseTotal, margeWeight }: { baseTotal: number; m
       <div className="mt-4">
         <div className="flex items-baseline justify-between">
           <span className="text-label text-cream/70">{t("wg.targetSalePrice")}</span>
-          <span className="font-display text-xl text-gold">{Math.round(sale).toLocaleString("fr-FR")} €/m²</span>
+          <span className="font-display text-xl text-gold">{fmtNumber(Math.round(sale), lang)} €/m²</span>
         </div>
         <input
           type="range"
@@ -63,8 +65,8 @@ export function FabricaSlider({ baseTotal, margeWeight }: { baseTotal: number; m
           style={{ ["--pct" as any]: `${pct}%` }}
         />
         <div className="mt-1 flex justify-between text-label text-cream/60">
-          <span>{FABRICA.saleMin.toLocaleString("fr-FR")}</span>
-          <span>{FABRICA.saleMax.toLocaleString("fr-FR")}</span>
+          <span>{fmtNumber(FABRICA.saleMin, lang)}</span>
+          <span>{fmtNumber(FABRICA.saleMax, lang)}</span>
         </div>
       </div>
 
@@ -73,15 +75,15 @@ export function FabricaSlider({ baseTotal, margeWeight }: { baseTotal: number; m
         <Metric
           label={t("wg.premiumVsMedian")}
           value={`${fmtSigned(premium)}%`}
-          sub={t("wg.medianEurM2", { v: FABRICA.freguesiaMedian.toLocaleString("fr-FR") })}
+          sub={t("wg.medianEurM2", { v: fmtNumber(FABRICA.freguesiaMedian, lang) })}
         />
         <Metric label={t("wg.scorePromotion")} value={`${scoreAffiche}`} color={scoreTextColorDark(total)} />
       </div>
 
       <p className="mt-4 text-caption leading-relaxed text-cream/85">
         {t("wg.fabricaCaption", {
-          construction: FABRICA.construction.toLocaleString("fr-FR"),
-          foncier: FABRICA.foncier.toLocaleString("fr-FR"),
+          construction: fmtNumber(FABRICA.construction, lang),
+          foncier: fmtNumber(FABRICA.foncier, lang),
         })}
       </p>
     </div>
