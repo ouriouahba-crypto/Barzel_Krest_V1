@@ -113,7 +113,10 @@ function driverClause(m: Mode, good: ModeScore[], lang: Lang): string {
 
 // "de promotion" but "d'arbitrage" (elision before a vowel) in FR.
 function marketOf(label: string, lang: Lang): string {
-  if (lang === "en") return `${label} market`;
+  // EN : l'article est porté ici (« an arbitrage market » vs « a development
+  // market »), pas dans ci.market, qui ne peut pas décider a/an. FR/PT gardent
+  // leur article dans le template (un/um), devant {market}.
+  if (lang === "en") return `${/^[aeiou]/i.test(label) ? "an" : "a"} ${label} market`;
   if (lang === "pt") return `mercado de ${label}`;
   return /^[aeiouyéèêh]/i.test(label) ? `marché d'${label}` : `marché de ${label}`;
 }
@@ -128,9 +131,8 @@ const plurN = (n: number, noun: ZoneNoun) => (n > 1 ? noun.pl : noun.sg);
 
 // Données pas encore chargées (rows vide) : on ne prononce JAMAIS un verdict de
 // marché absolu (« Aucune… ce cycle ») sur une absence de données, sinon la
-// synthèse contredit un tableau qui, lui, se remplira. Phrase neutre partagée,
-// identique à cityInsight.
-const LOADING = "Chargement du marché…";
+// synthèse contredit un tableau qui, lui, se remplira. Phrase neutre partagée
+// par cityInsight et les 4 insights de mode : translate("ci.loading", lang).
 
 // 1 sentence verdict for the city: dominant mode, count of top-verdict zones,
 // the dominant native metric range, and (where available) a driver.
@@ -293,7 +295,7 @@ export function priceMarginInsight(
   viableCount?: number,
   lang: Lang = "fr"
 ): string {
-  if (!rows.length) return LOADING;
+  if (!rows.length) return translate("ci.loading", lang);
   const { sector, Sector } = sectorPhrase(assetClass, lang, "promotion");
   const viable = rows
     .filter((r) => verdictTone("promotion", r.verdict) !== "low")
@@ -372,7 +374,7 @@ export function detentionInsight(
   keepCount?: number,
   lang: Lang = "fr"
 ): string {
-  if (!rows.length) return LOADING;
+  if (!rows.length) return translate("ci.loading", lang);
   const { sector, Sector } = sectorPhrase(assetClass, lang, "detention");
   const suffix =
     assetClass === "residential"
@@ -452,7 +454,7 @@ export function arbitrageInsight(
   openCount?: number,
   lang: Lang = "fr"
 ): string {
-  if (!rows.length) return LOADING;
+  if (!rows.length) return translate("ci.loading", lang);
   const suffix =
     assetClass === "residential"
       ? ""
@@ -529,7 +531,7 @@ export function landbankInsight(
   prioCount?: number,
   lang: Lang = "fr"
 ): string {
-  if (!rows.length) return LOADING;
+  if (!rows.length) return translate("ci.loading", lang);
   const prio = rows
     .filter((r) => verdictTone("landbank", r.verdict) === "good")
     .sort((a, b) => b.upliftPct - a.upliftPct);
