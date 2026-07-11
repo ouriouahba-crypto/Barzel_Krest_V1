@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CAIS, arbitrageVerdict, scoreTextColorDark, spreadSubscore } from "@/lib/scoring";
 import { ArbRow, pctSigned } from "@/lib/arbitrage";
 import { VerdictBadge } from "./ui";
+import { useT } from "@/lib/i18n/useT";
 
 // Live, client-side recompute for the K-REST arbitrage asset (Cais Poente,
 // actif trophée front de fleuve à Santa Marinha). Market data (médiane Gaia,
@@ -18,6 +19,7 @@ export function CaisSlider({
   baseTotal: number;   // zone arbitrage total /100
   weight: number;      // spread pillar weight
 }) {
+  const t = useT();
   const [price, setPrice] = useState<number>(CAIS.priceDefault);
 
   const spread = row.prixMarche ? (price / row.prixMarche - 1) * 100 : 0;
@@ -36,7 +38,7 @@ export function CaisSlider({
     <div className="rounded-2xl bg-navy p-5 text-cream shadow-card fade-up">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-label font-semibold uppercase tracking-widest text-gold">Actif K-REST · Arbitrage</div>
+          <div className="text-label font-semibold uppercase tracking-widest text-gold">{t("wg.assetArbitrage")}</div>
           <div className="font-display text-lg">Cais Poente</div>
         </div>
         <VerdictBadge mode="arbitrage" verdict={verdict} />
@@ -44,7 +46,7 @@ export function CaisSlider({
 
       <div className="mt-4">
         <div className="flex items-baseline justify-between">
-          <span className="text-label text-cream/70">Prix de cession visé</span>
+          <span className="text-label text-cream/70">{t("wg.targetDisposalPrice")}</span>
           <span className="font-display text-xl text-gold">{Math.round(price).toLocaleString("fr-FR")} €/m²</span>
         </div>
         <input
@@ -65,22 +67,21 @@ export function CaisSlider({
 
       <div className="mt-4 grid grid-cols-3 gap-3">
         <Metric
-          label="Spread"
+          label={t("wg.spread")}
           value={pctSigned(spread, 0)}
-          sub={row.prixMarche ? `médiane ${row.prixMarche.toLocaleString("fr-FR")} €/m²` : undefined}
+          sub={row.prixMarche ? t("wg.medianEurM2", { v: row.prixMarche.toLocaleString("fr-FR") }) : undefined}
           color={scoreTextColorDark(spreadSubscore(spread))}
         />
         <Metric
-          label="Délai estimé"
-          value={delai != null ? `${delai.toFixed(1)} mois` : "–"}
-          sub={row.valeurRealisable ? `réalisable ${row.valeurRealisable.toLocaleString("fr-FR")} €/m²` : undefined}
+          label={t("wg.estimatedTime")}
+          value={delai != null ? t("wg.timeMonths", { v: delai.toFixed(1) }) : "–"}
+          sub={row.valeurRealisable ? t("wg.realizableEurM2", { v: row.valeurRealisable.toLocaleString("fr-FR") }) : undefined}
         />
-        <Metric label="Score arbitrage" value={`${Math.round(total)}`} color={scoreTextColorDark(total)} />
+        <Metric label={t("wg.scoreArbitrage")} value={`${Math.round(total)}`} color={scoreTextColorDark(total)} />
       </div>
 
       <p className="mt-4 text-caption leading-relaxed text-cream/85">
-        Actif trophée front de fleuve à Santa Marinha. Spread vs médiane Gaia et délai croissant
-        avec le prix demandé (dérivé de la rotation de la zone) ; verdict fenêtre recalculé en direct.
+        {t("wg.caisCaption")}
       </p>
     </div>
   );

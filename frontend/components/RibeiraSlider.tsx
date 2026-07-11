@@ -4,6 +4,7 @@ import { useState } from "react";
 import { RIBEIRA, detentionVerdict, fmtSigned, scoreTextColorDark, yieldNetSubscore } from "@/lib/scoring";
 import { RdRow } from "@/lib/rendement";
 import { VerdictBadge } from "./ui";
+import { useT } from "@/lib/i18n/useT";
 
 // Live, client-side recompute for the K-REST détention asset (Ribeira Sul,
 // immeuble de rapport à Santa Marinha). Market data (charges/fiscalité rates,
@@ -18,6 +19,7 @@ export function RibeiraSlider({
   baseTotal: number;   // zone détention total /100
   weight: number;      // rendement_net pillar weight
 }) {
+  const t = useT();
   const [rent, setRent] = useState<number>(RIBEIRA.rentDefault);
 
   // Identity brut × (1 − charges − fiscalité) = net, with the freguesia's rates.
@@ -35,7 +37,7 @@ export function RibeiraSlider({
     <div className="rounded-2xl bg-navy p-5 text-cream shadow-card fade-up">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-label font-semibold uppercase tracking-widest text-gold">Actif K-REST · Détention</div>
+          <div className="text-label font-semibold uppercase tracking-widest text-gold">{t("wg.assetDetention")}</div>
           <div className="font-display text-lg">Ribeira Sul</div>
         </div>
         <VerdictBadge mode="detention" verdict={verdict} />
@@ -43,7 +45,7 @@ export function RibeiraSlider({
 
       <div className="mt-4">
         <div className="flex items-baseline justify-between">
-          <span className="text-label text-cream/70">Loyer moyen</span>
+          <span className="text-label text-cream/70">{t("wg.avgRent")}</span>
           <span className="font-display text-xl text-gold">
             {rent.toLocaleString("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} €/m²/mois
           </span>
@@ -65,19 +67,22 @@ export function RibeiraSlider({
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-3">
-        <Metric label="Yield net" value={`${net.toFixed(2)}%`} color={scoreTextColorDark(yieldNetSubscore(net))} />
+        <Metric label={t("wg.netYield")} value={`${net.toFixed(2)}%`} color={scoreTextColorDark(yieldNetSubscore(net))} />
         <Metric
-          label="Loyer vs marché"
+          label={t("wg.rentVsMarket")}
           value={vsMarket != null ? `${fmtSigned(vsMarket)}%` : "–"}
-          sub={row.loyer ? `marché ${row.loyer.toLocaleString("fr-FR")} €/m²/an` : undefined}
+          sub={row.loyer ? t("wg.marketEurM2Year", { v: row.loyer.toLocaleString("fr-FR") }) : undefined}
         />
-        <Metric label="Score détention" value={`${Math.round(total)}`} color={scoreTextColorDark(total)} />
+        <Metric label={t("wg.scoreDetention")} value={`${Math.round(total)}`} color={scoreTextColorDark(total)} />
       </div>
 
       <p className="mt-4 text-caption leading-relaxed text-cream/85">
-        Immeuble de rapport à Santa Marinha : {RIBEIRA.lots} lots, {RIBEIRA.surface.toLocaleString("fr-FR")} m²,
-        acquis {RIBEIRA.acquisition.toLocaleString("fr-FR")} €/m² + {RIBEIRA.travaux} €/m² de travaux.
-        Yield et verdict recalculés en direct (net = brut × (1 − charges − fiscalité), taux de la freguesia).
+        {t("wg.ribeiraCaption", {
+          lots: RIBEIRA.lots,
+          surface: RIBEIRA.surface.toLocaleString("fr-FR"),
+          acquisition: RIBEIRA.acquisition.toLocaleString("fr-FR"),
+          travaux: RIBEIRA.travaux,
+        })}
       </p>
     </div>
   );

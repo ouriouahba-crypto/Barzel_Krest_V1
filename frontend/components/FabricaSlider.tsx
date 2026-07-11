@@ -12,12 +12,14 @@ import {
   scoreTextColorDark,
 } from "@/lib/scoring";
 import { VerdictBadge } from "./ui";
+import { useT } from "@/lib/i18n/useT";
 
 // Recalcul live côté client, formule identique au moteur (miroir de HayaSlider,
 // composant distinct : Haya reste strictement intouché). Actif Formoso (constante
 // interne FABRICA inchangée) : reconversion d'un entrepôt viticole à Marvila ;
 // seul le prix de sortie bouge avec le curseur.
 export function FabricaSlider({ baseTotal, margeWeight }: { baseTotal: number; margeWeight: number }) {
+  const t = useT();
   const [sale, setSale] = useState<number>(FABRICA.baseSale);
 
   const baseMargeSub = margeSubscore(fabricaMargin(FABRICA.baseSale));
@@ -39,7 +41,7 @@ export function FabricaSlider({ baseTotal, margeWeight }: { baseTotal: number; m
     <div className="rounded-2xl bg-navy p-5 text-cream shadow-card fade-up">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-label font-semibold uppercase tracking-widest text-gold">Actif K-REST · Promotion</div>
+          <div className="text-label font-semibold uppercase tracking-widest text-gold">{t("wg.assetPromotion")}</div>
           <div className="font-display text-lg">Formoso</div>
         </div>
         <VerdictBadge mode="promotion" verdict={verdict} />
@@ -47,7 +49,7 @@ export function FabricaSlider({ baseTotal, margeWeight }: { baseTotal: number; m
 
       <div className="mt-4">
         <div className="flex items-baseline justify-between">
-          <span className="text-label text-cream/70">Prix de sortie visé</span>
+          <span className="text-label text-cream/70">{t("wg.targetSalePrice")}</span>
           <span className="font-display text-xl text-gold">{Math.round(sale).toLocaleString("fr-FR")} €/m²</span>
         </div>
         <input
@@ -67,21 +69,20 @@ export function FabricaSlider({ baseTotal, margeWeight }: { baseTotal: number; m
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-3">
-        <Metric label="Marge promoteur" value={`${margin.toFixed(0)}%`} color={scoreTextColorDark(margeSub)} />
+        <Metric label={t("wg.developerMargin")} value={`${margin.toFixed(0)}%`} color={scoreTextColorDark(margeSub)} />
         <Metric
-          label="Prime / médiane"
+          label={t("wg.premiumVsMedian")}
           value={`${fmtSigned(premium)}%`}
-          sub={`médiane ${FABRICA.freguesiaMedian.toLocaleString("fr-FR")} €/m²`}
+          sub={t("wg.medianEurM2", { v: FABRICA.freguesiaMedian.toLocaleString("fr-FR") })}
         />
-        <Metric label="Score promotion" value={`${scoreAffiche}`} color={scoreTextColorDark(total)} />
+        <Metric label={t("wg.scorePromotion")} value={`${scoreAffiche}`} color={scoreTextColorDark(total)} />
       </div>
 
       <p className="mt-4 text-caption leading-relaxed text-cream/85">
-        Reconversion d'un entrepôt viticole à Marvila, arc oriental : 50 appartements T1 et T2 duplex signés
-        Bak Gordon (livraison 2026-2027), coque conservée + finitions {FABRICA.construction.toLocaleString("fr-FR")} €/m²,
-        foncier {FABRICA.foncier.toLocaleString("fr-FR")} €/m².
-        Marge et verdict recalculés en direct (coût = 1,261 × (construction + foncier) ; résidentiel PT sans TVA
-        sur le prix de sortie, IMT côté acquéreur).
+        {t("wg.fabricaCaption", {
+          construction: FABRICA.construction.toLocaleString("fr-FR"),
+          foncier: FABRICA.foncier.toLocaleString("fr-FR"),
+        })}
       </p>
     </div>
   );

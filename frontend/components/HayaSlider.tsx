@@ -10,9 +10,11 @@ import {
   scoreTextColorDark,
 } from "@/lib/scoring";
 import { VerdictBadge } from "./ui";
+import { useT } from "@/lib/i18n/useT";
 
 // Live, client-side recompute: formula identical to the backend.
 export function HayaSlider({ baseTotal, margeWeight }: { baseTotal: number; margeWeight: number }) {
+  const t = useT();
   const [sale, setSale] = useState<number>(HAYA.baseSale);
 
   // Anchor on the client band at the base sale so the total lands exactly on
@@ -29,7 +31,7 @@ export function HayaSlider({ baseTotal, margeWeight }: { baseTotal: number; marg
     <div className="rounded-2xl bg-navy p-5 text-cream shadow-card fade-up">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-label font-semibold uppercase tracking-widest text-gold">Actif K-REST · Promotion</div>
+          <div className="text-label font-semibold uppercase tracking-widest text-gold">{t("wg.assetPromotion")}</div>
           <div className="font-display text-lg">Haya Towers</div>
         </div>
         <VerdictBadge mode="promotion" verdict={verdict} />
@@ -37,7 +39,7 @@ export function HayaSlider({ baseTotal, margeWeight }: { baseTotal: number; marg
 
       <div className="mt-4">
         <div className="flex items-baseline justify-between">
-          <span className="text-label text-cream/70">Prix de vente réalisable</span>
+          <span className="text-label text-cream/70">{t("wg.achievableSalePrice")}</span>
           <span className="font-display text-xl text-gold">{Math.round(sale).toLocaleString("fr-FR")} €/m²</span>
         </div>
         <input
@@ -57,18 +59,17 @@ export function HayaSlider({ baseTotal, margeWeight }: { baseTotal: number; marg
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-3">
-        <Metric label="Marge promoteur" value={`${margin.toFixed(0)}%`} color={scoreTextColorDark(margeSub)} />
+        <Metric label={t("wg.developerMargin")} value={`${margin.toFixed(0)}%`} color={scoreTextColorDark(margeSub)} />
         <Metric
-          label="Prime / médiane"
+          label={t("wg.premiumVsMedian")}
           value={`+${premium.toFixed(0)}%`}
-          sub={`médiane ${HAYA.freguesiaMedian.toLocaleString("fr-FR")} €/m²`}
+          sub={t("wg.medianEurM2", { v: HAYA.freguesiaMedian.toLocaleString("fr-FR") })}
         />
-        <Metric label="Score promotion" value={`${Math.round(total)}`} color={scoreTextColorDark(total)} />
+        <Metric label={t("wg.scorePromotion")} value={`${Math.round(total)}`} color={scoreTextColorDark(total)} />
       </div>
 
       <p className="mt-4 text-caption leading-relaxed text-cream/85">
-        Prix neuf réalisable vs médiane réelle de la freguesia. Marge et verdict recalculés en direct
-        (coût = 1,261 × (construction + foncier), marge = (prix de vente − coût) / coût).
+        {t("wg.hayaCaption")}
       </p>
     </div>
   );

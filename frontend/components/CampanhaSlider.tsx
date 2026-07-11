@@ -12,6 +12,7 @@ import {
   scoreTextColorDark,
 } from "@/lib/scoring";
 import { VerdictBadge } from "./ui";
+import { useT } from "@/lib/i18n/useT";
 
 // Recalcul live cote client, formule identique au moteur (composant distinct :
 // Haya, Fabrica et Dansaert restent strictement intouches). Projet mixte
@@ -20,6 +21,7 @@ import { VerdictBadge } from "./ui";
 // Residentiel PT : PAS de TVA deduite du prix de sortie (IMT cote acquereur),
 // contrairement au neuf BE.
 export function CampanhaSlider({ baseTotal, margeWeight }: { baseTotal: number; margeWeight: number }) {
+  const t = useT();
   const [sale, setSale] = useState<number>(CAMPANHA.baseSale);
 
   const baseMargeSub = margeSubscore(campanhaMargin(CAMPANHA.baseSale));
@@ -49,7 +51,7 @@ export function CampanhaSlider({ baseTotal, margeWeight }: { baseTotal: number; 
     <div className="rounded-2xl bg-navy p-5 text-cream shadow-card fade-up">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-label font-semibold uppercase tracking-widest text-gold">Actif K-REST · Promotion</div>
+          <div className="text-label font-semibold uppercase tracking-widest text-gold">{t("wg.assetPromotion")}</div>
           <div className="font-display text-lg">Campanha Souto de Moura</div>
         </div>
         <VerdictBadge mode="promotion" verdict={verdict} />
@@ -57,7 +59,7 @@ export function CampanhaSlider({ baseTotal, margeWeight }: { baseTotal: number; 
 
       <div className="mt-4">
         <div className="flex items-baseline justify-between">
-          <span className="text-label text-cream/70">Prix de sortie visé</span>
+          <span className="text-label text-cream/70">{t("wg.targetSalePrice")}</span>
           <span className="font-display text-xl text-gold">{Math.round(sale).toLocaleString("fr-FR")} €/m²</span>
         </div>
         <input
@@ -77,21 +79,17 @@ export function CampanhaSlider({ baseTotal, margeWeight }: { baseTotal: number; 
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-3">
-        <Metric label="Marge promoteur" value={`${margin.toFixed(0)}%`} color={scoreTextColorDark(margeSub)} />
+        <Metric label={t("wg.developerMargin")} value={`${margin.toFixed(0)}%`} color={scoreTextColorDark(margeSub)} />
         <Metric
-          label="Prime / médiane"
+          label={t("wg.premiumVsMedian")}
           value={`${fmtSigned(premium)}%`}
-          sub={`médiane ${CAMPANHA.freguesiaMedian.toLocaleString("fr-FR")} €/m²`}
+          sub={t("wg.medianEurM2", { v: CAMPANHA.freguesiaMedian.toLocaleString("fr-FR") })}
         />
-        <Metric label="Score promotion" value={`${scoreAffiche}`} color={scoreTextColorDark(total)} />
+        <Metric label={t("wg.scorePromotion")} value={`${scoreAffiche}`} color={scoreTextColorDark(total)} />
       </div>
 
       <p className="mt-4 text-caption leading-relaxed text-cream/85">
-        Projet mixte signé Eduardo Souto de Moura avec Metro Urbe, à 300 m de la gare de Campanhã :
-        plus de 70 000 m² (logement, appart-hôtel, bureaux, commerces), analyse ancrée sur la composante
-        résidentielle, positionnement accessible, arc de régénération est.
-        Marge et verdict recalculés en direct (coût = 1,261 × (construction + foncier) ; marge sur le prix
-        de sortie, résidentiel PT sans TVA, IMT côté acquéreur).
+        {t("wg.campanhaCaption")}
       </p>
     </div>
   );
