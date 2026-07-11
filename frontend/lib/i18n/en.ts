@@ -483,7 +483,7 @@ export const en: Dict = {
   // No {la} article and no {meilleur} agreement in EN: the tokens are simply
   // absent from the templates (translate leaves unused params alone). ---
   "ci.loading": "Loading the market…",
-  "ci.market": "{city} is a {market}{suffix}: {tail}.",
+  "ci.market": "{city} is {market}{suffix}: {tail}.",
   "ci.leans": "{city} leans towards {label}{suffix}: {tail}.",
   "ci.noDominant": "{city} offers no dominant read this cycle: {label}{suffix} stands out at the top with {tail}.",
   "ci.degraded": "{city} stays selective{suffix}: no {sg} is {good} in {label} this cycle{metric}.",
