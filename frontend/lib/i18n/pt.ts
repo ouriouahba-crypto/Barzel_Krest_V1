@@ -475,4 +475,22 @@ export const pt: Dict = {
   "an.pillar.connectivite": "acessibilidade insuficiente para suportar um programa",
   "an.pillar.incitations": "incentivos locais demasiado fracos",
   "an.pillar.risque_timing": "um risco regulamentar que adia a ativação",
+  // --- cityInsight trilingue (lot i18n-insights-8, ultimo do maratona).
+  // {la} = artigo do modo (a promocao / o landbank), {meilleur} nao existe em PT
+  // (o superlativo esta no proprio template). ---
+  "ci.loading": "A carregar o mercado…",
+  "ci.market": "{city} é um {market}{suffix}: {tail}.",
+  "ci.leans": "{city} inclina-se para {la}{label}{suffix}: {tail}.",
+  "ci.noDominant": "{city} não oferece uma leitura dominante este ciclo: {la}{label}{suffix} destaca-se no topo com {tail}.",
+  "ci.degraded": "{city} continua seletiva{suffix}: nenhuma {sg} está {good} em {label} este ciclo{metric}.",
+  "ci.degradedMetric": ", melhor {range} em {short}",
+  "ci.metricNoun.promotion": "margem",
+  "ci.metricNoun.detention": "rendimento líquido",
+  "ci.metricNoun.arbitrage": "spread",
+  "ci.metricNoun.landbank": "edificabilidade",
+  "ci.rangeSingle": "{noun} {v}{u}",
+  "ci.rangeSpan": "{noun} de {lo} a {hi}{u}",
+  "ci.driver.promotion": ", {portee} por um prémio novo de {mp}%",
+  "ci.driver.arbHigh": ", apetite institucional sustentado",
+  "ci.driver.arbMod": ", apetite institucional moderado",
 };

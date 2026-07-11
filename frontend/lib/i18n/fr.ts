@@ -478,4 +478,21 @@ export const fr: Dict = {
   "an.pillar.connectivite": "une desserte insuffisante pour porter un programme",
   "an.pillar.incitations": "des incitations locales trop faibles",
   "an.pillar.risque_timing": "un risque réglementaire qui repousse l'activation",
+  // --- cityInsight trilingue (lot i18n-insights-8, dernier du marathon).
+  // FR byte-identique. ci.rangeSpan FR porte le "s" du pluriel apres {noun}. ---
+  "ci.loading": "Chargement du marché…",
+  "ci.market": "{city} est un {market}{suffix} : {tail}.",
+  "ci.leans": "{city} penche vers {la}{label}{suffix} : {tail}.",
+  "ci.noDominant": "{city} n'offre pas de lecture dominante ce cycle : {la}{label}{suffix} ressort en tête avec {tail}.",
+  "ci.degraded": "{city} reste sélectif{suffix} : aucune {sg} {good} en {label} ce cycle{metric}.",
+  "ci.degradedMetric": ", {meilleur} {range} à {short}",
+  "ci.metricNoun.promotion": "marge",
+  "ci.metricNoun.detention": "rendement net",
+  "ci.metricNoun.arbitrage": "spread",
+  "ci.metricNoun.landbank": "constructibilité",
+  "ci.rangeSingle": "{noun} {v}{u}",
+  "ci.rangeSpan": "{noun}s de {lo} à {hi}{u}",
+  "ci.driver.promotion": ", {portee} par une prime neuf de {mp}%",
+  "ci.driver.arbHigh": ", appétit institutionnel soutenu",
+  "ci.driver.arbMod": ", appétit institutionnel modéré",
 };
