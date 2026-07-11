@@ -13,7 +13,9 @@
 import type { RegimeFiscal, FiscalVolet } from "./regimes";
 import type { PmRow } from "./priceMargin";
 import type { RdRow } from "./rendement";
-import { classLabel, median, verdictTone } from "./scoring";
+import { median, verdictTone } from "./scoring";
+import { translate, type Lang } from "./i18n";
+import { classLabelFor } from "./i18n/domain";
 
 // Taux réels (Région de Bruxelles-Capitale, 2025).
 export const DROITS_BXL_PCT = 12.5;   // droits d'enregistrement, existant, pleine base
@@ -44,7 +46,13 @@ export function entryMaxPct(_residential: boolean): number {
 export const CHECKPOINTS = [400_000, 1_500_000, 4_000_000];
 
 // Poids fiscal du cycle, calculé sur les mêmes lignes servies par le moteur.
-export function fiscalInsight(cls: string, pm: PmRow[], rd: RdRow[], cityName = "Bruxelles"): string {
+export function fiscalInsight(
+  cls: string,
+  pm: PmRow[],
+  rd: RdRow[],
+  cityName = "Bruxelles",
+  lang: Lang = "fr",
+): string {
   if (cls === "residential") {
     // Cycle promotion : TVA 21% sur le neuf (le moteur la déduit déjà du prix de
     // sortie) + droits d'enregistrement 12,5% sur le foncier, en % du prix de
@@ -53,8 +61,8 @@ export function fiscalInsight(cls: string, pm: PmRow[], rd: RdRow[], cityName = 
       .filter((r) => verdictTone("promotion", r.verdict) !== "low")
       .map((r) => (((r.realizable - r.netSale) + (DROITS_BXL_PCT / 100) * r.land) / r.realizable) * 100);
     const x = median(xs);
-    if (x == null) return "Chargement du cycle fiscal…";
-    return `Sur un cycle promotion résidentiel à ${cityName}, la fiscalité représente ~${x.toFixed(0)}% du prix de sortie, dominée par la TVA à 21% sur le neuf et les droits d'enregistrement sur le foncier.`;
+    if (x == null) return translate("fsx.be.insight.loading", lang);
+    return translate("fsx.be.insight.promo", lang, { city: cityName, x: x.toFixed(0) });
   }
   // Cycle détention : précompte immobilier annuel + impôt des sociétés 25% sur
   // les loyers nets, en % du loyer annuel, médiane des communes viables.
@@ -62,105 +70,117 @@ export function fiscalInsight(cls: string, pm: PmRow[], rd: RdRow[], cityName = 
     .filter((r) => verdictTone("detention", r.verdict) !== "low")
     .map((r) => r.fiscPctLoyer + (ISOC_PCT / 100) * (100 - r.chargesPctLoyer - r.fiscPctLoyer));
   const x = median(xs);
-  if (x == null) return "Chargement du cycle fiscal…";
-  return `Sur un cycle détention ${classLabel(cls).toLowerCase()} à ${cityName}, la fiscalité absorbe ~${x.toFixed(0)}% du loyer annuel (précompte immobilier puis impôt des sociétés à 25% sur les loyers nets), après ~${pctFR(DROITS_BXL_PCT + NOTAIRE_FRAIS_PCT)} de frais à l'entrée.`;
+  if (x == null) return translate("fsx.be.insight.loading", lang);
+  return translate("fsx.be.insight.detention", lang, {
+    city: cityName,
+    x: x.toFixed(0),
+    cls: classLabelFor(cls, lang).toLowerCase(),
+    entry: pctFR(DROITS_BXL_PCT + NOTAIRE_FRAIS_PCT),
+  });
 }
 
-export function volets(): FiscalVolet[] {
+// Les `value` (pctFR(...), "annuel", "réf. +20%", "usuelle", "selon régime") sont
+// des valeurs calculées ou des données de régime : hors dictionnaire. Seuls la
+// prose et les libellés sont traduits.
+export function volets(lang: Lang): FiscalVolet[] {
+  const T = (k: string) => translate(k, lang);
   return [
     {
-      title: "Acquérir",
-      eyebrow: "À la signature",
+      title: T("fsx.be.acq.title"),
+      eyebrow: T("fsx.be.acq.eyebrow"),
       rows: [
         {
-          label: "Droits d'enregistrement · existant (société)",
+          label: T("fsx.be.acq.droits.label"),
           value: pctFR(DROITS_BXL_PCT),
-          sub: "pleine base ; abattement de 200 000 € réservé aux personnes physiques en résidence principale, non applicable à un fonds",
+          sub: T("fsx.be.acq.droits.sub"),
         },
         {
-          label: "Neuf assujetti · TVA",
+          label: T("fsx.be.acq.tva.label"),
           value: pctFR(TVA_NEUF_PCT, 0),
-          sub: "régime TVA sur le neuf, pas de droits d'enregistrement",
+          sub: T("fsx.be.acq.tva.sub"),
         },
         {
-          label: "Terrain à bâtir",
+          label: T("fsx.be.acq.terrain.label"),
           value: pctFR(DROITS_BXL_PCT),
-          sub: "droits ; abattement de 100 000 € réservé au particulier, non applicable à un fonds",
+          sub: T("fsx.be.acq.terrain.sub"),
         },
         {
-          label: "Notaire + frais",
+          label: T("fsx.be.acq.notaire.label"),
           value: `~${pctFR(NOTAIRE_FRAIS_PCT)}`,
-          sub: "honoraires, frais d'acte et divers",
+          sub: T("fsx.be.acq.notaire.sub"),
         },
       ],
-      platform: { to: "/prix-marge", label: "intégré au coût du foncier de la cascade Prix & marge" },
+      platform: { to: "/prix-marge", label: T("fsx.be.acq.platform") },
     },
     {
-      title: "Détenir",
-      eyebrow: "Chaque année",
+      title: T("fsx.be.det.title"),
+      eyebrow: T("fsx.be.det.eyebrow"),
       rows: [
         {
-          label: "Précompte immobilier",
+          label: T("fsx.be.det.precompte.label"),
           value: "annuel",
-          sub: "taxe régionale sur le revenu cadastral indexé (Bruxelles Fiscalité), taux communal variable",
+          sub: T("fsx.be.det.precompte.sub"),
         },
         {
-          label: "Impôt des sociétés · loyers nets",
+          label: T("fsx.be.det.isoc.label"),
           value: pctFR(ISOC_PCT, 0),
-          sub: "véhicule société (ISoc), sur le résultat locatif",
+          sub: T("fsx.be.det.isoc.sub"),
         },
         {
-          label: "Encadrement des loyers",
+          label: T("fsx.be.det.encadrement.label"),
           value: "réf. +20%",
-          sub: "loyer présumé abusif au-delà de 20% du loyer de référence régional (renforcé mai 2025)",
+          sub: T("fsx.be.det.encadrement.sub"),
         },
       ],
-      platform: { to: "/rendement", label: "intégré à la ligne Fiscalité de la cascade Rendement" },
+      platform: { to: "/rendement", label: T("fsx.be.det.platform") },
     },
     {
-      title: "Céder",
-      eyebrow: "À la sortie",
+      title: T("fsx.be.ced.title"),
+      eyebrow: T("fsx.be.ced.eyebrow"),
       rows: [
         {
-          label: "Plus-value en société",
+          label: T("fsx.be.ced.pv.label"),
           value: pctFR(ISOC_PCT, 0),
-          sub: "résultat de cession imposé à l'impôt des sociétés",
+          sub: T("fsx.be.ced.pv.sub"),
         },
         {
-          label: "Cession via share deal",
+          label: T("fsx.be.ced.shareDeal.label"),
           value: "usuelle",
-          sub: "l'institutionnel cède souvent les parts de la société, pas l'immeuble",
+          sub: T("fsx.be.ced.shareDeal.sub"),
         },
         {
-          label: "Exit tax SIR/GVV",
+          label: T("fsx.be.ced.exitTax.label"),
           value: "selon régime",
-          sub: "si le véhicule est une société immobilière réglementée",
+          sub: T("fsx.be.ced.exitTax.sub"),
         },
       ],
-      platform: { to: "/arbitrage", label: "intégré aux frictions de sortie d'Arbitrage (et à la marge nette de Promotion)" },
+      platform: { to: "/arbitrage", label: T("fsx.be.ced.platform") },
     },
   ];
 }
 
+// Textes de page du régime BE : des CLÉS, résolues par la page via t().
+// `chipPrefix` reste une donnée (nom de ville/pays, non traduit).
 export const PAGE = {
-  marketLine:
-    "Région de Bruxelles-Capitale : ce que le fisc prend à chaque étape pour un investisseur institutionnel, et comment c'est déjà intégré dans nos verdicts.",
+  marketLine: "fsx.be.page.marketLine",
   chipPrefix: "Bruxelles",
-  intro:
-    "Acquérir, détenir, céder : les prélèvements bruxellois pour un véhicule société (pas primo-acquéreur), aux taux réels 2025, et l'endroit exact où chacun est déjà compté dans les cascades de la plateforme.",
-  bannerEyebrowPrefix: "Poids fiscal du cycle",
-  entryMaxLabel: "Frais d'entrée max",
-  entryMaxSub: "droits + notaire",
+  intro: "fsx.be.page.intro",
+  bannerEyebrowPrefix: "fsx.be.page.bannerEyebrowPrefix",
+  entryMaxLabel: "fsx.be.page.entryMaxLabel",
+  entryMaxSub: "fsx.be.page.entryMaxSub",
   checkpointsTitle: (residential: boolean) =>
-    `Points de contrôle · ${residential ? "existant (société)" : "commercial (société)"}`,
-  checkpointsSub: "Droits d'enregistrement 12,5% pleine base plus notaire et frais ; chaque ligne est vérifiable sur le régime bruxellois.",
-  checkpointCols: ["Prix d'acquisition", "Droits d'enregistrement", "Notaire + frais", "Total entrée", "% du prix"],
-  baremeNote:
-    "Bruxelles, existant : droits d'enregistrement 12,5% sur pleine base (abattement de 200 000 € réservé aux personnes physiques en résidence principale, non applicable à un fonds) ; neuf assujetti à la TVA 21% sans droits ; terrain à bâtir 12,5%. Repère : Wallonie 3% et Flandre 2% pour l'habitation propre et unique, Bruxelles la plus chère à l'entrée.",
-  simulatorCaption:
-    "Frais d'entrée bruxellois : droits d'enregistrement 12,5% plus notaire, soit un ordre de 14 à 15% du prix.",
-  sources:
-    "Régime bruxellois 2025 : droits d'enregistrement 12,5% (Région de Bruxelles-Capitale), TVA construction neuve 21%, précompte immobilier régional, impôt des sociétés 25%. Repères Wallonie 3% et Flandre 2% (habitation propre et unique).",
+    residential ? "fsx.be.page.checkpointsTitleRes" : "fsx.be.page.checkpointsTitleCom",
+  checkpointsSub: "fsx.be.page.checkpointsSub",
+  checkpointCols: [
+    "fsx.be.page.col.price",
+    "fsx.be.page.col.droits",
+    "fsx.be.page.col.notaire",
+    "fsx.be.page.col.total",
+    "fsx.be.page.col.pct",
+  ],
+  baremeNote: "fsx.be.page.baremeNote",
+  simulatorCaption: "fsx.be.page.simulatorCaption",
+  sources: "fsx.be.page.sources",
 };
 
 // Vérification structurelle : ce module satisfait le contrat RegimeFiscal.

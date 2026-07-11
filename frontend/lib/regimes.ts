@@ -7,6 +7,7 @@
 
 import type { PmRow } from "./priceMargin";
 import type { RdRow } from "./rendement";
+import type { Lang } from "./i18n/types";
 
 // ---- Fiscalité -------------------------------------------------------------
 export interface FiscalRow {
@@ -20,6 +21,10 @@ export interface FiscalVolet {
   rows: FiscalRow[];
   platform: { to: string; label: string };
 }
+// Champs de prose/libellé de FiscalPage : ce sont des CLÉS i18n, résolues par la
+// page via t() (lot i18n-fiscal). `chipPrefix` fait exception : c'est une donnée
+// (nom de pays/ville, non traduit). `baremeParams` porte les tokens de
+// `baremeNote` quand le régime en a (PT : nombre de tranches du barème IMT).
 export interface FiscalPage {
   marketLine: string;
   chipPrefix: string;
@@ -31,14 +36,15 @@ export interface FiscalPage {
   checkpointsSub: string;
   checkpointCols: string[];
   baremeNote: string;
+  baremeParams?: Record<string, string | number>;
   simulatorCaption: string;
   sources: string;
 }
 export interface RegimeFiscal {
-  fiscalInsight: (cls: string, pm: PmRow[], rd: RdRow[], cityName?: string) => string;
+  fiscalInsight: (cls: string, pm: PmRow[], rd: RdRow[], cityName: string, lang: Lang) => string;
   entryMaxPct: (residential: boolean) => number;
   acquisitionTaxes: (price: number, residential: boolean) => { imt: number; selo: number; total: number; pct: number };
-  volets: () => FiscalVolet[];
+  volets: (lang: Lang) => FiscalVolet[];
   CHECKPOINTS: number[];
   eurFR: (v: number) => string;
   pctFR: (v: number, d?: number) => string;
