@@ -11,7 +11,7 @@ import { pmRows } from "@/lib/priceMargin";
 import { rdRows } from "@/lib/rendement";
 import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
-import { useT } from "@/lib/i18n/useT";
+import { useT, useLang } from "@/lib/i18n/useT";
 
 // Page transverse de contexte fiscal. Tout le contenu spécifique au régime du
 // pays (barèmes, volets, points de contrôle, textes, simulateur) vient de la
@@ -29,6 +29,7 @@ type Regime = (typeof REGIMES)[number]["value"];
 
 export default function FiscalitePage() {
   const t = useT();
+  const lang = useLang();
   const g = useGaia();
   const city = cityBySlug(useCityStore((s) => s.slug));
   const F = city.fiscal;
@@ -52,8 +53,8 @@ export default function FiscalitePage() {
   const rd = useMemo(() => rdRows(g.detentionCity), [g.detentionCity]);
   const cityName = city.label === "Vila Nova de Gaia" ? "Gaia" : city.label;
   const sentence = useMemo(
-    () => F.fiscalInsight(residential ? "residential" : "commercial", pm, rd, cityName),
-    [F, residential, pm, rd, cityName]
+    () => F.fiscalInsight(residential ? "residential" : "commercial", pm, rd, cityName, lang),
+    [F, residential, pm, rd, cityName, lang]
   );
   const entryMax = F.entryMaxPct(residential);
 
@@ -62,7 +63,7 @@ export default function FiscalitePage() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={city.texts.fiscaliteMarketLine ? t(city.texts.fiscaliteMarketLine) : F.PAGE.marketLine}
+          marketLine={city.texts.fiscaliteMarketLine ? t(city.texts.fiscaliteMarketLine) : t(F.PAGE.marketLine)}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}
@@ -91,26 +92,27 @@ export default function FiscalitePage() {
               </div>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
-              {F.PAGE.intro}
+              {t(F.PAGE.intro)}
             </p>
           </div>
 
           {/* Fiscal weight of the cycle */}
           <InsightBanner
-            eyebrow={`${F.PAGE.bannerEyebrowPrefix} · ${regimeLabel}`}
+            eyebrow={`${t(F.PAGE.bannerEyebrowPrefix)} · ${regimeLabel}`}
             sentence={sentence}
             right={
               <div className="text-right">
-                <div className="text-label uppercase tracking-widest text-cream/70">{F.PAGE.entryMaxLabel}</div>
+                <div className="text-label uppercase tracking-widest text-cream/70">{t(F.PAGE.entryMaxLabel)}</div>
                 <div className="font-display text-kpi-hero leading-none text-gold">{F.pctFR(entryMax)}</div>
-                <div className="text-label text-cream/70">{F.PAGE.entryMaxSub}</div>
+                <div className="text-label text-cream/70">{t(F.PAGE.entryMaxSub)}</div>
               </div>
             }
           />
 
-          {/* Volets du cycle (Acquérir / Détenir / Céder pour le régime PT) */}
+          {/* Volets du cycle (Acquérir / Détenir / Céder pour le régime PT).
+              volets(lang) rend des chaînes DEJA traduites : pas de t() ici. */}
           <div className="grid shrink-0 grid-cols-1 gap-4 xl:grid-cols-3">
-            {F.volets().map((v) => (
+            {F.volets(lang).map((v) => (
               <Volet key={v.title} title={v.title} eyebrow={v.eyebrow}>
                 {v.rows.map((r) => (
                   <Row key={r.label} label={r.label} value={r.value} sub={r.sub} />
@@ -125,30 +127,30 @@ export default function FiscalitePage() {
           <div className={`grid shrink-0 grid-cols-1 gap-4 ${FiscalSimulator ? "xl:grid-cols-[1.35fr_1fr]" : ""}`}>
             <section className="rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
               <h3 className="font-display text-[16px] leading-tight text-navy">
-                {F.PAGE.checkpointsTitle(residential)}
+                {t(F.PAGE.checkpointsTitle(residential))}
               </h3>
               <p className="mt-0.5 text-label text-muted">
-                {F.PAGE.checkpointsSub}
+                {t(F.PAGE.checkpointsSub)}
               </p>
               <table className="mt-3 w-full border-collapse text-td">
                 <thead>
                   <tr className="border-b border-navy/10 text-left text-th font-semibold uppercase tracking-wide text-ink-soft">
                     {F.PAGE.checkpointCols.map((c, i) => (
-                      <th key={c} className={i === 0 ? "py-2 pr-3" : "px-3 py-2 text-right"}>{c}</th>
+                      <th key={c} className={i === 0 ? "py-2 pr-3" : "px-3 py-2 text-right"}>{t(c)}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {F.CHECKPOINTS.map((p) => {
-                    const t = F.acquisitionTaxes(p, residential);
+                    const tax = F.acquisitionTaxes(p, residential);
                     return (
                       <tr key={p} className="border-b border-navy/[0.06]">
                         <td className="py-2.5 pr-3 font-medium text-ink">{F.eurFR(p)}</td>
-                        <td className="px-3 py-2.5 text-right tabular-nums text-ink/80">{F.eurFR(t.imt)}</td>
-                        <td className="px-3 py-2.5 text-right tabular-nums text-ink/80">{F.eurFR(t.selo)}</td>
-                        <td className="px-3 py-2.5 text-right tabular-nums font-medium text-ink">{F.eurFR(t.total)}</td>
+                        <td className="px-3 py-2.5 text-right tabular-nums text-ink/80">{F.eurFR(tax.imt)}</td>
+                        <td className="px-3 py-2.5 text-right tabular-nums text-ink/80">{F.eurFR(tax.selo)}</td>
+                        <td className="px-3 py-2.5 text-right tabular-nums font-medium text-ink">{F.eurFR(tax.total)}</td>
                         <td className="px-3 py-2.5 text-right">
-                          <span className="font-display text-[16px] text-navy">{t.pct.toFixed(1)}%</span>
+                          <span className="font-display text-[16px] text-navy">{tax.pct.toFixed(1)}%</span>
                         </td>
                       </tr>
                     );
@@ -157,7 +159,7 @@ export default function FiscalitePage() {
               </table>
               {residential && (
                 <p className="mt-3 text-caption leading-snug text-ink-soft">
-                  {F.PAGE.baremeNote}
+                  {t(F.PAGE.baremeNote, F.PAGE.baremeParams)}
                 </p>
               )}
             </section>
@@ -166,7 +168,7 @@ export default function FiscalitePage() {
               <div className="flex flex-col gap-2">
                 <FiscalSimulator residential={residential} />
                 <p className="px-1 text-caption leading-snug text-ink-soft">
-                  {F.PAGE.simulatorCaption}
+                  {t(F.PAGE.simulatorCaption)}
                 </p>
               </div>
             )}
@@ -174,7 +176,7 @@ export default function FiscalitePage() {
 
           {/* Discreet source line */}
           <p className="shrink-0 pl-1 text-label text-muted">
-            {F.PAGE.sources}
+            {t(F.PAGE.sources)}
           </p>
         </main>
       </div>

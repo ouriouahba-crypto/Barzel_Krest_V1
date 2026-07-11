@@ -7,7 +7,9 @@
 
 import { PmRow } from "./priceMargin";
 import { RdRow } from "./rendement";
-import { classLabel, median, verdictTone } from "./scoring";
+import { median, verdictTone } from "./scoring";
+import { translate, type Lang } from "./i18n";
+import { classLabelFor } from "./i18n/domain";
 
 // IMT 2026 : prédios urbanos destinés à l'habitation NON própria e permanente
 // (« habitação secundária », le cas investisseur), continent. Tranches
@@ -60,7 +62,13 @@ export function acquisitionTaxes(price: number, residential: boolean) {
 // computed from the same engine-served rows as the mode pages.
 const ENTRY_PCT = IMT_COMMERCIAL_PCT + SELO_PCT; // foncier / commercial : 7,3%
 
-export function fiscalInsight(cls: string, pm: PmRow[], rd: RdRow[], cityName: string = "Gaia"): string {
+export function fiscalInsight(
+  cls: string,
+  pm: PmRow[],
+  rd: RdRow[],
+  cityName: string = "Gaia",
+  lang: Lang = "fr",
+): string {
   if (cls === "residential") {
     // Cycle promotion : IMT+selo sur le foncier à l'entrée, IRC effectif sur la
     // marge à la sortie, en % du prix de sortie, médiane des freguesias viables.
@@ -72,8 +80,8 @@ export function fiscalInsight(cls: string, pm: PmRow[], rd: RdRow[], cityName: s
         return ((entry + exit) / r.realizable) * 100;
       });
     const x = median(xs);
-    if (x == null) return "Chargement du cycle fiscal…";
-    return `Sur un cycle promotion résidentiel à ${cityName}, la fiscalité représente ~${x.toFixed(0)}% du prix de sortie, concentrée à l'acquisition du foncier et à la cession.`;
+    if (x == null) return translate("fsx.pt.insight.loading", lang);
+    return translate("fsx.pt.insight.promo", lang, { city: cityName, x: x.toFixed(0) });
   }
   // Cycle détention commercial : IMI (part fiscalité du loyer) + IRC sur les
   // loyers nets, en % du loyer annuel, médiane des freguesias viables.
@@ -81,8 +89,13 @@ export function fiscalInsight(cls: string, pm: PmRow[], rd: RdRow[], cityName: s
     .filter((r) => verdictTone("detention", r.verdict) !== "low")
     .map((r) => r.fiscPctLoyer + (IRC_EFFECTIVE_PCT / 100) * (100 - r.chargesPctLoyer - r.fiscPctLoyer));
   const x = median(xs);
-  if (x == null) return "Chargement du cycle fiscal…";
-  return `Sur un cycle détention ${classLabel(cls).toLowerCase()} à ${cityName}, la fiscalité absorbe ~${x.toFixed(0)}% du loyer annuel (IMI puis IRC sur les loyers nets), après ~${ENTRY_PCT.toLocaleString("fr-FR")}% du prix à l'entrée.`;
+  if (x == null) return translate("fsx.pt.insight.loading", lang);
+  return translate("fsx.pt.insight.detention", lang, {
+    city: cityName,
+    x: x.toFixed(0),
+    cls: classLabelFor(cls, lang).toLowerCase(),
+    entry: ENTRY_PCT.toLocaleString("fr-FR"),
+  });
 }
 
 // --------------------------------------------------------------------------- #
@@ -113,97 +126,110 @@ export interface FiscalVolet {
   platform: { to: string; label: string };
 }
 
-export function volets(): FiscalVolet[] {
+// Les `value` (pctFR(...), "1% → 8%", "≤ 1,5% + prog."…) sont des VALEURS
+// calculées ou des barèmes : elles ne passent pas par le dictionnaire. Seuls la
+// prose et les libellés sont traduits.
+export function volets(lang: Lang): FiscalVolet[] {
+  const T = (k: string, p?: Record<string, string | number>) => translate(k, lang, p);
   return [
     {
-      title: "Acquérir",
-      eyebrow: "À la signature",
+      title: T("fsx.pt.acq.title"),
+      eyebrow: T("fsx.pt.acq.eyebrow"),
       rows: [
         {
-          label: "IMT · habitation (investisseur)",
+          label: T("fsx.pt.acq.imtHab.label"),
           value: "1% → 8%",
-          sub: `barème progressif ; taux uniques 6% (${(660_982).toLocaleString("fr-FR")} – ${(1_150_853).toLocaleString("fr-FR")} €) et 7,5% au-delà`,
+          sub: T("fsx.pt.acq.imtHab.sub", {
+            a: (660_982).toLocaleString("fr-FR"),
+            b: (1_150_853).toLocaleString("fr-FR"),
+          }),
         },
         {
-          label: "IMT · commercial & terrains à bâtir",
+          label: T("fsx.pt.acq.imtCom.label"),
           value: pctFR(IMT_COMMERCIAL_PCT),
-          sub: "prédios não habitacionais : taux unique",
+          sub: T("fsx.pt.acq.imtCom.sub"),
         },
         {
-          label: "Non-résidents · résidentiel (dès 01/09/2026)",
+          label: T("fsx.pt.acq.nonRes.label"),
           value: pctFR(7.5),
-          sub: "taux fixe (DL 97/2026) ; remboursable si résidence fiscale sous 2 ans ou location à loyer modéré (≤ 2 300 €/mois)",
+          sub: T("fsx.pt.acq.nonRes.sub"),
         },
-        { label: "Imposto do Selo", value: pctFR(SELO_PCT), sub: "sur le prix d'acquisition (verba 1.1)" },
+        { label: T("fsx.pt.acq.selo.label"), value: pctFR(SELO_PCT), sub: T("fsx.pt.acq.selo.sub") },
       ],
-      platform: { to: "/prix-marge", label: "intégré au coût du foncier de la cascade Prix & marge" },
+      platform: { to: "/prix-marge", label: T("fsx.pt.acq.platform") },
     },
     {
-      title: "Détenir",
-      eyebrow: "Chaque année",
+      title: T("fsx.pt.det.title"),
+      eyebrow: T("fsx.pt.det.eyebrow"),
       rows: [
         {
-          label: "IMI · prédios urbains",
+          label: T("fsx.pt.det.imi.label"),
           value: `${pctFR(IMI_MIN_PCT, 2)} – ${pctFR(IMI_MAX_PCT, 2)}`,
-          sub: "par an sur la VPT, taux fixé par le município",
+          sub: T("fsx.pt.det.imi.sub"),
         },
         {
-          label: "AIMI · véhicule société",
+          label: T("fsx.pt.det.aimi.label"),
           value: pctFR(AIMI_COMPANY_PCT),
-          sub: "par an sur le patrimoine résidentiel détenu en société",
+          sub: T("fsx.pt.det.aimi.sub"),
         },
         {
-          label: "IRC sur les loyers nets",
+          label: T("fsx.pt.det.irc.label"),
           value: pctFR(IRC_BASE_PCT, 0),
-          sub: "véhicule société ; + derramas selon la commune",
+          sub: T("fsx.pt.det.irc.sub"),
         },
       ],
-      platform: { to: "/rendement", label: "intégré à la ligne Fiscalité de la cascade Rendement" },
+      platform: { to: "/rendement", label: T("fsx.pt.det.platform") },
     },
     {
-      title: "Céder",
-      eyebrow: "À la sortie",
+      title: T("fsx.pt.ced.title"),
+      eyebrow: T("fsx.pt.ced.eyebrow"),
       rows: [
         {
-          label: "Plus-values en IRC",
+          label: T("fsx.pt.ced.pv.label"),
           value: pctFR(IRC_BASE_PCT, 0),
-          sub: "résultat de cession imposé au taux IRC 2026",
+          sub: T("fsx.pt.ced.pv.sub"),
         },
         {
-          label: "Derrama municipale & estadual",
+          label: T("fsx.pt.ced.derrama.label"),
           value: "≤ 1,5% + prog.",
-          sub: "selon la commune et le résultat",
+          sub: T("fsx.pt.ced.derrama.sub"),
         },
         {
-          label: "Taux effectif retenu",
+          label: T("fsx.pt.ced.effectif.label"),
           value: `~${pctFR(IRC_EFFECTIVE_PCT, 0)}`,
-          sub: "IRC + derramas, celui des verdicts de la plateforme",
+          sub: T("fsx.pt.ced.effectif.sub"),
         },
       ],
-      platform: { to: "/arbitrage", label: "intégré aux frictions de sortie d'Arbitrage (et à la marge nette de Promotion)" },
+      platform: { to: "/arbitrage", label: T("fsx.pt.ced.platform") },
     },
   ];
 }
 
-// Textes de page du régime PT (déplacés de app/fiscalite/page.tsx, verbatim).
+// Textes de page du régime PT : désormais des CLÉS de dictionnaire, résolues par
+// la page via t(). `chipPrefix` reste une donnée (nom de pays, non traduit).
+// `baremeNote` garde sa dérivation vivante depuis IMT_SECONDARY_2026 : le nombre
+// de tranches marginales voyage en token {n} (cf. baremeParams).
 export const PAGE = {
   // Libellé NEUTRE (aucune ville nommée) : repli commun du régime PT, chaque
   // ville PT porte son propre `texts.fiscaliteMarketLine` (cf. lib/cities.ts).
-  marketLine:
-    "Portugal : ce que le fisc prend à chaque étape, et comment c'est déjà intégré dans nos verdicts.",
+  marketLine: "fsx.pt.page.marketLine",
   chipPrefix: "Portugal",
-  intro:
-    "Acquérir, détenir, céder : les prélèvements portugais aux taux officiels 2026, et l'endroit exact où chacun est déjà compté dans les cascades de la plateforme.",
-  bannerEyebrowPrefix: "Poids fiscal du cycle",
-  entryMaxLabel: "Frais d'entrée max",
-  entryMaxSub: "IMT + imposto do selo",
+  intro: "fsx.pt.page.intro",
+  bannerEyebrowPrefix: "fsx.pt.page.bannerEyebrowPrefix",
+  entryMaxLabel: "fsx.pt.page.entryMaxLabel",
+  entryMaxSub: "fsx.pt.page.entryMaxSub",
   checkpointsTitle: (residential: boolean) =>
-    `Points de contrôle · ${residential ? "habitation (investisseur)" : "commercial"}`,
-  checkpointsSub: "Mêmes formules que le simulateur ; chaque ligne est vérifiable sur le barème officiel.",
-  checkpointCols: ["Prix d'acquisition", "IMT", "Imposto do selo", "Total entrée", "% du prix"],
-  baremeNote: `Barème habitação secundária (continent) : ${IMT_SECONDARY_2026.length - 2} tranches marginales de 1% à 8% avec parcela a abater, puis taux uniques de 6% (660 982 – 1 150 853 €) et 7,5% au-delà.`,
-  simulatorCaption:
-    "Simulateur temps réel sur le barème en vigueur : déplacez le prix pour voir l'IMT, le selo et le total d'entrée se recalculer.",
-  sources:
-    "Barèmes officiels PT 2026 : IMT (CIMT art. 17, tables du 06-01-2026), Imposto do Selo, IMI/AIMI, IRC (OE 2026), non-résidents (DL 97/2026, du 20 mai).",
+    residential ? "fsx.pt.page.checkpointsTitleRes" : "fsx.pt.page.checkpointsTitleCom",
+  checkpointsSub: "fsx.pt.page.checkpointsSub",
+  checkpointCols: [
+    "fsx.pt.page.col.price",
+    "fsx.pt.page.col.imt",
+    "fsx.pt.page.col.selo",
+    "fsx.pt.page.col.total",
+    "fsx.pt.page.col.pct",
+  ],
+  baremeNote: "fsx.pt.page.baremeNote",
+  baremeParams: { n: IMT_SECONDARY_2026.length - 2 },
+  simulatorCaption: "fsx.pt.page.simulatorCaption",
+  sources: "fsx.pt.page.sources",
 };
