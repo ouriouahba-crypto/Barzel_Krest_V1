@@ -434,4 +434,23 @@ export const fr: Dict = {
   "lb.clause.connectivite": "une desserte insuffisante pour porter un programme",
   "lb.clause.incitations": "des incitations locales trop faibles",
   "lb.clause.risque_timing": "un risque réglementaire qui repousse l'activation",
+  // --- compareInsight + compareSynthesis trilingues (lot i18n-insights-6).
+  // FR byte-identique. Sous-noms distincts du chrome cmp.* de la page. ---
+  "cmp.profile": "Profil {mode} : {metric}{tail}.",
+  "cmp.tail": ", {followers} suivent",
+  "cmp.prose.promotion": "la promotion",
+  "cmp.prose.detention": "la détention",
+  "cmp.prose.arbitrage": "l'arbitrage",
+  "cmp.prose.landbank": "le foncier",
+  "cmp.metric.margin": "marge {x}%",
+  "cmp.metric.netYield": "yield net {x}%",
+  "cmp.metric.spread": "spread {x}",
+  "cmp.metric.uplift": "uplift {x}",
+  "cmp.vs.promotion": "promotion",
+  "cmp.vs.detention": "détention",
+  "cmp.vs.arbitrage": "arbitrage",
+  "cmp.vs.landbank": "valeur résiduelle foncière",
+  "cmp.verb0": "domine",
+  "cmp.verb1": "prend l'avantage",
+  "cmp.verb2": "se distingue",
 };

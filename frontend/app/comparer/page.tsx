@@ -108,7 +108,7 @@ export default function ComparerPage() {
     return out;
   }, [picks, g.citiesByMode]);
 
-  const synthesis = useMemo(() => compareSynthesis(columns), [columns]);
+  const synthesis = useMemo(() => compareSynthesis(columns, lang), [columns, lang]);
   // Right block: who wins the most modes.
   const advantage = useMemo(() => {
     if (columns.length < 2) return null;
@@ -244,7 +244,7 @@ export default function ComparerPage() {
                 {/* c) signal dominant */}
                 <div className="mt-auto border-t border-dashed border-navy/15 pt-3">
                   <span className="text-label font-semibold uppercase tracking-widest text-gold-700">{t("cmp.dominantSignal")}</span>
-                  <p className="mt-1 text-body leading-snug text-ink">{compareInsight(col.cells)}</p>
+                  <p className="mt-1 text-body leading-snug text-ink">{compareInsight(col.cells, lang)}</p>
                 </div>
               </section>
             ))}

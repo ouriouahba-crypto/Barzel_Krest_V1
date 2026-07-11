@@ -10,7 +10,7 @@ import { RdRow } from "./rendement";
 import { ArbRow, pctSigned } from "./arbitrage";
 import { FcRow } from "./foncier";
 import { translate } from "@/lib/i18n";
-import { verdictDisplay, classLabelFor } from "@/lib/i18n/domain";
+import { verdictDisplay, classLabelFor, modeLabel } from "@/lib/i18n/domain";
 import type { Lang } from "@/lib/i18n/types";
 
 // City-level (municipio) score + freguesia rows, per mode, for one class.
@@ -566,34 +566,42 @@ export interface CompareColumn {
   cells: CompareModeCell[];
 }
 
-// Follower prose: "la détention et l'arbitrage suivent".
-const MODE_PROSE: Record<Mode, string> = {
-  promotion: "la promotion",
-  detention: "la détention",
-  arbitrage: "l'arbitrage",
-  landbank: "le foncier",
+// Native metric phrase of a cell (« marge 30% », "margin 30%"), or the verdict
+// when the mode has no native number. Clé de métrique par mode.
+const CMP_METRIC_KEY: Record<Mode, string> = {
+  promotion: "cmp.metric.margin",
+  detention: "cmp.metric.netYield",
+  arbitrage: "cmp.metric.spread",
+  landbank: "cmp.metric.uplift",
 };
-
-function cellMetricPhrase(c: CompareModeCell): string {
-  if (c.metric == null) return verdictLabel(c.verdict);
-  switch (c.mode) {
-    case "promotion": return `marge ${fmtNum(c.metric)}%`;
-    case "detention": return `yield net ${fmtNum(c.metric, 1)}%`;
-    case "arbitrage": return `spread ${pctSigned(c.metric, 0)}`;
-    default: return `uplift ${pctSigned(c.metric, 0)}`;
-  }
+function cellMetricPhrase(c: CompareModeCell, lang: Lang): string {
+  if (c.metric == null) return verdictDisplay(c.verdict, lang);
+  const x =
+    c.mode === "promotion"
+      ? fmtNum(c.metric)
+      : c.mode === "detention"
+      ? fmtNum(c.metric, 1)
+      : pctSigned(c.metric, 0);
+  return translate(CMP_METRIC_KEY[c.mode], lang, { x });
 }
 
 // One-line dominant signal for a freguesia: its best mode with the native
 // number, the two runners-up as prose. Ex: "Profil promotion : marge 30%,
 // le foncier et la détention suivent."
-export function compareInsight(cells: CompareModeCell[]): string {
+export function compareInsight(cells: CompareModeCell[], lang: Lang = "fr"): string {
   if (!cells.length) return "";
   const ranked = [...cells].sort((a, b) => b.total - a.total);
   const best = ranked[0];
-  const followers = ranked.slice(1, 3).map((c) => MODE_PROSE[c.mode]);
-  const tail = followers.length ? `, ${followers.join(" et ")} suivent` : "";
-  return `Profil ${MODE_LABEL[best.mode].toLowerCase()} : ${cellMetricPhrase(best)}${tail}.`;
+  const followers = ranked.slice(1, 3).map((c) => translate("cmp.prose." + c.mode, lang));
+  const and = lang === "en" ? " and " : lang === "pt" ? " e " : " et ";
+  const tail = followers.length ? translate("cmp.tail", lang, { followers: followers.join(and) }) : "";
+  const Mode = modeLabel(best.mode, lang);
+  return translate("cmp.profile", lang, {
+    mode: Mode.toLowerCase(),
+    Mode,
+    metric: cellMetricPhrase(best, lang),
+    tail,
+  });
 }
 
 // Winner-vs-runner value pair per mode, for the synthesis parenthetical. The
@@ -611,19 +619,20 @@ function vsPhrase(mode: Mode, win: CompareModeCell, run: CompareModeCell): strin
   }
 }
 
-// Mode names in the synthesis ("en promotion", "en valeur résiduelle foncière").
-const MODE_VS: Record<Mode, string> = {
-  promotion: "promotion",
-  detention: "détention",
-  arbitrage: "arbitrage",
-  landbank: "valeur résiduelle foncière",
-};
+// Grammaire de liaison de la synthèse : préposition de mode (« en » / "in" /
+// « em »), conjonction finale et séparateur de propositions (le FR met une
+// espace fine avant le point-virgule, pas l'EN ni le PT).
+const CMP_GRAM = {
+  fr: { prep: "en", conj: "et", sep: " ; " },
+  en: { prep: "in", conj: "and", sep: "; " },
+  pt: { prep: "em", conj: "e", sep: "; " },
+} as const;
 
 // One sentence: who wins which mode, with the numbers on each winner's leading
 // mode. Ex: "Santa Marinha domine en promotion (30% vs 29%), en détention et en
 // arbitrage ; Madalena prend l'avantage en valeur résiduelle foncière (874 vs
 // 814 €/m²)."
-export function compareSynthesis(cols: CompareColumn[]): string {
+export function compareSynthesis(cols: CompareColumn[], lang: Lang = "fr"): string {
   if (cols.length < 2) return "";
   // Winner per mode (by score); the value pair compares the winner with the
   // BEST of the other selected freguesias on the compared value itself
@@ -644,18 +653,21 @@ export function compareSynthesis(cols: CompareColumn[]): string {
     list.push({ mode: m, win: ranked[0].cell, run });
     wins.set(ranked[0].i, list);
   }
-  const verbs = ["domine en", "prend l'avantage en", "se distingue en"];
+  const gram = CMP_GRAM[lang];
+  const verbs = [translate("cmp.verb0", lang), translate("cmp.verb1", lang), translate("cmp.verb2", lang)];
   const parts: string[] = [];
   const order = [...wins.entries()].sort((a, b) => b[1].length - a[1].length);
   order.forEach(([colIdx, modes], k) => {
-    const names = modes.map((w, j) =>
-      `${MODE_VS[w.mode]}${j === 0 ? vsPhrase(w.mode, w.win, w.run) : ""}`
+    const names = modes.map(
+      (w, j) => translate("cmp.vs." + w.mode, lang) + (j === 0 ? vsPhrase(w.mode, w.win, w.run) : "")
     );
     const list =
-      names.length > 1 ? names.slice(0, -1).join(", en ") + " et en " + names[names.length - 1] : names[0];
-    parts.push(`${cols[colIdx].short} ${verbs[Math.min(k, verbs.length - 1)]} ${list}`);
+      names.length > 1
+        ? names.slice(0, -1).join(`, ${gram.prep} `) + ` ${gram.conj} ${gram.prep} ` + names[names.length - 1]
+        : names[0];
+    parts.push(`${cols[colIdx].short} ${verbs[Math.min(k, verbs.length - 1)]} ${gram.prep} ${list}`);
   });
-  return parts.length ? parts.join(" ; ") + "." : "";
+  return parts.length ? parts.join(gram.sep) + "." : "";
 }
 
 // Why a decent-KPI freguesia still fails: the weakest pillar behind the low verdict.
