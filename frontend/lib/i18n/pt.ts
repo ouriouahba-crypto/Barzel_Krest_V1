@@ -39,6 +39,7 @@ export const pt: Dict = {
   "class.hotel": "Hotelaria",
   "class.logistics": "Logística",
   "class.retail": "Retalho",
+  "class.commercial": "comercial",
   "kpi.promotion": "Margem mediana",
   "kpi.detention": "Rendimento líquido mediano",
   "kpi.arbitrage": "Spread mediano",
@@ -646,6 +647,13 @@ export const pt: Dict = {
   "fsx.be.det.isoc.sub": "veículo sociedade (ISoc), sobre o resultado locativo",
   "fsx.be.det.encadrement.label": "Enquadramento das rendas",
   "fsx.be.det.encadrement.sub": "renda presumida abusiva acima de 20% da renda de referência regional (reforçado em maio de 2025)",
+
+  // Valeurs qualitatives du regime BE (prose, pas des nombres)
+  "fsx.be.val.annual": "anual",
+  "fsx.be.val.refPlus20": "ref. +20%",
+  "fsx.be.val.customary": "usual",
+  "fsx.be.val.byRegime": "conforme o regime",
+
   "fsx.be.det.platform": "integrado na linha Fiscalidade da cascata Rendimento",
   "fsx.be.ced.title": "Alienar",
   "fsx.be.ced.eyebrow": "Na saída",

@@ -41,6 +41,7 @@ export const en: Dict = {
   "class.hotel": "Hotel",
   "class.logistics": "Logistics",
   "class.retail": "Retail",
+  "class.commercial": "commercial",
   "kpi.promotion": "Median margin",
   "kpi.detention": "Median net yield",
   "kpi.arbitrage": "Median spread",
@@ -650,6 +651,13 @@ export const en: Dict = {
   "fsx.be.det.isoc.sub": "corporate vehicle (ISoc), on the rental result",
   "fsx.be.det.encadrement.label": "Rent control",
   "fsx.be.det.encadrement.sub": "rent presumed abusive above 20% of the regional reference rent (tightened May 2025)",
+
+  // Valeurs qualitatives du regime BE (prose, pas des nombres)
+  "fsx.be.val.annual": "annual",
+  "fsx.be.val.refPlus20": "ref. +20%",
+  "fsx.be.val.customary": "customary",
+  "fsx.be.val.byRegime": "by regime",
+
   "fsx.be.det.platform": "built into the Tax line of the Yield waterfall",
   "fsx.be.ced.title": "Sell",
   "fsx.be.ced.eyebrow": "At exit",

@@ -79,9 +79,10 @@ export function fiscalInsight(
   });
 }
 
-// Les `value` (pctFR(...), "annuel", "réf. +20%", "usuelle", "selon régime") sont
-// des valeurs calculées ou des données de régime : hors dictionnaire. Seuls la
-// prose et les libellés sont traduits.
+// Les `value` chiffrées (pctFR(...)) restent des valeurs calculées : hors
+// dictionnaire. Les `value` qualitatives du régime BE (annuel, réf. +20%,
+// usuelle, selon régime) sont de la prose : elles passent par les clés
+// fsx.be.val.*, comme les libellés.
 export function volets(lang: Lang): FiscalVolet[] {
   const T = (k: string) => translate(k, lang);
   return [
@@ -118,7 +119,7 @@ export function volets(lang: Lang): FiscalVolet[] {
       rows: [
         {
           label: T("fsx.be.det.precompte.label"),
-          value: "annuel",
+          value: T("fsx.be.val.annual"),
           sub: T("fsx.be.det.precompte.sub"),
         },
         {
@@ -128,7 +129,7 @@ export function volets(lang: Lang): FiscalVolet[] {
         },
         {
           label: T("fsx.be.det.encadrement.label"),
-          value: "réf. +20%",
+          value: T("fsx.be.val.refPlus20"),
           sub: T("fsx.be.det.encadrement.sub"),
         },
       ],
@@ -145,12 +146,12 @@ export function volets(lang: Lang): FiscalVolet[] {
         },
         {
           label: T("fsx.be.ced.shareDeal.label"),
-          value: "usuelle",
+          value: T("fsx.be.val.customary"),
           sub: T("fsx.be.ced.shareDeal.sub"),
         },
         {
           label: T("fsx.be.ced.exitTax.label"),
-          value: "selon régime",
+          value: T("fsx.be.val.byRegime"),
           sub: T("fsx.be.ced.exitTax.sub"),
         },
       ],
