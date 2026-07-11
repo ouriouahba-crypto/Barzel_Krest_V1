@@ -61,6 +61,10 @@ export interface ParcRow {
   cd: number;
   ef: number;
 }
+// Champs de prose/libellé d'EnergiePage : ce sont des CLÉS i18n, résolues par la
+// page via t() (lot i18n-energie), `tableCols` incluse. `chipPrefix` fait
+// exception : c'est une donnée (sigle réglementaire EPBD/PEB, non traduit), tout
+// comme `platform.to` (route).
 export interface EnergiePage {
   marketLine: string;
   chipPrefix: string;
@@ -75,11 +79,13 @@ export interface EnergiePage {
   tableCols: string[];
   sources: string;
 }
+// `energyVerdict.label` et les champs de TIMELINE sont eux aussi des CLÉS i18n
+// (verdicts : clés PARTAGÉES entre régimes) ; seuils et tone restent moteur.
 export interface RegimeEnergie {
   parcFor: (zone: string, cls: string) => ParcRow | null;
   riskMeps: (engineRisk: number, ef: number, efMax: number) => number;
   energyVerdict: (risk: number) => { label: string; tone: "good" | "mid" | "low" };
-  energieInsight: (cls: string, zones: string[], cityName?: string) => string;
+  energieInsight: (cls: string, zones: string[], cityName: string, lang: Lang) => string;
   TIMELINE: { when: string; what: string }[];
   PAGE: EnergiePage;
 }
