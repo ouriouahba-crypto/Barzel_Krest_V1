@@ -41,6 +41,7 @@ export const fr: Dict = {
   "class.hotel": "Hôtellerie",
   "class.logistics": "Logistique",
   "class.retail": "Commerce",
+  "class.commercial": "commercial",
   "kpi.promotion": "Marge médiane",
   "kpi.detention": "Yield net médian",
   "kpi.arbitrage": "Spread médian",
@@ -648,6 +649,13 @@ export const fr: Dict = {
   "fsx.be.det.isoc.sub": "véhicule société (ISoc), sur le résultat locatif",
   "fsx.be.det.encadrement.label": "Encadrement des loyers",
   "fsx.be.det.encadrement.sub": "loyer présumé abusif au-delà de 20% du loyer de référence régional (renforcé mai 2025)",
+
+  // Valeurs qualitatives du regime BE (prose, pas des nombres)
+  "fsx.be.val.annual": "annuel",
+  "fsx.be.val.refPlus20": "réf. +20%",
+  "fsx.be.val.customary": "usuelle",
+  "fsx.be.val.byRegime": "selon régime",
+
   "fsx.be.det.platform": "intégré à la ligne Fiscalité de la cascade Rendement",
   "fsx.be.ced.title": "Céder",
   "fsx.be.ced.eyebrow": "À la sortie",
