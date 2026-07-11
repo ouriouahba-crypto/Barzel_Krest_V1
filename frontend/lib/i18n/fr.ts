@@ -379,4 +379,16 @@ export const fr: Dict = {
   "ins.priceOf.hotel": "hôtelier",
   "ins.priceOf.logistics": "logistique",
   "ins.priceOf.retail": "du commerce",
+  // --- priceMarginInsight trilingue (lot i18n-insights-2). FR byte-identique. ---
+  "pm.headN": "La {sector} tient sur {n} {pl}, menées par {list}.",
+  "pm.head2": "La {sector} tient sur 2 {pl} : {list}.",
+  "pm.head1": "La {sector} ne tient que sur une {sg} : {list}.",
+  "pm.selectiveOne": "La {sector} ne tient vraiment que sur une {sg} : {list}.",
+  "pm.selectiveN": "La {sector} ne tient vraiment que sur {n} {pl} : {list}.",
+  "pm.selectiveRest": " Le reste {selectiveRest} reste sous conditions, la marge écrasée par le foncier.",
+  "pm.restDefault": "de la ville",
+  "pm.none": "Aucune {sg} ne porte la {sector} ce cycle{tail}.",
+  "pm.noneTail": " : meilleure marge {m}% à {short}",
+  "pm.whyLoss": " Au-delà, le prix neuf réalisable ne couvre plus le coût de revient.",
+  "pm.whyThin": " Au-delà, marges trop minces ou marchés trop étroits pour absorber le neuf.",
 };

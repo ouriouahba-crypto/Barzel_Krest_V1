@@ -376,4 +376,16 @@ export const pt: Dict = {
   "ins.priceOf.hotel": "hoteleiro",
   "ins.priceOf.logistics": "logístico",
   "ins.priceOf.retail": "do comércio",
+  // --- priceMarginInsight trilingue (lot i18n-insights-2). ---
+  "pm.headN": "A {sector} mantém-se em {n} {pl}, lideradas por {list}.",
+  "pm.head2": "A {sector} mantém-se em 2 {pl}: {list}.",
+  "pm.head1": "A {sector} só se mantém numa {sg}: {list}.",
+  "pm.selectiveOne": "A {sector} só se mantém verdadeiramente numa {sg}: {list}.",
+  "pm.selectiveN": "A {sector} só se mantém verdadeiramente em {n} {pl}: {list}.",
+  "pm.selectiveRest": " O resto {selectiveRest} permanece condicional, a margem esmagada pelo terreno.",
+  "pm.restDefault": "da cidade",
+  "pm.none": "Nenhuma {sg} sustenta a {sector} este ciclo{tail}.",
+  "pm.noneTail": ": melhor margem {m}% em {short}",
+  "pm.whyLoss": " Além disso, o preço de construção nova realizável já não cobre o preço de custo.",
+  "pm.whyThin": " Além disso, margens demasiado finas ou mercados demasiado estreitos para absorver a construção nova.",
 };
