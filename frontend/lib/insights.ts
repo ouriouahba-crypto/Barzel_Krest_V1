@@ -221,16 +221,26 @@ const CLASS_ADJ_PT: Record<string, string> = {
   retail: "comercial",
 };
 
-// Phrase « promotion <classe> » localisée, en minuscule (mid-phrase FR/PT) et en
-// capitale (début de phrase EN). FR byte-identique à l'ancien `adj` préfixé de
-// « promotion ».
-function sectorPhrase(assetClass: string, lang: Lang): { sector: string; Sector: string } {
+// Mot de mode par langue, utilisé dans les phrases « <mode> <classe> » de
+// sectorPhrase. Landbank garde le mot d'usage (« landbank » dans les 3 langues).
+const MODE_WORD: Record<Mode, { fr: string; en: string; pt: string }> = {
+  promotion: { fr: "promotion", en: "development", pt: "promoção" },
+  detention: { fr: "détention", en: "holding", pt: "detenção" },
+  arbitrage: { fr: "arbitrage", en: "arbitrage", pt: "arbitragem" },
+  landbank: { fr: "landbank", en: "landbank", pt: "landbank" },
+};
+
+// Phrase « <mode> <classe> » localisée, en minuscule (mid-phrase FR/PT) et en
+// capitale (début de phrase EN). FR byte-identique à l'ancien `adj` préfixé du
+// mot de mode. EN : « <classe> <mode> » (ex. « residential development »,
+// « residential holding »).
+function sectorPhrase(assetClass: string, lang: Lang, mode: Mode): { sector: string; Sector: string } {
   const s =
     lang === "en"
-      ? `${classLabelFor(assetClass, "en").toLowerCase()} development`
+      ? `${classLabelFor(assetClass, "en").toLowerCase()} ${MODE_WORD[mode].en}`
       : lang === "pt"
-      ? `promoção ${CLASS_ADJ_PT[assetClass] ?? classLabelFor(assetClass, "pt").toLowerCase()}`
-      : `promotion ${CLASS_ADJ_FR[assetClass] ?? classLabel(assetClass).toLowerCase()}`;
+      ? `${MODE_WORD[mode].pt} ${CLASS_ADJ_PT[assetClass] ?? classLabelFor(assetClass, "pt").toLowerCase()}`
+      : `${MODE_WORD[mode].fr} ${CLASS_ADJ_FR[assetClass] ?? classLabel(assetClass).toLowerCase()}`;
   return { sector: s, Sector: cap(s) };
 }
 
@@ -258,7 +268,7 @@ export function priceMarginInsight(
   lang: Lang = "fr"
 ): string {
   if (!rows.length) return LOADING;
-  const { sector, Sector } = sectorPhrase(assetClass, lang);
+  const { sector, Sector } = sectorPhrase(assetClass, lang, "promotion");
   const viable = rows
     .filter((r) => verdictTone("promotion", r.verdict) !== "low")
     .sort((a, b) => b.marginPct - a.marginPct);
@@ -317,18 +327,31 @@ const DET_CLAUSE: Record<string, string> = {
   portage: "un coût de portage supérieur au rendement",
 };
 
-// "Name (3.5%)" list with a French final "et".
-function yieldList(rows: RdRow[]): string {
+// "Name (3.5%)" list with a language-aware final conjunction (« et » / " and " /
+// " e "). Le formatage du nombre (fmtNum, point décimal) reste inchangé.
+function yieldList(rows: RdRow[], lang: Lang): string {
   const parts = rows.map((r) => `${r.name} (${fmtNum(r.yieldNet, 1)}%)`);
   if (parts.length <= 1) return parts.join("");
-  return parts.slice(0, -1).join(", ") + " et " + parts[parts.length - 1];
+  const and = lang === "en" ? " and " : lang === "pt" ? " e " : " et ";
+  return parts.slice(0, -1).join(", ") + and + parts[parts.length - 1];
 }
 
 // `keepCount` : décompte autoritaire des Conserver servi par le backend
 // (verdict_counts, maille fine hors municipio) ; le texte ne recompte pas seul.
-export function detentionInsight(rows: RdRow[], assetClass: string, trapClause?: string, noun: ZoneNoun = FREG_NOUN, keepCount?: number): string {
+export function detentionInsight(
+  rows: RdRow[],
+  assetClass: string,
+  trapClause?: string,
+  noun: ZoneNoun = FREG_NOUN,
+  keepCount?: number,
+  lang: Lang = "fr"
+): string {
   if (!rows.length) return LOADING;
-  const adj = CLASS_ADJ_FR[assetClass] ?? classLabel(assetClass).toLowerCase();
+  const { sector, Sector } = sectorPhrase(assetClass, lang, "detention");
+  const suffix =
+    assetClass === "residential"
+      ? ""
+      : translate("ins.suffixIn", lang, { cls: classLabelFor(assetClass, lang).toLowerCase() });
   const keep = rows
     .filter((r) => verdictTone("detention", r.verdict) === "good")
     .sort((a, b) => b.yieldNet - a.yieldNet);
@@ -339,17 +362,18 @@ export function detentionInsight(rows: RdRow[], assetClass: string, trapClause?:
   const maxY = rows.length ? rows.reduce((a, b) => (b.yieldNet > a.yieldNet ? b : a)) : null;
   const trap =
     maxY && verdictTone("detention", maxY.verdict) === "low"
-      ? ` ${trapClause ?? `Les yields les plus élevés (${maxY.short} ${fmtNum(maxY.yieldNet, 1)}%) sont des pièges de fragilité : marchés étroits, vacance longue.`}`
+      ? " " + (trapClause ?? translate("det.trapDefault", lang, { short: maxY.short, y: fmtNum(maxY.yieldNet, 1) }))
       : "";
 
   if (n === 0) {
-    if (trap) return `Aucune ${noun.sg} ne justifie de conserver${classSuffix(assetClass)} ce cycle.${trap}`;
+    if (trap) return translate("det.noneTrap", lang, { sg: noun.sg, suffix, trap });
     const best = [...rows].sort((a, b) => b.yieldNet - a.yieldNet)[0];
-    const tail = best ? ` : meilleur yield net ${fmtNum(best.yieldNet, 1)}% à ${best.short}` : "";
-    return `Aucune ${noun.sg} ne justifie de conserver${classSuffix(assetClass)} ce cycle${tail}.`;
+    const tail = best ? translate("det.noneTail", lang, { y: fmtNum(best.yieldNet, 1), short: best.short }) : "";
+    return translate("det.none", lang, { sg: noun.sg, suffix, tail });
   }
   // Closing clause: the yield trap when it applies, else the most common weakest
-  // pillar across the non-Conserver set.
+  // pillar across the non-Conserver set. `reason` n'est localisé que pour les 6
+  // piliers connus (DET_CLAUSE) : tout autre `weakest` -> pas de clause (why="").
   let why = "";
   if (!trap) {
     const rest = rows.filter((r) => verdictTone("detention", r.verdict) !== "good");
@@ -357,17 +381,17 @@ export function detentionInsight(rows: RdRow[], assetClass: string, trapClause?:
       const counts = new Map<string, number>();
       for (const r of rest) if (r.weakest) counts.set(r.weakest, (counts.get(r.weakest) ?? 0) + 1);
       const top = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
-      const reason = top ? DET_CLAUSE[top[0]] : undefined;
-      if (reason) why = ` Le reste bute sur ${reason}.`;
+      const reason = top && DET_CLAUSE[top[0]] ? translate("det.clause." + top[0], lang) : undefined;
+      if (reason) why = translate("det.whyRest", lang, { reason });
     }
   }
-  const list = yieldList(keep.slice(0, 3));
+  const list = yieldList(keep.slice(0, 3), lang);
   const head =
     n >= 3
-      ? `La détention ${adj} tient sur ${n} ${noun.pl}, menées par ${list}.`
+      ? translate("det.headN", lang, { sector, Sector, n, pl: noun.pl, list })
       : n === 2
-      ? `La détention ${adj} tient sur 2 ${noun.pl} : ${list}.`
-      : `La détention ${adj} ne tient que sur une ${noun.sg} : ${list}.`;
+      ? translate("det.head2", lang, { sector, Sector, pl: noun.pl, list })
+      : translate("det.head1", lang, { sector, Sector, sg: noun.sg, list });
   return `${head}${trap || why}`;
 }
 
