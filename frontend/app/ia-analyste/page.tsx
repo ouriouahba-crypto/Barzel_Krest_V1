@@ -68,7 +68,7 @@ export default function IaAnalystePage() {
   const lang = useLang();
   const g = useGaia();
   const city = cityBySlug(useCityStore((s) => s.slug));
-  const SUGGESTIONS = city.texts.analystSuggestions.map(({ q, icon }) => ({ q, icon: ICONS[icon] }));
+  const SUGGESTIONS = city.texts.analystSuggestions.map(({ q, icon }) => ({ q: t(q), icon: ICONS[icon] }));
   const cityShort = city.label === "Vila Nova de Gaia" ? "Gaia" : city.label;
   const [selected, setSelected] = useState<string[]>([]);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -102,7 +102,7 @@ export default function IaAnalystePage() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={city.texts.marketLines.iaAnalyste}
+          marketLine={t(city.texts.marketLines.iaAnalyste)}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}

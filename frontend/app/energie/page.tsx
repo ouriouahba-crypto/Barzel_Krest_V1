@@ -89,7 +89,7 @@ export default function EnergiePage() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={city.texts.energieMarketLine ?? E.PAGE.marketLine}
+          marketLine={city.texts.energieMarketLine ? t(city.texts.energieMarketLine) : E.PAGE.marketLine}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}
@@ -111,7 +111,7 @@ export default function EnergiePage() {
               </span>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
-              {city.texts.energieIntro ?? E.PAGE.intro}
+              {city.texts.energieIntro ? t(city.texts.energieIntro) : E.PAGE.intro}
             </p>
           </div>
 

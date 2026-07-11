@@ -110,7 +110,7 @@ export default function ArbitragePage() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={city.texts.marketLines.arbitrage}
+          marketLine={t(city.texts.marketLines.arbitrage)}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}

@@ -62,7 +62,7 @@ export default function FiscalitePage() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={city.texts.fiscaliteMarketLine ?? F.PAGE.marketLine}
+          marketLine={city.texts.fiscaliteMarketLine ? t(city.texts.fiscaliteMarketLine) : F.PAGE.marketLine}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}

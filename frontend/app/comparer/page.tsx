@@ -141,7 +141,7 @@ export default function ComparerPage() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={city.texts.marketLines.comparer}
+          marketLine={t(city.texts.marketLines.comparer)}
           freguesias={g.freguesias}
           selected={selected}
           onSelected={setSelected}

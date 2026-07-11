@@ -101,33 +101,33 @@ export const CITIES: CityDef[] = [
     texts: {
       // Lignes historiques de Gaia, déplacées verbatim depuis les pages.
       marketLines: {
-        carte: "Rive sud du Douro en forte progression, offre neuve rare côté fleuve.",
-        vueEnsemble: "Rive sud du Douro : demande soutenue, offre neuve rare côté fleuve. Quatre lectures d'un même marché.",
-        comparer: "Rive sud du Douro : un même territoire, quatre lectures (promotion, détention, arbitrage, foncier), côte à côte.",
-        prixMarge: "Rive sud du Douro : offre neuve rare côté fleuve, coûts de construction maîtrisés. La marge de promotion se joue freguesia par freguesia.",
-        rendement: "Rive sud du Douro : demande locative réelle, loyers en rattrapage. Conserver ne se justifie qu'au rendement net, après charges et fiscalité.",
-        arbitrage: "Rive sud du Douro : le cycle a monté vite. Céder se joue sur la fenêtre, le spread réalisable et la profondeur d'acheteurs.",
-        foncier: "Rive sud du Douro : le foncier bien desservi se raréfie. La réserve se juge à sa valeur résiduelle par usage et à son horizon d'activation.",
-        iaAnalyste: "Posez vos questions sur Gaia : l'analyste répond à partir des scores, verdicts et cascades de la plateforme.",
+        carte: "cx.gaia.mkt.carte",
+        vueEnsemble: "cx.gaia.mkt.vueEnsemble",
+        comparer: "cx.gaia.mkt.comparer",
+        prixMarge: "cx.gaia.mkt.prixMarge",
+        rendement: "cx.gaia.mkt.rendement",
+        arbitrage: "cx.gaia.mkt.arbitrage",
+        foncier: "cx.gaia.mkt.foncier",
+        iaAnalyste: "cx.gaia.mkt.iaAnalyste",
       },
       promoContextResidential:
-        "Le neuf se vend cher rive sud du Douro quand le foncier reste rare : la marge de promotion se décide surtout sur le coût du terrain, freguesia par freguesia.",
+        "cx.gaia.promoContext",
       promoAssetCaption:
-        "Curseur temps réel sur l'actif K-REST à Afurada : ajustez le prix de vente pour voir la marge et le verdict se recalculer.",
+        "cx.gaia.promoCaption",
       // Copie Fiscalité/Énergie propre à Gaia (rive sud du Douro) : déplacée
       // verbatim du régime PT partagé, désormais neutre (aucune fuite d'identité).
       fiscaliteMarketLine:
-        "Portugal, rive sud du Douro : ce que le fisc prend à chaque étape, et comment c'est déjà intégré dans nos verdicts.",
+        "cx.gaia.fiscalMkt",
       energieMarketLine:
-        "Rive sud du Douro : ce que la réglementation énergétique va coûter au parc, où, et comment c'est déjà compté dans nos verdicts.",
+        "cx.gaia.energieMkt",
       energieIntro:
-        "La directive EPBD impose une trajectoire de rénovation au parc européen ; le certificat SCE (A+ → F) en est l'instrument portugais. Exposition du parc de Gaia, échéances, et coût d'une mise à niveau.",
+        "cx.gaia.energieIntro",
       analystSuggestions: [
-        { q: "Où lancer une promotion résidentielle à Gaia ?", icon: "pin" },
-        { q: "Faut-il conserver ou céder un actif résidentiel à Madalena ?", icon: "building" },
-        { q: "Quel est le meilleur usage d'un terrain à Canidelo ?", icon: "layers" },
-        { q: "Quel impact la réglementation énergétique a-t-elle sur une détention à Santa Marinha ?", icon: "bolt" },
-        { q: "Compare Santa Marinha et Madalena en bureaux.", icon: "compare" },
+        { q: "cx.gaia.suggest1", icon: "pin" },
+        { q: "cx.gaia.suggest2", icon: "building" },
+        { q: "cx.gaia.suggest3", icon: "layers" },
+        { q: "cx.gaia.suggest4", icon: "bolt" },
+        { q: "cx.gaia.suggest5", icon: "compare" },
       ],
     },
   },
@@ -155,36 +155,36 @@ export const CITIES: CityDef[] = [
       // Textes calibrés lot 2b : la signature capitale (foncier rare, marge à
       // l'arc oriental, yield facial touristique non institutionnel).
       marketLines: {
-        carte: "Rive nord du Tage : la capitale concentre la demande, le foncier rare arbitre entre patrimoine et régénération.",
-        vueEnsemble: "Capitale au foncier rare : les beaux quartiers tiennent les prix, l'arc oriental porte la création de valeur. Quatre lectures d'un même marché.",
-        comparer: "Rive nord du Tage : un même territoire, quatre lectures (promotion, détention, arbitrage, foncier), côte à côte.",
-        prixMarge: "Capitale au foncier rare : la marge ne se joue pas dans les beaux quartiers mais là où le terrain reste accessible, à l'arc oriental en régénération.",
-        rendement: "Les prix ont couru plus vite que les loyers : le net se défend dans le locatif domestique profond, pas dans le facial touristique du centre.",
-        arbitrage: "Cycle haut, +12,3% sur un an : la fenêtre de cession est ouverte là où l'acheteur institutionnel est profond, sur le produit récent.",
-        foncier: "Les réserves de la capitale sont à l'est et au nord : le centre patrimonial ne produit plus de terrain.",
-        iaAnalyste: "Posez vos questions sur Lisbonne : l'analyste répond à partir des scores, verdicts et cascades de la plateforme.",
+        carte: "cx.lisbonne.mkt.carte",
+        vueEnsemble: "cx.lisbonne.mkt.vueEnsemble",
+        comparer: "cx.lisbonne.mkt.comparer",
+        prixMarge: "cx.lisbonne.mkt.prixMarge",
+        rendement: "cx.lisbonne.mkt.rendement",
+        arbitrage: "cx.lisbonne.mkt.arbitrage",
+        foncier: "cx.lisbonne.mkt.foncier",
+        iaAnalyste: "cx.lisbonne.mkt.iaAnalyste",
       },
       promoContextResidential:
-        "Le foncier de marché du centre absorbe 60 à 70% du prix de sortie et écrase la marge : la promotion se décide à l'arc oriental (Marvila, Beato) et sur les réserves du nord, là où le terrain reste accessible.",
+        "cx.lisbonne.promoContext",
       promoAssetCaption:
-        "Curseur temps réel sur l'actif K-REST Formoso à Marvila (reconversion d'un entrepôt viticole, 50 appartements T1 et T2 duplex) : ajustez le prix de sortie pour voir la marge et le verdict se recalculer.",
-      promoSelectiveRest: "de la capitale",
+        "cx.lisbonne.promoCaption",
+      promoSelectiveRest: "cx.lisbonne.selectiveRest",
       yieldTrapClause:
-        "Les yields faciaux les plus élevés (Santa Maria Maior, Misericórdia) sont touristiques : en zone de contention AL, ils ne sont pas représentatifs d'une détention institutionnelle.",
+        "cx.lisbonne.yieldTrap",
       detentionNote:
-        "Santa Maria Maior et Misericórdia affichent les loyers faciaux les plus hauts de la ville mais un verdict Céder : la pression réglementaire municipale sur la location courte durée (zones de contention AL) rend le yield facial touristique non représentatif d'une détention institutionnelle. À l'autre bout du spectre, Parque das Nações et Avenidas Novas gardent des marchés profonds mais un yield net sous le plancher institutionnel de 3% : le rendement ne justifie plus la détention, et la fenêtre de cession est ouverte à Parque das Nações.",
+        "cx.lisbonne.detentionNote",
       fiscaliteMarketLine:
-        "Portugal, rive nord du Tage : ce que le fisc prend à chaque étape, et comment c'est déjà intégré dans nos verdicts.",
+        "cx.lisbonne.fiscalMkt",
       energieMarketLine:
-        "Rive nord du Tage : ce que la réglementation énergétique va coûter au parc, où, et comment c'est déjà compté dans nos verdicts.",
+        "cx.lisbonne.energieMkt",
       energieIntro:
-        "La directive EPBD impose une trajectoire de rénovation au parc européen ; le certificat SCE (A+ → F) en est l'instrument portugais. Exposition du parc de Lisbonne, échéances, et coût d'une mise à niveau.",
+        "cx.lisbonne.energieIntro",
       analystSuggestions: [
-        { q: "Où lancer une promotion résidentielle à Lisbonne ?", icon: "pin" },
-        { q: "Faut-il conserver ou céder un actif résidentiel à Arroios ?", icon: "building" },
-        { q: "Quel est le meilleur usage d'un terrain à Marvila ?", icon: "layers" },
-        { q: "Quel impact la réglementation énergétique a-t-elle sur une détention à Santa Maria Maior ?", icon: "bolt" },
-        { q: "Compare Parque das Nações et Avenidas Novas en bureaux.", icon: "compare" },
+        { q: "cx.lisbonne.suggest1", icon: "pin" },
+        { q: "cx.lisbonne.suggest2", icon: "building" },
+        { q: "cx.lisbonne.suggest3", icon: "layers" },
+        { q: "cx.lisbonne.suggest4", icon: "bolt" },
+        { q: "cx.lisbonne.suggest5", icon: "compare" },
       ],
     },
   },
@@ -214,34 +214,34 @@ export const CITIES: CityDef[] = [
     promoAssetSlider: CampanhaSlider,
     texts: {
       marketLines: {
-        carte: "Concelho do Porto : 7 freguesias, du front de mer de la Foz au centre historique. La valeur de promotion se déplace vers l'arc de régénération est (Campanhã). Quatre lectures d'un même marché.",
-        vueEnsemble: "Concelho do Porto : la marge de promotion se joue sur l'arc de régénération est (Campanhã), foncier le moins cher porté par un pipeline structurant, quand la Foz est plafonnée par un foncier cher. Quatre lectures d'un même marché.",
-        comparer: "Concelho do Porto : un même territoire, quatre lectures (promotion, détention, arbitrage, foncier), freguesia par freguesia.",
-        prixMarge: "Concelho do Porto : la marge de promotion se joue sur l'arc de régénération est (Campanhã), là où le foncier reste le moins cher et où un pipeline structurant soutient la sortie ; la Foz est plafonnée par un foncier cher.",
-        rendement: "Concelho do Porto : loyers et charges réels. Conserver ne se justifie qu'au rendement net, après charges et fiscalité, sur le parc central profond.",
-        arbitrage: "Concelho do Porto : les écarts de prix entre freguesias sont réels. Céder se juge sur la fenêtre, le spread réalisable et la profondeur d'acheteurs ; sur l'arc est, on construit plutôt qu'on ne cède.",
-        foncier: "Concelho do Porto : la réserve à activer est sur l'arc de régénération est (Campanhã, Bonfim), portée par le nouveau terminal intermodal. Elle se juge à sa constructibilité, son usage et son horizon d'activation.",
-        iaAnalyste: "Posez vos questions sur Porto : l'analyste répond à partir des scores, verdicts et cascades de la plateforme.",
+        carte: "cx.porto.mkt.carte",
+        vueEnsemble: "cx.porto.mkt.vueEnsemble",
+        comparer: "cx.porto.mkt.comparer",
+        prixMarge: "cx.porto.mkt.prixMarge",
+        rendement: "cx.porto.mkt.rendement",
+        arbitrage: "cx.porto.mkt.arbitrage",
+        foncier: "cx.porto.mkt.foncier",
+        iaAnalyste: "cx.porto.mkt.iaAnalyste",
       },
       promoContextResidential:
-        "À Porto, la marge de promotion se déplace vers l'arc de régénération est : Campanhã porte le foncier le moins cher de la ville et un pipeline structurant (nouveau terminal intermodal, projet mixte Souto de Moura), quand la Foz reste plafonnée par un foncier cher qui écrase la marge malgré le prix.",
+        "cx.porto.promoContext",
       promoAssetCaption:
-        "Curseur temps réel sur l'actif K-REST à Campanhã (projet mixte Souto de Moura à la gare de Campanhã, composante résidentielle, positionnement accessible) : ajustez le prix de sortie pour voir la marge et le verdict se recalculer. La marge de l'actif porte sur son programme mixte propre : elle se lit distinctement de la marge de zone du tableau.",
-      promoSelectiveRest: "de la ville",
+        "cx.porto.promoCaption",
+      promoSelectiveRest: "cx.porto.selectiveRest",
       // Copie Fiscalité/Énergie propre à Porto (concelho, arc est / centre
       // historique) : sinon la ville hérite du repli PT neutre. Aucune fuite Gaia.
       fiscaliteMarketLine:
-        "Portugal, concelho do Porto : ce que le fisc prend à chaque étape, et comment c'est déjà intégré dans nos verdicts.",
+        "cx.porto.fiscalMkt",
       energieMarketLine:
-        "Concelho do Porto : ce que la réglementation énergétique va coûter au parc, où, et comment c'est déjà compté dans nos verdicts.",
+        "cx.porto.energieMkt",
       energieIntro:
-        "La directive EPBD impose une trajectoire de rénovation au parc européen ; le certificat SCE (A+ → F) en est l'instrument portugais. Exposition du parc de Porto, du bâti ancien du centre historique à l'arc est en régénération, échéances, et coût d'une mise à niveau.",
+        "cx.porto.energieIntro",
       analystSuggestions: [
-        { q: "Où lancer une promotion résidentielle à Porto ?", icon: "pin" },
-        { q: "Pourquoi Campanhã ressort-elle en promotion malgré son prix bas ?", icon: "pin" },
-        { q: "Faut-il conserver ou céder un actif résidentiel à Cedofeita ?", icon: "building" },
-        { q: "Quel est le meilleur usage d'un terrain à Campanhã ?", icon: "layers" },
-        { q: "Compare Paranhos et Ramalde en bureaux.", icon: "compare" },
+        { q: "cx.porto.suggest1", icon: "pin" },
+        { q: "cx.porto.suggest2", icon: "pin" },
+        { q: "cx.porto.suggest3", icon: "building" },
+        { q: "cx.porto.suggest4", icon: "layers" },
+        { q: "cx.porto.suggest5", icon: "compare" },
       ],
     },
   },
@@ -276,26 +276,26 @@ export const CITIES: CityDef[] = [
       // Textes V0 neutres et factuels (le terme de maille dit « commune »),
       // à réécrire en 2b avec la signature bruxelloise.
       marketLines: {
-        carte: "Région de Bruxelles-Capitale : marché à deux vitesses, l'arc du canal en mutation face au sud-est résidentiel plafonné. Dix-neuf communes, quatre lectures.",
-        vueEnsemble: "Région de Bruxelles-Capitale : la valeur se crée sur l'arc du canal en mutation, pas dans le premium plafonné par un foncier cher. Quatre lectures d'un même marché.",
-        comparer: "Région de Bruxelles-Capitale : un même territoire, quatre lectures (promotion, détention, arbitrage, foncier), commune par commune.",
-        prixMarge: "Région de Bruxelles-Capitale : coûts de construction élevés et TVA sur le neuf. La marge de promotion se joue sur l'arc du canal (Molenbeek, Anderlecht, Forest), là où le foncier reste accessible.",
-        rendement: "Région de Bruxelles-Capitale : précompte lourd et capex PEB sur le stock énergivore. Conserver ne se défend que sur le parc récent du sud-est, après charges et fiscalité.",
-        arbitrage: "Région de Bruxelles-Capitale : le mur PEB 2033 décote l'énergivore. La fenêtre de cession s'ouvre là où acheter décoté, rénover et capturer le saut de classe reste rentable.",
-        foncier: "Région de Bruxelles-Capitale : la réserve à activer est sur l'arc du canal en régénération. Elle se juge à sa constructibilité, son usage et son horizon d'activation.",
-        iaAnalyste: "Posez vos questions sur Bruxelles : l'analyste répond à partir des scores, verdicts et cascades de la plateforme.",
+        carte: "cx.bruxelles.mkt.carte",
+        vueEnsemble: "cx.bruxelles.mkt.vueEnsemble",
+        comparer: "cx.bruxelles.mkt.comparer",
+        prixMarge: "cx.bruxelles.mkt.prixMarge",
+        rendement: "cx.bruxelles.mkt.rendement",
+        arbitrage: "cx.bruxelles.mkt.arbitrage",
+        foncier: "cx.bruxelles.mkt.foncier",
+        iaAnalyste: "cx.bruxelles.mkt.iaAnalyste",
       },
       promoContextResidential:
-        "À Bruxelles, la marge de promotion est comprimée par des coûts de construction élevés et la TVA sur le neuf : elle se joue sur l'arc du canal en mutation (Molenbeek, Anderlecht, Forest), là où le foncier reste accessible et où la gentrification tire les prix de sortie, quand les communes premium sont plafonnées par un foncier cher.",
+        "cx.bruxelles.promoContext",
       promoAssetCaption:
-        "Curseur temps réel sur l'actif K-REST au canal (Molenbeek) : ajustez le prix de sortie de la conversion pour voir la marge et le verdict se recalculer.",
-      promoSelectiveRest: "de la Région",
+        "cx.bruxelles.promoCaption",
+      promoSelectiveRest: "cx.bruxelles.selectiveRest",
       analystSuggestions: [
-        { q: "Où lancer une promotion résidentielle à Bruxelles ?", icon: "pin" },
-        { q: "Faut-il conserver ou céder un actif résidentiel à Ixelles ?", icon: "building" },
-        { q: "Quel est le meilleur usage d'un terrain à Anderlecht ?", icon: "layers" },
-        { q: "Quel impact la réglementation énergétique a-t-elle sur une détention à Schaerbeek ?", icon: "bolt" },
-        { q: "Compare Ixelles et Uccle en bureaux.", icon: "compare" },
+        { q: "cx.bruxelles.suggest1", icon: "pin" },
+        { q: "cx.bruxelles.suggest2", icon: "building" },
+        { q: "cx.bruxelles.suggest3", icon: "layers" },
+        { q: "cx.bruxelles.suggest4", icon: "bolt" },
+        { q: "cx.bruxelles.suggest5", icon: "compare" },
       ],
     },
   },
