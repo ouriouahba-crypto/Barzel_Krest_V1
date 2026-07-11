@@ -255,12 +255,30 @@ def _fabrica_block() -> str:
         return ""
 
 
-def _system_for(city: str, asset_class: str) -> str:
+# Sortie multilingue (additif) : SEULS la directive de langue du prompt système et
+# le vocabulaire de verdicts sont paramétrés. Le contexte (_build_context) reste en
+# français ; le modèle lit le FR et répond dans la langue demandée.
+_LANG_NAME = {"fr": "français", "en": "anglais", "pt": "portugais"}
+_VERDICT_VOCAB = {
+    "fr": "Go/Conditionnel/Passer, Conserver/Surveiller/Céder, Fenêtre ouverte/étroite/fermée, Prioritaire/À phaser/En attente",
+    "en": "Go/Conditional/Pass, Hold/Watch/Sell, Window open/narrow/closed, Priority/To phase/On hold",
+    "pt": "Avançar/Condicional/Passar, Manter/Vigiar/Vender, Janela aberta/estreita/fechada, Prioritário/A fasear/Em espera",
+}
+
+
+def _norm_lang(l: str | None) -> str:
+    """Repli gracieux : la langue de sortie est cosmétique (jamais de 400). Toute
+    valeur hors {en, fr, pt} retombe sur le français (comportement historique)."""
+    return l if l in {"en", "fr", "pt"} else "fr"
+
+
+def _system_for(city: str, asset_class: str, lang: str = "fr") -> str:
     from ..services.cities import label_for
     label = label_for(city)
     counts_by_mode = verdict_counts(asset_class, city)
     n_freg = sum(next(iter(counts_by_mode.values())).values()) if counts_by_mode else 15
-    return _SYSTEM_TEMPLATE.replace("{VILLE}", label).replace("{NFREG}", str(n_freg))
+    return (_SYSTEM_TEMPLATE.replace("{VILLE}", label).replace("{NFREG}", str(n_freg))
+            .replace("{LANG_NAME}", _LANG_NAME[lang]).replace("{VERDICT_VOCAB}", _VERDICT_VOCAB[lang]))
 
 
 _SYSTEM_TEMPLATE = """Tu es l'analyste de Barzel Analytics, plateforme d'intelligence immobilière couvrant {VILLE} (Portugal) pour un investisseur institutionnel.
@@ -272,17 +290,18 @@ RÈGLES ABSOLUES :
 - Tu ne mentionnes JAMAIS de niveau de confiance, de source de donnée, de méthodologie interne ni l'idée qu'une donnée serait simulée ou estimée. Si l'on t'interroge sur l'origine ou la nature des données : « la plateforme agrège des données de marché et son modèle propriétaire Barzel », sans autre détail.
 - Si la question sort de {VILLE} ou du périmètre immobilier de la plateforme, réponds avec élégance que c'est hors du périmètre couvert par la plateforme sur {VILLE}, et propose ce que tu peux couvrir.
 - Ponctuation : tu n'utilises JAMAIS le tiret cadratin (le tiret long, U+2014), ni seul ni encadré d'espaces ; articule avec deux-points, virgule, parenthèses ou une nouvelle phrase.
-- Ton sobre et professionnel, en français. Réponses courtes : 5 à 10 lignes, en texte simple, JAMAIS de markdown (pas de titres, pas de gras, pas de puces), des phrases.
+- Ton sobre et professionnel. IMPORTANT : rédige TOUTE ta réponse en {LANG_NAME}. Réponses courtes : 5 à 10 lignes, en texte simple, JAMAIS de markdown (pas de titres, pas de gras, pas de puces), des phrases.
 - Avant de conclure, vérifie la cohérence interne de ta réponse : n'affirme jamais qu'un territoire domine sur tous les axes si un seul axe s'inverse ; dans ce cas, nomme l'exception d'emblée.
 - Pour tout comptage de freguesias (« N freguesias »), utilise UNIQUEMENT les comptages pré-calculés de la section DÉNOMBREMENTS ; ne recompte JAMAIS toi-même à partir des listes ; au moindre doute, formule sans compte. Ne cite un rang (« premier », « deuxième ») que s'il se lit directement dans l'ordre des données.
 - Ne fusionne JAMAIS deux catégories de verdict en un sous-total ambigu (par exemple « les 16 autres freguesias sont Conditionnel ou Passer ») : chaque catégorie a son compte propre dans DÉNOMBREMENTS. Pour décrire une répartition, cite chaque catégorie séparément et vérifie qu'elles se raccordent au total : Go plus Conditionnel plus Passer égale {NFREG} freguesias en promotion (le municipio, ligne « ville », n'entre pas dans ce total), et de même pour chaque autre mode.
-- Quand la question s'y prête, conclus par un verdict actionnable en une phrase (celui des données : Go/Conditionnel/Passer, Conserver/Surveiller/Céder, Fenêtre ouverte/étroite/fermée, Prioritaire/À phaser/En attente)."""
+- Quand la question s'y prête, conclus par un verdict actionnable en une phrase (celui des données). Emploie EXACTEMENT ces libellés de verdict, dans la langue de réponse : {VERDICT_VOCAB}."""
 
 
 class AskPayload(BaseModel):
     question: str
     asset_class: str = "residential"
     city: str | None = None  # requis : plus de défaut silencieux (cf. _require_city).
+    lang: str = "fr"  # langue de sortie (cosmétique) ; défaut FR = comportement actuel.
 
 
 def _require_city(city_in: str | None) -> str:
@@ -318,6 +337,7 @@ def ask(payload: AskPayload) -> dict:
         raise HTTPException(status_code=400, detail="question trop longue")
     asset_class = _require_class(payload.asset_class)
     city = _require_city(payload.city)
+    lang = _norm_lang(payload.lang)
 
     key = _api_key()
     if not key:
@@ -331,7 +351,7 @@ def ask(payload: AskPayload) -> dict:
             model=_MODEL,
             max_tokens=_MAX_TOKENS,
             temperature=0.2,  # réponses stables en démo
-            system=_system_for(city, asset_class),
+            system=_system_for(city, asset_class, lang),
             messages=[{
                 "role": "user",
                 "content": f"{_build_context(asset_class, city)}\n\n# QUESTION\n{question}",

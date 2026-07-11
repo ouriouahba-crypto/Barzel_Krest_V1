@@ -8,7 +8,7 @@ import { useGaia } from "@/lib/useGaia";
 import { classLabel } from "@/lib/scoring";
 import { AnalystIcon, cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
-import { useT } from "@/lib/i18n/useT";
+import { useT, useLang } from "@/lib/i18n/useT";
 
 // Lignes et suggestions par ville : registre lib/cities.ts. Icône fine (trait
 // 1.5) par clé de suggestion.
@@ -65,6 +65,7 @@ const now = () => new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minu
 
 export default function IaAnalystePage() {
   const t = useT();
+  const lang = useLang();
   const g = useGaia();
   const city = cityBySlug(useCityStore((s) => s.slug));
   const SUGGESTIONS = city.texts.analystSuggestions.map(({ q, icon }) => ({ q, icon: ICONS[icon] }));
@@ -86,7 +87,7 @@ export default function IaAnalystePage() {
     setMessages((m) => [...m, { role: "user", text: q, at: now() }]);
     setTimeout(() => endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }), 60);
     try {
-      const r = await api.analystAsk(q, cls);
+      const r = await api.analystAsk(q, cls, lang);
       setMessages((m) => [...m, { role: "assistant", text: r.answer, at: now() }]);
     } catch {
       setMessages((m) => [...m, { role: "error", text: t("ai.error"), at: now() }]);
