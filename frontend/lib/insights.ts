@@ -3,7 +3,7 @@
 // filler). Reused by the overview page and, later, the mode pages.
 
 import { MargeBreakdown, ModeScore } from "./api";
-import { Mode, MODES, MODE_LABEL, MODE_KPI, classLabel, fmtNum, median, pillarValue, verdictTone } from "./scoring";
+import { Mode, MODES, MODE_KPI, classLabel, fmtNum, median, pillarValue, verdictTone } from "./scoring";
 import { displayName, shortName } from "./useGaia";
 import { PmRow } from "./priceMargin";
 import { RdRow } from "./rendement";
@@ -72,43 +72,49 @@ const MEILLEUR: Record<Mode, string> = {
 };
 
 // "marges de 29 à 30 %" (plural range) or "spread 20 %" (single value).
-function rangePhrase(m: Mode, lo: number, hi: number): string {
-  const noun = { promotion: "marge", detention: "rendement net", arbitrage: "spread", landbank: "constructibilité" }[m];
+// FR porte le pluriel dans le template (« {noun}s de … à … ») ; EN/PT restent au
+// singulier. Les nombres passent par fmtNum, inchangés.
+function rangePhrase(m: Mode, lo: number, hi: number, lang: Lang): string {
+  const noun = translate("ci.metricNoun." + m, lang);
   const d = MODE_KPI[m].digits;
   const u = MODE_KPI[m].unit;
-  if (Math.abs(hi - lo) < Math.pow(10, -d) / 2) return `${noun} ${fmtNum(hi, d)}${u}`;
-  return `${noun}s de ${fmtNum(lo, d)} à ${fmtNum(hi, d)}${u}`;
+  if (Math.abs(hi - lo) < Math.pow(10, -d) / 2)
+    return translate("ci.rangeSingle", lang, { noun, v: fmtNum(hi, d), u });
+  return translate("ci.rangeSpan", lang, { noun, lo: fmtNum(lo, d), hi: fmtNum(hi, d), u });
 }
 
 // A secondary driver clause (a second real number) where the data supports it.
-function driverClause(m: Mode, good: ModeScore[]): string {
+function driverClause(m: Mode, good: ModeScore[], lang: Lang): string {
   if (m === "promotion") {
     const prems = good
       .map((r) => (r.pillars.find((p) => p.pillar === "marge")?.breakdown as MargeBreakdown | undefined)?.premium_pct)
       .filter((v): v is number => v != null);
     const mp = median(prems);
     // Accord du participe avec la métrique : « marge 24 %, portée » (1 zone) vs
-    // « marges de 24 à 30 %, portées » (plusieurs). La prime citée est celle de
-    // la ZONE (premium_pct), jamais celle de l'actif vedette.
-    if (mp != null) return `, ${good.length > 1 ? "portées" : "portée"} par une prime neuf de ${Math.round(mp)}%`;
+    // « marges de 24 à 30 %, portées » (plusieurs). L'anglais n'accorde pas (le
+    // token est absent de son template). La prime citée est celle de la ZONE
+    // (premium_pct), jamais celle de l'actif vedette.
+    if (mp != null) {
+      const portee =
+        lang === "en" ? "" : lang === "pt" ? (good.length > 1 ? "puxadas" : "puxada") : good.length > 1 ? "portées" : "portée";
+      return translate("ci.driver.promotion", lang, { portee, mp: Math.round(mp) });
+    }
   }
   if (m === "arbitrage") {
     const app = pillarValue(good[0]?.pillars ?? [], "appetit_institutionnel");
     if (app != null) {
-      if (app >= 0.7) return ", appétit institutionnel soutenu";
-      if (app >= 0.4) return ", appétit institutionnel modéré";
+      if (app >= 0.7) return translate("ci.driver.arbHigh", lang);
+      if (app >= 0.4) return translate("ci.driver.arbMod", lang);
       // < 0.4 : pas de clause
     }
   }
   return "";
 }
 
-function classSuffix(assetClass: string): string {
-  return assetClass === "residential" ? "" : ` en ${classLabel(assetClass).toLowerCase()}`;
-}
-
-// "de promotion" but "d'arbitrage" (elision before a vowel).
-function marketOf(label: string): string {
+// "de promotion" but "d'arbitrage" (elision before a vowel) in FR.
+function marketOf(label: string, lang: Lang): string {
+  if (lang === "en") return `${label} market`;
+  if (lang === "pt") return `mercado de ${label}`;
   return /^[aeiouyéèêh]/i.test(label) ? `marché d'${label}` : `marché de ${label}`;
 }
 
@@ -128,14 +134,25 @@ const LOADING = "Chargement du marché…";
 
 // 1 sentence verdict for the city: dominant mode, count of top-verdict zones,
 // the dominant native metric range, and (where available) a driver.
-export function cityInsight(data: OverviewByMode, assetClass: string, noun: ZoneNoun = FREG_NOUN): string {
+export function cityInsight(
+  data: OverviewByMode,
+  assetClass: string,
+  noun: ZoneNoun = FREG_NOUN,
+  lang: Lang = "fr"
+): string {
   const bm = bestMode(data.scores);
-  if (!bm || !data.scores[bm]) return "Chargement du marché…";
+  if (!bm || !data.scores[bm]) return translate("ci.loading", lang);
   const city = cap(data.scores[bm]!.city);
-  const label = MODE_LABEL[bm].toLowerCase();
+  const label = modeLabel(bm, lang).toLowerCase();
   const rows = data.freg[bm] ?? [];
   const good = goFreg(rows, bm);
-  const suffix = classSuffix(assetClass);
+  const suffix =
+    assetClass === "residential"
+      ? ""
+      : translate("ins.suffixIn", lang, { cls: classLabelFor(assetClass, lang).toLowerCase() });
+  // GOOD_WORD garde ses libellés FR comme CLÉ CANONIQUE de verdict : verdictDisplay
+  // les rend dans la langue courante (identité en FR).
+  const goodWord = verdictDisplay(GOOD_WORD[bm], lang);
 
   // Degraded: no freguesia clears the top verdict; cite the single best, not a range.
   if (!good.length) {
@@ -143,22 +160,31 @@ export function cityInsight(data: OverviewByMode, assetClass: string, noun: Zone
       .map((r) => ({ r, v: pillarValue(r.pillars, MODE_KPI[bm].pillar) }))
       .filter((x): x is { r: ModeScore; v: number } => x.v != null)
       .sort((a, b) => b.v - a.v)[0];
-    const metric = top ? `, ${MEILLEUR[bm]} ${rangePhrase(bm, top.v, top.v)} à ${shortName(top.r.zone_name)}` : "";
-    return `${city} reste sélectif${suffix} : aucune ${noun.sg} ${GOOD_WORD[bm]} en ${label} ce cycle${metric}.`;
+    const metric = top
+      ? translate("ci.degradedMetric", lang, {
+          meilleur: MEILLEUR[bm],
+          range: rangePhrase(bm, top.v, top.v, lang),
+          short: shortName(top.r.zone_name),
+        })
+      : "";
+    return translate("ci.degraded", lang, { city, suffix, sg: noun.sg, good: goodWord, label, metric });
   }
 
   const names = good.length <= 3 ? ` (${good.map((r) => displayName(r.zone_name)).join(", ")})` : "";
   const rng = kpiRange(good, bm);
-  const metric = rng ? `, ${rangePhrase(bm, rng[0], rng[1])}` : "";
-  const driver = rng ? driverClause(bm, good) : "";
-  const tail = `${good.length} ${plurN(good.length, noun)} ${GOOD_WORD[bm]}${names}${metric}${driver}`;
+  const metric = rng ? `, ${rangePhrase(bm, rng[0], rng[1], lang)}` : "";
+  const driver = rng ? driverClause(bm, good, lang) : "";
+  const tail = `${good.length} ${plurN(good.length, noun)} ${goodWord}${names}${metric}${driver}`;
 
   // Opening verb graded by the dominant mode's city (municipio) score.
   const muni = data.scores[bm]!.total;
-  const la = /^[aeiouyéèêh]/i.test(label) ? "l'" : "la ";
-  if (muni >= 60) return `${city} est un ${marketOf(label)}${suffix} : ${tail}.`;
-  if (muni >= 50) return `${city} penche vers ${la}${label}${suffix} : ${tail}.`;
-  return `${city} n'offre pas de lecture dominante ce cycle : ${la}${label}${suffix} ressort en tête avec ${tail}.`;
+  // Article du mode : élision FR devant voyelle, genre PT (le landbank est
+  // masculin), rien en EN.
+  const la =
+    lang === "en" ? "" : lang === "pt" ? (bm === "landbank" ? "o " : "a ") : /^[aeiouyéèêh]/i.test(label) ? "l'" : "la ";
+  if (muni >= 60) return translate("ci.market", lang, { city, market: marketOf(label, lang), suffix, tail });
+  if (muni >= 50) return translate("ci.leans", lang, { city, la, label, suffix, tail });
+  return translate("ci.noDominant", lang, { city, la, label, suffix, tail });
 }
 
 // 1 short sentence per mode, citing at least one real number from its KPI.

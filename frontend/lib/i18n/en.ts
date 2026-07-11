@@ -479,4 +479,22 @@ export const en: Dict = {
   "an.pillar.connectivite": "insufficient access to support a programme",
   "an.pillar.incitations": "local incentives too weak",
   "an.pillar.risque_timing": "a regulatory risk that pushes back activation",
+  // --- cityInsight trilingue (lot i18n-insights-8, last of the marathon).
+  // No {la} article and no {meilleur} agreement in EN: the tokens are simply
+  // absent from the templates (translate leaves unused params alone). ---
+  "ci.loading": "Loading the market…",
+  "ci.market": "{city} is a {market}{suffix}: {tail}.",
+  "ci.leans": "{city} leans towards {label}{suffix}: {tail}.",
+  "ci.noDominant": "{city} offers no dominant read this cycle: {label}{suffix} stands out at the top with {tail}.",
+  "ci.degraded": "{city} stays selective{suffix}: no {sg} is {good} in {label} this cycle{metric}.",
+  "ci.degradedMetric": ", best {range} in {short}",
+  "ci.metricNoun.promotion": "margin",
+  "ci.metricNoun.detention": "net yield",
+  "ci.metricNoun.arbitrage": "spread",
+  "ci.metricNoun.landbank": "buildability",
+  "ci.rangeSingle": "{noun} {v}{u}",
+  "ci.rangeSpan": "{noun} {lo} to {hi}{u}",
+  "ci.driver.promotion": ", driven by a new-build premium of {mp}%",
+  "ci.driver.arbHigh": ", sustained institutional appetite",
+  "ci.driver.arbMod": ", moderate institutional appetite",
 };
