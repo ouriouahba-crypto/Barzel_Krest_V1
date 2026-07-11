@@ -11,11 +11,13 @@ import { PriceTrend } from "@/components/PriceTrend";
 import { Skeleton } from "@/components/motion/Skeleton";
 import { useGaia, displayName, shortName } from "@/lib/useGaia";
 import { ModeScore } from "@/lib/api";
-import { Mode, MODES, MODE_KPI, MODE_ROUTE, classLabel, fmtNum, fmtSigned, median, pillarValue, verdictColor, verdictTone } from "@/lib/scoring";
+import { Mode, MODES, MODE_KPI, MODE_ROUTE, fmtNum, fmtSigned, median, pillarValue, verdictColor, verdictTone } from "@/lib/scoring";
 import { useT, useLang } from "@/lib/i18n/useT";
 import { fmtNumber } from "@/lib/i18n/format";
 import type { Lang } from "@/lib/i18n/types";
-import { modeLabel, verdictDisplay } from "@/lib/i18n/domain";
+import { classLabelFor, modeLabel, verdictDisplay } from "@/lib/i18n/domain";
+import { composeNativeIndicator } from "@/lib/nativeLabels";
+import { translate } from "@/lib/i18n";
 import { cityShortName } from "@/lib/i18n/display";
 import { OverviewByMode, bestMode, cityInsight, modeInsight, trendInsight } from "@/lib/insights";
 import { priceTrajectory, PricePoint } from "@/lib/priceHistory";
@@ -25,13 +27,10 @@ import { SignalAffordance } from "@/components/collab/SignalAffordance";
 
 // Ligne marché : registre des villes (lib/cities.ts).
 
-// Short native-metric noun per mode for the podium.
-const KPI_NOUN: Record<Mode, string> = {
-  promotion: "marge",
-  detention: "yield net",
-  arbitrage: "spread",
-  landbank: "constructibilité",
-};
+// Short native-metric noun per mode for the podium. Cles nat.noun.* : leur FR est
+// byte-identique aux libelles historiques codes ici en dur (« yield net », et non
+// « rendement net » comme ci.metricNoun.detention).
+const kpiNoun = (m: Mode, lang: Lang) => translate(`nat.noun.${m}`, lang);
 
 // Every mode now has its page (MODE_ROUTE): no "Bientôt" left on the overview.
 
@@ -146,7 +145,7 @@ export default function VueEnsemble() {
         <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-6 stagger-in">
           {/* a) Verdict banner (shared InsightBanner) */}
           <InsightBanner
-            eyebrow={`Verdict marché · ${classLabel(cls)}`}
+            eyebrow={`${t("ov.verdictEyebrow")} · ${classLabelFor(cls, lang)}`}
             sentence={cityLine}
             right={
               bm && topOpp ? (
@@ -208,7 +207,9 @@ export default function VueEnsemble() {
                       {s ? (
                         <>
                           <VerdictBadge mode={m} verdict={s.verdict} />
-                          <div className="mt-1 truncate text-caption text-cream/85">{s.native_indicator?.label}</div>
+                          <div className="mt-1 truncate text-caption text-cream/85">
+                            {composeNativeIndicator(s, m, lang) ?? s.native_indicator?.label}
+                          </div>
                         </>
                       ) : (
                         <div className="h-4 w-24 animate-pulse rounded bg-white/10" />
@@ -257,7 +258,7 @@ export default function VueEnsemble() {
                       <div className="mt-0.5 flex items-center gap-2">
                         <VerdictBadge mode={bm as Mode} verdict={z.verdict} />
                         <span className="text-caption text-ink-soft">
-                          {bm ? `${KPI_NOUN[bm]} ${kpiVal(z, bm)}` : ""}
+                          {bm ? `${kpiNoun(bm, lang)} ${kpiVal(z, bm)}` : ""}
                         </span>
                       </div>
                     </div>

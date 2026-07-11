@@ -14,6 +14,7 @@ import { verdictTone } from "@/lib/scoring";
 import { pctSigned } from "@/lib/arbitrage";
 import { fcRows, fcSummary, FcRow } from "@/lib/foncier";
 import { landbankInsight, anomalyNote } from "@/lib/insights";
+import { natUsageFromFr } from "@/lib/nativeLabels";
 import { useT, useLang } from "@/lib/i18n/useT";
 
 const CANIDELO = "canidelo";
@@ -150,7 +151,13 @@ export default function FoncierPage() {
             />
             <Kpi
               label={t("pgf.kpiDominantUse")}
-              value={summary.usageDominant ? summary.usageDominant.charAt(0).toUpperCase() + summary.usageDominant.slice(1) : "–"}
+              value={(() => {
+                // Le moteur sert l'usage en francais : on le traduit, puis on
+                // garde la capitale initiale (comportement historique).
+                if (!summary.usageDominant) return "–";
+                const u = natUsageFromFr(summary.usageDominant, lang);
+                return u.charAt(0).toUpperCase() + u.slice(1);
+              })()}
               sub={scopeLabel}
             />
             <Kpi

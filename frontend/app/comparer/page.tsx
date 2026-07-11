@@ -10,12 +10,14 @@ import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
 import { useGaia, displayName, shortName } from "@/lib/useGaia";
 import { LandbankBreakdown, ModeScore } from "@/lib/api";
-import { Mode, MODES, MODE_ROUTE, classLabel, fmtNum, fmtSigned, pillarValue } from "@/lib/scoring";
+import { Mode, MODES, MODE_ROUTE, fmtNum, fmtSigned, pillarValue } from "@/lib/scoring";
 import { pctSigned } from "@/lib/arbitrage";
 import { CompareColumn, CompareModeCell, compareInsight, compareSynthesis } from "@/lib/insights";
 import { useT, useLang } from "@/lib/i18n/useT";
 import { fmtNumber } from "@/lib/i18n/format";
 import { modeLabel, classLabelFor } from "@/lib/i18n/domain";
+import { translate } from "@/lib/i18n";
+import type { Lang } from "@/lib/i18n/types";
 
 // Ligne marché : registre des villes (lib/cities.ts).
 
@@ -34,13 +36,15 @@ function cellFor(mode: Mode, z: ModeScore): CompareModeCell {
   return { mode, total: z.total, verdict: z.verdict, metric, residual };
 }
 
-function metricDisplay(c: CompareModeCell): string {
+// Cles cmp.metric.* (lot insights-6) : leur FR est byte-identique aux chaines
+// codees en dur ici auparavant.
+function metricDisplay(c: CompareModeCell, lang: Lang): string {
   if (c.metric == null) return "–";
   switch (c.mode) {
-    case "promotion": return `marge ${fmtNum(c.metric, 1)}%`;
-    case "detention": return `yield net ${fmtNum(c.metric, 2)}%`;
-    case "arbitrage": return `spread ${pctSigned(c.metric)}`;
-    default: return `uplift ${pctSigned(c.metric)}`;
+    case "promotion": return translate("cmp.metric.margin", lang, { x: fmtNum(c.metric, 1) });
+    case "detention": return translate("cmp.metric.netYield", lang, { x: fmtNum(c.metric, 2) });
+    case "arbitrage": return translate("cmp.metric.spread", lang, { x: pctSigned(c.metric) });
+    default: return translate("cmp.metric.uplift", lang, { x: pctSigned(c.metric) });
   }
 }
 
@@ -167,7 +171,7 @@ export default function ComparerPage() {
               <span className="inline-block h-5 w-1.5 rounded-full bg-gold" />
               <h2 className="font-display text-[24px] leading-none text-navy">{t("cmp.title")}</h2>
               <span className="rounded-full border border-gold/40 bg-gold/[0.06] px-2.5 py-0.5 text-label font-medium text-gold-700">
-                {t("cmp.fourModes")} · {classLabel(cls)}
+                {t("cmp.fourModes")} · {classLabelFor(cls, lang)}
               </span>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
@@ -230,7 +234,7 @@ export default function ComparerPage() {
                           </span>
                           <VerdictBadge mode={c.mode} verdict={c.verdict} />
                         </div>
-                        <div className="mt-0.5 truncate text-body text-ink-soft">{metricDisplay(c)}</div>
+                        <div className="mt-0.5 truncate text-body text-ink-soft">{metricDisplay(c, lang)}</div>
                       </div>
                       <Link
                         href={MODE_ROUTE[c.mode]}

@@ -6,6 +6,7 @@ import { Mode } from "@/lib/scoring";
 import { PillarBar, ScoreDial, VerdictBadge } from "./ui";
 import { useLang, useT } from "@/lib/i18n/useT";
 import { modeLabel } from "@/lib/i18n/domain";
+import { composeNativeIndicator, composePillarNative } from "@/lib/nativeLabels";
 
 export interface KeyFigure {
   label: string;
@@ -72,7 +73,9 @@ export function DetailPanel({
               <ScoreDial score={score.total} size={68} />
               <div>
                 <VerdictBadge mode={mode} verdict={score.verdict} />
-                <div className="mt-1.5 text-td text-cream/85">{score.native_indicator?.label}</div>
+                <div className="mt-1.5 text-td text-cream/85">
+                  {composeNativeIndicator(score, mode, lang) ?? score.native_indicator?.label}
+                </div>
               </div>
             </div>
 
@@ -93,7 +96,11 @@ export function DetailPanel({
                 {score.pillars.map((p) =>
                   p.applicable ? (
                     <div key={p.pillar}>
-                      <PillarBar label={p.pillar} native={p.native.label} subscore={p.subscore} />
+                      <PillarBar
+                        label={p.pillar}
+                        native={composePillarNative(p, lang) ?? p.native.label}
+                        subscore={p.subscore}
+                      />
                       <p className="mb-1 mt-0.5 text-caption leading-snug text-ink-soft">{p.why}</p>
                     </div>
                   ) : null

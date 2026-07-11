@@ -9,6 +9,7 @@ import { VerdictBadge } from "./ui";
 import { useZoneNoun } from "@/lib/useZoneNoun";
 import { useLang, useT } from "@/lib/i18n/useT";
 import { verdictDisplay } from "@/lib/i18n/domain";
+import { natHorizon, natUsageFromFr } from "@/lib/nativeLabels";
 
 // Landbank table: same visual codes as the other mode tables. Default:
 // Prioritaire/À phaser above an "En attente" separator, best score first in
@@ -159,7 +160,7 @@ export function FoncierTable({
                     </span>
                   </td>
                   <td className="px-3 py-2 text-right tabular-nums text-ink/80">{Math.round(r.constructibilite)}</td>
-                  <td className="px-3 py-2 text-ink/80">{r.meilleurUsage}</td>
+                  <td className="px-3 py-2 text-ink/80">{natUsageFromFr(r.meilleurUsage, lang)}</td>
                   <td className="px-3 py-2 text-right tabular-nums text-ink">{eur0(r.valeurResiduelle, lang)}</td>
                   <td className="px-3 py-2 text-right tabular-nums text-ink/80">{eur0(r.foncierMarche, lang)}</td>
                   <td className="px-3 py-2 text-right">
@@ -170,7 +171,7 @@ export function FoncierTable({
                       {pctSigned(r.upliftPct)}
                     </span>
                   </td>
-                  <td className="px-3 py-2 text-ink/80">{r.horizon}</td>
+                  <td className="px-3 py-2 text-ink/80">{natHorizon(r.horizon, lang)}</td>
                   <td className="px-3 py-2">
                     <VerdictBadge mode={mode} verdict={r.verdict} />
                   </td>

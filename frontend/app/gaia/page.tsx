@@ -16,6 +16,8 @@ import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
 import { useT, useLang } from "@/lib/i18n/useT";
 import { fmtNumber } from "@/lib/i18n/format";
+import { pillarLabelFor } from "@/lib/i18n/domain";
+import { composePillarNative } from "@/lib/nativeLabels";
 import type { Lang } from "@/lib/i18n/types";
 
 const GaiaMap = dynamic(() => import("@/components/GaiaMap"), {
@@ -34,7 +36,7 @@ function detailFigures(score: ModeScore, mode: Mode, t: (key: string, params?: R
   const figs: KeyFigure[] = [];
   if (score.price_eur_m2 != null) figs.push({ label: t("pg.medianPrice"), value: `${fmtNumber(Math.round(score.price_eur_m2), lang)} €/m²` });
   const p = score.pillars.find((x) => x.pillar === MODE_KPI[mode].pillar && x.applicable);
-  if (p) figs.push({ label: p.pillar.replace(/_/g, " "), value: p.native.label });
+  if (p) figs.push({ label: pillarLabelFor(p.pillar, lang), value: composePillarNative(p, lang) ?? p.native.label });
   return figs;
 }
 

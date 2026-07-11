@@ -10,6 +10,7 @@ import { fmtNumber } from "./i18n/format";
 import { RdRow } from "./rendement";
 import { ArbRow, pctSigned } from "./arbitrage";
 import { FcRow } from "./foncier";
+import { natUsageFromFr } from "./nativeLabels";
 import { translate } from "@/lib/i18n";
 import { verdictDisplay, classLabelFor, modeLabel } from "@/lib/i18n/domain";
 import type { Lang } from "@/lib/i18n/types";
@@ -213,9 +214,11 @@ export function modeInsight(score: ModeScore, assetClass: string, lang: Lang): s
       // by its best use + achievable value instead.
       const bu = score.pillars.find((p) => p.pillar === "valeur_meilleur_usage" && p.applicable);
       if (bu && typeof bu.native.value === "number") {
-        // Le pilier valorisation a pour label "{usage} {prix} €/m²" (plus de
-        // préfixe "meilleur usage") : l'usage est le premier token.
-        const usage = /^(\S+)/.exec(bu.native.label)?.[1] ?? "mixte";
+        // Le pilier valorisation a pour label "{usage} {prix} €/m²" : l'usage est
+        // le premier token, en FRANCAIS (moteur). On le remonte a sa cle
+        // canonique puis on le traduit, sinon la phrase EN/PT gardait le mot FR.
+        const frWord = /^(\S+)/.exec(bu.native.label)?.[1] ?? "";
+        const usage = natUsageFromFr(frWord, lang);
         return translate("ins.mode.landbankUse", lang, {
           usage,
           prix: fmtNumber(Math.round(bu.native.value), lang),

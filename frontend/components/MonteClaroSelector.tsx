@@ -7,6 +7,7 @@ import { FcRow } from "@/lib/foncier";
 import { VerdictBadge } from "./ui";
 import { useT, useLang } from "@/lib/i18n/useT";
 import { fmtNumber } from "@/lib/i18n/format";
+import { natClassLabel } from "@/lib/nativeLabels";
 
 const USAGE_ORDER = ["residential", "office", "hotel", "logistics", "retail"];
 
@@ -62,7 +63,7 @@ export function MonteClaroSelector({
                     : "border-white/15 text-cream/70 hover:border-gold/40 hover:text-cream"
                 }`}
               >
-                {row.usages[k].label}
+                {natClassLabel(k, lang)}
                 {k === optimalKey && (
                   <span className={`ml-1.5 rounded-full px-1.5 py-0.5 text-label uppercase tracking-wide ${
                     on ? "bg-gold/25 text-gold-300" : "bg-white/10 text-cream/70"
