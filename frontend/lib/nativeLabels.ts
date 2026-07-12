@@ -8,11 +8,13 @@
 // pilier qu'on ne sait pas rejouer a l'identique retourne null -> l'appelant
 // retombe sur le label moteur (fallback sur, jamais de texte invente).
 //
-// Fallback assume (le seul restant apres NATIFS-2) :
+// Fallback assume (le seul restant, cote composePillarNative) :
 //   risque_energie : le label « MEPS F/G ~2030-2033 » tient dans min_label +
 //     deadline, deux champs ABSENTS du payload (native.value porte le risque).
 //     La chaine etant deja LANGUE-NEUTRE (sigle + lettres de classe + annees),
 //     on la laisse passer telle quelle : aucun mot francais n'en sort.
+//     Cote composeWhy, la phrase du meme pilier EST recomposee : le why porte
+//     min_label et deadline en clair, on les relit et on ne traduit que les mots.
 
 import type { Lang } from "./i18n";
 import { translate } from "./i18n";
@@ -256,8 +258,11 @@ export function composeNativeIndicator(score: ModeScore, mode: Mode, lang: Lang)
 // Un regex qui ne matche pas -> null -> l'appelant retombe sur p.why : aucun mot
 // francais ne peut fuir par une forme non prevue.
 //
-// NON TRAITES ICI (lot 3b, gabarits VARIABLES a fragments optionnels) :
-//   marge, risque_sortie, profondeur_locative, momentum_cycle, risque_energie.
+// Deux familles de gabarits :
+//   - FIXES (absorption, spread, rendement_net…) : une cle par forme.
+//   - VARIABLES (marge, risque_sortie, profondeur_locative, momentum_cycle) : le
+//     moteur ASSEMBLE des fragments optionnels -> UNE CLE PAR SEGMENT, rejouee
+//     dans le meme ordre avec les memes separateurs (« · », «, », «: »).
 // ---------------------------------------------------------------------------
 
 // Le moteur ecrit « − » U+2212 (signe moins), PAS un tiret ASCII : on le rejoue.
@@ -376,13 +381,135 @@ export function composeWhy(p: Pillar, lang: Lang, score?: ModeScore): string | n
       const k = INCIT[w];
       return k ? T(k) : null;
     }
-    // Lot 3b : gabarits VARIABLES (fragments optionnels, joins dynamiques).
-    case "marge":
-    case "risque_sortie":
-    case "profondeur_locative":
-    case "momentum_cycle":
-    case "risque_energie":
-      return null;
+    // --- Gabarits VARIABLES : le moteur ASSEMBLE des fragments optionnels. On
+    // ne code pas une cle par forme complete (explosion combinatoire) mais UNE
+    // CLE PAR SEGMENT, rejouee dans le MEME ORDRE avec les MEMES separateurs.
+    case "marge": {
+      // marge développeur {m}% ({price_note}{land_note}{sale_txt}, coût … LTV …%)
+      //   [ · prime {p}% sur la médiane réelle]
+      // price_note et land_note sont optionnels et portent leur « · » final ;
+      // land_note a 2 formes (commercial / zone) et sale_txt en a 3 (TVA).
+      m = /^marge développeur (-?[\d.]+)% \((.*), coût (-?[\d.]+) €\/m² dont financement (-?[\d.]+) €\/m² à (-?[\d.]+)% × ([\d.]+) ans × LTV (-?[\d.]+)%\)(?: · prime (-?[\d.]+)% sur la médiane réelle)?$/.exec(w);
+      if (!m) return null;
+      const segs = m[2].split(" · ");
+      const saleFr = segs.pop() ?? "";
+      const notes: string[] = [];
+      for (const s of segs) {
+        let f = /^prix neuf réalisable (-?[\d.]+) €\/m² = médiane ancien (-?[\d.]+) \+(-?[\d.]+)%$/.exec(s);
+        if (f) {
+          notes.push(T("wy.marge.priceNote", { s: f[1], b: f[2], p: f[3] }));
+          continue;
+        }
+        f = /^foncier (-?[\d.]+) €\/m² \((-?[\d.]+)% du prix (\w+)\)$/.exec(s);
+        if (f) {
+          // Le moteur ecrit ici la classe CANONIQUE ANGLAISE (« du prix retail »)
+          // dans une phrase francaise : on la REPARE via nat.cls.* (delta FR
+          // assume, meme traitement qu'appetit_institutionnel au lot 3a).
+          const key = `nat.cls.${f[3]}`;
+          const cls = translate(key, lang);
+          if (cls === key) return null; // classe inconnue -> fallback
+          notes.push(T("wy.marge.landComm", { l: f[1], pct: f[2], cls }));
+          continue;
+        }
+        f = /^foncier (-?[\d.]+) €\/m² \(paramètre zone\)$/.exec(s);
+        if (f) {
+          notes.push(T("wy.marge.landZone", { l: f[1] }));
+          continue;
+        }
+        return null; // segment inconnu -> fallback (aucun mot FR ne peut fuir)
+      }
+      let sale: string | null = null;
+      let f = /^vente (-?[\d.]+) €\/m² nette TVA (-?[\d.]+)$/.exec(saleFr);
+      if (f) sale = T("wy.marge.saleVat", { s: f[1], n: f[2] });
+      if (!sale && (f = /^vente (-?[\d.]+) €\/m² \(TVA récupérable\)$/.exec(saleFr))) {
+        sale = T("wy.marge.saleRecov", { s: f[1] });
+      }
+      if (!sale && (f = /^vente (-?[\d.]+) €\/m² \(hors TVA sur la vente\)$/.exec(saleFr))) {
+        sale = T("wy.marge.saleNoVat", { s: f[1] });
+      }
+      if (!sale) return null;
+      const head = T("wy.marge.head", {
+        m: m[1],
+        segments: notes.join("") + sale,
+        c: m[3],
+        f: m[4],
+        r: m[5],
+        y: m[6],
+        l: m[7],
+      });
+      return m[8] !== undefined ? head + T("wy.marge.prime", { p: m[8] }) : head;
+    }
+    case "risque_sortie": {
+      // « risque de sortie: [prime étrangère X%, ]concentration typologique Y% »
+      m = /^risque de sortie: (.+)$/.exec(w);
+      if (!m) return null;
+      const frags: string[] = [];
+      for (const s of m[1].split(", ")) {
+        let f = /^prime étrangère (-?[\d.]+)%$/.exec(s);
+        if (f) {
+          frags.push(T("wy.rs.foreign", { v: f[1] }));
+          continue;
+        }
+        f = /^concentration typologique (-?[\d.]+)%$/.exec(s);
+        if (f) {
+          frags.push(T("wy.rs.conc", { v: f[1] }));
+          continue;
+        }
+        return null;
+      }
+      return T("wy.rs.head", { list: frags.join(", ") });
+    }
+    case "profondeur_locative": {
+      // « profondeur du marché locatif: {loyer}[, parc][, rotation] (percentile socle) »
+      m = /^profondeur du marché locatif: (.+) \(percentile socle\)$/.exec(w);
+      if (!m) return null;
+      const frags: string[] = [];
+      for (const s of m[1].split(", ")) {
+        let f = /^loyer de marché ~(-?[\d.]+) €\/m²\/an$/.exec(s);
+        if (f) {
+          frags.push(T("wy.pl.loyer", { v: f[1] }));
+          continue;
+        }
+        f = /^parc (-?[\d.]+) ventes\/an$/.exec(s);
+        if (f) {
+          frags.push(T("wy.pl.parc", { v: f[1] }));
+          continue;
+        }
+        f = /^rotation ~(-?[\d.]+) mois$/.exec(s);
+        if (f) {
+          frags.push(T("wy.pl.rotation", { v: f[1] }));
+          continue;
+        }
+        return null;
+      }
+      return T("wy.pl.head", { list: frags.join(", ") });
+    }
+    case "momentum_cycle": {
+      // « cycle (courbe non monotone): [yoy X% vs pic ~P%][, momentum cycle paramétré C/100] »
+      m = /^cycle \(courbe non monotone\): (.+)$/.exec(w);
+      if (!m) return null;
+      const frags: string[] = [];
+      for (const s of m[1].split(", ")) {
+        let f = /^yoy ([+-]?[\d.]+)% vs pic ~(-?[\d.]+)%$/.exec(s);
+        if (f) {
+          frags.push(T("wy.mc.yoy", { v: f[1], p: f[2] }));
+          continue;
+        }
+        f = /^momentum cycle paramétré (-?[\d.]+)\/100$/.exec(s);
+        if (f) {
+          frags.push(T("wy.mc.cycle", { v: f[1] }));
+          continue;
+        }
+        return null;
+      }
+      return T("wy.mc.head", { list: frags.join(", ") });
+    }
+    case "risque_energie": {
+      // « risque énergie {v}/100 (min {label} d'ici {deadline}) ». min_label
+      // (F/G, E) et deadline (~2030-2033) sont LANGUE-NEUTRES : verbatim.
+      m = /^risque énergie (-?[\d.]+)\/100 \(min (.+?) d'ici (.+)\)$/.exec(w);
+      return m ? T("wy.re.head", { v: m[1], label: m[2], deadline: m[3] }) : null;
+    }
     default:
       return null;
   }

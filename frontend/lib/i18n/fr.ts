@@ -824,4 +824,31 @@ export const fr: Dict = {
   "wy.fiscalite": "charge fiscale détention (droits {a}%, annuel {b}%)",
   "wy.incit.pt": "incitations 2026: IVA 6% construction abordable, exoneration IMT/IS sous plafonds, exoneration AIMI, contrats CIA",
   "wy.incit.be": "incitations 2026: abattement 200k eur, primes renovation",
+  // --- WHY a gabarit VARIABLE : le moteur ASSEMBLE des fragments optionnels.
+  // Une cle PAR SEGMENT (pas une par forme complete : explosion combinatoire),
+  // assemblee dans le meme ordre et avec les memes separateurs (« · », «, »).
+  // Les notes de la marge portent leur separateur final « · », comme le moteur.
+  "wy.marge.head": "marge développeur {m}% ({segments}, coût {c} €/m² dont financement {f} €/m² à {r}% × {y} ans × LTV {l}%)",
+  "wy.marge.priceNote": "prix neuf réalisable {s} €/m² = médiane ancien {b} +{p}% · ",
+  // Delta FR assume : le moteur ecrit ici la classe CANONIQUE ANGLAISE
+  // (« du prix retail ») dans une phrase francaise. On la repare via nat.cls.*.
+  "wy.marge.landComm": "foncier {l} €/m² ({pct}% du prix {cls}) · ",
+  "wy.marge.landZone": "foncier {l} €/m² (paramètre zone) · ",
+  "wy.marge.saleVat": "vente {s} €/m² nette TVA {n}",
+  "wy.marge.saleRecov": "vente {s} €/m² (TVA récupérable)",
+  "wy.marge.saleNoVat": "vente {s} €/m² (hors TVA sur la vente)",
+  "wy.marge.prime": " · prime {p}% sur la médiane réelle",
+  "wy.rs.head": "risque de sortie: {list}",
+  "wy.rs.foreign": "prime étrangère {v}%",
+  "wy.rs.conc": "concentration typologique {v}%",
+  "wy.pl.head": "profondeur du marché locatif: {list} (percentile socle)",
+  "wy.pl.loyer": "loyer de marché ~{v} €/m²/an",
+  "wy.pl.parc": "parc {v} ventes/an",
+  "wy.pl.rotation": "rotation ~{v} mois",
+  "wy.mc.head": "cycle (courbe non monotone): {list}",
+  "wy.mc.yoy": "yoy {v}% vs pic ~{p}%",
+  "wy.mc.cycle": "momentum cycle paramétré {v}/100",
+  // min_label (« F/G », « E ») et deadline (« ~2030-2033 ») sont LANGUE-NEUTRES :
+  // repris verbatim du moteur, jamais reformates.
+  "wy.re.head": "risque énergie {v}/100 (min {label} d'ici {deadline})",
 };
