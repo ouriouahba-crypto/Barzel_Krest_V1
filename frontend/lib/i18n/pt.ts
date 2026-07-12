@@ -817,4 +817,28 @@ export const pt: Dict = {
   "wy.fiscalite": "carga fiscal de detenção (direitos {a}%, anual {b}%)",
   "wy.incit.pt": "incentivos 2026: IVA 6% na construção acessível, isenção de IMT/IS abaixo dos limites, isenção de AIMI, contratos CIA",
   "wy.incit.be": "incentivos 2026: dedução de 200k eur, apoios à renovação",
+  // --- Frases WHY de gabarito VARIAVEL: o motor MONTA fragmentos opcionais.
+  // Uma chave POR SEGMENTO (nao por forma completa), montada na mesma ordem e
+  // com os mesmos separadores. As notas da margem levam o « · » final.
+  "wy.marge.head": "margem do promotor {m}% ({segments}, custo {c} €/m² incl. financiamento {f} €/m² a {r}% × {y} anos × LTV {l}%)",
+  "wy.marge.priceNote": "preço de construção nova realizável {s} €/m² = mediana do usado {b} +{p}% · ",
+  "wy.marge.landComm": "terreno {l} €/m² ({pct}% do preço {cls}) · ",
+  "wy.marge.landZone": "terreno {l} €/m² (parâmetro de zona) · ",
+  "wy.marge.saleVat": "venda {s} €/m² líquida de IVA {n}",
+  "wy.marge.saleRecov": "venda {s} €/m² (IVA recuperável)",
+  "wy.marge.saleNoVat": "venda {s} €/m² (sem IVA sobre a venda)",
+  "wy.marge.prime": " · prémio {p}% sobre a mediana real",
+  "wy.rs.head": "risco de saída: {list}",
+  "wy.rs.foreign": "prémio estrangeiro {v}%",
+  "wy.rs.conc": "concentração tipológica {v}%",
+  "wy.pl.head": "profundidade do mercado de arrendamento: {list} (percentil base)",
+  "wy.pl.loyer": "renda de mercado ~{v} €/m²/ano",
+  "wy.pl.parc": "parque {v} vendas/ano",
+  "wy.pl.rotation": "rotação ~{v} meses",
+  "wy.mc.head": "ciclo (curva não monótona): {list}",
+  "wy.mc.yoy": "yoy {v}% vs pico ~{p}%",
+  "wy.mc.cycle": "momentum de ciclo parametrizado {v}/100",
+  // min_label («F/G», «E») e deadline («~2030-2033») sao NEUTROS QUANTO A LINGUA:
+  // retomados verbatim do motor, nunca reformatados.
+  "wy.re.head": "risco energético {v}/100 (mín. {label} até {deadline})",
 };

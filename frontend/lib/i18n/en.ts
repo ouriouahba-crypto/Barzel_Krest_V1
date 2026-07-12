@@ -821,4 +821,28 @@ export const en: Dict = {
   "wy.fiscalite": "holding tax burden (duties {a}%, annual {b}%)",
   "wy.incit.pt": "2026 incentives: 6% VAT on affordable construction, IMT/IS exemption below caps, AIMI exemption, CIA contracts",
   "wy.incit.be": "2026 incentives: 200k eur allowance, renovation grants",
+  // --- Variable-template WHY sentences: the engine ASSEMBLES optional fragments.
+  // One key PER SEGMENT (not per full form), joined in the engine's own order and
+  // with its own separators. The margin notes carry their trailing " · ".
+  "wy.marge.head": "developer margin {m}% ({segments}, cost {c} €/m² incl. financing {f} €/m² at {r}% × {y} yrs × LTV {l}%)",
+  "wy.marge.priceNote": "realizable new-build price {s} €/m² = existing median {b} +{p}% · ",
+  "wy.marge.landComm": "land {l} €/m² ({pct}% of the {cls} price) · ",
+  "wy.marge.landZone": "land {l} €/m² (zone parameter) · ",
+  "wy.marge.saleVat": "sale {s} €/m² net of VAT {n}",
+  "wy.marge.saleRecov": "sale {s} €/m² (recoverable VAT)",
+  "wy.marge.saleNoVat": "sale {s} €/m² (no VAT on the sale)",
+  "wy.marge.prime": " · premium {p}% over the actual median",
+  "wy.rs.head": "exit risk: {list}",
+  "wy.rs.foreign": "foreign premium {v}%",
+  "wy.rs.conc": "typological concentration {v}%",
+  "wy.pl.head": "rental market depth: {list} (base percentile)",
+  "wy.pl.loyer": "market rent ~{v} €/m²/yr",
+  "wy.pl.parc": "stock {v} sales/yr",
+  "wy.pl.rotation": "turnover ~{v} months",
+  "wy.mc.head": "cycle (non-monotone curve): {list}",
+  "wy.mc.yoy": "yoy {v}% vs peak ~{p}%",
+  "wy.mc.cycle": "parameterised cycle momentum {v}/100",
+  // min_label ("F/G", "E") and deadline ("~2030-2033") are LANGUAGE-NEUTRAL:
+  // taken verbatim from the engine, never reformatted.
+  "wy.re.head": "energy risk {v}/100 (min {label} by {deadline})",
 };
