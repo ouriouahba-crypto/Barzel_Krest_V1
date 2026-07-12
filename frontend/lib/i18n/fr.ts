@@ -755,4 +755,49 @@ export const fr: Dict = {
   "nrgx.be.page.col.risk": "Risque PEB /100",
   "nrgx.be.page.col.verdict": "Verdict PEB",
   "nrgx.be.page.sources": "Ordonnance PEB (Région de Bruxelles-Capitale, 7 mars 2024), stratégie Renolution ; certificat PEB tertiaire spécifique pour les bureaux de plus de 500 m² ; encadrement des loyers renforcé (mai 2025 : loyer présumé abusif au-delà de 20% du loyer de référence régional). Répartition du parc par commune : estimation Barzel.",
+
+  // --- Libelles NATIFS recomposes cote front (lib/nativeLabels.ts). Le FR est
+  // BYTE-IDENTIQUE a ce qu'emet le moteur (mode_scoring.py) : ne pas retoucher
+  // ces chaines sans reverifier le script de controle FR. ---
+  "ov.verdictEyebrow": "Verdict marché",
+  "nat.marge": "marge {v}%",
+  "nat.absorption": "{v} mois",
+  "nat.momentum": "yoy {v}%",
+  "nat.constructibilite": "constructibilité {v}",
+  "nat.risqueSortie": "risque sortie {v}",
+  "nat.profondeur": "profondeur {v}",
+  "nat.yieldNet": "yield net {v}%",
+  "nat.resilience": "résilience {v}",
+  "nat.wacc": "WACC {v}%",
+  "nat.spread": "spread {v}%",
+  "nat.appetit": "appétit {v}",
+  "nat.cycle": "cycle {v}",
+  "nat.sortie": "sortie {v}%",
+  "nat.coc": "CoC {v}%",
+  "nat.connectivite": "connectivité {v}",
+  "nat.incitations": "incitations {v}",
+  "nat.risqueTiming": "risque timing {v}",
+  "nat.valeurUsage": "{cls} {v} €/m²",
+  "nat.maxValuation": "valorisation max ",
+  "nat.appetitHigh": "appétit soutenu",
+  "nat.appetitMid": "appétit modéré",
+  "nat.appetitLow": "appétit faible",
+  "nat.horizon.immediat": "immédiat",
+  "nat.horizon.2a4ans": "2-4 ans",
+  "nat.horizon.audela": "au-delà",
+  // Classes en libelle NATIF : distinct de class.* (dont le FR dit
+  // « Hôtellerie » la ou le moteur dit « hôtel »).
+  "nat.cls.residential": "résidentiel",
+  "nat.cls.office": "bureaux",
+  "nat.cls.hotel": "hôtel",
+  "nat.cls.logistics": "logistique",
+  "nat.cls.retail": "commerce",
+  "nat.cls.mixed": "mixte",
+  // Nom court de la metrique native (podium /vue-ensemble). Distinct de
+  // ci.metricNoun.* dont le FR dit « rendement net » : ici le FR doit rester
+  // « yield net », a l'octet pres, comme aujourd'hui a l'ecran.
+  "nat.noun.promotion": "marge",
+  "nat.noun.detention": "yield net",
+  "nat.noun.arbitrage": "spread",
+  "nat.noun.landbank": "constructibilité",
 };
