@@ -20,6 +20,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useCollabStore } from "@/lib/collab/store";
 import { accountOf, type Anchor, type AnchorKind } from "@/lib/collab/types";
+import { resolveText } from "@/lib/collab/i18nText";
+import { useT } from "@/lib/i18n/useT";
 
 const GLYPH: Record<AnchorKind, string> = { zone: "▣", asset: "◈", verdict: "◆", general: "◇" };
 
@@ -39,6 +41,7 @@ export function SignalAffordance({
   citySlug: string;
   place?: "tr" | "br";
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   // Snapshot de l'ancre à l'ouverture : si l'hôte se met à jour (le panneau de la
   // carte suit le survol), le popover garde la cible choisie au clic.
@@ -55,8 +58,8 @@ export function SignalAffordance({
     <>
       <button
         type="button"
-        aria-label={`Signaler à l'équipe : ${anchor.label}`}
-        title="Signaler à l'équipe"
+        aria-label={t("col.signal.aria", { label: resolveText(t, anchor.label) })}
+        title={t("col.signal.title")}
         onClick={openPopover}
         className={`absolute ${PLACE[place]} z-20 inline-flex h-6 w-6 items-center justify-center rounded-full bg-white text-navy opacity-0 shadow-sm ring-1 ring-navy/15 transition-opacity duration-150 hover:text-gold-700 hover:ring-gold/60 focus-visible:opacity-100 group-hover/sig:opacity-100 motion-reduce:transition-none ${
           open ? "opacity-100" : ""
@@ -80,6 +83,7 @@ function SignalPopover({
 }) {
   const role = useCollabStore((s) => s.role);
   const addSignal = useCollabStore((s) => s.addSignal);
+  const t = useT();
   const current = accountOf(role);
   const [text, setText] = useState("");
   const [sent, setSent] = useState(false);
@@ -120,18 +124,18 @@ function SignalPopover({
     <div
       ref={ref}
       role="dialog"
-      aria-label={`Signaler : ${anchor.label}`}
+      aria-label={t("col.signal.dialogAria", { label: resolveText(t, anchor.label) })}
       onClick={(e) => e.stopPropagation()}
       className="fade-up absolute right-0 top-full z-30 mt-2 w-[260px] rounded-2xl border border-navy/10 bg-white p-3.5 text-left text-ink shadow-card"
     >
       <div className="mb-2 inline-flex max-w-full items-center gap-1.5 rounded-full border border-gold/20 bg-gold/[0.08] px-2.5 py-1 text-label font-medium text-gold-700">
         <span aria-hidden>{GLYPH[anchor.kind] ?? GLYPH.general}</span>
-        <span className="truncate normal-case">{anchor.label}</span>
+        <span className="truncate normal-case">{resolveText(t, anchor.label)}</span>
       </div>
 
       {sent ? (
         <p className="py-1.5 text-body text-ink-soft">
-          <span className="font-semibold text-navy">Remonté dans la discussion.</span> Visible par l'équipe.
+          <span className="font-semibold text-navy">{t("col.signal.sentTitle")}</span> {t("col.signal.sentBody")}
         </p>
       ) : (
         <>
@@ -146,8 +150,8 @@ function SignalPopover({
               }
             }}
             rows={3}
-            aria-label={`Noter en tant que ${current.name}`}
-            placeholder={`Noter en tant que ${current.name}...`}
+            aria-label={t("col.signal.noteAria", { name: current.name })}
+            placeholder={t("col.signal.notePlaceholder", { name: current.name })}
             className="w-full resize-none rounded-xl border border-navy/15 bg-cream/40 px-3 py-2 text-body text-ink placeholder:text-muted focus:border-gold/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-gold/25"
           />
           <div className="mt-2 flex items-center justify-between">
@@ -156,7 +160,7 @@ function SignalPopover({
               onClick={onClose}
               className="rounded-full px-2.5 py-1 text-btn font-medium text-ink-soft transition-colors hover:text-navy"
             >
-              Annuler
+              {t("col.common.cancel")}
             </button>
             <button
               type="button"
@@ -164,7 +168,7 @@ function SignalPopover({
               disabled={!text.trim()}
               className="inline-flex items-center gap-1.5 rounded-full bg-navy px-3.5 py-1.5 text-btn font-semibold text-cream transition-colors hover:bg-navy-700 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              Signaler
+              {t("col.signal.send")}
               <span aria-hidden className="text-gold">
                 →
               </span>

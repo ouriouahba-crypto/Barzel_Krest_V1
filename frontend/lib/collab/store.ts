@@ -1,7 +1,10 @@
 // Store léger de la couche collaborative (lots C1 et C2). Responsabilités :
 //  1) le compte courant (rôle A/B), persisté en sessionStorage, défaut = A ;
 //  2) les ÉLÉMENTS CRÉÉS EN SESSION (réponses, fils, notes, posts du fil d'info),
-//     persistés par-dessus le seed figé ;
+//     persistés par-dessus le seed figé. Leur TEXTE est une saisie utilisateur :
+//     il est stocké verbatim (jamais une clé i18n) et rendu tel quel. Seuls les
+//     champs de CHROME qu'ils portent (horodatage « à l'instant », phrase du fil
+//     d'activité) sont des clés (col.*), résolues à l'affichage ;
 //  3) le suivi des NON-LUS (lot C2) : un compteur de séquence monotone `seq` et
 //     une carte `lastSeen` (ville × compte). Un message créé par l'autre compte
 //     dont le seq est >= lastSeen[ville][compte] est « non lu » pour ce compte.
@@ -66,8 +69,9 @@ interface CollabState {
   /**
    * Poste un item de fil d'info au nom du compte fourni (le manager côté UI) : ajoute
    * l'item au fil ET une entrée de fil d'activité de la ville, en une écriture. Item
-   * de session (daté « à l'instant »), id monotone dérivé de la longueur du fil (le
-   * fil ne fait que croître) : déterministe, sans Date.now ni aléatoire.
+   * de session (daté « à l'instant » via col.time.now), id monotone dérivé de la
+   * longueur du fil (le fil ne fait que croître) : déterministe, sans Date.now ni
+   * aléatoire.
    */
   postFeedItem: (input: {
     citySlug: string;
@@ -151,7 +155,7 @@ export const useCollabStore = create<CollabState>((set, get) => ({
     const body = text.trim();
     if (!body) return;
     const s = get().seq;
-    const message: Message = { id: `sess-m${s}`, authorId, time: "à l'instant", text: body, seq: s };
+    const message: Message = { id: `sess-m${s}`, authorId, time: "col.time.now", text: body, seq: s };
     const created = get().created;
     const next: Created = {
       ...created,
@@ -167,7 +171,7 @@ export const useCollabStore = create<CollabState>((set, get) => ({
     const body = text.trim();
     if (!cleanTitle || !body) return;
     const s = get().seq;
-    const message: Message = { id: `sess-m${s}`, authorId, time: "à l'instant", text: body, seq: s };
+    const message: Message = { id: `sess-m${s}`, authorId, time: "col.time.now", text: body, seq: s };
     const thread: Thread = { id: `sess-t${s}`, citySlug, title: cleanTitle, anchor, messages: [message] };
     const next = { ...get().created, threads: [...get().created.threads, thread] };
     const seq = s + 1;
@@ -180,7 +184,7 @@ export const useCollabStore = create<CollabState>((set, get) => ({
     if (!body) return;
     const s = get().seq;
     const created = get().created;
-    const message: Message = { id: `sess-m${s}`, authorId, time: "à l'instant", text: body, seq: s };
+    const message: Message = { id: `sess-m${s}`, authorId, time: "col.time.now", text: body, seq: s };
     // Fil ancré au même objet (seed OU créé) : on y ajoute la note ; sinon on ouvre
     // un fil ancré. Correspondance par (type d'ancre, libellé) : les objets signalés
     // depuis le dashboard portent le libellé exact des ancres du seed (nom de maille,
@@ -227,7 +231,7 @@ export const useCollabStore = create<CollabState>((set, get) => ({
       id: `sess-f${n}`,
       citySlug,
       source: src,
-      date: "à l'instant",
+      date: "col.time.now",
       title: t,
       summary: sum,
       category,
@@ -238,8 +242,11 @@ export const useCollabStore = create<CollabState>((set, get) => ({
       id: `sess-fa${n}`,
       citySlug,
       authorId,
-      time: "à l'instant",
-      text: `a publié une info : « ${t} »`,
+      time: "col.time.now",
+      // Clé + token : le TITRE est une saisie (texte libre), la phrase qui l'entoure
+      // est du chrome traduisible. Le composant résout `text` avec `textParams`.
+      text: "col.activity.postedInfo",
+      textParams: { title: t },
     };
     const next: Created = { ...created, feed: [...created.feed, item], activity: [...created.activity, activity] };
     persistCreated(next);

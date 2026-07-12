@@ -13,20 +13,24 @@ import { useRouter } from "next/navigation";
 import { useReducedMotion } from "framer-motion";
 import { useTransition } from "@/lib/transitionStore";
 import { setPendingFocus } from "@/lib/collab/focusBridge";
+import { resolveText } from "@/lib/collab/i18nText";
+import { useT } from "@/lib/i18n/useT";
 import type { Anchor, AnchorKind } from "@/lib/collab/types";
 
 const GLYPH: Record<AnchorKind, string> = { zone: "▣", asset: "◈", verdict: "◆", general: "◇" };
-const KIND_LABEL: Record<AnchorKind, string> = {
-  zone: "Maille",
-  asset: "Actif",
-  verdict: "Verdict",
-  general: "Général",
+// Clés i18n du type d'objet (le libellé, lui, reste de la donnée : nom propre).
+const KIND_KEY: Record<AnchorKind, string> = {
+  zone: "col.anchor.kind.zone",
+  asset: "col.anchor.kind.asset",
+  verdict: "col.anchor.kind.verdict",
+  general: "col.anchor.kind.general",
 };
 // Même délai que MapEntry / EnterDashboardButton : le rideau devient opaque avant nav.
 const COVER_MS = 360;
 
 export function AnchorChip({ anchor, citySlug }: { anchor: Anchor; citySlug: string }) {
   const router = useRouter();
+  const t = useT();
   const cover = useTransition((s) => s.cover);
   const reduce = useReducedMotion();
   const route = anchor.route ?? "/vue-ensemble";
@@ -45,13 +49,13 @@ export function AnchorChip({ anchor, citySlug }: { anchor: Anchor; citySlug: str
     <button
       type="button"
       onClick={go}
-      title="Revenir à l'objet dans le dashboard"
+      title={t("col.anchor.back")}
       className="group mb-1.5 inline-flex max-w-full items-center gap-1.5 self-start rounded-full border border-gold/20 bg-gold/[0.08] px-2.5 py-1 text-label font-medium text-gold-700 transition-colors hover:border-gold/50 hover:bg-gold/[0.14]"
     >
       <span aria-hidden>{GLYPH[anchor.kind] ?? GLYPH.general}</span>
-      <span className="uppercase tracking-[0.12em]">{KIND_LABEL[anchor.kind] ?? KIND_LABEL.general}</span>
+      <span className="uppercase tracking-[0.12em]">{t(KIND_KEY[anchor.kind] ?? KIND_KEY.general)}</span>
       <span className="text-gold-700/70">·</span>
-      <span className="truncate normal-case tracking-normal">{anchor.label}</span>
+      <span className="truncate normal-case tracking-normal">{resolveText(t, anchor.label)}</span>
       <span aria-hidden className="text-gold-700/50 transition-transform group-hover:translate-x-0.5">
         →
       </span>
