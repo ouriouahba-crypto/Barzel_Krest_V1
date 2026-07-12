@@ -32,7 +32,8 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from ..services import mode_scoring as ms
-from .analyst import _api_key, _build_context, _ri, strip_em_dashes, verdict_counts
+from .analyst import (_api_key, _build_context, _LANG_NAME, _norm_lang, _ri,
+                      _VERDICT_VOCAB, strip_em_dashes, verdict_counts)
 from .scoring import _clean
 
 log = logging.getLogger("routers.memo")
@@ -41,19 +42,68 @@ router = APIRouter(prefix="/api/memo", tags=["memo"])
 
 _MODEL = "claude-sonnet-4-6"
 _CLASSES = {"residential", "office", "hotel", "logistics", "retail"}
-_CLS_FR = {"residential": "Résidentiel", "office": "Bureaux", "hotel": "Hôtellerie",
-           "logistics": "Logistique", "retail": "Commerce"}
-_CLS_FILE = {"residential": "Residentiel", "office": "Bureaux", "hotel": "Hotellerie",
-             "logistics": "Logistique", "retail": "Commerce"}
-_MODE_FR = {"promotion": "Promotion", "detention": "Détention",
-            "arbitrage": "Arbitrage", "landbank": "Foncier (landbank)"}
-_ANGLES = {
-    "synthese": "Synthèse d'opportunités",
-    "acquisition": "Note d'acquisition",
-    "detention": "Revue de détention",
+
+# --------------------------------------------------------------------------- #
+# Vocabulaire par langue (lot QA-2a). INVARIANT DUR : la colonne "fr" reprend  #
+# EXACTEMENT les chaînes d'avant le lot, à l'octet près (le PDF FR déjà validé #
+# par le client ne doit pas bouger). En particulier _CLS["fr"]["hotel"] reste  #
+# « Hôtellerie » (le moteur dit « hôtel » et l'analyste « hôtellerie » : cette #
+# divergence est CONNUE et volontairement NON unifiée dans ce lot).            #
+# --------------------------------------------------------------------------- #
+
+_CLS = {
+    "fr": {"residential": "Résidentiel", "office": "Bureaux", "hotel": "Hôtellerie",
+           "logistics": "Logistique", "retail": "Commerce"},
+    "en": {"residential": "Residential", "office": "Office", "hotel": "Hotel",
+           "logistics": "Logistics", "retail": "Retail"},
+    "pt": {"residential": "Residencial", "office": "Escritórios", "hotel": "Hotel",
+           "logistics": "Logística", "retail": "Comércio"},
 }
-_MONTHS_FR = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet",
-              "août", "septembre", "octobre", "novembre", "décembre"]
+# Nom de fichier : ASCII pur (un en-tête HTTP Content-Disposition ne porte pas
+# d'accent sans encodage RFC 5987). Même mot que la langue demandée, désaccentué.
+_CLS_FILE = {
+    "fr": {"residential": "Residentiel", "office": "Bureaux", "hotel": "Hotellerie",
+           "logistics": "Logistique", "retail": "Commerce"},
+    "en": {"residential": "Residential", "office": "Office", "hotel": "Hotel",
+           "logistics": "Logistics", "retail": "Retail"},
+    "pt": {"residential": "Residencial", "office": "Escritorios", "hotel": "Hotel",
+           "logistics": "Logistica", "retail": "Comercio"},
+}
+_MODE = {
+    "fr": {"promotion": "Promotion", "detention": "Détention",
+           "arbitrage": "Arbitrage", "landbank": "Foncier (landbank)"},
+    "en": {"promotion": "Development", "detention": "Hold",
+           "arbitrage": "Arbitrage", "landbank": "Landbank"},
+    "pt": {"promotion": "Promoção", "detention": "Detenção",
+           "arbitrage": "Arbitragem", "landbank": "Landbank"},
+}
+_ANGLES = {
+    "fr": {"synthese": "Synthèse d'opportunités", "acquisition": "Note d'acquisition",
+           "detention": "Revue de détention"},
+    "en": {"synthese": "Opportunity synthesis", "acquisition": "Acquisition note",
+           "detention": "Holding review"},
+    "pt": {"synthese": "Síntese de oportunidades", "acquisition": "Nota de aquisição",
+           "detention": "Revisão de detenção"},
+}
+_MONTHS = {
+    "fr": ["janvier", "février", "mars", "avril", "mai", "juin", "juillet",
+           "août", "septembre", "octobre", "novembre", "décembre"],
+    "en": ["January", "February", "March", "April", "May", "June", "July",
+           "August", "September", "October", "November", "December"],
+    "pt": ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho",
+           "agosto", "setembro", "outubro", "novembro", "dezembro"],
+}
+# FR « 12 juillet 2026 » · EN « 12 July 2026 » · PT « 12 de julho de 2026 ».
+_DATE_FMT = {"fr": "{d} {m} {y}", "en": "{d} {m} {y}", "pt": "{d} de {m} de {y}"}
+
+
+def _angle_label(angle: str, lang: str) -> str:
+    a = _ANGLES[lang]
+    return a.get(angle, a["synthese"])
+
+
+def _today_str(d: date, lang: str) -> str:
+    return _DATE_FMT[lang].format(d=d.day, m=_MONTHS[lang][d.month - 1], y=d.year)
 
 _FONT_DIR = Path(__file__).resolve().parent.parent / "assets" / "fonts"
 
@@ -102,7 +152,69 @@ def _pillar_bd(z: dict, key: str) -> dict:
     return p.get("breakdown") or {}
 
 
-def _mode_cols(mode: str, z: dict) -> list[str]:
+# Le MOTEUR sert certaines chaînes en français (mode_scoring.py est hors périmètre
+# et ne doit pas bouger) : elles atterrissent telles quelles dans le PDF. On les
+# traduit donc À L'AFFICHAGE ici, sur un vocabulaire fermé (relevé exhaustif sur
+# 4 villes x 5 classes x 4 modes). Toute valeur inconnue passe inchangée.
+_USAGE = {  # breakdown landbank : meilleur_usage
+    "fr": {},  # identité : le moteur sert déjà le français
+    "en": {"résidentiel": "residential", "bureaux": "office", "hôtel": "hotel",
+           "logistique": "logistics", "commerce": "retail"},
+    "pt": {"résidentiel": "residencial", "bureaux": "escritórios", "hôtel": "hotel",
+           "logistique": "logística", "commerce": "comércio"},
+}
+_HORIZON = {  # breakdown landbank : horizon_activation
+    "fr": {},
+    "en": {"immédiat": "immediate", "2-4 ans": "2-4 years", "au-delà": "beyond"},
+    "pt": {"immédiat": "imediato", "2-4 ans": "2-4 anos", "au-delà": "mais além"},
+}
+# native_indicator.label : 9 gabarits distincts, tous composés de ce vocabulaire
+# (les nombres et les unités ne sont JAMAIS touchés). Substitution par phrase, la
+# plus longue d'abord, pour que « valorisation max hôtel » gagne sur « hôtel ».
+_NATIVE_PHRASES = {
+    "en": [
+        ("constructibilité", "buildability"),
+        ("valorisation max", "max value"),
+        ("yield net", "net yield"),
+        ("appétit soutenu", "sustained appetite"),
+        ("appétit modéré", "moderate appetite"),
+        ("appétit faible", "weak appetite"),
+        ("marge", "margin"),
+        ("mois", "months"),
+    ],
+    "pt": [
+        ("constructibilité", "construtibilidade"),
+        ("valorisation max", "valorização máx."),
+        ("yield net", "yield líquido"),
+        ("appétit soutenu", "apetite sustentado"),
+        ("appétit modéré", "apetite moderado"),
+        ("appétit faible", "apetite fraco"),
+        ("marge", "margem"),
+        ("mois", "meses"),
+    ],
+}
+
+
+def _native_label(label: str, lang: str) -> str:
+    """Traduit le libellé natif servi par le moteur (FR) sans toucher aux nombres.
+    FR : identité stricte (byte-identité du PDF actuel)."""
+    if lang == "fr" or not label:
+        return label
+    out = label
+    for fr, tr in _NATIVE_PHRASES[lang]:
+        out = out.replace(fr, tr)
+    # Les usages ne sont traduits qu'après coup (ils suivent « max value » / « máx. »).
+    for fr, tr in _USAGE[lang].items():
+        out = re.sub(rf"\b{re.escape(fr)}\b", tr, out)
+    return out
+
+
+# Unités des cellules qui portent un mot (les autres sont des symboles neutres).
+_UNIT_PCT_RENT = {"fr": "% du loyer", "en": "% of rent", "pt": "% da renda"}
+_UNIT_MONTHS = {"fr": "mois", "en": "months", "pt": "meses"}
+
+
+def _mode_cols(mode: str, z: dict, lang: str = "fr") -> list[str]:
     """Formatted metric cells for one zone row, per mode."""
     if mode == "promotion":
         b = _pillar_bd(z, "marge")
@@ -111,21 +223,37 @@ def _mode_cols(mode: str, z: dict) -> list[str]:
     if mode == "detention":
         b = _pillar_bd(z, "rendement_net")
         return [f"{_f1(b.get('yield_net_pct'))} %", f"{_f0(b.get('loyer_marche_eur_m2_an'))} €/m²/an",
-                f"{_f1((b.get('charges_pct_loyer') or 0) + (b.get('fiscalite_pct_loyer') or 0))} % du loyer"]
+                f"{_f1((b.get('charges_pct_loyer') or 0) + (b.get('fiscalite_pct_loyer') or 0))} {_UNIT_PCT_RENT[lang]}"]
     if mode == "arbitrage":
         b = _pillar_bd(z, "spread")
         return [f"{_f1s(b.get('spread_pct'))} %", f"{_f0(b.get('valeur_realisable_eur_m2'))} €/m²",
-                f"{_f1(b.get('delai_cession_mois'))} mois"]
+                f"{_f1(b.get('delai_cession_mois'))} {_UNIT_MONTHS[lang]}"]
     b = _pillar_bd(z, "constructibilite")
+    usage = b.get("meilleur_usage", "–")
+    horizon = b.get("horizon_activation", "–")
     return [f"{_f1s(b.get('uplift_pct'))} %", f"{_f0(b.get('valeur_residuelle_eur_m2'))} €/m²",
-            f"{b.get('meilleur_usage', '–')} · {b.get('horizon_activation', '–')}"]
+            f"{_USAGE[lang].get(usage, usage)} · {_HORIZON[lang].get(horizon, horizon)}"]
 
 
 _MODE_HEADERS = {
-    "promotion": ["Marge", "Prix neuf réalisable", "Coût total"],
-    "detention": ["Yield net", "Loyer de marché", "Charges + fiscalité"],
-    "arbitrage": ["Spread", "Valeur réalisable", "Délai de cession"],
-    "landbank": ["Uplift", "Valeur résiduelle", "Meilleur usage · horizon"],
+    "fr": {
+        "promotion": ["Marge", "Prix neuf réalisable", "Coût total"],
+        "detention": ["Yield net", "Loyer de marché", "Charges + fiscalité"],
+        "arbitrage": ["Spread", "Valeur réalisable", "Délai de cession"],
+        "landbank": ["Uplift", "Valeur résiduelle", "Meilleur usage · horizon"],
+    },
+    "en": {
+        "promotion": ["Margin", "Realizable new-build price", "Total cost"],
+        "detention": ["Net yield", "Market rent", "Charges + tax"],
+        "arbitrage": ["Spread", "Realizable value", "Disposal time"],
+        "landbank": ["Uplift", "Residual value", "Best use · horizon"],
+    },
+    "pt": {
+        "promotion": ["Margem", "Preço realizável de construção nova", "Custo total"],
+        "detention": ["Yield líquido", "Renda de mercado", "Encargos + fiscalidade"],
+        "arbitrage": ["Spread", "Valor realizável", "Prazo de alienação"],
+        "landbank": ["Uplift", "Valor residual", "Melhor uso · horizonte"],
+    },
 }
 
 
@@ -145,10 +273,13 @@ def _native_metric(mode: str, z: dict) -> float:
     return v if v is not None else float("-inf")
 
 
-def _tables(scope: str, asset_class: str, modes: list[str], city: str = "gaia") -> dict:
+def _tables(scope: str, asset_class: str, modes: list[str], city: str = "gaia",
+            lang: str = "fr") -> dict:
     """All deterministic figures for the memo, from cleaned engine payloads.
     Scores are half-up integers (the platform convention) ; rows follow the mode
-    pages' order : rounded score desc, native metric desc on rounded ties."""
+    pages' order : rounded score desc, native metric desc on rounded ties.
+    `lang` ne touche QUE les libellés (en-têtes, unités, usages, libellé natif) :
+    aucune valeur numérique n'en dépend."""
     out: dict = {"modes": {}}
     muni_seen = None
     for mode in modes:
@@ -164,11 +295,11 @@ def _tables(scope: str, asset_class: str, modes: list[str], city: str = "gaia") 
             if scope_row is not None and scope_row not in rows:
                 rows = rows + [scope_row]
         out["modes"][mode] = {
-            "headers": _MODE_HEADERS[mode],
+            "headers": _MODE_HEADERS[lang][mode],
             "municipio": {"score": _ri(muni["total"]), "verdict": muni["verdict"],
-                          "native": muni.get("native_indicator", {}).get("label", "")} if muni else None,
+                          "native": _native_label(muni.get("native_indicator", {}).get("label", ""), lang)} if muni else None,
             "rows": [{"name": _short(z["zone_name"]), "score": _ri(z["total"]), "verdict": z["verdict"],
-                      "cols": _mode_cols(mode, z), "is_scope": scope != "ville" and z["zone"] == scope}
+                      "cols": _mode_cols(mode, z, lang), "is_scope": scope != "ville" and z["zone"] == scope}
                      for z in rows],
         }
     scope_name = None
@@ -192,11 +323,67 @@ def _tables(scope: str, asset_class: str, modes: list[str], city: str = "gaia") 
 # LLM : narrative sections (same guardrails as the analyst)                    #
 # --------------------------------------------------------------------------- #
 
-def _system_memo_for(city: str, asset_class: str) -> str:
+def _system_memo_for(city: str, asset_class: str, lang: str = "fr") -> str:
     from ..services.cities import label_for
     counts_by_mode = verdict_counts(asset_class, city)
     n_freg = sum(next(iter(counts_by_mode.values())).values()) if counts_by_mode else 15
-    return _SYSTEM_MEMO_TEMPLATE.replace("{VILLE}", label_for(city)).replace("{NFREG}", str(n_freg))
+    style, verdicts = _lang_directives(lang)
+    return (_SYSTEM_MEMO_TEMPLATE.replace("{VILLE}", label_for(city)).replace("{NFREG}", str(n_freg))
+            .replace("{STYLE_LINE}", style).replace("{VERDICT_LINE}", verdicts))
+
+
+def _lang_directives(lang: str) -> tuple[str, str]:
+    """Les deux seules lignes du prompt système qui varient. Comme chez l'analyste,
+    le CONTEXTE de données reste en français : le modèle lit du FR et RÉDIGE dans
+    la langue demandée.
+
+    En FR, la ligne de style est celle d'avant le lot AU CARACTÈRE PRÈS et la ligne
+    de verdicts est vide : le prompt FR est donc byte-identique à l'existant (le
+    mémo FR déjà validé ne doit pas dériver). _LANG_NAME et _VERDICT_VOCAB sont
+    IMPORTÉS de l'analyste, jamais redupliqués."""
+    if lang == "fr":
+        return ("Français sobre et professionnel, phrases complètes, aucun markdown dans les textes.", "")
+    return (
+        f"IMPORTANT : rédige TOUTE ta réponse en {_LANG_NAME[lang]}. Ton sobre et professionnel, "
+        "phrases complètes, aucun markdown dans les textes.",
+        "\n- Emploie EXACTEMENT ces libellés de verdict, dans la langue de rédaction : "
+        f"{_VERDICT_VOCAB[lang]}"
+        "\n- Les données ci-dessous portent les libellés de verdict BRUTS du moteur, en français "
+        f"({_VERDICT_VOCAB['fr']}) : ne les recopie JAMAIS tels quels, remplace-les toujours par "
+        "leur équivalent de la liste ci-dessus.",
+    )
+
+
+# Filet déterministe : même avec la consigne ci-dessus, le modèle recopie parfois
+# le verdict FRANÇAIS BRUT lu dans le contexte (« veredicto Conserver », « Prioritaire
+# landbank »). On le retraduit après coup. En FR : NO-OP strict (le mémo français ne
+# doit pas bouger d'un octet). Les libellés les plus longs d'abord (« Fenêtre ouverte »
+# avant « Fenêtre »), et les variantes accentuées comme brutes du moteur.
+_LEAKED_VERDICTS = {
+    "Fenetre ouverte", "Fenêtre ouverte", "Fenetre etroite", "Fenêtre étroite",
+    "Fenetre fermee", "Fenêtre fermée", "En attente", "A phaser", "À phaser",
+    "Conditionnel", "Conditionnels", "Conserver", "Surveiller", "Prioritaire",
+    "Prioritaires", "Passer", "Ceder", "Céder", "Go",
+}
+
+
+def _canon_verdict(word: str) -> str:
+    """Clé canonique du moteur pour un libellé FR éventuellement accentué/pluriel."""
+    w = (word.replace("ê", "e").replace("é", "e").replace("è", "e").replace("À", "A"))
+    w = w[:-1] if w.endswith("s") and w[:-1] in {"Conditionnel", "Prioritaire"} else w
+    return w
+
+
+def _localize_verdicts(text: str, lang: str) -> str:
+    if lang == "fr" or not text:
+        return text
+    table = _VERDICT[lang]
+    pattern = "|".join(re.escape(v) for v in sorted(_LEAKED_VERDICTS, key=len, reverse=True))
+
+    def sub(m: re.Match) -> str:
+        return table.get(_canon_verdict(m.group(0)), m.group(0))
+
+    return re.sub(rf"\b(?:{pattern})\b", sub, text)
 
 
 _SYSTEM_MEMO_TEMPLATE = """Tu es l'analyste de Barzel Analytics, plateforme d'intelligence immobilière couvrant {VILLE} (Portugal). Tu rédiges les sections narratives d'un mémo d'investissement institutionnel.
@@ -209,8 +396,8 @@ RÈGLES ABSOLUES :
 - Pour tout comptage de freguesias (« N freguesias »), utilise UNIQUEMENT les comptages pré-calculés de la section DÉNOMBREMENTS ; ne recompte JAMAIS toi-même à partir des listes ; au moindre doute, formule sans compte. Ne cite un rang (« premier », « deuxième ») que s'il se lit directement dans l'ordre des données.
 - Tu cites les scores en entiers (« 87/100 »), jamais avec décimale.
 - Ponctuation : tu n'utilises JAMAIS le tiret cadratin (le tiret long, U+2014), ni seul ni encadré d'espaces ; articule avec deux-points, virgule, parenthèses ou une nouvelle phrase.
-- Français sobre et professionnel, phrases complètes, aucun markdown dans les textes.
-- Longueurs : executive_summary 120-170 mots ; chaque lecture de mode 70-110 mots ; risques 80-120 mots ; recommandation 50-90 mots, conclue par un verdict actionnable."""
+- {STYLE_LINE}
+- Longueurs : executive_summary 120-170 mots ; chaque lecture de mode 70-110 mots ; risques 80-120 mots ; recommandation 50-90 mots, conclue par un verdict actionnable.{VERDICT_LINE}"""
 
 
 def _client():
@@ -229,13 +416,14 @@ def _async_client():
     return anthropic.AsyncAnthropic(api_key=key)
 
 
-def _llm_text(system: str, user: str, max_tokens: int) -> str:
+def _llm_text(system: str, user: str, max_tokens: int, lang: str = "fr") -> str:
     try:
         message = _client().messages.create(
             model=_MODEL, max_tokens=max_tokens, temperature=0.2,
             system=system, messages=[{"role": "user", "content": user}],
         )
-        return strip_em_dashes("".join(b.text for b in message.content if getattr(b, "type", "") == "text").strip())
+        out = "".join(b.text for b in message.content if getattr(b, "type", "") == "text").strip()
+        return _localize_verdicts(strip_em_dashes(out), lang)
     except HTTPException:
         raise
     except Exception as exc:  # noqa: BLE001
@@ -244,19 +432,23 @@ def _llm_text(system: str, user: str, max_tokens: int) -> str:
 
 
 async def _llm_text_async(client, user: str, max_tokens: int,
-                          system: str | None = None) -> str:
+                          system: str | None = None, lang: str = "fr") -> str:
     try:
         message = await client.messages.create(
             model=_MODEL, max_tokens=max_tokens, temperature=0.2,
             system=system or _system_memo_for("gaia", "residential"),
             messages=[{"role": "user", "content": user}],
         )
-        return strip_em_dashes("".join(b.text for b in message.content if getattr(b, "type", "") == "text").strip())
+        out = "".join(b.text for b in message.content if getattr(b, "type", "") == "text").strip()
+        return _localize_verdicts(strip_em_dashes(out), lang)
     except Exception as exc:  # noqa: BLE001
         log.warning("memo LLM call failed: %s", type(exc).__name__)
         raise HTTPException(status_code=503, detail="rédacteur momentanément indisponible")
 
 
+# `lang` : langue de RÉDACTION du mémo (cosmétique). Optionnel, défaut « fr » =
+# comportement historique ; toute valeur inconnue retombe sur « fr » via _norm_lang
+# (jamais de 400, comme chez l'analyste). Le front ne l'envoie pas encore (QA-2b).
 class DraftPayload(BaseModel):
     scope: str = "ville"                # "ville" ou zone id de freguesia
     asset_class: str = "residential"
@@ -264,6 +456,7 @@ class DraftPayload(BaseModel):
     modes: list[str] = ["promotion", "detention", "arbitrage", "landbank"]
     angle: str = "synthese"
     instructions: str | None = None
+    lang: str = "fr"
 
 
 class RenderPayload(BaseModel):
@@ -273,6 +466,7 @@ class RenderPayload(BaseModel):
     city: str = "gaia"
     modes: list[str] = ["promotion", "detention", "arbitrage", "landbank"]
     angle: str = "synthese"
+    lang: str = "fr"
 
 
 class RevisePayload(BaseModel):
@@ -282,6 +476,7 @@ class RevisePayload(BaseModel):
     scope: str = "ville"
     asset_class: str = "residential"
     city: str = "gaia"
+    lang: str = "fr"
 
 
 def _validate(payload) -> tuple[str, str, list[str], str]:
@@ -293,53 +488,98 @@ def _validate(payload) -> tuple[str, str, list[str], str]:
     return asset_class, modes, scope, city
 
 
+def _lang_of(payload) -> str:
+    return _norm_lang(getattr(payload, "lang", None))
+
+
+# Libellés de la mission, dans la langue de rédaction (le modèle les reprend).
+_MISSION = {
+    "fr": {"angle": "Angle du mémo", "scope": "Périmètre", "cls": "Classe d'actif",
+           "modes": "Modes couverts par le mémo", "city_all": "la ville entière",
+           "freg": "la freguesia {name} (au sein du marché de {city})",
+           "instr": "Instructions du client (à respecter sans enfreindre les règles)"},
+    "en": {"angle": "Memo angle", "scope": "Scope", "cls": "Asset class",
+           "modes": "Modes covered by the memo", "city_all": "the whole city",
+           "freg": "the freguesia {name} (within the {city} market)",
+           "instr": "Client instructions (to be followed without breaking the rules)"},
+    "pt": {"angle": "Ângulo do memorando", "scope": "Perímetro", "cls": "Classe de ativo",
+           "modes": "Modos cobertos pelo memorando", "city_all": "a cidade inteira",
+           "freg": "a freguesia {name} (no mercado de {city})",
+           "instr": "Instruções do cliente (a respeitar sem infringir as regras)"},
+}
+
+
 def _mission(scope: str, asset_class: str, modes: list[str], angle: str,
-             instructions: str | None, tables: dict, city: str = "gaia") -> str:
+             instructions: str | None, tables: dict, city: str = "gaia",
+             lang: str = "fr") -> str:
     from ..services.cities import label_for
-    scope_txt = ("la ville entière" if scope == "ville"
-                 else f"la freguesia {tables.get('scope_name') or scope} (au sein du marché de {label_for(city)})")
+    t = _MISSION[lang]
+    scope_txt = (t["city_all"] if scope == "ville"
+                 else t["freg"].format(name=tables.get("scope_name") or scope, city=label_for(city)))
     lines = [
         "# MISSION",
-        f"Angle du mémo : {_ANGLES.get(angle, _ANGLES['synthese'])}.",
-        f"Périmètre : {scope_txt}. Classe d'actif : {_CLS_FR[asset_class]}.",
-        f"Modes couverts par le mémo : {', '.join(_MODE_FR[m] for m in modes)}.",
+        f"{t['angle']} : {_angle_label(angle, lang)}.",
+        f"{t['scope']} : {scope_txt}. {t['cls']} : {_CLS[lang][asset_class]}.",
+        f"{t['modes']} : {', '.join(_MODE[lang][m] for m in modes)}.",
     ]
     if instructions:
-        lines.append(f"Instructions du client (à respecter sans enfreindre les règles) : {instructions.strip()[:400]}")
+        lines.append(f"{t['instr']} : {instructions.strip()[:400]}")
     return "\n".join(lines)
 
 
 # Per-section briefs : each section is drafted by its own short parallel call.
+# Le LIBELLÉ est celui du titre imprimé dans le PDF (le prompt le cite pour que le
+# modèle n'écrive pas de titre lui-même) : les deux doivent rester d'accord.
 _SECTION_BRIEF = {
-    "executive_summary": ("Synthèse exécutive", "la synthèse exécutive du mémo (120-170 mots), qui pose le "
-                          "verdict d'ensemble en couvrant les modes du mémo", 650),
-    "risques": ("Risques", "la section Risques (80-120 mots) : fiscalité et énergie d'abord, "
-                "puis les fragilités de marché propres au périmètre", 550),
-    "recommandation": ("Recommandation", "la Recommandation (50-90 mots), conclue par un verdict actionnable", 450),
+    "fr": {
+        "executive_summary": ("Synthèse exécutive", "la synthèse exécutive du mémo (120-170 mots), qui pose le "
+                              "verdict d'ensemble en couvrant les modes du mémo", 650),
+        "risques": ("Risques", "la section Risques (80-120 mots) : fiscalité et énergie d'abord, "
+                    "puis les fragilités de marché propres au périmètre", 550),
+        "recommandation": ("Recommandation", "la Recommandation (50-90 mots), conclue par un verdict actionnable", 450),
+    },
+    "en": {
+        "executive_summary": ("Executive summary", "la synthèse exécutive du mémo (120-170 mots), qui pose le "
+                              "verdict d'ensemble en couvrant les modes du mémo", 650),
+        "risques": ("Risks", "la section Risques (80-120 mots) : fiscalité et énergie d'abord, "
+                    "puis les fragilités de marché propres au périmètre", 550),
+        "recommandation": ("Recommendation", "la Recommandation (50-90 mots), conclue par un verdict actionnable", 450),
+    },
+    "pt": {
+        "executive_summary": ("Síntese executiva", "la synthèse exécutive du mémo (120-170 mots), qui pose le "
+                              "verdict d'ensemble en couvrant les modes du mémo", 650),
+        "risques": ("Riscos", "la section Risques (80-120 mots) : fiscalité et énergie d'abord, "
+                    "puis les fragilités de marché propres au périmètre", 550),
+        "recommandation": ("Recomendação", "la Recommandation (50-90 mots), conclue par un verdict actionnable", 450),
+    },
 }
+# Titre de la lecture d'un mode : « Lecture Promotion » / « Development reading » /
+# « Leitura Promoção ».
+_MODE_READING = {"fr": "Lecture {mode}", "en": "{mode} reading", "pt": "Leitura {mode}"}
 
 
-def _section_brief(section: str) -> tuple[str, str, int]:
-    if section in _SECTION_BRIEF:
-        return _SECTION_BRIEF[section]
-    label = f"Lecture {_MODE_FR[section]}"
-    return (label, f"la lecture du mode {_MODE_FR[section]} (70-110 mots), appuyée sur ses chiffres "
+def _section_brief(section: str, lang: str = "fr") -> tuple[str, str, int]:
+    if section in _SECTION_BRIEF[lang]:
+        return _SECTION_BRIEF[lang][section]
+    label = _MODE_READING[lang].format(mode=_MODE[lang][section])
+    return (label, f"la lecture du mode {_MODE[lang][section]} (70-110 mots), appuyée sur ses chiffres "
                    "de freguesias et son verdict de vue ville", 500)
 
 
 async def _draft_section(client, base_prompt: str, section: str,
                          counts: dict, modes: list[str],
-                         city: str = "gaia", asset_class: str = "residential") -> str:
+                         city: str = "gaia", asset_class: str = "residential",
+                         lang: str = "fr") -> str:
     """One narrative section, with the count guardrail applied per section
     (2 attempts, corrective note on retry)."""
-    label, brief, max_tokens = _section_brief(section)
+    label, brief, max_tokens = _section_brief(section, lang)
     user = (f"{base_prompt}\n\n# SECTION À RÉDIGER\n"
             f"Rédige UNIQUEMENT {brief}. N'écris pas de titre : le gabarit du mémo "
             f"l'affiche déjà (« {label} »). Réponds avec le texte seul, sans JSON ni markdown.")
     msg = user
     for attempt in (1, 2):
-        texte = await _llm_text_async(client, msg, max_tokens, system=_system_memo_for(city, asset_class))
-        bad = _bad_counts({"t": texte}, counts, modes)
+        texte = await _llm_text_async(client, msg, max_tokens, system=_system_memo_for(city, asset_class, lang), lang=lang)
+        bad = _bad_counts({"t": texte}, counts, modes, lang)
         if not bad:
             return texte
         if attempt == 1:
@@ -361,30 +601,88 @@ _FR_NUM = {"un": 1, "une": 1, "deux": 2, "trois": 3, "quatre": 4, "cinq": 5,
            "six": 6, "sept": 7, "huit": 8, "neuf": 9, "dix": 10, "onze": 11,
            "douze": 12, "treize": 13, "quatorze": 14, "quinze": 15, "seize": 16,
            "dix-sept": 17, "dix-huit": 18}
-_NUM_ALT = r"(\d+|" + "|".join(sorted(_FR_NUM, key=len, reverse=True)) + r")"
-_COUNT_RE = re.compile(_NUM_ALT + r"\s+freguesias?\b", re.IGNORECASE)
-# (mode, verdict brut) -> motif d'affichage du verdict dans la prose.
+_EN_NUM = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
+           "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11,
+           "twelve": 12, "thirteen": 13, "fourteen": 14, "fifteen": 15,
+           "sixteen": 16, "seventeen": 17, "eighteen": 18}
+_PT_NUM = {"um": 1, "uma": 1, "dois": 2, "duas": 2, "três": 3, "tres": 3,
+           "quatro": 4, "cinco": 5, "seis": 6, "sete": 7, "oito": 8, "nove": 9,
+           "dez": 10, "onze": 11, "doze": 12, "treze": 13, "catorze": 14,
+           "quatorze": 14, "quinze": 15, "dezasseis": 16, "dezesseis": 16,
+           "dezassete": 17, "dezessete": 17, "dezoito": 18}
+_NUM_WORDS = {"fr": _FR_NUM, "en": _EN_NUM, "pt": _PT_NUM}
+
+
+def _num_alt(lang: str) -> str:
+    # \b en tête : sans lui, le nombre se laisse capturer À L'INTÉRIEUR d'un mot et
+    # la négation devient un compte. « aucune freguesia » contient « une », « nenhuma
+    # janela » contient « uma », « none » contient « one » : le filet criait alors
+    # « 1 freguesia » sur une phrase qui en annonce ZÉRO (faux positif observé en PT,
+    # latent en FR). Le \b interdit ces prises au milieu d'un mot.
+    return r"\b(\d+|" + "|".join(sorted(_NUM_WORDS[lang], key=len, reverse=True)) + r")"
+
+
+# « N freguesias » : le mot « freguesia » est INVARIANT dans les trois langues (le
+# prompt système l'impose : « ces territoires s'appellent des freguesias »), seul
+# le nombre écrit en toutes lettres change de langue.
+_COUNT_RES = {l: re.compile(_num_alt(l) + r"\s+freguesias?\b", re.IGNORECASE)
+              for l in ("fr", "en", "pt")}
+_COUNT_RE = _COUNT_RES["fr"]   # conservé : ancien nom, comportement FR inchangé
+
+# (mode, verdict brut) -> motif d'affichage du verdict dans la prose, par langue.
+# EN : « Hold » (détention) est un préfixe de « On hold » (landbank) : le lookbehind
+# empêche un « 8 On hold » de compter comme un « 8 Hold » du mauvais mode.
 _VERDICT_PAT = {
-    ("promotion", "Go"): r"Go\b", ("promotion", "Conditionnel"): r"Conditionnels?\b",
-    ("promotion", "Passer"): r"Passer\b",
-    ("detention", "Conserver"): r"Conserver\b", ("detention", "Surveiller"): r"Surveiller\b",
-    ("detention", "Ceder"): r"Céder\b",
-    ("arbitrage", "Fenetre ouverte"): r"fenêtres?\s+ouvertes?\b",
-    ("arbitrage", "Fenetre etroite"): r"fenêtres?\s+étroites?\b",
-    ("arbitrage", "Fenetre fermee"): r"fenêtres?\s+fermées?\b",
-    ("landbank", "Prioritaire"): r"Prioritaires?\b", ("landbank", "A phaser"): r"à\s+phaser\b",
-    ("landbank", "En attente"): r"en\s+attente\b",
+    "fr": {
+        ("promotion", "Go"): r"Go\b", ("promotion", "Conditionnel"): r"Conditionnels?\b",
+        ("promotion", "Passer"): r"Passer\b",
+        ("detention", "Conserver"): r"Conserver\b", ("detention", "Surveiller"): r"Surveiller\b",
+        ("detention", "Ceder"): r"Céder\b",
+        ("arbitrage", "Fenetre ouverte"): r"fenêtres?\s+ouvertes?\b",
+        ("arbitrage", "Fenetre etroite"): r"fenêtres?\s+étroites?\b",
+        ("arbitrage", "Fenetre fermee"): r"fenêtres?\s+fermées?\b",
+        ("landbank", "Prioritaire"): r"Prioritaires?\b", ("landbank", "A phaser"): r"à\s+phaser\b",
+        ("landbank", "En attente"): r"en\s+attente\b",
+    },
+    "en": {
+        ("promotion", "Go"): r"Go\b", ("promotion", "Conditionnel"): r"Conditionals?\b",
+        ("promotion", "Passer"): r"Pass\b",
+        ("detention", "Conserver"): r"(?<!on\s)Hold\b", ("detention", "Surveiller"): r"Watch\b",
+        ("detention", "Ceder"): r"Sell\b",
+        ("arbitrage", "Fenetre ouverte"): r"windows?\s+open\b",
+        ("arbitrage", "Fenetre etroite"): r"windows?\s+narrow\b",
+        ("arbitrage", "Fenetre fermee"): r"windows?\s+closed\b",
+        ("landbank", "Prioritaire"): r"Priority\b", ("landbank", "A phaser"): r"to\s+phase\b",
+        ("landbank", "En attente"): r"on\s+hold\b",
+    },
+    "pt": {
+        ("promotion", "Go"): r"Avançar\b", ("promotion", "Conditionnel"): r"Condicionais?\b",
+        ("promotion", "Passer"): r"Passar\b",
+        ("detention", "Conserver"): r"Manter\b", ("detention", "Surveiller"): r"Vigiar\b",
+        ("detention", "Ceder"): r"Vender\b",
+        ("arbitrage", "Fenetre ouverte"): r"janelas?\s+abertas?\b",
+        ("arbitrage", "Fenetre etroite"): r"janelas?\s+estreitas?\b",
+        ("arbitrage", "Fenetre fermee"): r"janelas?\s+fechadas?\b",
+        ("landbank", "Prioritaire"): r"Priorit[áa]rios?\b", ("landbank", "A phaser"): r"a\s+fasear\b",
+        ("landbank", "En attente"): r"em\s+espera\b",
+    },
+}
+# Chevilles admises entre le nombre et le verdict, par langue.
+_VERDICT_LEAD = {
+    "fr": r"(?:freguesias?\s+)?(?:au\s+verdict\s+|en\s+|«\s*)?",
+    "en": r"(?:freguesias?\s+)?(?:with\s+(?:a\s+)?|at\s+|rated\s+|«\s*)?",
+    "pt": r"(?:freguesias?\s+)?(?:com\s+|em\s+|no\s+veredicto\s+|«\s*)?",
 }
 _VERDICT_COUNT_RES = {
-    key: re.compile(_NUM_ALT + r"\s+(?:freguesias?\s+)?(?:au\s+verdict\s+|en\s+|«\s*)?" + pat,
-                    re.IGNORECASE)
-    for key, pat in _VERDICT_PAT.items()
+    lang: {key: re.compile(_num_alt(lang) + r"\s+" + _VERDICT_LEAD[lang] + pat, re.IGNORECASE)
+           for key, pat in pats.items()}
+    for lang, pats in _VERDICT_PAT.items()
 }
 
 
-def _to_int(tok: str) -> int:
+def _to_int(tok: str, lang: str = "fr") -> int:
     tok = tok.lower()
-    return int(tok) if tok.isdigit() else _FR_NUM[tok]
+    return int(tok) if tok.isdigit() else _NUM_WORDS[lang][tok]
 
 
 def _allowed_counts(counts: dict, modes: list[str]) -> set[int]:
@@ -410,19 +708,19 @@ def _walk_texts(sections) -> list[str]:
     return [sections] if isinstance(sections, str) else []
 
 
-def _bad_counts(sections: dict, counts: dict, modes: list[str]) -> list[str]:
+def _bad_counts(sections: dict, counts: dict, modes: list[str], lang: str = "fr") -> list[str]:
     allowed = _allowed_counts(counts, modes)
     bad = []
     for text in _walk_texts(sections):
-        for m in _COUNT_RE.finditer(text):
-            if _to_int(m.group(1)) not in allowed:
+        for m in _COUNT_RES[lang].finditer(text):
+            if _to_int(m.group(1), lang) not in allowed:
                 bad.append(m.group(0))
-        for (mode, verdict), rx in _VERDICT_COUNT_RES.items():
+        for (mode, verdict), rx in _VERDICT_COUNT_RES[lang].items():
             expected = counts.get(mode, {}).get(verdict)
             if expected is None:
                 continue
             for m in rx.finditer(text):
-                if _to_int(m.group(1)) != expected:
+                if _to_int(m.group(1), lang) != expected:
                     bad.append(m.group(0))
     return bad
 
@@ -432,7 +730,8 @@ def tables_only(payload: DraftPayload) -> dict:
     """Deterministic figures + meta, instantly : first step of the modal's
     progressive draft ("Analyse des N modes")."""
     asset_class, modes, scope, city = _validate(payload)
-    return {"tables": _tables(scope, asset_class, modes, city),
+    lang = _lang_of(payload)
+    return {"tables": _tables(scope, asset_class, modes, city, lang),
             "meta": {"scope": scope, "asset_class": asset_class, "modes": modes, "angle": payload.angle}}
 
 
@@ -445,11 +744,13 @@ async def draft_section(payload: DraftSectionPayload) -> dict:
     """One narrative section : the modal fires these in parallel and checks a
     progress step off as each one lands."""
     asset_class, modes, scope, city = _validate(payload)
+    lang = _lang_of(payload)
     section = payload.section if payload.section in {"executive_summary", "risques", "recommandation"} \
         or payload.section in ms.MODES else "executive_summary"
-    tables = _tables(scope, asset_class, modes, city)
-    base = f"{_build_context(asset_class, city)}\n\n{_mission(scope, asset_class, modes, payload.angle, payload.instructions, tables, city)}"
-    texte = await _draft_section(_async_client(), base, section, verdict_counts(asset_class, city), modes, city=city, asset_class=asset_class)
+    tables = _tables(scope, asset_class, modes, city, lang)
+    base = f"{_build_context(asset_class, city)}\n\n{_mission(scope, asset_class, modes, payload.angle, payload.instructions, tables, city, lang)}"
+    texte = await _draft_section(_async_client(), base, section, verdict_counts(asset_class, city), modes,
+                                 city=city, asset_class=asset_class, lang=lang)
     return {"texte": texte}
 
 
@@ -458,12 +759,14 @@ async def draft(payload: DraftPayload) -> dict:
     """Full draft : all sections written in parallel (asyncio.gather) ; wall
     time ≈ the longest single section instead of the sum of seven."""
     asset_class, modes, scope, city = _validate(payload)
-    tables = _tables(scope, asset_class, modes, city)
+    lang = _lang_of(payload)
+    tables = _tables(scope, asset_class, modes, city, lang)
     counts = verdict_counts(asset_class, city)
-    base = f"{_build_context(asset_class, city)}\n\n{_mission(scope, asset_class, modes, payload.angle, payload.instructions, tables, city)}"
+    base = f"{_build_context(asset_class, city)}\n\n{_mission(scope, asset_class, modes, payload.angle, payload.instructions, tables, city, lang)}"
     client = _async_client()
     section_ids = ["executive_summary", *modes, "risques", "recommandation"]
-    texts = await asyncio.gather(*[_draft_section(client, base, s, counts, modes, city=city, asset_class=asset_class) for s in section_ids])
+    texts = await asyncio.gather(*[_draft_section(client, base, s, counts, modes, city=city, asset_class=asset_class, lang=lang)
+                                   for s in section_ids])
     by_id = dict(zip(section_ids, texts))
     sections = {
         "executive_summary": by_id["executive_summary"],
@@ -478,6 +781,7 @@ async def draft(payload: DraftPayload) -> dict:
 @router.post("/revise")
 def revise(payload: RevisePayload) -> dict:
     asset_class, modes, scope, city = _validate(DraftPayload(scope=payload.scope, asset_class=payload.asset_class, city=payload.city))
+    lang = _lang_of(payload)
     counts = verdict_counts(asset_class, city)
     user = (
         f"{_build_context(asset_class, city)}\n\n# RÉVISION DE SECTION\n"
@@ -489,8 +793,8 @@ def revise(payload: RevisePayload) -> dict:
     )
     msg = user
     for attempt in (1, 2):
-        texte = _llm_text(_system_memo_for(city, asset_class), msg, max_tokens=700)
-        bad = _bad_counts({"texte": texte}, counts, modes)
+        texte = _llm_text(_system_memo_for(city, asset_class, lang), msg, max_tokens=700, lang=lang)
+        bad = _bad_counts({"texte": texte}, counts, modes, lang)
         if not bad or attempt == 2:
             if bad:
                 log.warning("memo revise: comptage hors DÉNOMBREMENTS conservé %s", bad)
@@ -508,15 +812,35 @@ _VERDICT_TONE = {
     "Go": "good", "Conserver": "good", "Fenetre ouverte": "good", "Prioritaire": "good",
     "Conditionnel": "mid", "Surveiller": "mid", "Fenetre etroite": "mid", "A phaser": "mid",
 }
-_VERDICT_FR = {"Fenetre ouverte": "Fenêtre ouverte", "Fenetre etroite": "Fenêtre étroite",
-               "Fenetre fermee": "Fenêtre fermée", "Ceder": "Céder", "A phaser": "À phaser"}
+# Verdict BRUT du moteur (clé canonique, jamais traduite dans les payloads) ->
+# libellé d'affichage. En FR, la table ne porte que les accents (les libellés déjà
+# corrects passent par le repli .get(v, v)) : sortie inchangée à l'octet près.
+_VERDICT = {
+    "fr": {"Fenetre ouverte": "Fenêtre ouverte", "Fenetre etroite": "Fenêtre étroite",
+           "Fenetre fermee": "Fenêtre fermée", "Ceder": "Céder", "A phaser": "À phaser"},
+    "en": {"Go": "Go", "Conditionnel": "Conditional", "Passer": "Pass",
+           "Conserver": "Hold", "Surveiller": "Watch", "Ceder": "Sell",
+           "Fenetre ouverte": "Window open", "Fenetre etroite": "Window narrow",
+           "Fenetre fermee": "Window closed",
+           "Prioritaire": "Priority", "A phaser": "To phase", "En attente": "On hold"},
+    "pt": {"Go": "Avançar", "Conditionnel": "Condicional", "Passer": "Passar",
+           "Conserver": "Manter", "Surveiller": "Vigiar", "Ceder": "Vender",
+           "Fenetre ouverte": "Janela aberta", "Fenetre etroite": "Janela estreita",
+           "Fenetre fermee": "Janela fechada",
+           "Prioritaire": "Prioritário", "A phaser": "A fasear", "En attente": "Em espera"},
+}
+_VERDICT_FR = _VERDICT["fr"]   # conservé : ancien nom, mêmes valeurs
 
 
-def _badge(verdict: str) -> str:
+def _verdict(verdict: str, lang: str = "fr") -> str:
+    return _VERDICT[lang].get(verdict, verdict)
+
+
+def _badge(verdict: str, lang: str = "fr") -> str:
     tone = _VERDICT_TONE.get(verdict, "low")
     color = {"good": "#2F6B3D", "mid": "#8a6d2f", "low": "#9E5B5B"}[tone]
     return (f'<span style="border:1px solid {color};color:{color};border-radius:99px;'
-            f'padding:1px 8px;font-size:8pt;white-space:nowrap">{_VERDICT_FR.get(verdict, verdict)}</span>')
+            f'padding:1px 8px;font-size:8pt;white-space:nowrap">{_verdict(verdict, lang)}</span>')
 
 
 def _esc(t: str) -> str:
@@ -536,29 +860,96 @@ def _paras(t: str) -> str:
     return "".join(f"<p>{_rich(p.strip())}</p>" for p in (t or "").split("\n") if p.strip())
 
 
-_FISCAL_FACTS = [
-    ("Acquisition", "IMT habitation (investisseur) 1 % → 8 %, taux uniques 6 % puis 7,5 % ; commercial et terrains 6,5 % ; Imposto do Selo 0,8 %. Non-résidents (résidentiel, dès 09/2026) : 7,5 % remboursable sous conditions."),
-    ("Détention", "IMI 0,30–0,45 %/an (taux communal) ; AIMI 0,4 % (patrimoine résidentiel en société) ; IRC 19 % sur les loyers nets (+ derramas)."),
-    ("Cession", "Plus-values en IRC 19 % + derramas → taux effectif ~21 %, celui des verdicts de la plateforme."),
-]
-_ENERGY_FACTS_COMMON = [
-    ("Trajectoire EPBD", "Transposition 29/05/2026 ; non-résidentiel : rénovation des 16 % les moins performants d'ici 2030, 26 % d'ici 2033 ; résidentiel : énergie primaire moyenne −16 % (2030), −20 à 22 % (2035) ; sortie des chaudières fossiles 2040."),
-]
-_ENERGY_FACTS_GAIA = [
-    ("Parc de Gaia", "Certificats SCE (A+ → F). Exposition la plus forte au centre historique (Santa Marinha : 38 % du parc en classes E-F) ; mise à niveau F→C ≈ 270 €/m², soit ≈ −0,31 point de yield net sur la première décennie pour un actif type."),
-]
+_FISCAL_FACTS = {
+    "fr": [
+        ("Acquisition", "IMT habitation (investisseur) 1 % → 8 %, taux uniques 6 % puis 7,5 % ; commercial et terrains 6,5 % ; Imposto do Selo 0,8 %. Non-résidents (résidentiel, dès 09/2026) : 7,5 % remboursable sous conditions."),
+        ("Détention", "IMI 0,30–0,45 %/an (taux communal) ; AIMI 0,4 % (patrimoine résidentiel en société) ; IRC 19 % sur les loyers nets (+ derramas)."),
+        ("Cession", "Plus-values en IRC 19 % + derramas → taux effectif ~21 %, celui des verdicts de la plateforme."),
+    ],
+    "en": [
+        ("Acquisition", "IMT on housing (investor) 1 % → 8 %, flat rates 6 % then 7,5 % ; commercial and land 6,5 % ; Imposto do Selo 0,8 %. Non-residents (residential, from 09/2026) : 7,5 %, refundable under conditions."),
+        ("Holding", "IMI 0,30–0,45 %/year (municipal rate) ; AIMI 0,4 % (residential assets held in a company) ; IRC 19 % on net rents (+ derramas)."),
+        ("Disposal", "Capital gains taxed under IRC 19 % + derramas → effective rate ~21 %, the one behind the platform's verdicts."),
+    ],
+    "pt": [
+        ("Aquisição", "IMT habitação (investidor) 1 % → 8 %, taxas únicas 6 % e depois 7,5 % ; comercial e terrenos 6,5 % ; Imposto do Selo 0,8 %. Não residentes (residencial, a partir de 09/2026) : 7,5 %, reembolsável sob condições."),
+        ("Detenção", "IMI 0,30–0,45 %/ano (taxa municipal) ; AIMI 0,4 % (património residencial em sociedade) ; IRC 19 % sobre as rendas líquidas (+ derramas)."),
+        ("Alienação", "Mais-valias em IRC 19 % + derramas → taxa efetiva ~21 %, a dos veredictos da plataforma."),
+    ],
+}
+_ENERGY_FACTS_COMMON = {
+    "fr": [("Trajectoire EPBD", "Transposition 29/05/2026 ; non-résidentiel : rénovation des 16 % les moins performants d'ici 2030, 26 % d'ici 2033 ; résidentiel : énergie primaire moyenne −16 % (2030), −20 à 22 % (2035) ; sortie des chaudières fossiles 2040.")],
+    "en": [("EPBD trajectory", "Transposition 29/05/2026 ; non-residential : the worst-performing 16 % renovated by 2030, 26 % by 2033 ; residential : average primary energy −16 % (2030), −20 to 22 % (2035) ; fossil-fuel boilers phased out by 2040.")],
+    "pt": [("Trajetória EPBD", "Transposição 29/05/2026 ; não residencial : renovação dos 16 % menos eficientes até 2030, 26 % até 2033 ; residencial : energia primária média −16 % (2030), −20 a 22 % (2035) ; fim das caldeiras fósseis em 2040.")],
+}
+_ENERGY_FACTS_GAIA = {
+    "fr": [("Parc de Gaia", "Certificats SCE (A+ → F). Exposition la plus forte au centre historique (Santa Marinha : 38 % du parc en classes E-F) ; mise à niveau F→C ≈ 270 €/m², soit ≈ −0,31 point de yield net sur la première décennie pour un actif type.")],
+    "en": [("Gaia housing stock", "SCE certificates (A+ → F). Highest exposure in the historic centre (Santa Marinha : 38 % of the stock in classes E-F) ; an F→C upgrade costs ≈ 270 €/m², i.e. ≈ −0,31 point of net yield over the first decade for a typical asset.")],
+    "pt": [("Parque de Gaia", "Certificados SCE (A+ → F). Exposição mais forte no centro histórico (Santa Marinha : 38 % do parque em classes E-F) ; a requalificação F→C custa ≈ 270 €/m², ou seja ≈ −0,31 ponto de yield líquido na primeira década para um ativo tipo.")],
+}
 
 
-def _facts_for_city(city: str) -> list:
+def _facts_for_city(city: str, lang: str = "fr") -> list:
     """Faits fiscalité/énergie du mémo : le parc SCE simulé est propre à Gaia."""
-    return _FISCAL_FACTS + _ENERGY_FACTS_COMMON + (_ENERGY_FACTS_GAIA if city == "gaia" else [])
+    return (_FISCAL_FACTS[lang] + _ENERGY_FACTS_COMMON[lang]
+            + (_ENERGY_FACTS_GAIA[lang] if city == "gaia" else []))
+
+
+# Libellés fixes du gabarit PDF, par langue. Le FR reprend EXACTEMENT les chaînes
+# d'avant le lot (le rendu FR ne doit pas bouger d'un octet).
+_PDF = {
+    "fr": {
+        "memo": "Mémo d'investissement", "prepared": "Document préparé par la plateforme Barzel",
+        "eyb_summary": "Synthèse", "h_exec": "Synthèse exécutive",
+        "market": "Marché", "kpi_price": "Prix médian ville", "kpi_yoy": "Évolution 12 mois",
+        "kpi_tx": "Transactions / an",
+        "th_mode": "Mode", "th_city_score": "Score ville", "th_verdict": "Verdict",
+        "th_indicator": "Indicateur", "th_zone": "Freguesia", "th_score": "Score",
+        "eyb_modes": "Lecture par mode", "city_view": "Vue ville : score {s}/100, {v}",
+        "eyb_risks": "Risques · fiscalité &amp; énergie", "h_risks": "Risques",
+        "eyb_conclusion": "Conclusion", "h_reco": "Recommandation",
+        "legal": "Document généré par Barzel Analytics à partir de son moteur d'analyse propriétaire.\n"
+                 "  Les indicateurs reflètent l'état du marché à la date d'édition. Ce document est destiné à l'usage interne\n"
+                 "  du destinataire et ne constitue pas un conseil en investissement.",
+    },
+    "en": {
+        "memo": "Investment memo", "prepared": "Document prepared by the Barzel platform",
+        "eyb_summary": "Summary", "h_exec": "Executive summary",
+        "market": "Market", "kpi_price": "City median price", "kpi_yoy": "12-month change",
+        "kpi_tx": "Transactions / year",
+        "th_mode": "Mode", "th_city_score": "City score", "th_verdict": "Verdict",
+        "th_indicator": "Indicator", "th_zone": "Freguesia", "th_score": "Score",
+        "eyb_modes": "Reading by mode", "city_view": "City view : score {s}/100, {v}",
+        "eyb_risks": "Risks · tax &amp; energy", "h_risks": "Risks",
+        "eyb_conclusion": "Conclusion", "h_reco": "Recommendation",
+        "legal": "Document generated by Barzel Analytics from its proprietary analysis engine.\n"
+                 "  The indicators reflect the state of the market at the date of issue. This document is intended for the\n"
+                 "  recipient's internal use and does not constitute investment advice.",
+    },
+    "pt": {
+        "memo": "Memorando de investimento", "prepared": "Documento preparado pela plataforma Barzel",
+        "eyb_summary": "Síntese", "h_exec": "Síntese executiva",
+        "market": "Mercado", "kpi_price": "Preço mediano da cidade", "kpi_yoy": "Evolução a 12 meses",
+        "kpi_tx": "Transações / ano",
+        "th_mode": "Modo", "th_city_score": "Score da cidade", "th_verdict": "Veredicto",
+        "th_indicator": "Indicador", "th_zone": "Freguesia", "th_score": "Score",
+        "eyb_modes": "Leitura por modo", "city_view": "Vista cidade : score {s}/100, {v}",
+        "eyb_risks": "Riscos · fiscalidade e energia", "h_risks": "Riscos",
+        "eyb_conclusion": "Conclusão", "h_reco": "Recomendação",
+        "legal": "Documento gerado pela Barzel Analytics a partir do seu motor de análise proprietário.\n"
+                 "  Os indicadores refletem o estado do mercado à data de edição. Este documento destina-se ao uso interno\n"
+                 "  do destinatário e não constitui aconselhamento de investimento.",
+    },
+}
 
 
 def _html(sections: dict, tables: dict, scope: str, asset_class: str,
-          modes: list[str], angle: str, today: str, city: str = "gaia") -> str:
+          modes: list[str], angle: str, today: str, city: str = "gaia",
+          lang: str = "fr") -> str:
     from ..services.cities import label_for
+    P = _PDF[lang]
     city_label = label_for(city)
-    cls_fr = _CLS_FR[asset_class]
+    cls_fr = _CLS[lang][asset_class]
     scope_line = tables.get("scope_name") or city_label
     title_scope = f"{scope_line} · {cls_fr}" if scope != "ville" else f"{city_label} · {cls_fr}"
     v = tables["ville"]
@@ -570,19 +961,19 @@ def _html(sections: dict, tables: dict, scope: str, asset_class: str,
         rows_html = "".join(
             f"<tr{' class=scope' if r['is_scope'] else ''}><td>{_esc(r['name'])}"
             f"{' <span class=mark>◆</span>' if r['is_scope'] else ''}</td>"
-            f"<td class=val>{r['score']}</td><td>{_badge(r['verdict'])}</td>"
+            f"<td class=val>{r['score']}</td><td>{_badge(r['verdict'], lang)}</td>"
             + "".join(f"<td class=val>{_esc(c)}</td>" for c in r["cols"]) + "</tr>"
             for r in t["rows"]
         )
         muni = t["municipio"]
-        muni_line = (f"Vue ville : score {muni['score']}/100, {_VERDICT_FR.get(muni['verdict'], muni['verdict'])}"
+        muni_line = (P["city_view"].format(s=muni["score"], v=_verdict(muni["verdict"], lang))
                      + (f" · {_esc(muni['native'])}" if muni.get("native") else "")) if muni else ""
         mode_blocks.append(f"""
   <div class="modeblock">
-    <h3 class="modetitle">{_MODE_FR[m]}</h3>
+    <h3 class="modetitle">{_MODE[lang][m]}</h3>
     <div class="muni">{muni_line}</div>
     <table>
-      <thead><tr><th>Freguesia</th><th>Score</th><th>Verdict</th>{"".join(f"<th>{h}</th>" for h in t["headers"])}</tr></thead>
+      <thead><tr><th>{P["th_zone"]}</th><th>{P["th_score"]}</th><th>{P["th_verdict"]}</th>{"".join(f"<th>{h}</th>" for h in t["headers"])}</tr></thead>
       <tbody>{rows_html}</tbody>
     </table>
     <div class="narrative">{_paras(sections.get("lecture_par_mode", {}).get(m, ""))}</div>
@@ -593,17 +984,17 @@ def _html(sections: dict, tables: dict, scope: str, asset_class: str,
         mode_pages.append(f"""
 <section class="page">
   <div class="rule"></div>
-  <div class="eyebrow">Lecture par mode</div>
+  <div class="eyebrow">{P["eyb_modes"]}</div>
   {pair}
-  <div class="pagefoot">Barzel Analytics · Mémo d'investissement · {today}</div>
+  <div class="pagefoot">Barzel Analytics · {P["memo"]} · {today}</div>
 </section>""")
 
     facts_html = "".join(
         f'<div class="fact"><div class="fact-t">{k}</div><div class="fact-b">{_rich(t)}</div></div>'
-        for k, t in _facts_for_city(city)
+        for k, t in _facts_for_city(city, lang)
     )
 
-    return f"""<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><style>
+    return f"""<!DOCTYPE html><html lang="{lang}"><head><meta charset="utf-8"><style>
 {_font_css()}
 * {{ margin:0; padding:0; box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }}
 body {{ font-family:'Montserrat',sans-serif; color:#243447; font-size:10.5pt; line-height:1.55; }}
@@ -642,52 +1033,50 @@ tr.scope td {{ background:rgba(201,168,106,.12); }}
   <div>
     <div class="eyebrow">Barzel Analytics</div>
     <div style="width:38px;height:4px;background:#C9A86A;border-radius:2px;margin:14px 0 26px"></div>
-    <div class="eyebrow" style="letter-spacing:3px">Mémo d'investissement</div>
+    <div class="eyebrow" style="letter-spacing:3px">{P["memo"]}</div>
     <h1>{_esc(title_scope)}</h1>
-    <div style="margin-top:14px;color:rgba(243,238,227,.85);font-size:11pt">{_ANGLES.get(angle, _ANGLES["synthese"])}</div>
+    <div style="margin-top:14px;color:rgba(243,238,227,.85);font-size:11pt">{_angle_label(angle, lang)}</div>
   </div>
   <div style="display:flex;justify-content:space-between;align-items:flex-end;color:rgba(243,238,227,.7);font-size:9.5pt">
-    <div>{today}</div><div>Document préparé par la plateforme Barzel</div>
+    <div>{today}</div><div>{P["prepared"]}</div>
   </div>
 </section>
 
 <section class="page">
   <div class="rule"></div>
-  <div class="eyebrow">Synthèse</div>
-  <h2>Synthèse exécutive</h2>
+  <div class="eyebrow">{P["eyb_summary"]}</div>
+  <h2>{P["h_exec"]}</h2>
   <div class="narrative">{_paras(sections.get("executive_summary", ""))}</div>
-  <div class="eyebrow" style="margin-top:16px">Marché · {city_label} ({cls_fr})</div>
+  <div class="eyebrow" style="margin-top:16px">{P["market"]} · {city_label} ({cls_fr})</div>
   <div class="kpis">
-    <div class="kpi"><div class="l">Prix médian ville</div><div class="v">{v["price"]} €/m²</div></div>
-    <div class="kpi"><div class="l">Évolution 12 mois</div><div class="v">{v["yoy"]}</div></div>
-    <div class="kpi"><div class="l">Transactions / an</div><div class="v">{v["tx"]}</div></div>
+    <div class="kpi"><div class="l">{P["kpi_price"]}</div><div class="v">{v["price"]} €/m²</div></div>
+    <div class="kpi"><div class="l">{P["kpi_yoy"]}</div><div class="v">{v["yoy"]}</div></div>
+    <div class="kpi"><div class="l">{P["kpi_tx"]}</div><div class="v">{v["tx"]}</div></div>
   </div>
   <table>
-    <thead><tr><th>Mode</th><th>Score ville</th><th>Verdict</th><th>Indicateur</th></tr></thead>
+    <thead><tr><th>{P["th_mode"]}</th><th>{P["th_city_score"]}</th><th>{P["th_verdict"]}</th><th>{P["th_indicator"]}</th></tr></thead>
     <tbody>{"".join(
-        f"<tr><td>{_MODE_FR[m]}</td><td class=val>{tables['modes'][m]['municipio']['score'] if tables['modes'][m]['municipio'] else '–'}</td>"
-        f"<td>{_badge(tables['modes'][m]['municipio']['verdict']) if tables['modes'][m]['municipio'] else '–'}</td>"
+        f"<tr><td>{_MODE[lang][m]}</td><td class=val>{tables['modes'][m]['municipio']['score'] if tables['modes'][m]['municipio'] else '–'}</td>"
+        f"<td>{_badge(tables['modes'][m]['municipio']['verdict'], lang) if tables['modes'][m]['municipio'] else '–'}</td>"
         f"<td>{_esc(tables['modes'][m]['municipio'].get('native', '')) if tables['modes'][m]['municipio'] else ''}</td></tr>"
         for m in modes)}</tbody>
   </table>
-  <div class="pagefoot">Barzel Analytics · Mémo d'investissement · {today}</div>
+  <div class="pagefoot">Barzel Analytics · {P["memo"]} · {today}</div>
 </section>
 
 {"".join(mode_pages)}
 
 <section class="page" style="page-break-after:auto">
   <div class="rule"></div>
-  <div class="eyebrow">Risques · fiscalité &amp; énergie</div>
-  <h2>Risques</h2>
+  <div class="eyebrow">{P["eyb_risks"]}</div>
+  <h2>{P["h_risks"]}</h2>
   <div class="narrative">{_paras(sections.get("risques", ""))}</div>
   <div class="factgrid">{facts_html}</div>
-  <div class="eyebrow" style="margin-top:14px">Conclusion</div>
-  <h2>Recommandation</h2>
+  <div class="eyebrow" style="margin-top:14px">{P["eyb_conclusion"]}</div>
+  <h2>{P["h_reco"]}</h2>
   <div class="narrative">{_paras(sections.get("recommandation", ""))}</div>
-  <div class="legal">Document généré par Barzel Analytics à partir de son moteur d'analyse propriétaire.
-  Les indicateurs reflètent l'état du marché à la date d'édition. Ce document est destiné à l'usage interne
-  du destinataire et ne constitue pas un conseil en investissement.</div>
-  <div class="pagefoot">Barzel Analytics · Mémo d'investissement · {today}</div>
+  <div class="legal">{P["legal"]}</div>
+  <div class="pagefoot">Barzel Analytics · {P["memo"]} · {today}</div>
 </section>
 
 </body></html>"""
@@ -713,19 +1102,24 @@ def _pdf_bytes(html: str) -> bytes:
 @router.post("/render")
 def render(payload: RenderPayload):
     asset_class, modes, scope, city = _validate(payload)
+    lang = _lang_of(payload)
     if not isinstance(payload.sections, dict):
         raise HTTPException(status_code=400, detail="sections invalides")
-    tables = _tables(scope, asset_class, modes, city)    # chiffres du moteur, jamais du client
+    tables = _tables(scope, asset_class, modes, city, lang)    # chiffres du moteur, jamais du client
     d = date.today()
-    today = f"{d.day} {_MONTHS_FR[d.month - 1]} {d.year}"
-    html = _html(_sanitize_sections(payload.sections), tables, scope, asset_class, modes, payload.angle, today, city)
+    today = _today_str(d, lang)
+    html = _html(_sanitize_sections(payload.sections), tables, scope, asset_class, modes, payload.angle, today, city, lang)
     try:
         pdf = _pdf_bytes(html)
     except Exception as exc:  # noqa: BLE001
         log.warning("memo render failed: %s", type(exc).__name__)
         raise HTTPException(status_code=503, detail="rendu momentanément indisponible")
     from ..services.cities import label_for
+    # Nom de fichier : marque « Barzel_Memo_ » conservée, ville en ASCII (elle ne se
+    # traduit pas), classe dans la langue demandée mais DÉSACCENTUÉE (un en-tête
+    # Content-Disposition ne porte pas d'accent sans encodage RFC 5987). En FR le
+    # nom est donc strictement celui d'avant le lot.
     city_file = "".join(ch for ch in label_for(city) if ch.isalnum())
-    fname = f"Barzel_Memo_{city_file}_{_CLS_FILE[asset_class]}_{d.isoformat()}.pdf"
+    fname = f"Barzel_Memo_{city_file}_{_CLS_FILE[lang][asset_class]}_{d.isoformat()}.pdf"
     return StreamingResponse(io.BytesIO(pdf), media_type="application/pdf",
                              headers={"Content-Disposition": f'attachment; filename="{fname}"'})
