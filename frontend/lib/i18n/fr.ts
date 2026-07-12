@@ -801,4 +801,27 @@ export const fr: Dict = {
   "nat.noun.detention": "yield net",
   "nat.noun.arbitrage": "spread",
   "nat.noun.landbank": "constructibilité",
+  // --- WHY recomposes cote front (lib/nativeLabels.ts, composeWhy). Le FR est
+  // BYTE-IDENTIQUE a ce qu'emet le moteur : ne pas retoucher sans rejouer le
+  // script de controle FR. Le glyphe est U+2212 (signe moins), pas un tiret. ---
+  "wy.absorption": "absorption ~{v} mois (DOM médian simulé), profondeur {n} ventes/an",
+  "wy.absorptionShort": "absorption ~{v} mois (DOM médian simulé)",
+  "wy.momentumPrix": "momentum prix {v}%{note}",
+  "wy.mom.overheat": " (écrêté: signe de surchauffe)",
+  "wy.mom.regen": " (plancher de régénération : nouveau terminal intermodal et plan-guide de reconversion soutiennent le momentum de promotion malgré le yoy consolidé)",
+  "wy.constructibilite": "constructibilité {v}/100 (percentile socle)",
+  "wy.connectivite": "connectivité {v}/100 (percentile socle)",
+  "wy.portage": "coût de portage {v}%/an (dette senior + fonds propres, LTV cible)",
+  "wy.frictions": "frictions de sortie: plus-value/friction {v}%",
+  "wy.coc": "coût d'opportunité du capital {v}%",
+  "wy.risqueTiming": "risque de timing réglementaire {v}/100",
+  "wy.spreadZone": "spread zone {v}% (médiane {a} vs comparable {b} €/m²)",
+  "wy.spreadPosition": "spread {v}% (positionnement vs médiane ville)",
+  "wy.appetit": "appétit institutionnel {cls} {v}",
+  "wy.valeurUsage": "valorisation max: {cls} ~{v} €/m² (max multi-usages)",
+  "wy.rendementNet": "rendement net {v}% (brut {a}% − fisc {b} − charges {c} − vacance {d}%)",
+  "wy.resilience": "résilience locative {v}/100 (connectivité {a}, vacance {b}%)",
+  "wy.fiscalite": "charge fiscale détention (droits {a}%, annuel {b}%)",
+  "wy.incit.pt": "incitations 2026: IVA 6% construction abordable, exoneration IMT/IS sous plafonds, exoneration AIMI, contrats CIA",
+  "wy.incit.be": "incitations 2026: abattement 200k eur, primes renovation",
 };
