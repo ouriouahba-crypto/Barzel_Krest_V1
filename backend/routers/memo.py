@@ -33,7 +33,7 @@ from pydantic import BaseModel
 
 from ..services import mode_scoring as ms
 from .analyst import (_api_key, _build_context, _LANG_NAME, _norm_lang, _ri,
-                      _VERDICT_VOCAB, strip_em_dashes, verdict_counts)
+                      _VERDICT_VOCAB, mesh_for, strip_em_dashes, verdict_counts)
 from .scoring import _clean
 
 log = logging.getLogger("routers.memo")
@@ -42,6 +42,13 @@ router = APIRouter(prefix="/api/memo", tags=["memo"])
 
 _MODEL = "claude-sonnet-4-6"
 _CLASSES = {"residential", "office", "hotel", "logistics", "retail"}
+
+# La MAILLE (la zone fine) dépend du PAYS, PAS de la langue : le moteur sert
+# `level == "freguesia"` au Portugal et `level == "commune"` en Belgique. Le mémo
+# écrivait « freguesia » en dur : à Bruxelles il filtrait donc sur un niveau qui
+# n'existe pas (tableaux VIDES, dénombrements à zéro). `mesh_for(city)` rend le
+# couple (singulier, pluriel) du pays ; le mot n'est JAMAIS traduit (décision
+# verrouillée) : « freguesia » et « commune » restent tels quels dans les 3 langues.
 
 # --------------------------------------------------------------------------- #
 # Vocabulaire par langue (lot QA-2a). INVARIANT DUR : la colonne "fr" reprend  #
@@ -126,25 +133,35 @@ def _font_css() -> str:
 # Deterministic figures : read from the engine through _clean, never from IA   #
 # --------------------------------------------------------------------------- #
 
-def _f0(v):
-    return f"{round(v):,}".replace(",", " ") if v is not None else "–"
+# Formatage des NOMBRES par langue. Seul l'HABILLAGE change : les valeurs, les
+# arrondis (half-up) et le « jamais de zéro négatif » sont strictement inchangés.
+#   fr : « 2 721 » · « +55,4 » · pourcentage précédé d'une espace (« 30,0 % »)
+#   en : « 2,721 » · « +55.4 » · pourcentage collé (« 30.0% »)
+#   pt : « 2 721 » · « +55,4 » · pourcentage collé (« 30,0% »)
+_THOUSANDS = {"fr": " ", "en": ",", "pt": " "}
+_DECIMAL = {"fr": ",", "en": ".", "pt": ","}
+_PCT_SEP = {"fr": " %", "en": "%", "pt": "%"}   # séparateur devant le signe %
 
 
-def _f1(v):
+def _f0(v, lang: str = "fr"):
+    return f"{round(v):,}".replace(",", _THOUSANDS[lang]) if v is not None else "–"
+
+
+def _f1(v, lang: str = "fr"):
     if v is None:
         return "–"
     # Arrondi half-up de la plateforme, jamais de zéro négatif (« -0,0 »).
     r = _ri(float(v) * 10) / 10
     if r == 0:
         r = 0.0
-    return f"{r:.1f}".replace(".", ",")
+    return f"{r:.1f}".replace(".", _DECIMAL[lang])
 
 
-def _f1s(v):
+def _f1s(v, lang: str = "fr"):
     """Variante signée : « + » sur le positif strict, jamais de zéro signé."""
     if v is None:
         return "–"
-    return ("+" if _ri(float(v) * 10) > 0 else "") + _f1(v)
+    return ("+" if _ri(float(v) * 10) > 0 else "") + _f1(v, lang)
 
 
 def _pillar_bd(z: dict, key: str) -> dict:
@@ -216,22 +233,23 @@ _UNIT_MONTHS = {"fr": "mois", "en": "months", "pt": "meses"}
 
 def _mode_cols(mode: str, z: dict, lang: str = "fr") -> list[str]:
     """Formatted metric cells for one zone row, per mode."""
+    pc = _PCT_SEP[lang]
     if mode == "promotion":
         b = _pillar_bd(z, "marge")
-        return [f"{_f1(b.get('margin_pct'))} %", f"{_f0(b.get('realizable_sale'))} €/m²",
-                f"{_f0(b.get('cost_total'))} €/m²"]
+        return [f"{_f1(b.get('margin_pct'), lang)}{pc}", f"{_f0(b.get('realizable_sale'), lang)} €/m²",
+                f"{_f0(b.get('cost_total'), lang)} €/m²"]
     if mode == "detention":
         b = _pillar_bd(z, "rendement_net")
-        return [f"{_f1(b.get('yield_net_pct'))} %", f"{_f0(b.get('loyer_marche_eur_m2_an'))} €/m²/an",
-                f"{_f1((b.get('charges_pct_loyer') or 0) + (b.get('fiscalite_pct_loyer') or 0))} {_UNIT_PCT_RENT[lang]}"]
+        return [f"{_f1(b.get('yield_net_pct'), lang)}{pc}", f"{_f0(b.get('loyer_marche_eur_m2_an'), lang)} €/m²/an",
+                f"{_f1((b.get('charges_pct_loyer') or 0) + (b.get('fiscalite_pct_loyer') or 0), lang)} {_UNIT_PCT_RENT[lang]}"]
     if mode == "arbitrage":
         b = _pillar_bd(z, "spread")
-        return [f"{_f1s(b.get('spread_pct'))} %", f"{_f0(b.get('valeur_realisable_eur_m2'))} €/m²",
-                f"{_f1(b.get('delai_cession_mois'))} {_UNIT_MONTHS[lang]}"]
+        return [f"{_f1s(b.get('spread_pct'), lang)}{pc}", f"{_f0(b.get('valeur_realisable_eur_m2'), lang)} €/m²",
+                f"{_f1(b.get('delai_cession_mois'), lang)} {_UNIT_MONTHS[lang]}"]
     b = _pillar_bd(z, "constructibilite")
     usage = b.get("meilleur_usage", "–")
     horizon = b.get("horizon_activation", "–")
-    return [f"{_f1s(b.get('uplift_pct'))} %", f"{_f0(b.get('valeur_residuelle_eur_m2'))} €/m²",
+    return [f"{_f1s(b.get('uplift_pct'), lang)}{pc}", f"{_f0(b.get('valeur_residuelle_eur_m2'), lang)} €/m²",
             f"{_USAGE[lang].get(usage, usage)} · {_HORIZON[lang].get(horizon, horizon)}"]
 
 
@@ -278,13 +296,14 @@ def _tables(scope: str, asset_class: str, modes: list[str], city: str = "gaia",
     """All deterministic figures for the memo, from cleaned engine payloads.
     Scores are half-up integers (the platform convention) ; rows follow the mode
     pages' order : rounded score desc, native metric desc on rounded ties.
-    `lang` ne touche QUE les libellés (en-têtes, unités, usages, libellé natif) :
-    aucune valeur numérique n'en dépend."""
+    `lang` ne touche QUE l'HABILLAGE (libellés, séparateurs de nombres) : aucune
+    valeur, aucun arrondi n'en dépend. La MAILLE, elle, vient du PAYS."""
     out: dict = {"modes": {}}
     muni_seen = None
+    mesh_sg = mesh_for(city)[0]     # "freguesia" (PT) ou "commune" (BE)
     for mode in modes:
         zones = _clean(ms.score_city(city, mode, asset_class))
-        fregs = sorted([z for z in zones if z["level"] == "freguesia"],
+        fregs = sorted([z for z in zones if z["level"] == mesh_sg],
                        key=lambda z: (-_ri(z["total"]), -_native_metric(mode, z)))
         muni = next((z for z in zones if z["level"] == "municipio"), None)
         muni_seen = muni_seen or muni
@@ -311,9 +330,9 @@ def _tables(scope: str, asset_class: str, modes: list[str], city: str = "gaia",
                 scope_name = _short(m["zone_name"])
                 break
     out["ville"] = {
-        "price": _f0(muni_seen.get("price_eur_m2")) if muni_seen else "–",
-        "yoy": f"{_f1s(muni_seen.get('yoy_pct'))} %" if muni_seen else "–",
-        "tx": _f0(muni_seen.get("n_transactions")) if muni_seen else "–",
+        "price": _f0(muni_seen.get("price_eur_m2"), lang) if muni_seen else "–",
+        "yoy": f"{_f1s(muni_seen.get('yoy_pct'), lang)}{_PCT_SEP[lang]}" if muni_seen else "–",
+        "tx": _f0(muni_seen.get("n_transactions"), lang) if muni_seen else "–",
     }
     out["scope_name"] = scope_name
     return out
@@ -328,8 +347,17 @@ def _system_memo_for(city: str, asset_class: str, lang: str = "fr") -> str:
     counts_by_mode = verdict_counts(asset_class, city)
     n_freg = sum(next(iter(counts_by_mode.values())).values()) if counts_by_mode else 15
     style, verdicts = _lang_directives(lang)
+    sg, pl = mesh_for(city)
+    # Le mot INTERDIT est l'autre maille : à Gaia on proscrit « communes », à
+    # Bruxelles « freguesias ». Sans cela le prompt bruxellois interdisait
+    # justement le mot juste.
+    other_pl = _MESH_OTHER[pl]
     return (_SYSTEM_MEMO_TEMPLATE.replace("{VILLE}", label_for(city)).replace("{NFREG}", str(n_freg))
+            .replace("{MESH_PL}", pl).replace("{OTHER_PL}", other_pl)
             .replace("{STYLE_LINE}", style).replace("{VERDICT_LINE}", verdicts))
+
+
+_MESH_OTHER = {"freguesias": "communes", "communes": "freguesias"}
 
 
 def _lang_directives(lang: str) -> tuple[str, str]:
@@ -391,9 +419,9 @@ _SYSTEM_MEMO_TEMPLATE = """Tu es l'analyste de Barzel Analytics, plateforme d'in
 RÈGLES ABSOLUES :
 - Tu rédiges UNIQUEMENT à partir des données fournies. Tu n'inventes JAMAIS un chiffre : chaque nombre cité doit figurer tel quel dans les données.
 - Tu ne mentionnes JAMAIS de niveau de confiance, de source de donnée, de méthodologie interne ni l'idée qu'une donnée serait simulée ou estimée.
-- {VILLE} compte {NFREG} freguesias ; ces territoires s'appellent des freguesias, jamais « friches », « quartiers » ou « communes ».
+- {VILLE} compte {NFREG} {MESH_PL} ; ces territoires s'appellent des {MESH_PL}, jamais « friches », « quartiers » ou « {OTHER_PL} ».
 - Cohérence interne : n'affirme jamais qu'un territoire domine sur tous les axes si un seul axe s'inverse ; nomme l'exception d'emblée.
-- Pour tout comptage de freguesias (« N freguesias »), utilise UNIQUEMENT les comptages pré-calculés de la section DÉNOMBREMENTS ; ne recompte JAMAIS toi-même à partir des listes ; au moindre doute, formule sans compte. Ne cite un rang (« premier », « deuxième ») que s'il se lit directement dans l'ordre des données.
+- Pour tout comptage de {MESH_PL} (« N {MESH_PL} »), utilise UNIQUEMENT les comptages pré-calculés de la section DÉNOMBREMENTS ; ne recompte JAMAIS toi-même à partir des listes ; au moindre doute, formule sans compte. Ne cite un rang (« premier », « deuxième ») que s'il se lit directement dans l'ordre des données.
 - Tu cites les scores en entiers (« 87/100 »), jamais avec décimale.
 - Ponctuation : tu n'utilises JAMAIS le tiret cadratin (le tiret long, U+2014), ni seul ni encadré d'espaces ; articule avec deux-points, virgule, parenthèses ou une nouvelle phrase.
 - {STYLE_LINE}
@@ -494,17 +522,18 @@ def _lang_of(payload) -> str:
 
 # Libellés de la mission, dans la langue de rédaction (le modèle les reprend).
 _MISSION = {
+    # {mesh} = maille de la ville (freguesia / commune), JAMAIS traduite.
     "fr": {"angle": "Angle du mémo", "scope": "Périmètre", "cls": "Classe d'actif",
            "modes": "Modes couverts par le mémo", "city_all": "la ville entière",
-           "freg": "la freguesia {name} (au sein du marché de {city})",
+           "freg": "la {mesh} {name} (au sein du marché de {city})",
            "instr": "Instructions du client (à respecter sans enfreindre les règles)"},
     "en": {"angle": "Memo angle", "scope": "Scope", "cls": "Asset class",
            "modes": "Modes covered by the memo", "city_all": "the whole city",
-           "freg": "the freguesia {name} (within the {city} market)",
+           "freg": "the {mesh} {name} (within the {city} market)",
            "instr": "Client instructions (to be followed without breaking the rules)"},
     "pt": {"angle": "Ângulo do memorando", "scope": "Perímetro", "cls": "Classe de ativo",
            "modes": "Modos cobertos pelo memorando", "city_all": "a cidade inteira",
-           "freg": "a freguesia {name} (no mercado de {city})",
+           "freg": "a {mesh} {name} (no mercado de {city})",
            "instr": "Instruções do cliente (a respeitar sem infringir as regras)"},
 }
 
@@ -515,7 +544,8 @@ def _mission(scope: str, asset_class: str, modes: list[str], angle: str,
     from ..services.cities import label_for
     t = _MISSION[lang]
     scope_txt = (t["city_all"] if scope == "ville"
-                 else t["freg"].format(name=tables.get("scope_name") or scope, city=label_for(city)))
+                 else t["freg"].format(mesh=mesh_for(city)[0],
+                                       name=tables.get("scope_name") or scope, city=label_for(city)))
     lines = [
         "# MISSION",
         f"{t['angle']} : {_angle_label(angle, lang)}.",
@@ -558,12 +588,12 @@ _SECTION_BRIEF = {
 _MODE_READING = {"fr": "Lecture {mode}", "en": "{mode} reading", "pt": "Leitura {mode}"}
 
 
-def _section_brief(section: str, lang: str = "fr") -> tuple[str, str, int]:
+def _section_brief(section: str, lang: str = "fr", mesh_pl: str = "freguesias") -> tuple[str, str, int]:
     if section in _SECTION_BRIEF[lang]:
         return _SECTION_BRIEF[lang][section]
     label = _MODE_READING[lang].format(mode=_MODE[lang][section])
     return (label, f"la lecture du mode {_MODE[lang][section]} (70-110 mots), appuyée sur ses chiffres "
-                   "de freguesias et son verdict de vue ville", 500)
+                   f"de {mesh_pl} et son verdict de vue ville", 500)
 
 
 async def _draft_section(client, base_prompt: str, section: str,
@@ -572,19 +602,20 @@ async def _draft_section(client, base_prompt: str, section: str,
                          lang: str = "fr") -> str:
     """One narrative section, with the count guardrail applied per section
     (2 attempts, corrective note on retry)."""
-    label, brief, max_tokens = _section_brief(section, lang)
+    sg, pl = mesh_for(city)
+    label, brief, max_tokens = _section_brief(section, lang, pl)
     user = (f"{base_prompt}\n\n# SECTION À RÉDIGER\n"
             f"Rédige UNIQUEMENT {brief}. N'écris pas de titre : le gabarit du mémo "
             f"l'affiche déjà (« {label} »). Réponds avec le texte seul, sans JSON ni markdown.")
     msg = user
     for attempt in (1, 2):
         texte = await _llm_text_async(client, msg, max_tokens, system=_system_memo_for(city, asset_class, lang), lang=lang)
-        bad = _bad_counts({"t": texte}, counts, modes, lang)
+        bad = _bad_counts({"t": texte}, counts, modes, lang, sg)
         if not bad:
             return texte
         if attempt == 1:
             log.warning("memo section %s: comptage hors DÉNOMBREMENTS %s, retry", section, bad)
-            msg = (f"{user}\n\nATTENTION : une rédaction précédente citait un comptage de freguesias erroné "
+            msg = (f"{user}\n\nATTENTION : une rédaction précédente citait un comptage de {pl} erroné "
                    f"({', '.join(bad)}). Utilise UNIQUEMENT les comptages de la section DÉNOMBREMENTS, sans recompter.")
         else:
             log.warning("memo section %s: comptage hors DÉNOMBREMENTS conservé %s", section, bad)
@@ -622,12 +653,17 @@ def _num_alt(lang: str) -> str:
     return r"\b(\d+|" + "|".join(sorted(_NUM_WORDS[lang], key=len, reverse=True)) + r")"
 
 
-# « N freguesias » : le mot « freguesia » est INVARIANT dans les trois langues (le
-# prompt système l'impose : « ces territoires s'appellent des freguesias »), seul
-# le nombre écrit en toutes lettres change de langue.
-_COUNT_RES = {l: re.compile(_num_alt(l) + r"\s+freguesias?\b", re.IGNORECASE)
-              for l in ("fr", "en", "pt")}
-_COUNT_RE = _COUNT_RES["fr"]   # conservé : ancien nom, comportement FR inchangé
+# « N freguesias » / « N communes » : le nom de la maille est INVARIANT dans les trois
+# langues (le prompt système l'impose), mais il dépend du PAYS. Le nombre écrit en
+# toutes lettres, lui, dépend de la langue. Le filet se compile donc par (langue, maille) :
+# sans cela, à Bruxelles il cherchait « freguesias » dans un texte qui dit « communes »,
+# et ne gardait plus rien.
+@lru_cache(maxsize=32)
+def _count_re(lang: str, mesh_sg: str) -> re.Pattern:
+    return re.compile(_num_alt(lang) + rf"\s+{re.escape(mesh_sg)}s?\b", re.IGNORECASE)
+
+
+_COUNT_RE = _count_re("fr", "freguesia")   # conservé : ancien nom, comportement FR inchangé
 
 # (mode, verdict brut) -> motif d'affichage du verdict dans la prose, par langue.
 # EN : « Hold » (détention) est un préfixe de « On hold » (landbank) : le lookbehind
@@ -667,17 +703,22 @@ _VERDICT_PAT = {
         ("landbank", "En attente"): r"em\s+espera\b",
     },
 }
-# Chevilles admises entre le nombre et le verdict, par langue.
+# Chevilles admises entre le nombre et le verdict, par langue. {MESH} = la maille
+# de la ville (freguesia / commune), injectée à la compilation.
 _VERDICT_LEAD = {
-    "fr": r"(?:freguesias?\s+)?(?:au\s+verdict\s+|en\s+|«\s*)?",
-    "en": r"(?:freguesias?\s+)?(?:with\s+(?:a\s+)?|at\s+|rated\s+|«\s*)?",
-    "pt": r"(?:freguesias?\s+)?(?:com\s+|em\s+|no\s+veredicto\s+|«\s*)?",
+    "fr": r"(?:{MESH}s?\s+)?(?:au\s+verdict\s+|en\s+|«\s*)?",
+    "en": r"(?:{MESH}s?\s+)?(?:with\s+(?:a\s+)?|at\s+|rated\s+|«\s*)?",
+    "pt": r"(?:{MESH}s?\s+)?(?:com\s+|em\s+|no\s+veredicto\s+|«\s*)?",
 }
-_VERDICT_COUNT_RES = {
-    lang: {key: re.compile(_num_alt(lang) + r"\s+" + _VERDICT_LEAD[lang] + pat, re.IGNORECASE)
-           for key, pat in pats.items()}
-    for lang, pats in _VERDICT_PAT.items()
-}
+
+
+@lru_cache(maxsize=32)
+def _verdict_count_res(lang: str, mesh_sg: str) -> tuple:
+    lead = _VERDICT_LEAD[lang].replace("{MESH}", re.escape(mesh_sg))
+    return tuple(
+        (key, re.compile(_num_alt(lang) + r"\s+" + lead + pat, re.IGNORECASE))
+        for key, pat in _VERDICT_PAT[lang].items()
+    )
 
 
 def _to_int(tok: str, lang: str = "fr") -> int:
@@ -686,9 +727,13 @@ def _to_int(tok: str, lang: str = "fr") -> int:
 
 
 def _allowed_counts(counts: dict, modes: list[str]) -> set[int]:
+    # Le TOTAL de la maille était codé en dur à 15 (le compte de Gaia) : un « 24
+    # freguesias » lisboète ou un « 19 communes » bruxellois, pourtant exacts,
+    # étaient donc signalés à tort. On le dérive des comptages injectés.
     allowed = {15}
     for mode in modes:
         vals = list(counts.get(mode, {}).values())
+        allowed.add(sum(vals))
         allowed.update(vals)
         allowed.update(a + b for i, a in enumerate(vals) for b in vals[i + 1:])
     return allowed
@@ -708,14 +753,15 @@ def _walk_texts(sections) -> list[str]:
     return [sections] if isinstance(sections, str) else []
 
 
-def _bad_counts(sections: dict, counts: dict, modes: list[str], lang: str = "fr") -> list[str]:
+def _bad_counts(sections: dict, counts: dict, modes: list[str], lang: str = "fr",
+                mesh_sg: str = "freguesia") -> list[str]:
     allowed = _allowed_counts(counts, modes)
     bad = []
     for text in _walk_texts(sections):
-        for m in _COUNT_RES[lang].finditer(text):
+        for m in _count_re(lang, mesh_sg).finditer(text):
             if _to_int(m.group(1), lang) not in allowed:
                 bad.append(m.group(0))
-        for (mode, verdict), rx in _VERDICT_COUNT_RES[lang].items():
+        for (mode, verdict), rx in _verdict_count_res(lang, mesh_sg):
             expected = counts.get(mode, {}).get(verdict)
             if expected is None:
                 continue
@@ -791,16 +837,17 @@ def revise(payload: RevisePayload) -> dict:
         "Réécris cette seule section en respectant toutes les règles, et applique la consigne de façon marquée "
         "(si on te demande de raccourcir, vise au moins un tiers de moins). Réponds avec le texte seul, sans JSON ni markdown."
     )
+    sg, pl = mesh_for(city)
     msg = user
     for attempt in (1, 2):
         texte = _llm_text(_system_memo_for(city, asset_class, lang), msg, max_tokens=700, lang=lang)
-        bad = _bad_counts({"texte": texte}, counts, modes, lang)
+        bad = _bad_counts({"texte": texte}, counts, modes, lang, sg)
         if not bad or attempt == 2:
             if bad:
                 log.warning("memo revise: comptage hors DÉNOMBREMENTS conservé %s", bad)
             return {"texte": texte}
-        log.warning("memo revise: comptage de freguesias hors DÉNOMBREMENTS %s, retry", bad)
-        msg = (f"{user}\n\nATTENTION : une rédaction précédente citait un comptage de freguesias erroné "
+        log.warning("memo revise: comptage de %s hors DÉNOMBREMENTS %s, retry", pl, bad)
+        msg = (f"{user}\n\nATTENTION : une rédaction précédente citait un comptage de {pl} erroné "
                f"({', '.join(bad)}). Utilise UNIQUEMENT les comptages de la section DÉNOMBREMENTS, sans recompter.")
 
 
@@ -904,7 +951,7 @@ _PDF = {
         "market": "Marché", "kpi_price": "Prix médian ville", "kpi_yoy": "Évolution 12 mois",
         "kpi_tx": "Transactions / an",
         "th_mode": "Mode", "th_city_score": "Score ville", "th_verdict": "Verdict",
-        "th_indicator": "Indicateur", "th_zone": "Freguesia", "th_score": "Score",
+        "th_indicator": "Indicateur", "th_score": "Score",
         "eyb_modes": "Lecture par mode", "city_view": "Vue ville : score {s}/100, {v}",
         "eyb_risks": "Risques · fiscalité &amp; énergie", "h_risks": "Risques",
         "eyb_conclusion": "Conclusion", "h_reco": "Recommandation",
@@ -918,7 +965,7 @@ _PDF = {
         "market": "Market", "kpi_price": "City median price", "kpi_yoy": "12-month change",
         "kpi_tx": "Transactions / year",
         "th_mode": "Mode", "th_city_score": "City score", "th_verdict": "Verdict",
-        "th_indicator": "Indicator", "th_zone": "Freguesia", "th_score": "Score",
+        "th_indicator": "Indicator", "th_score": "Score",
         "eyb_modes": "Reading by mode", "city_view": "City view : score {s}/100, {v}",
         "eyb_risks": "Risks · tax &amp; energy", "h_risks": "Risks",
         "eyb_conclusion": "Conclusion", "h_reco": "Recommendation",
@@ -932,7 +979,7 @@ _PDF = {
         "market": "Mercado", "kpi_price": "Preço mediano da cidade", "kpi_yoy": "Evolução a 12 meses",
         "kpi_tx": "Transações / ano",
         "th_mode": "Modo", "th_city_score": "Score da cidade", "th_verdict": "Veredicto",
-        "th_indicator": "Indicador", "th_zone": "Freguesia", "th_score": "Score",
+        "th_indicator": "Indicador", "th_score": "Score",
         "eyb_modes": "Leitura por modo", "city_view": "Vista cidade : score {s}/100, {v}",
         "eyb_risks": "Riscos · fiscalidade e energia", "h_risks": "Riscos",
         "eyb_conclusion": "Conclusão", "h_reco": "Recomendação",
@@ -948,6 +995,9 @@ def _html(sections: dict, tables: dict, scope: str, asset_class: str,
           lang: str = "fr") -> str:
     from ..services.cities import label_for
     P = _PDF[lang]
+    # En-tête de la colonne de maille : « Freguesia » (PT) ou « Commune » (BE). Ce
+    # mot vient du PAYS et ne se traduit PAS : il est identique dans les 3 langues.
+    th_zone = mesh_for(city)[0].capitalize()
     city_label = label_for(city)
     cls_fr = _CLS[lang][asset_class]
     scope_line = tables.get("scope_name") or city_label
@@ -973,7 +1023,7 @@ def _html(sections: dict, tables: dict, scope: str, asset_class: str,
     <h3 class="modetitle">{_MODE[lang][m]}</h3>
     <div class="muni">{muni_line}</div>
     <table>
-      <thead><tr><th>{P["th_zone"]}</th><th>{P["th_score"]}</th><th>{P["th_verdict"]}</th>{"".join(f"<th>{h}</th>" for h in t["headers"])}</tr></thead>
+      <thead><tr><th>{th_zone}</th><th>{P["th_score"]}</th><th>{P["th_verdict"]}</th>{"".join(f"<th>{h}</th>" for h in t["headers"])}</tr></thead>
       <tbody>{rows_html}</tbody>
     </table>
     <div class="narrative">{_paras(sections.get("lecture_par_mode", {}).get(m, ""))}</div>

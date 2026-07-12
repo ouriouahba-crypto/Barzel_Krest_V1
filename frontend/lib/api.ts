@@ -2,6 +2,7 @@
 // confidence fields (backend strips them): the front never surfaces them.
 
 import type { Mode } from "./scoring";
+import type { Lang } from "./i18n/types";
 import { currentCitySlug } from "./cityStore";
 
 const BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
@@ -153,47 +154,47 @@ export const api = {
     if (!res.ok) throw new Error(`API ${res.status}`);
     return res.json();
   },
-  memoDraft: async (body: object): Promise<MemoDraft> => {
+  memoDraft: async (body: object, lang: Lang): Promise<MemoDraft> => {
     const res = await fetch(`${BASE}/api/memo/draft`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(withCity(body)),
+      body: JSON.stringify(withCity({ ...body, lang })),
     });
     if (!res.ok) throw new Error(`API ${res.status}`);
     return res.json();
   },
-  memoTables: async (body: object): Promise<{ tables: MemoTables; meta: MemoDraft["meta"] }> => {
+  memoTables: async (body: object, lang: Lang): Promise<{ tables: MemoTables; meta: MemoDraft["meta"] }> => {
     const res = await fetch(`${BASE}/api/memo/tables`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(withCity(body)),
+      body: JSON.stringify(withCity({ ...body, lang })),
     });
     if (!res.ok) throw new Error(`API ${res.status}`);
     return res.json();
   },
-  memoDraftSection: async (body: object): Promise<{ texte: string }> => {
+  memoDraftSection: async (body: object, lang: Lang): Promise<{ texte: string }> => {
     const res = await fetch(`${BASE}/api/memo/draft_section`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(withCity(body)),
+      body: JSON.stringify(withCity({ ...body, lang })),
     });
     if (!res.ok) throw new Error(`API ${res.status}`);
     return res.json();
   },
-  memoRevise: async (body: object): Promise<{ texte: string }> => {
+  memoRevise: async (body: object, lang: Lang): Promise<{ texte: string }> => {
     const res = await fetch(`${BASE}/api/memo/revise`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(withCity(body)),
+      body: JSON.stringify(withCity({ ...body, lang })),
     });
     if (!res.ok) throw new Error(`API ${res.status}`);
     return res.json();
   },
-  memoRender: async (body: object): Promise<{ blob: Blob; filename: string }> => {
+  memoRender: async (body: object, lang: Lang): Promise<{ blob: Blob; filename: string }> => {
     const res = await fetch(`${BASE}/api/memo/render`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(withCity(body)),
+      body: JSON.stringify(withCity({ ...body, lang })),
     });
     if (!res.ok) throw new Error(`API ${res.status}`);
     const dispo = res.headers.get("Content-Disposition") || "";
