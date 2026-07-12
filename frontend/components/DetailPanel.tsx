@@ -6,7 +6,7 @@ import { Mode } from "@/lib/scoring";
 import { PillarBar, ScoreDial, VerdictBadge } from "./ui";
 import { useLang, useT } from "@/lib/i18n/useT";
 import { modeLabel } from "@/lib/i18n/domain";
-import { composeNativeIndicator, composePillarNative } from "@/lib/nativeLabels";
+import { composeNativeIndicator, composePillarNative, composeWhy } from "@/lib/nativeLabels";
 
 export interface KeyFigure {
   label: string;
@@ -101,7 +101,9 @@ export function DetailPanel({
                         native={composePillarNative(p, lang) ?? p.native.label}
                         subscore={p.subscore}
                       />
-                      <p className="mb-1 mt-0.5 text-caption leading-snug text-ink-soft">{p.why}</p>
+                      <p className="mb-1 mt-0.5 text-caption leading-snug text-ink-soft">
+                        {composeWhy(p, lang, score) ?? p.why}
+                      </p>
                     </div>
                   ) : null
                 )}

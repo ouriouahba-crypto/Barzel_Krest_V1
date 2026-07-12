@@ -242,3 +242,148 @@ export function composeNativeIndicator(score: ModeScore, mode: Mode, lang: Lang)
   const kept = parts.filter((s): s is string => !!s && s !== "n/a");
   return kept.length ? kept.join(" · ") : "–";
 }
+
+// ---------------------------------------------------------------------------
+// WHY : la phrase d'explication sous chaque barre de pilier (DetailPanel, page
+// Carte). Meme doctrine que les libelles natifs : on REJOUE la chaine du moteur,
+// on ne la redefinit pas.
+//
+// Les NOMBRES sont repris VERBATIM depuis p.why par regex. Ce sont des chiffres,
+// langue-neutres : ca garantit l'identite FR a l'octet ET ca neutralise les
+// pieges de formatage du moteur (:.0f / :.1f / :.2f / str() brut, ou l'info
+// int/float est detruite par JSON). Seuls les MOTS sont traduits.
+//
+// Un regex qui ne matche pas -> null -> l'appelant retombe sur p.why : aucun mot
+// francais ne peut fuir par une forme non prevue.
+//
+// NON TRAITES ICI (lot 3b, gabarits VARIABLES a fragments optionnels) :
+//   marge, risque_sortie, profondeur_locative, momentum_cycle, risque_energie.
+// ---------------------------------------------------------------------------
+
+// Le moteur ecrit « − » U+2212 (signe moins), PAS un tiret ASCII : on le rejoue.
+const MINUS = "−";
+
+// Les 3 notes alternatives de momentum_prix (mode_scoring.py:922-942). Chaine
+// FR exacte -> cle ; toute autre note -> null (fallback).
+const MOM_NOTE: Record<string, string> = {
+  " (écrêté: signe de surchauffe)": "wy.mom.overheat",
+  " (plancher de régénération : nouveau terminal intermodal et plan-guide de reconversion soutiennent le momentum de promotion malgré le yoy consolidé)":
+    "wy.mom.regen",
+};
+
+// incitations : prose libre venant de params.json, non reconstructible depuis la
+// structure. Table finie des 2 chaines connues (PT, BE) ; une 3e -> null.
+const INCIT: Record<string, string> = {
+  "incitations 2026: IVA 6% construction abordable, exoneration IMT/IS sous plafonds, exoneration AIMI, contrats CIA":
+    "wy.incit.pt",
+  "incitations 2026: abattement 200k eur, primes renovation": "wy.incit.be",
+};
+
+/**
+ * Phrase `why` d'un pilier, recomposee et traduite.
+ * Retourne null quand la forme n'est pas couverte : l'appelant retombe sur p.why.
+ */
+export function composeWhy(p: Pillar, lang: Lang, score?: ModeScore): string | null {
+  if (!p.applicable) return null;
+  const w = p.why ?? "";
+  const T = (k: string, v?: Record<string, string>) => translate(k, lang, v);
+  let m: RegExpExecArray | null;
+
+  switch (p.pillar) {
+    case "absorption": {
+      // 2 formes : la clause « , profondeur {n} ventes/an » est conditionnee a
+      // n_transactions (mode_scoring.py:912). Deterministe, pas variable.
+      m = /^absorption ~(-?[\d.]+) mois \(DOM médian simulé\)(?:, profondeur (\d+) ventes\/an)?$/.exec(w);
+      if (!m) return null;
+      return m[2] !== undefined
+        ? T("wy.absorption", { v: m[1], n: m[2] })
+        : T("wy.absorptionShort", { v: m[1] });
+    }
+    case "momentum_prix": {
+      m = /^momentum prix ([+-]?[\d.]+)%(.*)$/s.exec(w);
+      if (!m) return null;
+      const rawNote = m[2];
+      let note = "";
+      if (rawNote) {
+        const k = MOM_NOTE[rawNote];
+        if (!k) return null; // note inconnue -> fallback, jamais de FR fuite
+        note = T(k);
+      }
+      return T("wy.momentumPrix", { v: m[1], note });
+    }
+    case "constructibilite":
+      m = /^constructibilité (-?[\d.]+)\/100 \(percentile socle\)$/.exec(w);
+      return m ? T("wy.constructibilite", { v: m[1] }) : null;
+    case "connectivite":
+      m = /^connectivité (-?[\d.]+)\/100 \(percentile socle\)$/.exec(w);
+      return m ? T("wy.connectivite", { v: m[1] }) : null;
+    case "portage":
+      m = /^coût de portage (-?[\d.]+)%\/an \(dette senior \+ fonds propres, LTV cible\)$/.exec(w);
+      return m ? T("wy.portage", { v: m[1] }) : null;
+    case "frictions_sortie":
+      m = /^frictions de sortie: plus-value\/friction (-?[\d.]+)%$/.exec(w);
+      return m ? T("wy.frictions", { v: m[1] }) : null;
+    case "cout_opportunite":
+      m = /^coût d'opportunité du capital (-?[\d.]+)%$/.exec(w);
+      return m ? T("wy.coc", { v: m[1] }) : null;
+    case "risque_timing":
+      m = /^risque de timing réglementaire (-?[\d.]+)\/100$/.exec(w);
+      return m ? T("wy.risqueTiming", { v: m[1] }) : null;
+    case "spread": {
+      // 2 branches servies aux zones. Les branches « spread actif (paramètre
+      // KREST) » et « dispersion Q75/Q50 » ne passent pas par le panneau Carte
+      // (il rend le score de ZONE) : non couvertes -> fallback.
+      m = /^spread zone ([+-]?[\d.]+)% \(médiane (-?[\d.]+) vs comparable (-?[\d.]+) €\/m²\)$/.exec(w);
+      if (m) return T("wy.spreadZone", { v: m[1], a: m[2], b: m[3] });
+      m = /^spread ([+-]?[\d.]+)% \(positionnement vs médiane ville\)$/.exec(w);
+      return m ? T("wy.spreadPosition", { v: m[1] }) : null;
+    }
+    case "appetit_institutionnel": {
+      // Le moteur ecrit la classe CANONIQUE ANGLAISE (« appétit institutionnel
+      // retail 0.5 ») : un mot anglais dans l'UI francaise. On le REPARE (delta
+      // FR assume) en passant par nat.cls.*.
+      m = /^appétit institutionnel (\w+) (-?[\d.]+)$/.exec(w);
+      if (!m) return null;
+      const key = `nat.cls.${m[1]}`;
+      const cls = translate(key, lang);
+      if (cls === key) return null; // classe inconnue -> fallback
+      return T("wy.appetit", { cls, v: m[2] });
+    }
+    case "valeur_meilleur_usage": {
+      // Ici la classe est en FRANCAIS dans le why : on la remonte a sa cle
+      // canonique (CLS_FROM_FR) avant de traduire.
+      m = /^valorisation max: (\S+) ~(-?[\d.]+) €\/m² \(max multi-usages\)$/.exec(w);
+      if (!m || !CLS_FROM_FR[m[1]]) return null;
+      return T("wy.valeurUsage", { cls: natUsageFromFr(m[1], lang), v: m[2] });
+    }
+    case "rendement_net": {
+      // « vacance » est absente du payload et « charges » n'en est pas derivable :
+      // extraction des 4 nombres. Le separateur est U+2212.
+      m = new RegExp(
+        `^rendement net (-?[\\d.]+)% \\(brut (-?[\\d.]+)% ${MINUS} fisc (-?[\\d.]+) ${MINUS} charges (-?[\\d.]+) ${MINUS} vacance (-?[\\d.]+)%\\)$`
+      ).exec(w);
+      return m ? T("wy.rendementNet", { v: m[1], a: m[2], b: m[3], c: m[4], d: m[5] }) : null;
+    }
+    case "resilience":
+      // connectivite + vacance absentes du payload detention : extraction.
+      m = /^résilience locative (-?[\d.]+)\/100 \(connectivité (-?[\d.]+), vacance (-?[\d.]+)%\)$/.exec(w);
+      return m ? T("wy.resilience", { v: m[1], a: m[2], b: m[3] }) : null;
+    case "fiscalite":
+      // native.value ne porte que le burden composite : extraction des 2 taux.
+      m = /^charge fiscale détention \(droits (-?[\d.]+)%, annuel (-?[\d.]+)%\)$/.exec(w);
+      return m ? T("wy.fiscalite", { a: m[1], b: m[2] }) : null;
+    case "incitations": {
+      const k = INCIT[w];
+      return k ? T(k) : null;
+    }
+    // Lot 3b : gabarits VARIABLES (fragments optionnels, joins dynamiques).
+    case "marge":
+    case "risque_sortie":
+    case "profondeur_locative":
+    case "momentum_cycle":
+    case "risque_energie":
+      return null;
+    default:
+      return null;
+  }
+}
