@@ -74,15 +74,32 @@ _MODE_FR_CTX = {"promotion": "promotion", "detention": "détention",
                 "arbitrage": "arbitrage", "landbank": "landbank"}
 
 
+# La MAILLE dépend du PAYS, pas de la langue : le moteur sert `level == "freguesia"`
+# au Portugal et `level == "commune"` en Belgique. Le contexte filtrait « freguesia »
+# en dur, donc à Bruxelles il comptait ZÉRO zone tout en en listant dix-neuf. Le mot
+# n'est jamais traduit : seule la bonne maille est choisie.
+_MESH = {"pt": ("freguesia", "freguesias"), "be": ("commune", "communes")}
+
+
+@lru_cache(maxsize=16)
+def mesh_for(city: str) -> tuple[str, str]:
+    """(singulier, pluriel) de la maille fine de la ville, d'après son pays."""
+    from ..services.cities import cities
+
+    country = next((c["country"] for c in cities() if c["slug"] == city), "pt")
+    return _MESH.get(country, _MESH["pt"])
+
+
 @lru_cache(maxsize=16)
 def verdict_counts(asset_class: str, city: str = "gaia") -> dict:
-    """Pre-computed freguesia counts per mode and verdict, from cleaned payloads.
+    """Pre-computed mesh-level counts per mode and verdict, from cleaned payloads.
     Injected into the LLM context (analyst + memo) so the model never counts by
     itself, and reused by the memo's post-generation count check."""
+    sg = mesh_for(city)[0]
     out: dict = {}
     for mode in ms.MODES:
         zones = _clean(ms.score_city(city, mode, asset_class))
-        fregs = [z for z in zones if z["level"] == "freguesia"]
+        fregs = [z for z in zones if z["level"] == sg]
         out[mode] = {v: sum(1 for z in fregs if z["verdict"] == v)
                      for v in _VERDICT_LADDER[mode]}
     return out
@@ -90,16 +107,17 @@ def verdict_counts(asset_class: str, city: str = "gaia") -> dict:
 
 def _counts_block(asset_class: str, city: str = "gaia") -> list[str]:
     counts_by_mode = verdict_counts(asset_class, city)
+    pl = mesh_for(city)[1]
     n_freg = sum(next(iter(counts_by_mode.values())).values()) if counts_by_mode else 0
-    lines = [f"## DÉNOMBREMENTS (comptages exacts sur les {n_freg} freguesias ; la ligne « ville » "
+    lines = [f"## DÉNOMBREMENTS (comptages exacts sur les {n_freg} {pl} ; la ligne « ville » "
              "(agrégat municipal, ex. Lisboa) est EXCLUE de ce total. Utilise UNIQUEMENT ces "
              "comptages, ne recompte JAMAIS toi-même à partir des listes)"]
     for mode, counts in counts_by_mode.items():
         parts = ", ".join(f"{_VERDICT_ACCENT.get(v, v)} {n}" for v, n in counts.items())
-        lines.append(f"- {_MODE_FR_CTX[mode]} : {parts}, total {n_freg} freguesias")
+        lines.append(f"- {_MODE_FR_CTX[mode]} : {parts}, total {n_freg} {pl}")
     lines.append(
         "COHÉRENCE OBLIGATOIRE : chaque catégorie de verdict a son compte propre. Ne fusionne "
-        "jamais deux catégories en un sous-total (jamais « les N autres freguesias, Conditionnel "
+        f"jamais deux catégories en un sous-total (jamais « les N autres {pl}, Conditionnel "
         "ou Passer »). Quand tu décris une répartition, nomme chaque catégorie avec son compte, "
         f"et les trois catégories d'un même mode s'additionnent au total {n_freg} : Go plus "
         f"Conditionnel plus Passer égale {n_freg} en promotion, de même pour chaque autre mode.")
@@ -132,12 +150,12 @@ def _fmt(v, digits=1):
     return str(v)
 
 
-def _mode_block(mode: str, zones: list[dict]) -> list[str]:
+def _mode_block(mode: str, zones: list[dict], mesh_sg: str = "freguesia") -> list[str]:
     """One compact line per zone, from CLEANED payloads only."""
     out = [f"## MODE {mode.upper()}"]
     for z in zones:
         name = z["zone_name"].replace("União das freguesias de ", "")
-        lvl = "ville" if z["level"] == "municipio" else "freguesia"
+        lvl = "ville" if z["level"] == "municipio" else mesh_sg
         head = f"- {name} ({lvl}) : score {_ri(z['total'])}/100, verdict {z['verdict']}"
         if mode == "promotion":
             b = _pillar(z, "marge").get("breakdown") or {}
@@ -209,10 +227,11 @@ def _build_context(asset_class: str, city: str = "gaia") -> str:
         "(scores /100 ; verdicts par mode : promotion Go/Conditionnel/Passer, détention Conserver/Surveiller/Céder, "
         "arbitrage Fenêtre ouverte/étroite/fermée, landbank Prioritaire/À phaser/En attente)",
     ]
+    mesh_sg = mesh_for(city)[0]
     for mode in ms.MODES:
         zones = _clean(ms.score_city(city, mode, asset_class))
         zones.sort(key=lambda z: z["total"], reverse=True)
-        lines += _mode_block(mode, zones)
+        lines += _mode_block(mode, zones, mesh_sg)
     lines += _counts_block(asset_class, city)
     if city == "gaia" and asset_class == "residential":
         lines.append(_haya_block())
