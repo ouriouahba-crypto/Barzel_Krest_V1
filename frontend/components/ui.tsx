@@ -126,8 +126,11 @@ export function MultiSelect({
   options,
   selected,
   onChange,
-  placeholder = "Toutes les freguesias",
-  searchPlaceholder = "Rechercher une freguesia…",
+  // Aucun defaut FR : le seul appelant (Header) passe deja les deux libelles
+  // traduits (header.allZones / header.searchZone). Un defaut en dur reintroduirait
+  // du francais des qu'un appelant l'omettrait.
+  placeholder = "",
+  searchPlaceholder = "",
 }: {
   options: { id: string; label: string }[];
   selected: string[];

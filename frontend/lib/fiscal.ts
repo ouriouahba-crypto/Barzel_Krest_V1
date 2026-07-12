@@ -218,7 +218,7 @@ export const PAGE = {
   // Libellé NEUTRE (aucune ville nommée) : repli commun du régime PT, chaque
   // ville PT porte son propre `texts.fiscaliteMarketLine` (cf. lib/cities.ts).
   marketLine: "fsx.pt.page.marketLine",
-  chipPrefix: "Portugal",
+  chipPrefix: "fsx.pt.page.chipPrefix",
   intro: "fsx.pt.page.intro",
   bannerEyebrowPrefix: "fsx.pt.page.bannerEyebrowPrefix",
   entryMaxLabel: "fsx.pt.page.entryMaxLabel",

@@ -851,4 +851,48 @@ export const fr: Dict = {
   // min_label (« F/G », « E ») et deadline (« ~2030-2033 ») sont LANGUE-NEUTRES :
   // repris verbatim du moteur, jamais reformates.
   "wy.re.head": "risque énergie {v}/100 (min {label} d'ici {deadline})",
+
+  // --- Lot QA-3 : dashboard sans francais residuel. Les valeurs FR sont la copie
+  // EXACTE des chaines qui etaient codees en dur (invariant : ecran FR inchange).
+  // Sous-titres de cascade : les nombres restent formates par l'appelant
+  // (eurM2/eur0/pct2/pctSigned) et arrivent en tokens deja rendus.
+  "wf.marginSubtitle": "Prix neuf réalisable {price} = médiane ancien {base} +{premium}% · {cls}",
+  "wf.marginSubtitleFlat": "Prix {cls} réalisable {price}",
+  "wf.yieldSubtitle": "Loyer de marché {rent} €/m²/an · yield brut {gross} · {cls}",
+  "wf.yieldSubtitleFlat": "Yield brut {gross} · {cls}",
+  "wf.spreadSubtitle": "Spread {spread} vs médiane {base} {price} · {cls}",
+  // Base du spread : suffixe DATA-DRIVEN (ville / maille / marche), compose par
+  // ar.vsMedianBase pour que chaque langue place la base ou sa grammaire l'exige.
+  "ar.vsMedianBase": "vs médiane {base}",
+  "ar.base.city": "de la ville",
+  "ar.base.zone": "de la {noun}",
+  "ar.base.market": "de marché",
+  // MarginBars (titre, sous-titre, metrique par defaut)
+  "mb.title": "Marge % par {sg}",
+  "mb.subtitle": "barres par verdict · {cls}",
+  "mb.metricMargin": "marge",
+  // Carte
+  "map.loading": "Chargement de la carte…",
+  "map.assetTag": "Actif K-REST · {mode}",
+  // Appetit institutionnel en mot gradue seul (le KPI met la capitale initiale).
+  // Distinct de nat.appetitHigh/Mid/Low, qui portent la phrase complete.
+  "arb.appetitWord.high": "soutenu",
+  "arb.appetitWord.mid": "modéré",
+  "arb.appetitWord.low": "faible",
+  // Foncier (landbank : class-independant, d'ou « tous usages »)
+  "pgf.eyebrow": "Verdict landbank · Tous usages",
+  "pgf.allUses": "tous usages",
+  // Rendement : legende de l'actif K-REST
+  "pgr.assetCaption": "Curseur temps réel sur l'actif K-REST à Santa Marinha : ajustez le loyer moyen pour voir le rendement et le verdict se recalculer.",
+  // IA Analyste : sous-titre de l'etat vide
+  "ai.hero_sub": "Réponses en {cls} : scores, verdicts, fiscalité et énergie de la plateforme.",
+  // Unites de loyer (l'« an »/« mois » sont francais : « /yr »/« /mo » ailleurs)
+  "u.eurM2Year": "€/m²/an",
+  "u.eurM2Month": "€/m²/mois",
+  // Prefixe de la puce de /fiscalite : le regime BE porte un NOM DE VILLE, qui se
+  // localise ; le regime PT porte « Portugal », identique dans les trois langues.
+  "fsx.pt.page.chipPrefix": "Portugal",
+  "fsx.be.page.chipPrefix": "Bruxelles",
+  // Accessibilite
+  "a11y.home": "Barzel, accueil",
 };

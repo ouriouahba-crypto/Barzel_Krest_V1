@@ -9,6 +9,8 @@ import { Mode, scoreColor } from "@/lib/scoring";
 import { normFreguesia } from "@/lib/normalize";
 import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
+import { useT, useLang } from "@/lib/i18n/useT";
+import { modeLabel, verdictDisplay } from "@/lib/i18n/domain";
 
 export interface ZoneScore {
   zoneId: string;
@@ -93,6 +95,8 @@ export default function GaiaMap({
 }) {
   const [geo, setGeo] = useState<FeatureCollection | null>(null);
   const geojsonUrl = cityBySlug(useCityStore((s) => s.slug)).geojson;
+  const t = useT();
+  const lang = useLang();
 
   useEffect(() => {
     fetch(geojsonUrl)
@@ -107,7 +111,7 @@ export default function GaiaMap({
   );
 
   if (!geo) {
-    return <div className="flex h-full items-center justify-center bg-navy text-body text-cream/70">Chargement de la carte…</div>;
+    return <div className="flex h-full items-center justify-center bg-navy text-body text-cream/70">{t("map.loading")}</div>;
   }
 
   const isIncluded = (zoneId: string | undefined) => selected.length === 0 || (zoneId ? selected.includes(zoneId) : false);
@@ -131,7 +135,9 @@ export default function GaiaMap({
     const zs = scoresByNorm[norm];
     const isFocus = !!focusZoneId && zs?.zoneId === focusZoneId;
     const name = zs?.zoneName || (feature.properties as any)?.freguesia;
-    const scoreTxt = zs ? `${Math.round(zs.total)}/100 · ${zs.verdict}` : "–";
+    // Le verdict arrivait BRUT du moteur (ASCII : « Ceder », « Fenetre ouverte ») :
+    // verdictDisplay le rend dans la langue courante, et l'accentue enfin en FR.
+    const scoreTxt = zs ? `${Math.round(zs.total)}/100 · ${verdictDisplay(zs.verdict, lang)}` : "–";
     layer.bindTooltip(
       `<div style="font-weight:600">${name}</div><div style="color:#C9A86A">${scoreTxt}</div>`,
       { sticky: true, className: "freg-tooltip", direction: "top", opacity: 1 }
@@ -162,8 +168,10 @@ export default function GaiaMap({
     >
       <FitBounds data={geo} />
       <ZoomControl position="bottomright" />
-      {/* key forces restyle on mode / selection / focus change */}
-      <GeoJSON key={`${mode}-${selected.join(",")}-${focusZoneId ?? ""}`} data={geo} style={style} onEachFeature={onEach} />
+      {/* key forces restyle on mode / selection / focus change ; `lang` en fait
+          partie car onEach FIGE le texte du tooltip a la liaison (bindTooltip) :
+          sans remontage, un changement de langue laisserait l'ancien verdict. */}
+      <GeoJSON key={`${mode}-${selected.join(",")}-${focusZoneId ?? ""}-${lang}`} data={geo} style={style} onEachFeature={onEach} />
       {hayaFeature && (
         <>
           <CircleMarker center={centroid(hayaFeature)} radius={17} pane="markerPane" pathOptions={HAYA_HALO_OPTS} />
@@ -176,7 +184,7 @@ export default function GaiaMap({
           >
             <Tooltip direction="top" offset={[0, -8]} className="freg-tooltip" opacity={1}>
               <div style={{ fontWeight: 600 }}>{assetName}</div>
-              <div style={{ color: "#C9A86A" }}>Actif K-REST · Promotion</div>
+              <div style={{ color: "#C9A86A" }}>{t("map.assetTag", { mode: modeLabel("promotion", lang) })}</div>
             </Tooltip>
           </CircleMarker>
         </>

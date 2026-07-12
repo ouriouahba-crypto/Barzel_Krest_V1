@@ -1,9 +1,11 @@
 "use client";
 
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Mode, fmtNum, verdictColor, verdictLabel } from "@/lib/scoring";
+import { Mode, fmtNum, verdictColor } from "@/lib/scoring";
 import { useZoneNoun } from "@/lib/useZoneNoun";
 import { usePrefersReducedMotion } from "@/lib/motion";
+import { useT, useLang } from "@/lib/i18n/useT";
+import { verdictDisplay } from "@/lib/i18n/domain";
 
 // Verdict-coloured bars per freguesia, parameterised by metric + labels so each
 // mode page reuses it (promotion: marge %, détention: yield net %, …). Defaults
@@ -34,7 +36,7 @@ export function MarginBars<T extends BarRowBase>({
   classLabel,
   metric = (r) => (r as any).marginPct as number,
   title,
-  metricLabel = "marge",
+  metricLabel,
   digits = 1,
 }: {
   rows: T[];
@@ -48,10 +50,13 @@ export function MarginBars<T extends BarRowBase>({
   digits?: number;
 }) {
   const { sg } = useZoneNoun();
+  const t = useT();
+  const lang = useLang();
   const reduce = usePrefersReducedMotion();
   // Titre par défaut piloté par le terme de maille de la ville (« Marge % par
   // commune » à Bruxelles). Les pages qui passent un titre explicite priment.
-  const heading = title ?? `Marge % par ${sg}`;
+  const heading = title ?? t("mb.title", { sg });
+  const metricName = metricLabel ?? t("mb.metricMargin");
   const data = rows
     .map((r) => ({ ...r, __value: metric(r) }))
     .sort((a, b) => b.__value - a.__value);
@@ -63,7 +68,7 @@ export function MarginBars<T extends BarRowBase>({
       <div className="rounded-lg border border-gold/40 bg-navy px-3 py-2 text-cream shadow-card">
         <div className="text-label font-semibold">{d.name}</div>
         <div className="text-label text-gold">
-          {metricLabel} {fmtNum(d.__value, digits)}% · {verdictLabel(d.verdict)}
+          {metricName} {fmtNum(d.__value, digits)}% · {verdictDisplay(d.verdict, lang)}
         </div>
       </div>
     );
@@ -73,7 +78,7 @@ export function MarginBars<T extends BarRowBase>({
     <div className="rounded-2xl border border-navy/10 bg-white p-4 shadow-card">
       <div className="mb-2 flex items-baseline justify-between">
         <h3 className="font-display text-[16px] text-navy">{heading}</h3>
-        <span className="text-label text-muted">barres par verdict · {classLabel}</span>
+        <span className="text-label text-muted">{t("mb.subtitle", { cls: classLabel })}</span>
       </div>
       <div className="h-[250px]">
         <ResponsiveContainer width="100%" height="100%">
@@ -121,7 +126,7 @@ export function MarginBars<T extends BarRowBase>({
       {/* verdict legend */}
       <div className="mt-1 flex items-center gap-4 pl-1 text-label text-muted">
         {LEGEND[mode].map((v) => (
-          <LegendDot key={v} color={verdictColor(mode, v)} label={verdictLabel(v)} />
+          <LegendDot key={v} color={verdictColor(mode, v)} label={verdictDisplay(v, lang)} />
         ))}
       </div>
     </div>

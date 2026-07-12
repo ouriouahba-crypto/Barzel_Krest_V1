@@ -33,8 +33,16 @@ export function MarginWaterfall({
       title={t("wf.marginBreakdown", { name: row.name })}
       subtitle={
         row.baseMedian != null && row.premiumPct != null
-          ? `Prix neuf réalisable ${eurM2(row.realizable, lang)} = médiane ancien ${eur0(row.baseMedian, lang)} +${Math.round(row.premiumPct)}% · ${classLabel}`
-          : `Prix ${classLabel.toLowerCase()} réalisable ${eurM2(row.realizable, lang)}`
+          ? t("wf.marginSubtitle", {
+              price: eurM2(row.realizable, lang),
+              base: eur0(row.baseMedian, lang),
+              premium: Math.round(row.premiumPct),
+              cls: classLabel,
+            })
+          : t("wf.marginSubtitleFlat", {
+              cls: classLabel.toLowerCase(),
+              price: eurM2(row.realizable, lang),
+            })
       }
       mode={mode}
       verdict={row.verdict}

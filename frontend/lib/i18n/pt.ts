@@ -841,4 +841,47 @@ export const pt: Dict = {
   // min_label («F/G», «E») e deadline («~2030-2033») sao NEUTROS QUANTO A LINGUA:
   // retomados verbatim do motor, nunca reformatados.
   "wy.re.head": "risco energético {v}/100 (mín. {label} até {deadline})",
+
+  // --- Lote QA-3: dashboard sem frances residual.
+  // Subtitulos das cascatas: os numeros continuam formatados pelo chamador
+  // (eurM2/eur0/pct2/pctSigned) e chegam como tokens ja renderizados.
+  "wf.marginSubtitle": "Preço realizável de construção nova {price} = mediana do usado {base} +{premium}% · {cls}",
+  "wf.marginSubtitleFlat": "Preço {cls} realizável {price}",
+  "wf.yieldSubtitle": "Renda de mercado {rent} €/m²/ano · yield bruto {gross} · {cls}",
+  "wf.yieldSubtitleFlat": "Yield bruto {gross} · {cls}",
+  "wf.spreadSubtitle": "Spread {spread} vs mediana {base} {price} · {cls}",
+  // Base do spread: sufixo DATA-DRIVEN (cidade / malha / mercado), composto por
+  // ar.vsMedianBase para que cada lingua coloque a base onde a gramatica exige.
+  "ar.vsMedianBase": "vs mediana {base}",
+  "ar.base.city": "da cidade",
+  "ar.base.zone": "da {noun}",
+  "ar.base.market": "de mercado",
+  // MarginBars (titulo, subtitulo, metrica por omissao)
+  "mb.title": "Margem % por {sg}",
+  "mb.subtitle": "barras por veredicto · {cls}",
+  "mb.metricMargin": "margem",
+  // Mapa
+  "map.loading": "A carregar o mapa…",
+  "map.assetTag": "Ativo K-REST · {mode}",
+  // Apetite institucional em palavra graduada isolada (o KPI poe a maiuscula).
+  // Distinto de nat.appetitHigh/Mid/Low, que trazem a frase completa.
+  "arb.appetitWord.high": "sustentado",
+  "arb.appetitWord.mid": "moderado",
+  "arb.appetitWord.low": "fraco",
+  // Landbank (independente da classe, dai «todos os usos»)
+  "pgf.eyebrow": "Veredicto landbank · Todos os usos",
+  "pgf.allUses": "todos os usos",
+  // Detenção: legenda do ativo K-REST
+  "pgr.assetCaption": "Cursor em tempo real sobre o ativo K-REST em Santa Marinha: ajuste a renda média para ver o rendimento e o veredicto recalcularem.",
+  // IA Analista: subtitulo do estado vazio
+  "ai.hero_sub": "Respostas em {cls}: scores, veredictos, fiscalidade e energia da plataforma.",
+  // Unidades de renda (o «/an» e o «/mois» franceses passam a «/ano» e «/mês»)
+  "u.eurM2Year": "€/m²/ano",
+  "u.eurM2Month": "€/m²/mês",
+  // Prefixo do chip de /fiscalite: o regime BE traz um NOME DE CIDADE, que se
+  // localiza; o regime PT traz «Portugal», identico nas tres linguas.
+  "fsx.pt.page.chipPrefix": "Portugal",
+  "fsx.be.page.chipPrefix": "Bruxelas",
+  // Acessibilidade
+  "a11y.home": "Barzel, início",
 };

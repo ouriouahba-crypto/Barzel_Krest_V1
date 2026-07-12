@@ -33,8 +33,12 @@ export function YieldWaterfall({
       title={t("wf.yieldBreakdown", { name: row.name })}
       subtitle={
         row.loyer != null
-          ? `Loyer de marché ${eur0(row.loyer, lang)} €/m²/an · yield brut ${pct2(row.yieldBrut)} · ${classLabel}`
-          : `Yield brut ${pct2(row.yieldBrut)} · ${classLabel}`
+          ? t("wf.yieldSubtitle", {
+              rent: eur0(row.loyer, lang),
+              gross: pct2(row.yieldBrut),
+              cls: classLabel,
+            })
+          : t("wf.yieldSubtitleFlat", { gross: pct2(row.yieldBrut), cls: classLabel })
       }
       mode={mode}
       verdict={row.verdict}
@@ -50,7 +54,7 @@ export function YieldWaterfall({
       lossLabel={t("wf.negativeYield")}
       fmt={pct2}
       stats={[
-        { label: t("wf.marketRent"), value: row.loyer != null ? `${eur0(row.loyer, lang)} €/m²/an` : "–" },
+        { label: t("wf.marketRent"), value: row.loyer != null ? `${eur0(row.loyer, lang)} ${t("u.eurM2Year")}` : "–" },
         { label: t("rd.netYield"), value: pct2(row.yieldNet), accent: inkVerdict },
         { label: t("wf.scoreDetention"), value: `${Math.round(row.total)}`, accent: scoreTextColor(row.total) },
       ]}

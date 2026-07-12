@@ -845,4 +845,47 @@ export const en: Dict = {
   // min_label ("F/G", "E") and deadline ("~2030-2033") are LANGUAGE-NEUTRAL:
   // taken verbatim from the engine, never reformatted.
   "wy.re.head": "energy risk {v}/100 (min {label} by {deadline})",
+
+  // --- QA-3 batch: dashboard with no residual French.
+  // Cascade subtitles: the numbers stay formatted by the caller (eurM2/eur0/
+  // pct2/pctSigned) and arrive as already-rendered tokens.
+  "wf.marginSubtitle": "Realizable new-build price {price} = existing median {base} +{premium}% · {cls}",
+  "wf.marginSubtitleFlat": "Realizable {cls} price {price}",
+  "wf.yieldSubtitle": "Market rent {rent} €/m²/yr · gross yield {gross} · {cls}",
+  "wf.yieldSubtitleFlat": "Gross yield {gross} · {cls}",
+  "wf.spreadSubtitle": "Spread {spread} vs {base} median {price} · {cls}",
+  // Spread base: DATA-DRIVEN suffix (city / zone / market). Each language places
+  // the base where its grammar requires ("vs city median" / "vs médiane de la ville").
+  "ar.vsMedianBase": "vs {base} median",
+  "ar.base.city": "city",
+  "ar.base.zone": "{noun}",
+  "ar.base.market": "market",
+  // MarginBars (title, subtitle, default metric)
+  "mb.title": "Margin % per {sg}",
+  "mb.subtitle": "bars by verdict · {cls}",
+  "mb.metricMargin": "margin",
+  // Map
+  "map.loading": "Loading the map…",
+  "map.assetTag": "K-REST asset · {mode}",
+  // Institutional appetite as a bare graded word (the KPI capitalises it).
+  // Distinct from nat.appetitHigh/Mid/Low, which carry the full phrase.
+  "arb.appetitWord.high": "sustained",
+  "arb.appetitWord.mid": "moderate",
+  "arb.appetitWord.low": "weak",
+  // Landbank (class-independent, hence "all uses")
+  "pgf.eyebrow": "Landbank verdict · All uses",
+  "pgf.allUses": "all uses",
+  // Hold: K-REST asset caption
+  "pgr.assetCaption": "Real-time slider on the K-REST asset in Santa Marinha: adjust the average rent to watch the yield and the verdict recompute.",
+  // AI Analyst: empty-state subtitle
+  "ai.hero_sub": "Answers in {cls}: scores, verdicts, tax and energy from the platform.",
+  // Rent units (the French "/an" and "/mois" become "/yr" and "/mo" here)
+  "u.eurM2Year": "€/m²/yr",
+  "u.eurM2Month": "€/m²/mo",
+  // /fiscalite chip prefix: the BE regime carries a CITY NAME, which localises;
+  // the PT regime carries "Portugal", identical across the three languages.
+  "fsx.pt.page.chipPrefix": "Portugal",
+  "fsx.be.page.chipPrefix": "Brussels",
+  // Accessibility
+  "a11y.home": "Barzel, home",
 };

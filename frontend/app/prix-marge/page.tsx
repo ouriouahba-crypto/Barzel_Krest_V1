@@ -8,7 +8,7 @@ import { MarginWaterfall } from "@/components/MarginWaterfall";
 import { MarginBars } from "@/components/MarginBars";
 import { InsightBanner } from "@/components/InsightBanner";
 import { useGaia } from "@/lib/useGaia";
-import { classLabel, fmtNum } from "@/lib/scoring";
+import { fmtNum } from "@/lib/scoring";
 import { pmRows, pmSummary, eurM2 } from "@/lib/priceMargin";
 import { priceMarginInsight, anomalyNote } from "@/lib/insights";
 import { cityBySlug } from "@/lib/cities";
@@ -45,6 +45,7 @@ export default function PrixMargePage() {
   }, []);
 
   const cls = g.assetClass;
+  const clsLabel = classLabelFor(cls, lang);
   const zn = { sg: city.zoneNoun, pl: city.zoneNounPlural };  // terme de maille (commune/freguesia)
   const allRows = useMemo(() => pmRows(g.promoCity), [g.promoCity]);
   const rows = useMemo(
@@ -123,7 +124,7 @@ export default function PrixMargePage() {
               <span className="inline-block h-5 w-1.5 rounded-full bg-gold" />
               <h2 className="font-display text-[24px] leading-none text-navy">{t("pgm.title")}</h2>
               <span className="rounded-full border border-gold/40 bg-gold/[0.06] px-2.5 py-0.5 text-label font-medium text-gold-700">
-                {modeLabel("promotion", lang)} · {classLabel(cls)}
+                {modeLabel("promotion", lang)} · {clsLabel}
               </span>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
@@ -197,7 +198,7 @@ export default function PrixMargePage() {
 
           {/* Margin decomposition (+ Haya slider for Afurada residential) */}
           <div className={`shrink-0 ${showHaya ? "grid grid-cols-1 gap-4 xl:grid-cols-[1.35fr_1fr]" : ""}`}>
-            <MarginWaterfall row={selectedRow} mode="promotion" classLabel={classLabel(cls)} />
+            <MarginWaterfall row={selectedRow} mode="promotion" classLabel={clsLabel} />
             {showHaya && g.hayaProps && AssetSlider && (
               <div className="flex flex-col gap-2">
                 <AssetSlider {...g.hayaProps} />
@@ -215,7 +216,7 @@ export default function PrixMargePage() {
               mode="promotion"
               focusZone={g.focusZone}
               onSelect={g.setFocusZone}
-              classLabel={classLabel(cls)}
+              classLabel={clsLabel}
             />
           </div>
         </main>

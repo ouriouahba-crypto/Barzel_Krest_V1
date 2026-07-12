@@ -18,9 +18,9 @@ export function SpreadWaterfall({
   row: ArbRow | null;
   mode: Mode;
   classLabel: string;
-  // Suffixe de la base du spread, DATA-DRIVEN côté page : « de la ville »
-  // (médiane ville, base constante) vs « de la freguesia »/« de la commune »
-  // (médiane maille) ; repli « de marché ».
+  // Suffixe de la base du spread, DATA-DRIVEN côté page et DÉJÀ TRADUIT (clés
+  // ar.base.*) : « de la ville » (médiane ville, base constante) vs « de la
+  // freguesia »/« de la commune » (médiane maille) ; repli « de marché ».
   baseLabel: string;
 }) {
   const t = useT();
@@ -36,7 +36,12 @@ export function SpreadWaterfall({
   return (
     <Waterfall
       title={t("wf.spreadBreakdown", { name: row.name })}
-      subtitle={`Spread ${pctSigned(row.spreadPct)} vs médiane ${baseLabel} ${eurM2(row.prixMarche, lang)} · ${classLabel}`}
+      subtitle={t("wf.spreadSubtitle", {
+        spread: pctSigned(row.spreadPct),
+        base: baseLabel,
+        price: eurM2(row.prixMarche, lang),
+        cls: classLabel,
+      })}
       mode={mode}
       verdict={row.verdict}
       headline={pctSigned(row.spreadPct)}

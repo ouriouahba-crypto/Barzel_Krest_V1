@@ -11,7 +11,7 @@ import { InsightBanner } from "@/components/InsightBanner";
 import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
 import { useGaia } from "@/lib/useGaia";
-import { classLabel, verdictTone } from "@/lib/scoring";
+import { verdictTone } from "@/lib/scoring";
 import { arbRows, arbSummary, ArbRow, pctSigned } from "@/lib/arbitrage";
 import { arbitrageInsight, anomalyNote } from "@/lib/insights";
 import { useT, useLang } from "@/lib/i18n/useT";
@@ -38,15 +38,22 @@ export default function ArbitragePage() {
   const [selected, setSelected] = useState<string[]>([]);
 
   const cls = g.assetClass;
-  const allRows = useMemo(() => arbRows(g.arbitrageCity), [g.arbitrageCity]);
+  const clsLabel = classLabelFor(cls, lang);
+  const allRows = useMemo(() => arbRows(g.arbitrageCity, lang), [g.arbitrageCity, lang]);
 
   // Base du spread, DATA-DRIVEN (pas de hardcode par ville) : si prix_marche est
   // constant sur toutes les lignes, la base est la médiane de la VILLE (Gaia,
   // Porto) ; sinon la médiane de la MAILLE (Lisbonne, Bruxelles). Les prix_marche
   // sont des entiers arrondis côté backend, l'égalité stricte est fiable.
+  // Le suffixe est TRADUIT ici (clés ar.base.*) : il entre ensuite dans des
+  // phrases traduites (tableau, cascade) via un token, jamais concaténé en dur.
   const baseIsCity = allRows.length > 1 && allRows.every((r) => r.prixMarche === allRows[0].prixMarche);
   const spreadBaseLabel =
-    allRows.length <= 1 ? "de marché" : baseIsCity ? "de la ville" : `de la ${city.zoneNoun}`;
+    allRows.length <= 1
+      ? t("ar.base.market")
+      : baseIsCity
+      ? t("ar.base.city")
+      : t("ar.base.zone", { noun: city.zoneNoun });
   const rows = useMemo(
     () => (selected.length ? allRows.filter((r) => selected.includes(r.zone)) : allRows),
     [allRows, selected]
@@ -134,7 +141,7 @@ export default function ArbitragePage() {
               <span className="inline-block h-5 w-1.5 rounded-full bg-gold" />
               <h2 className="font-display text-[24px] leading-none text-navy">{t("pga.title")}</h2>
               <span className="rounded-full border border-gold/40 bg-gold/[0.06] px-2.5 py-0.5 text-label font-medium text-gold-700">
-                {t("pga.title")} · {classLabel(cls)}
+                {t("pga.title")} · {clsLabel}
               </span>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
@@ -165,7 +172,7 @@ export default function ArbitragePage() {
             />
             <Kpi
               label={t("pga.kpi_delai")}
-              value={summary.medianDelai != null ? `${summary.medianDelai.toFixed(1)} mois` : "–"}
+              value={summary.medianDelai != null ? `${summary.medianDelai.toFixed(1)} ${t("ar.months")}` : "–"}
               sub={scopeLabel}
             />
             <Kpi
@@ -200,7 +207,7 @@ export default function ArbitragePage() {
 
           {/* Disposal decomposition (+ Cais Poente slider for Santa Marinha résidentiel) */}
           <div className={`shrink-0 ${showAsset ? "grid grid-cols-1 gap-4 xl:grid-cols-[1.35fr_1fr]" : ""}`}>
-            <SpreadWaterfall row={selectedRow} mode="arbitrage" classLabel={classLabel(cls)} baseLabel={spreadBaseLabel} />
+            <SpreadWaterfall row={selectedRow} mode="arbitrage" classLabel={clsLabel} baseLabel={spreadBaseLabel} />
             {showAsset && assetProps && (
               <div className="flex flex-col gap-2">
                 <CaisSlider {...assetProps} />
@@ -218,7 +225,7 @@ export default function ArbitragePage() {
               mode="arbitrage"
               focusZone={g.focusZone}
               onSelect={g.setFocusZone}
-              classLabel={classLabel(cls)}
+              classLabel={clsLabel}
               metric={(r) => r.spreadPct}
               title={t("pga.chart_title", { zone: zn.sg })}
               metricLabel="spread"

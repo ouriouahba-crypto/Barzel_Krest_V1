@@ -49,7 +49,7 @@ export function RibeiraSlider({
         <div className="flex items-baseline justify-between">
           <span className="text-label text-cream/70">{t("wg.avgRent")}</span>
           <span className="font-display text-xl text-gold">
-            {fmtNumber(rent, lang, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} €/m²/mois
+            {fmtNumber(rent, lang, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} {t("u.eurM2Month")}
           </span>
         </div>
         <input

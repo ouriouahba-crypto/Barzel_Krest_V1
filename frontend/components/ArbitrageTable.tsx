@@ -40,12 +40,14 @@ export function ArbitrageTable({
   const lang = useLang();
   // "Spread" se compare à la médiane VILLE (base constante : Gaia, Porto) ou à
   // la médiane de la MAILLE (base par ligne : Lisbonne, Bruxelles) : le libellé
-  // le dit, sans hardcode par ville. `baseLabel` est une donnee (page), non traduite.
+  // le dit, sans hardcode par ville. `baseLabel` arrive DÉJÀ TRADUIT de la page ;
+  // ar.vsMedianBase le place où la grammaire de la langue l'exige (« vs médiane
+  // de la ville », « vs city median »), au lieu de le concaténer en queue.
   const COLS = useMemo<{ key: Key; label: string; unit?: string; num: boolean }[]>(
     () => [
       { key: "name", label: "", num: false },
       { key: "valeurRealisable", label: t("ar.realizableValue"), unit: "€/m²", num: true },
-      { key: "spreadPct", label: t("ar.spread"), unit: `${t("ar.vsMedian")} ${baseLabel}`, num: true },
+      { key: "spreadPct", label: t("ar.spread"), unit: t("ar.vsMedianBase", { base: baseLabel }), num: true },
       { key: "delaiMois", label: t("ar.delay"), unit: t("ar.months"), num: true },
     ],
     [baseLabel, t]

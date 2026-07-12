@@ -7,10 +7,12 @@
 import Link from "next/link";
 import { ReactNode } from "react";
 import { LangSwitcher } from "@/components/i18n/LangSwitcher";
+import { useT } from "@/lib/i18n/useT";
 
 export function Wordmark({ href = "/" }: { href?: string }) {
+  const t = useT();
   return (
-    <Link href={href} className="group inline-flex flex-col leading-none" aria-label="Barzel, accueil">
+    <Link href={href} className="group inline-flex flex-col leading-none" aria-label={t("a11y.home")}>
       <span className="font-display text-xl tracking-wide text-gold transition-colors group-hover:text-gold-300">
         Barzel
       </span>
