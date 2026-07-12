@@ -771,6 +771,7 @@ export const en: Dict = {
   "nat.profondeur": "depth {v}",
   "nat.yieldNet": "net yield {v}%",
   "nat.resilience": "resilience {v}",
+  "nat.fiscalite": "acq {a}% + holding {b}%/yr",
   "nat.wacc": "WACC {v}%",
   "nat.spread": "spread {v}%",
   "nat.appetit": "appetite {v}",

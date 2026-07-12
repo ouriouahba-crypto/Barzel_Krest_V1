@@ -8,13 +8,11 @@
 // pilier qu'on ne sait pas rejouer a l'identique retourne null -> l'appelant
 // retombe sur le label moteur (fallback sur, jamais de texte invente).
 //
-// Fallbacks assumes (voir NATIFS-2) :
+// Fallback assume (le seul restant apres NATIFS-2) :
 //   risque_energie : le label « MEPS F/G ~2030-2033 » tient dans min_label +
 //     deadline, deux champs ABSENTS du payload (native.value porte le risque).
-//     La chaine etant deja neutre (sigle + classes + annees), on la laisse passer.
-//   fiscalite : « acq 7.8% + détention 0.4%/an » tient dans acquisition_pct et
-//     detention_annual_pct, absents du payload (native.value = burden composite,
-//     non inversible).
+//     La chaine etant deja LANGUE-NEUTRE (sigle + lettres de classe + annees),
+//     on la laisse passer telle quelle : aucun mot francais n'en sort.
 
 import type { Lang } from "./i18n";
 import { translate } from "./i18n";
@@ -178,9 +176,20 @@ export function composePillarNative(p: Pillar, lang: Lang): string | null {
         v: eurValue(n, lang),
       });
     }
-    // Non rejouables : les champs manquent au payload (cf. en-tete).
+    case "fiscalite": {
+      // « acq 7.8% + détention 0.4%/an ». Les deux taux ne sont PAS dans le
+      // payload : native.value ne porte que le burden composite (acq + 10 x
+      // detention), une equation a deux inconnues, non inversible. On extrait
+      // donc les deux nombres du label moteur : ce sont des CHIFFRES,
+      // langue-neutres, repris TELS QUELS (aucun reformatage, ce qui garantit
+      // l'identite FR et neutralise le piege int/float du JSON : le moteur sert
+      // « 0.4 » ici et « 0.36 » ailleurs). Seuls les mots sont traduits.
+      const m = /acq\s*(-?[\d.]+)%\s*\+\s*détention\s*(-?[\d.]+)%/.exec(p.native.label ?? "");
+      if (!m) return null; // parse rate -> label moteur (aucun mot FR ne peut fuir)
+      return translate("nat.fiscalite", lang, { a: m[1], b: m[2] });
+    }
+    // Non rejouable : les champs manquent au payload (cf. en-tete). Deja neutre.
     case "risque_energie":
-    case "fiscalite":
       return null;
     default:
       return null;
