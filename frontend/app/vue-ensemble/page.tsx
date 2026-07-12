@@ -85,7 +85,13 @@ export default function VueEnsemble() {
 
   const bm = bestMode(overview.scores);
   const bmScore = bm ? overview.scores[bm] : undefined;
-  const cityLine = cityInsight(overview, cls, { sg: city.zoneNoun, pl: city.zoneNounPlural }, lang);
+  const cityLine = cityInsight(
+    overview,
+    cls,
+    { sg: city.zoneNoun, pl: city.zoneNounPlural },
+    lang,
+    cityShortName(city.slug, lang)
+  );
 
   const bmFreg = (bm && overview.freg[bm]) || [];
   const podium = useMemo(() => [...bmFreg].sort((a, b) => b.total - a.total).slice(0, 3), [bmFreg]);

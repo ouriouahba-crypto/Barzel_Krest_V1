@@ -3,7 +3,7 @@
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { PricePoint } from "@/lib/priceHistory";
 import { usePrefersReducedMotion } from "@/lib/motion";
-import { useLang } from "@/lib/i18n/useT";
+import { useLang, useT } from "@/lib/i18n/useT";
 import { fmtNumber } from "@/lib/i18n/format";
 import type { Lang } from "@/lib/i18n/types";
 
@@ -32,7 +32,8 @@ function EndDot(props: any) {
 export function PriceTrend({ points }: { points: PricePoint[] }) {
   const reduce = usePrefersReducedMotion();
   const lang = useLang();
-  if (!points.length) return <div className="flex h-full items-center justify-center text-body text-ink-soft">Chargement…</div>;
+  const t = useT();
+  if (!points.length) return <div className="flex h-full items-center justify-center text-body text-ink-soft">{t("pg.loading")}</div>;
   const first = points[0];
   const last = points[points.length - 1];
   const label = ({ x, y, index }: any) => {

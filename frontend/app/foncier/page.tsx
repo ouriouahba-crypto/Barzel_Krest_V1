@@ -125,7 +125,7 @@ export default function FoncierPage() {
 
           {/* Conclusion banner (shared InsightBanner) */}
           <InsightBanner
-            eyebrow="Verdict landbank · Tous usages"
+            eyebrow={t("pgf.eyebrow")}
             sentence={fcLine}
             right={
               bestPotential ? (
@@ -191,7 +191,7 @@ export default function FoncierPage() {
               mode="landbank"
               focusZone={g.focusZone}
               onSelect={g.setFocusZone}
-              classLabel="tous usages"
+              classLabel={t("pgf.allUses")}
               metric={(r) => r.upliftPct}
               title={t("pgf.chartTitle", { noun: zn.sg })}
               metricLabel={t("pgf.metricUplift")}

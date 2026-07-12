@@ -5,6 +5,8 @@
 import { ArbitrageBreakdown, CityResponse } from "./api";
 import { fmtSigned, median, pillarValue, verdictTone } from "./scoring";
 import { displayName, shortName } from "./useGaia";
+import { translate } from "./i18n";
+import type { Lang } from "./i18n/types";
 
 export interface ArbRow {
   zone: string;
@@ -23,9 +25,13 @@ export interface ArbRow {
 }
 
 // Institutional appetite as a graded word (same thresholds as the backend label).
-export function appetitQual(v: number | null): string | null {
+// Rendu dans la langue courante : le mot est de l'AFFICHAGE, pas une clé. Le
+// regroupement de arbSummary compte des mots d'une seule et même langue (toutes
+// les lignes d'un rendu partagent `lang`), donc le dominant reste le même.
+export function appetitQual(v: number | null, lang: Lang): string | null {
   if (v == null) return null;
-  return v >= 0.7 ? "soutenu" : v >= 0.4 ? "modéré" : "faible";
+  const k = v >= 0.7 ? "high" : v >= 0.4 ? "mid" : "low";
+  return translate("arb.appetitWord." + k, lang);
 }
 
 // Signed percentage: spreads read as premiums/discounts vs the median.
@@ -33,7 +39,7 @@ export function appetitQual(v: number | null): string | null {
 export const pctSigned = (v: number | null | undefined, digits = 1) =>
   v != null ? `${fmtSigned(v, digits)}%` : "–";
 
-function toRow(z: CityResponse["zones"][number]): ArbRow | null {
+function toRow(z: CityResponse["zones"][number], lang: Lang): ArbRow | null {
   const sp = z.pillars.find((p) => p.pillar === "spread");
   const b = sp?.breakdown as ArbitrageBreakdown | undefined;
   if (!b) return null;
@@ -53,17 +59,17 @@ function toRow(z: CityResponse["zones"][number]): ArbRow | null {
     delaiMois: b.delai_cession_mois,
     fraisPct: b.frais_cession_pct,
     decotePct: b.decote_negociation_pct,
-    appetit: appetitQual(pillarValue(z.pillars, "appetit_institutionnel")),
+    appetit: appetitQual(pillarValue(z.pillars, "appetit_institutionnel"), lang),
     weakest,
   };
 }
 
 // Freguesia-level rows only, widest spread first by default.
-export function arbRows(city?: CityResponse): ArbRow[] {
+export function arbRows(city: CityResponse | undefined, lang: Lang): ArbRow[] {
   if (!city) return [];
   return city.zones
     .filter((z) => z.level !== "municipio")
-    .map(toRow)
+    .map((z) => toRow(z, lang))
     .filter((r): r is ArbRow => r !== null)
     .sort((a, b) => b.spreadPct - a.spreadPct);
 }

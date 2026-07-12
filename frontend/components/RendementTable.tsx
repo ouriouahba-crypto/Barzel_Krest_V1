@@ -20,7 +20,7 @@ type Dir = "asc" | "desc";
 // colonne « name » utilise le terme de maille (useZoneNoun).
 const COLS: { key: Key; label: string; unit?: string; unitKey?: string; num: boolean }[] = [
   { key: "name", label: "", num: false },
-  { key: "loyer", label: "rd.marketRent", unit: "€/m²/an", num: true },
+  { key: "loyer", label: "rd.marketRent", unitKey: "u.eurM2Year", num: true },
   { key: "yieldBrut", label: "rd.grossYield", num: true },
   { key: "chargesPctLoyer", label: "rd.charges", unitKey: "rd.pctRent", num: true },
   { key: "fiscPctLoyer", label: "rd.tax", unitKey: "rd.pctRent", num: true },

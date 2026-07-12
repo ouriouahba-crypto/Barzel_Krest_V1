@@ -164,10 +164,12 @@ export function volets(lang: Lang): FiscalVolet[] {
 }
 
 // Textes de page du régime BE : des CLÉS, résolues par la page via t().
-// `chipPrefix` reste une donnée (nom de ville/pays, non traduit).
+// `chipPrefix` en est une aussi : c'est un NOM DE VILLE, donc il se localise
+// (Bruxelles / Brussels / Bruxelas), au contraire du régime PT dont le préfixe
+// est « Portugal », identique dans les trois langues.
 export const PAGE = {
   marketLine: "fsx.be.page.marketLine",
-  chipPrefix: "Bruxelles",
+  chipPrefix: "fsx.be.page.chipPrefix",
   intro: "fsx.be.page.intro",
   bannerEyebrowPrefix: "fsx.be.page.bannerEyebrowPrefix",
   entryMaxLabel: "fsx.be.page.entryMaxLabel",

@@ -11,7 +11,7 @@ import { InsightBanner } from "@/components/InsightBanner";
 import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
 import { useGaia } from "@/lib/useGaia";
-import { classLabel, verdictTone } from "@/lib/scoring";
+import { verdictTone } from "@/lib/scoring";
 import { eur0 } from "@/lib/priceMargin";
 import { rdRows, rdSummary, RdRow } from "@/lib/rendement";
 import { detentionInsight, anomalyNote } from "@/lib/insights";
@@ -39,6 +39,7 @@ export default function RendementPage() {
   const [selected, setSelected] = useState<string[]>([]);
 
   const cls = g.assetClass;
+  const clsLabel = classLabelFor(cls, lang);
   const allRows = useMemo(() => rdRows(g.detentionCity), [g.detentionCity]);
   const rows = useMemo(
     () => (selected.length ? allRows.filter((r) => selected.includes(r.zone)) : allRows),
@@ -138,7 +139,7 @@ export default function RendementPage() {
               <span className="inline-block h-5 w-1.5 rounded-full bg-gold" />
               <h2 className="font-display text-[24px] leading-none text-navy">{t("pgr.title")}</h2>
               <span className="rounded-full border border-gold/40 bg-gold/[0.06] px-2.5 py-0.5 text-label font-medium text-gold-700">
-                {modeLabel("detention", lang)} · {classLabel(cls)}
+                {modeLabel("detention", lang)} · {clsLabel}
               </span>
             </div>
             <p className="mt-2 max-w-3xl pl-[18px] text-body leading-relaxed text-ink-soft">
@@ -174,7 +175,7 @@ export default function RendementPage() {
             />
             <Kpi
               label={t("pgr.medianMarketRent")}
-              value={summary.medianLoyer != null ? `${eur0(summary.medianLoyer, lang)} €/m²/an` : "–"}
+              value={summary.medianLoyer != null ? `${eur0(summary.medianLoyer, lang)} ${t("u.eurM2Year")}` : "–"}
               sub={scopeLabel}
             />
             <Kpi
@@ -203,13 +204,12 @@ export default function RendementPage() {
 
           {/* Yield decomposition (+ Ribeira Sul slider for Santa Marinha résidentiel) */}
           <div className={`shrink-0 ${showAsset ? "grid grid-cols-1 gap-4 xl:grid-cols-[1.35fr_1fr]" : ""}`}>
-            <YieldWaterfall row={selectedRow} mode="detention" classLabel={classLabel(cls)} />
+            <YieldWaterfall row={selectedRow} mode="detention" classLabel={clsLabel} />
             {showAsset && assetProps && (
               <div className="flex flex-col gap-2">
                 <RibeiraSlider {...assetProps} />
                 <p className="px-1 text-caption leading-snug text-ink-soft">
-                  Curseur temps réel sur l'actif K-REST à Santa Marinha : ajustez le loyer moyen
-                  pour voir le rendement et le verdict se recalculer.
+                  {t("pgr.assetCaption")}
                 </p>
               </div>
             )}
@@ -222,7 +222,7 @@ export default function RendementPage() {
               mode="detention"
               focusZone={g.focusZone}
               onSelect={g.setFocusZone}
-              classLabel={classLabel(cls)}
+              classLabel={clsLabel}
               metric={(r) => r.yieldNet}
               title={t("pgr.netYieldChartTitle", { sg: zn.sg })}
               metricLabel={t("pgr.metricLabel")}

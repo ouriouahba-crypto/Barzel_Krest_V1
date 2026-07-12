@@ -5,7 +5,7 @@ import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { api } from "@/lib/api";
 import { useGaia } from "@/lib/useGaia";
-import { classLabel } from "@/lib/scoring";
+import { classLabelFor } from "@/lib/i18n/domain";
 import { AnalystIcon, cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
 import { useT, useLang } from "@/lib/i18n/useT";
@@ -129,7 +129,7 @@ export default function IaAnalystePage() {
                   {t("ai.hero_headline", { city: cityShort })}
                 </h2>
                 <p className="mt-3 text-body text-cream/70">
-                  Réponses en {classLabel(cls).toLowerCase()} : scores, verdicts, fiscalité et énergie de la plateforme.
+                  {t("ai.hero_sub", { cls: classLabelFor(cls, lang).toLowerCase() })}
                 </p>
 
                 <form
@@ -230,7 +230,7 @@ export default function IaAnalystePage() {
                   <input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder={t("ai.input_placeholder_class", { city: cityShort, cls: classLabel(cls).toLowerCase() })}
+                    placeholder={t("ai.input_placeholder_class", { city: cityShort, cls: classLabelFor(cls, lang).toLowerCase() })}
                     className="min-w-0 flex-1 bg-transparent py-2 text-body text-ink outline-none placeholder:text-muted"
                   />
                   <button

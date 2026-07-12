@@ -142,11 +142,15 @@ export function cityInsight(
   data: OverviewByMode,
   assetClass: string,
   noun: ZoneNoun = FREG_NOUN,
-  lang: Lang = "fr"
+  lang: Lang = "fr",
+  // Nom de ville LOCALISÉ (cityShortName). Le payload ne sert que le SLUG
+  // (« bruxelles ») : le capitaliser donnait « Bruxelles » jusque dans la phrase
+  // anglaise. Repli sur le slug capitalisé si l'appelant ne le passe pas.
+  cityName?: string
 ): string {
   const bm = bestMode(data.scores);
   if (!bm || !data.scores[bm]) return translate("ci.loading", lang);
-  const city = cap(data.scores[bm]!.city);
+  const city = cityName ?? cap(data.scores[bm]!.city);
   const label = modeLabel(bm, lang).toLowerCase();
   const rows = data.freg[bm] ?? [];
   const good = goFreg(rows, bm);

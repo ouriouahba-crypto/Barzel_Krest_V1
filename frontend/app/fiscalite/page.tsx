@@ -85,7 +85,7 @@ export default function FiscalitePage() {
               <span className="inline-block h-5 w-1.5 rounded-full bg-gold" />
               <h2 className="font-display text-[24px] leading-none text-navy">{t("fsc.title")}</h2>
               <span className="rounded-full border border-gold/40 bg-gold/[0.06] px-2.5 py-0.5 text-label font-medium text-gold-700">
-                {F.PAGE.chipPrefix} · {regimeLabel}
+                {t(F.PAGE.chipPrefix)} · {regimeLabel}
               </span>
               <div className="ml-2 flex items-center gap-3">
                 <span className="text-label font-semibold uppercase tracking-widest text-muted">{t("fsc.regime_label")}</span>
