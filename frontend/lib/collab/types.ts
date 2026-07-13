@@ -6,15 +6,25 @@
 // pilote la lecture des notifications ; ils vivent uniquement côté client, après
 // hydratation depuis sessionStorage (jamais rendus au SSR).
 
+// i18n (lot QA-1a) : les champs TEXTE de ce modèle ne portent plus du français,
+// mais des CLÉS de dictionnaire (col.* pour le chrome, cs.* pour le contenu
+// seedé), résolues À L'AFFICHAGE par les composants via `resolveText`. Les
+// éléments créés en session portent, eux, du texte libre (la saisie), rendu
+// verbatim par la même fonction. Les NOMS PROPRES (nom de compte, libellé
+// d'ancre, source de presse) restent de la donnée, non traduits.
+
 export type AccountId = "A" | "B";
 export type Role = "analyste" | "manager";
 
+/** Paramètres d'interpolation d'une clé i18n (tokens {x}). */
+export type TextParams = Record<string, string | number>;
+
 export interface Account {
   id: AccountId;
-  /** nom affiché (fictif, plausible) */
+  /** nom affiché (fictif, plausible) : nom propre, jamais traduit */
   name: string;
   role: Role;
-  /** libellé lisible du rôle */
+  /** clé i18n du libellé de rôle (col.role.*) */
   roleLabel: string;
   /** initiales pour l'avatar */
   initials: string;
@@ -26,6 +36,15 @@ export interface Account {
 export type AnchorKind = "zone" | "asset" | "verdict" | "general";
 export interface Anchor {
   kind: AnchorKind;
+  /**
+   * Libellé de l'objet : reste de la DONNÉE (nom propre : maille, actif,
+   * « Mode · Verdict »), pas une clé, à une exception près : l'ancre par défaut
+   * « général ville » du compositeur porte la clé `col.anchor.general`. Ce choix
+   * est structurant : `addSignal` apparie un signalement du dashboard à un fil
+   * existant PAR (kind, label) ; garder le libellé en donnée conserve cet
+   * appariement intact. Les composants passent le libellé par `resolveText` :
+   * une clé est traduite, un nom propre sort verbatim.
+   */
   label: string;
   /**
    * Identité de navigation (lot C3, optionnelle). Quand une note est SIGNALÉE
@@ -41,8 +60,11 @@ export interface Anchor {
 export interface Message {
   id: string;
   authorId: AccountId;
-  /** horodatage relatif prêt à l'affichage (ex. « il y a 2 h », « à l'instant ») */
+  /** clé i18n de l'horodatage relatif (col.time.*), ex. col.time.daysAgo */
   time: string;
+  /** tokens de l'horodatage (ex. { n: 2 } pour « il y a 2 j ») */
+  timeParams?: TextParams;
+  /** clé i18n (cs.*) pour un message seedé ; TEXTE LIBRE pour une réponse saisie */
   text: string;
   /**
    * Numéro de séquence, présent uniquement sur les messages créés en session
@@ -55,7 +77,7 @@ export interface Message {
 export interface Thread {
   id: string;
   citySlug: string;
-  /** titre de décision (ex. « Activer le foncier de Campanhã ? ») */
+  /** clé i18n (cs.*) pour un fil seedé ; TEXTE LIBRE pour un fil ouvert en session */
   title: string;
   anchor: Anchor;
   messages: Message[];
@@ -66,14 +88,16 @@ export interface Thread {
 // de la ville (seed + posts de session) : pas de filtre mort.
 export type FeedCategory = "reglementation" | "financement" | "offre" | "prix" | "macro";
 
+// `label` porte la CLÉ i18n de la catégorie (col.cat.*), résolue à l'affichage.
 export const FEED_CATEGORIES: { id: FeedCategory; label: string }[] = [
-  { id: "reglementation", label: "Régulation & fiscalité" },
-  { id: "financement", label: "Taux & financement" },
-  { id: "offre", label: "Offre & grands projets" },
-  { id: "prix", label: "Transactions & prix" },
-  { id: "macro", label: "Macro locale" },
+  { id: "reglementation", label: "col.cat.reglementation" },
+  { id: "financement", label: "col.cat.financement" },
+  { id: "offre", label: "col.cat.offre" },
+  { id: "prix", label: "col.cat.prix" },
+  { id: "macro", label: "col.cat.macro" },
 ];
 
+/** Clé i18n de la catégorie (à résoudre par le composant), repli sur l'id. */
 export function feedCategoryLabel(id: FeedCategory): string {
   return FEED_CATEGORIES.find((c) => c.id === id)?.label ?? id;
 }
@@ -81,11 +105,13 @@ export function feedCategoryLabel(id: FeedCategory): string {
 export interface FeedItem {
   id: string;
   citySlug: string;
-  /** source crédible (fictive) */
+  /** source crédible (fictive) : nom propre de publication, jamais traduit */
   source: string;
-  /** date d'affichage (ex. « 2 juil. 2026 ») ; « à l'instant » pour un post de session */
+  /** clé i18n : date du seed (cs.*.date) ou `col.time.now` pour un post de session */
   date: string;
+  /** clé i18n (cs.*) pour le seed ; TEXTE LIBRE pour une info publiée en session */
   title: string;
+  /** clé i18n (cs.*) pour le seed ; TEXTE LIBRE pour une info publiée en session */
   summary: string;
   /** catégorie du fil (pilote les filtres du panneau) */
   category: FeedCategory;
@@ -93,6 +119,8 @@ export interface FeedItem {
    * Tag d'impact optionnel : maille concernée + note. Depuis le lot C4, `zoneId` /
    * `route` rendent le tag CLIQUABLE (retour à l'objet dans le dashboard, via
    * AnchorChip / focusBridge du C3). Sans ancrage navigable, pas de tag cliquable.
+   * `zone` est un nom propre (donnée) ; `note` est une clé i18n (cs.*.impact),
+   * absente des items postés en session.
    */
   impact?: { zone: string; note?: string; zoneId?: string; route?: string };
   /** compte auteur pour un item POSTÉ en session (manager) ; absent du seed */
@@ -103,8 +131,13 @@ export interface ActivityItem {
   id: string;
   citySlug: string;
   authorId: AccountId;
+  /** clé i18n de l'horodatage relatif (col.time.*) */
   time: string;
+  timeParams?: TextParams;
+  /** clé i18n : contenu seedé (cs.*) ou entrée générée en session (col.activity.*) */
   text: string;
+  /** tokens du texte (ex. { title } pour « a publié une info : « … » ») */
+  textParams?: TextParams;
 }
 
 // Dernière consultation de la discussion, PAR VILLE et PAR COMPTE (lot C2).
@@ -117,8 +150,8 @@ export type SeenMap = Record<string, Partial<Record<AccountId, number>>>;
 // change le compte courant partout ; défaut = A.
 
 export const ACCOUNTS: Record<AccountId, Account> = {
-  A: { id: "A", name: "Marc Oliveira", role: "analyste", roleLabel: "Analyste", initials: "MO" },
-  B: { id: "B", name: "Claire Vasseur", role: "manager", roleLabel: "Directrice d'investissement", initials: "CV" },
+  A: { id: "A", name: "Marc Oliveira", role: "analyste", roleLabel: "col.role.analyste", initials: "MO" },
+  B: { id: "B", name: "Claire Vasseur", role: "manager", roleLabel: "col.role.manager", initials: "CV" },
 };
 
 export const ACCOUNT_LIST: Account[] = [ACCOUNTS.A, ACCOUNTS.B];

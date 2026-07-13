@@ -7,12 +7,14 @@
 import { useState } from "react";
 import { useCollabStore } from "@/lib/collab/store";
 import { ACCOUNT_LIST, accountOf } from "@/lib/collab/types";
+import { useT } from "@/lib/i18n/useT";
 import { Avatar } from "./Avatar";
 
 export function AccountSwitch() {
   const role = useCollabStore((s) => s.role);
   const setRole = useCollabStore((s) => s.setRole);
   const [open, setOpen] = useState(false);
+  const t = useT();
   const current = accountOf(role);
 
   return (
@@ -26,7 +28,7 @@ export function AccountSwitch() {
       >
         <Avatar id={role} size="md" />
         <span className="leading-tight">
-          <span className="block text-label uppercase tracking-[0.16em] text-cream/55">Vu en tant que</span>
+          <span className="block text-label uppercase tracking-[0.16em] text-cream/55">{t("col.account.seenAs")}</span>
           <span className="block text-btn font-medium text-cream">{current.name}</span>
         </span>
         <span aria-hidden className={`ml-0.5 text-cream/50 transition-transform ${open ? "rotate-180" : ""}`}>
@@ -43,7 +45,7 @@ export function AccountSwitch() {
             className="absolute right-0 z-[50] mt-2 w-72 overflow-hidden rounded-2xl border border-navy/10 bg-white shadow-panel"
           >
             <div className="border-b border-navy/10 px-4 py-2.5 text-label uppercase tracking-[0.16em] text-muted">
-              Changer de compte
+              {t("col.account.switch")}
             </div>
             {ACCOUNT_LIST.map((a) => {
               const on = a.id === role;
@@ -64,7 +66,7 @@ export function AccountSwitch() {
                   <Avatar id={a.id} size="md" />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-btn font-medium text-ink">{a.name}</span>
-                    <span className="block truncate text-caption text-ink-soft">{a.roleLabel}</span>
+                    <span className="block truncate text-caption text-ink-soft">{t(a.roleLabel)}</span>
                   </span>
                   {on && <span className="text-btn text-gold-700">✓</span>}
                 </button>

@@ -23,11 +23,14 @@ import {
   type FeedCategory,
   type FeedItem,
 } from "@/lib/collab/types";
+import { resolveText } from "@/lib/collab/i18nText";
+import { useT } from "@/lib/i18n/useT";
 import { Avatar } from "./Avatar";
 import { AnchorChip } from "./AnchorChip";
 import { FeedComposer } from "./FeedComposer";
 
-const GENERAL: Anchor = { kind: "general", label: "Général ville" };
+// Ancre par défaut : libellé = CLÉ (cf. NewThreadComposer).
+const GENERAL: Anchor = { kind: "general", label: "col.anchor.general" };
 
 export function FeedPanel({
   open,
@@ -43,6 +46,7 @@ export function FeedPanel({
   const role = useCollabStore((s) => s.role);
   const created = useCollabStore((s) => s.created);
   const addThread = useCollabStore((s) => s.addThread);
+  const t = useT();
   const items = useMemo(() => feedForCity(citySlug, created), [citySlug, created]);
 
   // Filtre local au panneau : « Tout » + catégories réellement présentes.
@@ -65,8 +69,18 @@ export function FeedPanel({
     const anchor: Anchor = item.impact
       ? { kind: "zone", label: item.impact.zone, zoneId: item.impact.zoneId, route: item.impact.route }
       : GENERAL;
-    const focus = item.impact ? item.impact.zone : "l'équipe";
-    const text = `À partir de l'info « ${item.title} » (${item.source}) : ${item.summary} Quelle lecture pour ${focus} ?`;
+    const focus = item.impact ? item.impact.zone : t("col.feed.discussFocusTeam");
+    // Le titre/résumé d'un item SEEDÉ sont des clés : on les résout AVANT de composer
+    // la phrase, sinon le message porterait des clés brutes. Le message ainsi produit
+    // est du texte libre (comme une saisie) et sera rendu verbatim.
+    const text = t("col.feed.discussSeed", {
+      title: resolveText(t, item.title),
+      source: item.source,
+      summary: resolveText(t, item.summary),
+      focus,
+    });
+    // Le TITRE du fil reste la clé de l'item quand il est seedé : le fil créé suit
+    // alors la langue, comme le reste du contenu seedé.
     const seq = useCollabStore.getState().seq;
     addThread({ citySlug, title: item.title, anchor, authorId: role, text });
     onOpenDiscussion(`sess-t${seq}`);
@@ -83,19 +97,19 @@ export function FeedPanel({
         }`}
       />
       <aside
-        aria-label="Fil d'info"
+        aria-label={t("col.feed.title")}
         className={`fixed right-0 top-0 z-[1100] flex h-full w-[440px] max-w-[92vw] flex-col border-l border-navy/10 bg-cream-200 shadow-panel transition-transform duration-500 ease-soft will-change-transform ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
         <div className="flex items-center justify-between gap-3 border-b border-navy/10 px-5 py-4">
           <div>
-            <div className="text-label font-semibold uppercase tracking-[0.16em] text-gold-700">Fil d'info</div>
-            <div className="text-caption text-ink-soft">Signaux de marché suivis par l'équipe</div>
+            <div className="text-label font-semibold uppercase tracking-[0.16em] text-gold-700">{t("col.feed.title")}</div>
+            <div className="text-caption text-ink-soft">{t("col.feed.subtitle")}</div>
           </div>
           <button
             onClick={onClose}
-            aria-label="Fermer le fil d'info"
+            aria-label={t("col.feed.close")}
             className="rounded-full border border-navy/10 bg-white px-2.5 py-1 text-navy/60 transition-colors hover:text-navy"
           >
             ✕
@@ -104,10 +118,10 @@ export function FeedPanel({
 
         {/* Filtres par catégorie */}
         <div className="border-b border-navy/10 px-4 py-3">
-          <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filtrer par catégorie">
-            <FilterChip label="Tout" active={active === "all"} onClick={() => setFilter("all")} />
+          <div className="flex flex-wrap gap-1.5" role="group" aria-label={t("col.feed.filterAria")}>
+            <FilterChip label={t("col.feed.filterAll")} active={active === "all"} onClick={() => setFilter("all")} />
             {present.map((c) => (
-              <FilterChip key={c.id} label={c.label} active={active === c.id} onClick={() => setFilter(c.id)} />
+              <FilterChip key={c.id} label={t(c.label)} active={active === c.id} onClick={() => setFilter(c.id)} />
             ))}
           </div>
         </div>
@@ -125,7 +139,7 @@ export function FeedPanel({
               <FeedCard key={f.id} item={f} citySlug={citySlug} onDiscuss={() => startDiscussion(f)} />
             ))}
             {visible.length === 0 && (
-              <p className="px-1 py-8 text-center text-caption text-ink-soft">Aucun item dans cette catégorie.</p>
+              <p className="px-1 py-8 text-center text-caption text-ink-soft">{t("col.feed.empty")}</p>
             )}
           </div>
         </div>
@@ -160,6 +174,7 @@ function FeedCard({
   citySlug: string;
   onDiscuss: () => void;
 }) {
+  const t = useT();
   const author = item.authorId ? accountOf(item.authorId) : null;
   // Tag cliquable seulement s'il porte une identité de navigation (zoneId).
   const navAnchor: Anchor | null =
@@ -172,20 +187,21 @@ function FeedCard({
       <div className="flex items-center gap-2 text-label uppercase tracking-[0.12em] text-muted">
         <span className="font-semibold text-gold-700">{item.source}</span>
         <span aria-hidden className="text-navy/20">·</span>
-        <span>{item.date}</span>
+        <span>{resolveText(t, item.date)}</span>
         <span className="ml-auto rounded-full bg-navy/[0.06] px-2 py-0.5 normal-case tracking-normal text-ink-soft">
-          {feedCategoryLabel(item.category)}
+          {t(feedCategoryLabel(item.category))}
         </span>
       </div>
 
-      <h3 className="mt-1.5 font-display text-[16px] leading-snug text-navy">{item.title}</h3>
-      <p className="mt-1 text-caption text-ink-soft">{item.summary}</p>
+      {/* Clés cs.* pour le seed, saisie verbatim pour une info publiée en session. */}
+      <h3 className="mt-1.5 font-display text-[16px] leading-snug text-navy">{resolveText(t, item.title)}</h3>
+      <p className="mt-1 text-caption text-ink-soft">{resolveText(t, item.summary)}</p>
 
       {author && (
         <div className="mt-2 flex items-center gap-1.5 text-label text-muted">
           <Avatar id={item.authorId!} size="sm" />
           <span>
-            Publié par <span className="font-medium text-ink">{author.name}</span>
+            {t("col.feed.postedBy")} <span className="font-medium text-ink">{author.name}</span>
           </span>
         </div>
       )}
@@ -195,7 +211,8 @@ function FeedCard({
           {navAnchor && <AnchorChip anchor={navAnchor} citySlug={citySlug} />}
           {item.impact.note && (
             <p className="text-label text-ink-soft">
-              <span className="font-semibold text-navy">Impact :</span> {item.impact.note}
+              <span className="font-semibold text-navy">{t("col.feed.impact")}</span>{" "}
+              {resolveText(t, item.impact.note)}
             </p>
           )}
         </div>
@@ -208,7 +225,7 @@ function FeedCard({
           className="inline-flex items-center gap-1.5 text-btn font-semibold text-gold-700 transition-colors hover:text-navy"
         >
           <SpeechGlyph />
-          Ouvrir une discussion
+          {t("col.feed.discuss")}
           <span aria-hidden className="transition-transform">
             →
           </span>

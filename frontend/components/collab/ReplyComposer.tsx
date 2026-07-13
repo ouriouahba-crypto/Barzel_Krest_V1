@@ -8,12 +8,14 @@
 import { useState } from "react";
 import { useCollabStore } from "@/lib/collab/store";
 import { accountOf } from "@/lib/collab/types";
+import { useT } from "@/lib/i18n/useT";
 import { Avatar } from "./Avatar";
 
 export function ReplyComposer({ threadId }: { threadId: string }) {
   const role = useCollabStore((s) => s.role);
   const addReply = useCollabStore((s) => s.addReply);
   const [text, setText] = useState("");
+  const t = useT();
   const current = accountOf(role);
 
   const send = () => {
@@ -37,8 +39,8 @@ export function ReplyComposer({ threadId }: { threadId: string }) {
             }
           }}
           rows={1}
-          aria-label={`Répondre en tant que ${current.name}`}
-          placeholder={`Répondre en tant que ${current.name}...`}
+          aria-label={t("col.reply.aria", { name: current.name })}
+          placeholder={t("col.reply.placeholder", { name: current.name })}
           className="w-full resize-none rounded-xl border border-navy/15 bg-cream/40 px-3.5 py-2.5 text-body text-ink placeholder:text-muted focus:border-gold/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-gold/25"
         />
         <div className="mt-2 flex items-center justify-end">
@@ -48,7 +50,7 @@ export function ReplyComposer({ threadId }: { threadId: string }) {
             disabled={!text.trim()}
             className="inline-flex items-center gap-2 rounded-full bg-navy px-4 py-1.5 text-btn font-semibold text-cream transition-colors hover:bg-navy-700 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            Répondre
+            {t("col.reply.send")}
             <span aria-hidden className="text-gold">
               →
             </span>

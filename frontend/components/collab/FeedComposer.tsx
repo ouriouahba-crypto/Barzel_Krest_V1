@@ -11,6 +11,8 @@ import { useMemo, useState } from "react";
 import { useCollabStore } from "@/lib/collab/store";
 import { feedAnchorTargets } from "@/lib/collab/seed";
 import { FEED_CATEGORIES, accountOf, type Anchor, type FeedCategory } from "@/lib/collab/types";
+import { resolveText } from "@/lib/collab/i18nText";
+import { useT } from "@/lib/i18n/useT";
 import { Avatar } from "./Avatar";
 
 const INPUT =
@@ -20,6 +22,7 @@ const LABEL = "block text-label font-semibold uppercase tracking-[0.14em] text-i
 export function FeedComposer({ citySlug }: { citySlug: string }) {
   const role = useCollabStore((s) => s.role);
   const postFeedItem = useCollabStore((s) => s.postFeedItem);
+  const t = useT();
   const current = accountOf(role);
 
   const [open, setOpen] = useState(false);
@@ -65,8 +68,8 @@ export function FeedComposer({ citySlug }: { citySlug: string }) {
           +
         </span>
         <span className="min-w-0">
-          <span className="block text-btn font-semibold text-navy">Publier une info</span>
-          <span className="block text-caption text-ink-soft">Partager un signal de marché avec l'équipe</span>
+          <span className="block text-btn font-semibold text-navy">{t("col.feedComposer.cta")}</span>
+          <span className="block text-caption text-ink-soft">{t("col.feedComposer.ctaHint")}</span>
         </span>
       </button>
     );
@@ -76,49 +79,49 @@ export function FeedComposer({ citySlug }: { citySlug: string }) {
     <div className="rounded-2xl border border-gold/40 bg-white p-4 shadow-card">
       <div className="mb-3 flex items-center gap-2.5">
         <Avatar id={role} size="md" />
-        <span className="text-btn font-semibold text-ink">Nouvelle info</span>
-        <span className="text-label text-muted">en tant que {current.name}</span>
+        <span className="text-btn font-semibold text-ink">{t("col.feedComposer.title")}</span>
+        <span className="text-label text-muted">{t("col.composer.asName", { name: current.name })}</span>
       </div>
 
       <label className={LABEL} htmlFor="fc-title">
-        Titre
+        {t("col.feedComposer.labelTitle")}
       </label>
       <input
         id="fc-title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="Ex. Nouveau plan d'aménagement voté sur l'arc est"
+        placeholder={t("col.feedComposer.placeholderTitle")}
         className={INPUT}
       />
 
       <label className={`${LABEL} mt-3`} htmlFor="fc-sum">
-        Résumé
+        {t("col.feedComposer.labelSummary")}
       </label>
       <textarea
         id="fc-sum"
         value={summary}
         onChange={(e) => setSummary(e.target.value)}
         rows={2}
-        placeholder="Une à deux phrases sur le signal et ce qu'il implique..."
+        placeholder={t("col.feedComposer.placeholderSummary")}
         className={`${INPUT} resize-none`}
       />
 
       <div className="mt-3 grid grid-cols-2 gap-3">
         <div>
           <label className={LABEL} htmlFor="fc-src">
-            Source
+            {t("col.feedComposer.labelSource")}
           </label>
           <input
             id="fc-src"
             value={source}
             onChange={(e) => setSource(e.target.value)}
-            placeholder="Ex. Idealista News"
+            placeholder={t("col.feedComposer.placeholderSource")}
             className={INPUT}
           />
         </div>
         <div>
           <label className={LABEL} htmlFor="fc-cat">
-            Catégorie
+            {t("col.feedComposer.labelCategory")}
           </label>
           <select
             id="fc-cat"
@@ -128,7 +131,7 @@ export function FeedComposer({ citySlug }: { citySlug: string }) {
           >
             {FEED_CATEGORIES.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.label}
+                {t(c.label)}
               </option>
             ))}
           </select>
@@ -138,7 +141,7 @@ export function FeedComposer({ citySlug }: { citySlug: string }) {
       {targets.length > 0 && (
         <>
           <label className={`${LABEL} mt-3`} htmlFor="fc-anchor">
-            Impact (optionnel)
+            {t("col.feedComposer.labelImpact")}
           </label>
           <select
             id="fc-anchor"
@@ -146,10 +149,10 @@ export function FeedComposer({ citySlug }: { citySlug: string }) {
             onChange={(e) => setAnchorIdx(Number(e.target.value))}
             className={INPUT}
           >
-            <option value={-1}>Aucun</option>
+            <option value={-1}>{t("col.feedComposer.impactNone")}</option>
             {targets.map((a, i) => (
               <option key={a.label} value={i}>
-                {a.label}
+                {resolveText(t, a.label)}
               </option>
             ))}
           </select>
@@ -162,7 +165,7 @@ export function FeedComposer({ citySlug }: { citySlug: string }) {
           onClick={reset}
           className="rounded-full px-4 py-1.5 text-btn font-medium text-ink-soft transition-colors hover:text-navy"
         >
-          Annuler
+          {t("col.common.cancel")}
         </button>
         <button
           type="button"
@@ -170,7 +173,7 @@ export function FeedComposer({ citySlug }: { citySlug: string }) {
           disabled={!canSend}
           className="inline-flex items-center gap-2 rounded-full bg-navy px-5 py-1.5 text-btn font-semibold text-cream transition-colors hover:bg-navy-700 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          Publier
+          {t("col.feedComposer.submit")}
           <span aria-hidden className="text-gold">
             →
           </span>

@@ -12,7 +12,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useReducedMotion } from "framer-motion";
-import { COUNTRY_LABEL, cityBySlug, countryOf } from "@/lib/cities";
+import { countryOf } from "@/lib/cities";
 import {
   useCollabStore,
   activityForCity,
@@ -21,6 +21,8 @@ import {
   threadUnreadCount,
   unreadCountForCity,
 } from "@/lib/collab/store";
+import { useLang, useT } from "@/lib/i18n/useT";
+import { countryDisplay, cityDisplay } from "@/lib/i18n/display";
 import { AccountSwitch } from "./AccountSwitch";
 import { ActivityStrip } from "./ActivityStrip";
 import { DiscussionThread } from "./DiscussionThread";
@@ -30,7 +32,12 @@ import { FeedPanel } from "./FeedPanel";
 import { EnterDashboardButton } from "./EnterDashboardButton";
 
 export function AccueilScreen({ citySlug }: { citySlug: string }) {
-  const city = cityBySlug(citySlug);
+  const t = useT();
+  const lang = useLang();
+  // Pays et ville passent par les tables d'affichage de l'i18n (comme le fil
+  // d'Ariane du dashboard) : cities.ts reste canonique et n'est pas touché.
+  const countryLabel = countryDisplay(countryOf(citySlug), lang);
+  const cityLabel = cityDisplay(citySlug, lang);
   const created = useCollabStore((s) => s.created);
   const role = useCollabStore((s) => s.role);
   const lastSeen = useCollabStore((s) => s.lastSeen);
@@ -71,21 +78,21 @@ export function AccueilScreen({ citySlug }: { citySlug: string }) {
       {/* En-tête navy */}
       <header className="flex items-center justify-between gap-4 bg-navy px-6 py-4 text-cream">
         <div className="flex min-w-0 items-center gap-6">
-          <Link href="/" className="group inline-flex flex-col leading-none" aria-label="Barzel, accueil">
+          <Link href="/" className="group inline-flex flex-col leading-none" aria-label={t("col.home.brandAria")}>
             <span className="font-display text-lg tracking-wide text-gold transition-colors group-hover:text-gold-300">Barzel</span>
             <span className="text-label uppercase tracking-[0.24em] text-cream/55">Analytics</span>
           </Link>
-          <nav aria-label="Fil d'Ariane" className="hidden items-center gap-2 text-label uppercase tracking-[0.16em] sm:flex">
+          <nav aria-label={t("col.home.breadcrumbAria")} className="hidden items-center gap-2 text-label uppercase tracking-[0.16em] sm:flex">
             <Link href="/pays" className="text-cream/55 transition-colors hover:text-gold-300">
-              {COUNTRY_LABEL[countryOf(citySlug)]}
+              {countryLabel}
             </Link>
             <span aria-hidden className="text-cream/30">›</span>
             <Link href="/villes" className="text-cream/70 transition-colors hover:text-gold-300">
-              {city.label}
+              {cityLabel}
             </Link>
             <span aria-hidden className="text-cream/30">›</span>
             <span className="inline-flex items-center gap-1.5 font-semibold text-cream">
-              Accueil
+              {t("nav.home")}
               <NotifDot count={unread} />
             </span>
           </nav>
@@ -97,7 +104,7 @@ export function AccueilScreen({ citySlug }: { citySlug: string }) {
             className="inline-flex items-center gap-2 rounded-full border border-cream/15 bg-white/5 px-3.5 py-2 text-btn text-cream transition-colors hover:border-gold/50 hover:bg-white/10"
           >
             <span aria-hidden className="text-gold">▤</span>
-            Fil d'info
+            {t("col.feed.title")}
             <span className="rounded-full bg-gold/20 px-1.5 text-label font-semibold text-gold-300">{feed.length}</span>
           </button>
           <AccountSwitch />
@@ -109,11 +116,9 @@ export function AccueilScreen({ citySlug }: { citySlug: string }) {
         {/* Titre de ville + accès dashboard */}
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-label uppercase tracking-[0.28em] text-gold-700">Espace d'équipe</p>
-            <h1 className="mt-2 font-display text-[clamp(30px,4vw,44px)] leading-none text-navy">{city.label}</h1>
-            <p className="mt-2 max-w-2xl text-insight text-ink-soft">
-              Discussion d'équipe, fil d'info et signaux de marché, avant d'entrer dans l'analyse.
-            </p>
+            <p className="text-label uppercase tracking-[0.28em] text-gold-700">{t("col.home.eyebrow")}</p>
+            <h1 className="mt-2 font-display text-[clamp(30px,4vw,44px)] leading-none text-navy">{cityLabel}</h1>
+            <p className="mt-2 max-w-2xl text-insight text-ink-soft">{t("col.home.tagline")}</p>
           </div>
           <EnterDashboardButton />
         </div>
@@ -127,11 +132,11 @@ export function AccueilScreen({ citySlug }: { citySlug: string }) {
         <section className="mt-8">
           <div className="mb-4 flex items-baseline justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <h2 className="font-display text-[24px] text-navy">Discussion de l'équipe</h2>
+              <h2 className="font-display text-[24px] text-navy">{t("col.home.discussion")}</h2>
               {unread > 0 && <NotifDot count={unread} showCount />}
             </div>
             <span className="text-label uppercase tracking-[0.14em] text-muted">
-              {threads.length} {threads.length > 1 ? "fils" : "fil"}
+              {t(threads.length > 1 ? "col.home.threadCount" : "col.home.threadCountOne", { n: threads.length })}
             </span>
           </div>
           {/* Compositeur de nouveau fil, en tête de la discussion. */}

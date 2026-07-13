@@ -11,9 +11,14 @@ import { useMemo, useState } from "react";
 import { useCollabStore } from "@/lib/collab/store";
 import { seedAnchors } from "@/lib/collab/seed";
 import { accountOf, type Anchor } from "@/lib/collab/types";
+import { resolveText } from "@/lib/collab/i18nText";
+import { useT } from "@/lib/i18n/useT";
 import { Avatar } from "./Avatar";
 
-const GENERAL: Anchor = { kind: "general", label: "Général ville" };
+// Ancre par défaut : son libellé est une CLÉ (seule ancre traduisible ; les autres
+// sont des noms propres). Elle n'entre pas dans l'appariement des signalements du
+// dashboard, qui ne produit jamais d'ancre « general ».
+const GENERAL: Anchor = { kind: "general", label: "col.anchor.general" };
 
 export function NewThreadComposer({ citySlug }: { citySlug: string }) {
   const role = useCollabStore((s) => s.role);
@@ -22,6 +27,7 @@ export function NewThreadComposer({ citySlug }: { citySlug: string }) {
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [anchorIdx, setAnchorIdx] = useState(0);
+  const t = useT();
   const current = accountOf(role);
 
   // « Général ville » en tête, puis les objets d'ancrage du seed de la ville.
@@ -55,8 +61,8 @@ export function NewThreadComposer({ citySlug }: { citySlug: string }) {
           +
         </span>
         <span className="min-w-0">
-          <span className="block text-btn font-semibold text-navy">Démarrer un fil</span>
-          <span className="block text-caption text-ink-soft">Poser une question de décision à l'équipe</span>
+          <span className="block text-btn font-semibold text-navy">{t("col.newThread.cta")}</span>
+          <span className="block text-caption text-ink-soft">{t("col.newThread.ctaHint")}</span>
         </span>
       </button>
     );
@@ -66,23 +72,23 @@ export function NewThreadComposer({ citySlug }: { citySlug: string }) {
     <div className="rounded-2xl border border-gold/40 bg-white p-5 shadow-card">
       <div className="mb-3 flex items-center gap-2.5">
         <Avatar id={role} size="md" />
-        <span className="text-btn font-semibold text-ink">Nouveau fil</span>
-        <span className="text-label text-muted">en tant que {current.name}</span>
+        <span className="text-btn font-semibold text-ink">{t("col.newThread.title")}</span>
+        <span className="text-label text-muted">{t("col.composer.asName", { name: current.name })}</span>
       </div>
 
       <label className="block text-label font-semibold uppercase tracking-[0.14em] text-ink-soft" htmlFor="nt-title">
-        Question de décision
+        {t("col.newThread.labelTitle")}
       </label>
       <input
         id="nt-title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="Ex. Faut-il activer le foncier de la gare ?"
+        placeholder={t("col.newThread.placeholderTitle")}
         className="mt-1.5 w-full rounded-xl border border-navy/15 bg-cream/40 px-3.5 py-2.5 text-body text-ink placeholder:text-muted focus:border-gold/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-gold/25"
       />
 
       <label className="mt-4 block text-label font-semibold uppercase tracking-[0.14em] text-ink-soft" htmlFor="nt-anchor">
-        Ancrage
+        {t("col.newThread.labelAnchor")}
       </label>
       <select
         id="nt-anchor"
@@ -92,20 +98,20 @@ export function NewThreadComposer({ citySlug }: { citySlug: string }) {
       >
         {anchors.map((a, i) => (
           <option key={a.label} value={i}>
-            {a.label}
+            {resolveText(t, a.label)}
           </option>
         ))}
       </select>
 
       <label className="mt-4 block text-label font-semibold uppercase tracking-[0.14em] text-ink-soft" htmlFor="nt-msg">
-        Premier message
+        {t("col.newThread.labelMsg")}
       </label>
       <textarea
         id="nt-msg"
         value={text}
         onChange={(e) => setText(e.target.value)}
         rows={3}
-        placeholder="Poser le contexte et la décision attendue..."
+        placeholder={t("col.newThread.placeholderMsg")}
         className="mt-1.5 w-full resize-none rounded-xl border border-navy/15 bg-cream/40 px-3.5 py-2.5 text-body text-ink placeholder:text-muted focus:border-gold/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-gold/25"
       />
 
@@ -115,7 +121,7 @@ export function NewThreadComposer({ citySlug }: { citySlug: string }) {
           onClick={reset}
           className="rounded-full px-4 py-1.5 text-btn font-medium text-ink-soft transition-colors hover:text-navy"
         >
-          Annuler
+          {t("col.common.cancel")}
         </button>
         <button
           type="button"
@@ -123,7 +129,7 @@ export function NewThreadComposer({ citySlug }: { citySlug: string }) {
           disabled={!canSend}
           className="inline-flex items-center gap-2 rounded-full bg-navy px-5 py-1.5 text-btn font-semibold text-cream transition-colors hover:bg-navy-700 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          Publier le fil
+          {t("col.newThread.submit")}
           <span aria-hidden className="text-gold">
             →
           </span>
