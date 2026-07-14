@@ -10,9 +10,9 @@
 import { useMemo, useState } from "react";
 import { useCollabStore } from "@/lib/collab/store";
 import { seedAnchors } from "@/lib/collab/seed";
-import { accountOf, type Anchor } from "@/lib/collab/types";
-import { resolveText } from "@/lib/collab/i18nText";
-import { useT } from "@/lib/i18n/useT";
+import { accountOf, anchorKey, type Anchor } from "@/lib/collab/types";
+import { anchorText } from "@/lib/collab/i18nText";
+import { useT, useLang } from "@/lib/i18n/useT";
 import { Avatar } from "./Avatar";
 
 // Ancre par défaut : son libellé est une CLÉ (seule ancre traduisible ; les autres
@@ -28,6 +28,7 @@ export function NewThreadComposer({ citySlug }: { citySlug: string }) {
   const [text, setText] = useState("");
   const [anchorIdx, setAnchorIdx] = useState(0);
   const t = useT();
+  const lang = useLang();
   const current = accountOf(role);
 
   // « Général ville » en tête, puis les objets d'ancrage du seed de la ville.
@@ -97,8 +98,8 @@ export function NewThreadComposer({ citySlug }: { citySlug: string }) {
         className="mt-1.5 w-full rounded-xl border border-navy/15 bg-cream/40 px-3.5 py-2.5 text-body text-ink focus:border-gold/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-gold/25"
       >
         {anchors.map((a, i) => (
-          <option key={a.label} value={i}>
-            {resolveText(t, a.label)}
+          <option key={anchorKey(a)} value={i}>
+            {anchorText(t, lang, a)}
           </option>
         ))}
       </select>

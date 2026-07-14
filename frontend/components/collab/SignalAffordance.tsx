@@ -20,8 +20,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useCollabStore } from "@/lib/collab/store";
 import { accountOf, type Anchor, type AnchorKind } from "@/lib/collab/types";
-import { resolveText } from "@/lib/collab/i18nText";
-import { useT } from "@/lib/i18n/useT";
+import { anchorText } from "@/lib/collab/i18nText";
+import { useT, useLang } from "@/lib/i18n/useT";
 
 const GLYPH: Record<AnchorKind, string> = { zone: "▣", asset: "◈", verdict: "◆", general: "◇" };
 
@@ -42,6 +42,7 @@ export function SignalAffordance({
   place?: "tr" | "br";
 }) {
   const t = useT();
+  const lang = useLang();
   const [open, setOpen] = useState(false);
   // Snapshot de l'ancre à l'ouverture : si l'hôte se met à jour (le panneau de la
   // carte suit le survol), le popover garde la cible choisie au clic.
@@ -58,7 +59,7 @@ export function SignalAffordance({
     <>
       <button
         type="button"
-        aria-label={t("col.signal.aria", { label: resolveText(t, anchor.label) })}
+        aria-label={t("col.signal.aria", { label: anchorText(t, lang, anchor) })}
         title={t("col.signal.title")}
         onClick={openPopover}
         className={`absolute ${PLACE[place]} z-20 inline-flex h-6 w-6 items-center justify-center rounded-full bg-white text-navy opacity-0 shadow-sm ring-1 ring-navy/15 transition-opacity duration-150 hover:text-gold-700 hover:ring-gold/60 focus-visible:opacity-100 group-hover/sig:opacity-100 motion-reduce:transition-none ${
@@ -84,6 +85,7 @@ function SignalPopover({
   const role = useCollabStore((s) => s.role);
   const addSignal = useCollabStore((s) => s.addSignal);
   const t = useT();
+  const lang = useLang();
   const current = accountOf(role);
   const [text, setText] = useState("");
   const [sent, setSent] = useState(false);
@@ -124,13 +126,13 @@ function SignalPopover({
     <div
       ref={ref}
       role="dialog"
-      aria-label={t("col.signal.dialogAria", { label: resolveText(t, anchor.label) })}
+      aria-label={t("col.signal.dialogAria", { label: anchorText(t, lang, anchor) })}
       onClick={(e) => e.stopPropagation()}
       className="fade-up absolute right-0 top-full z-30 mt-2 w-[260px] rounded-2xl border border-navy/10 bg-white p-3.5 text-left text-ink shadow-card"
     >
       <div className="mb-2 inline-flex max-w-full items-center gap-1.5 rounded-full border border-gold/20 bg-gold/[0.08] px-2.5 py-1 text-label font-medium text-gold-700">
         <span aria-hidden>{GLYPH[anchor.kind] ?? GLYPH.general}</span>
-        <span className="truncate normal-case">{resolveText(t, anchor.label)}</span>
+        <span className="truncate normal-case">{anchorText(t, lang, anchor)}</span>
       </div>
 
       {sent ? (

@@ -192,13 +192,17 @@ export default function VueEnsemble() {
                     isBest ? "border-gold/70 bg-navy shadow-card ring-1 ring-gold/40" : "border-navy/10 bg-navy/95"
                   }`}
                 >
-                  {/* Signalement au survol (lot C3) : ancré au verdict ville du mode. */}
+                  {/* Signalement au survol (lot C3) : ancré au verdict ville du mode.
+                      L'ancre porte les CLÉS CANONIQUES du moteur (lot QA-1d), jamais un
+                      libellé traduit : c'est ce qui permet à la note de rejoindre le fil
+                      déjà ouvert sur cet objet, quelle que soit la langue du dashboard. */}
                   {s && (
                     <SignalAffordance
                       citySlug={slug}
                       anchor={{
                         kind: "verdict",
-                        label: `${modeLabel(m, lang)} · ${verdictDisplay(s.verdict, lang)}`,
+                        mode: m,
+                        verdict: s.verdict,
                         route: MODE_ROUTE[m] ?? "/vue-ensemble",
                       }}
                     />

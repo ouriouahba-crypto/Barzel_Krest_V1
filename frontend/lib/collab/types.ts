@@ -13,6 +13,9 @@
 // verbatim par la même fonction. Les NOMS PROPRES (nom de compte, libellé
 // d'ancre, source de presse) restent de la donnée, non traduits.
 
+// `Mode` est une CLÉ moteur (type seul : aucun import à l'exécution, aucun cycle).
+import type { Mode } from "@/lib/scoring";
+
 export type AccountId = "A" | "B";
 export type Role = "analyste" | "manager";
 
@@ -32,29 +35,64 @@ export interface Account {
 
 // Ancre d'un fil de discussion : l'objet de décision (maille, actif ou verdict),
 // ou « général ville » pour un fil non rattaché à un objet précis (défaut du
-// compositeur en C2 ; l'ancrage depuis un objet du dashboard viendra au C3).
+// compositeur en C2 ; l'ancrage depuis un objet du dashboard est venu au C3).
 export type AnchorKind = "zone" | "asset" | "verdict" | "general";
-export interface Anchor {
-  kind: AnchorKind;
-  /**
-   * Libellé de l'objet : reste de la DONNÉE (nom propre : maille, actif,
-   * « Mode · Verdict »), pas une clé, à une exception près : l'ancre par défaut
-   * « général ville » du compositeur porte la clé `col.anchor.general`. Ce choix
-   * est structurant : `addSignal` apparie un signalement du dashboard à un fil
-   * existant PAR (kind, label) ; garder le libellé en donnée conserve cet
-   * appariement intact. Les composants passent le libellé par `resolveText` :
-   * une clé est traduite, un nom propre sort verbatim.
-   */
-  label: string;
-  /**
-   * Identité de navigation (lot C3, optionnelle). Quand une note est SIGNALÉE
-   * depuis un objet du dashboard, l'ancre porte de quoi y revenir : `zoneId` = la
-   * maille à focaliser sur la carte, `route` = la page du dashboard à rouvrir.
-   * Absents du seed et des fils « général ville » (le chip retombe alors sur la
-   * vue d'ensemble). Purement descriptif : aucune valeur, aucun score.
-   */
+
+/**
+ * Identité de navigation (lot C3, optionnelle). Quand une note est SIGNALÉE depuis
+ * un objet du dashboard, l'ancre porte de quoi y revenir : `zoneId` = la maille à
+ * focaliser sur la carte, `route` = la page du dashboard à rouvrir. Absents du seed
+ * et des fils « général ville » (le chip retombe alors sur la vue d'ensemble).
+ * Purement descriptif : aucune valeur, aucun score.
+ */
+interface AnchorNav {
   zoneId?: string;
   route?: string;
+}
+
+/**
+ * Ancre de VERDICT (lot QA-1d) : elle ne porte plus un libellé (« Promotion · Go »,
+ * qui était du français en dur, affiché tel quel en EN/PT et surtout comparé à un
+ * libellé TRADUIT côté dashboard, donc jamais apparié hors FR), mais les CLÉS
+ * CANONIQUES du moteur. Le libellé est COMPOSÉ à l'affichage (`anchorText`), et
+ * l'appariement se fait sur les clés (`anchorKey`) : indépendant de la langue.
+ */
+export interface VerdictAnchor extends AnchorNav {
+  kind: "verdict";
+  /** clé moteur : "promotion" | "detention" | "arbitrage" | "landbank" */
+  mode: Mode;
+  /** clé moteur, ASCII : "Go", "Conditionnel", "Ceder", "Fenetre ouverte"… */
+  verdict: string;
+}
+
+/**
+ * Ancre NOMMÉE (maille, actif, « général ville »). Son `label` reste de la DONNÉE :
+ * un nom propre (« Haya Towers · Afurada », « Marvila »), à une exception près,
+ * l'ancre par défaut du compositeur, qui porte la clé `col.anchor.general`. Les
+ * composants la passent par `resolveText` : une clé est traduite, un nom propre sort
+ * verbatim. Rien à traduire ici, donc rien à structurer.
+ */
+export interface LabelAnchor extends AnchorNav {
+  kind: "zone" | "asset" | "general";
+  label: string;
+}
+
+export type Anchor = VerdictAnchor | LabelAnchor;
+
+/**
+ * IDENTITÉ CANONIQUE d'une ancre : la clé sur laquelle on APPARIE (`addSignal`
+ * rattache une note à un fil ancré au même objet, `seedAnchors` déduplique). Jamais
+ * un libellé affiché : un verdict s'identifie par (mode, verdict) moteur, donc un
+ * signalement émis depuis un dashboard EN ou PT rejoint le fil ouvert en FR.
+ * Le verdict est dé-accentué (« Céder » -> « Ceder ») pour que la forme d'affichage
+ * FR et la forme moteur ASCII désignent bien le même objet.
+ */
+export function anchorKey(a: Anchor): string {
+  if (a.kind === "verdict") {
+    const canon = a.verdict.normalize("NFD").replace(new RegExp("[\\u0300-\\u036f]", "g"), "");
+    return `verdict|${a.mode}|${canon}`;
+  }
+  return `${a.kind}|${a.label}`;
 }
 
 export interface Message {
@@ -77,8 +115,13 @@ export interface Message {
 export interface Thread {
   id: string;
   citySlug: string;
-  /** clé i18n (cs.*) pour un fil seedé ; TEXTE LIBRE pour un fil ouvert en session */
-  title: string;
+  /**
+   * Clé i18n (cs.*) pour un fil seedé ; TEXTE LIBRE pour un fil ouvert au
+   * compositeur. ABSENT pour un fil ouvert par un SIGNALEMENT : son titre EST son
+   * objet, rendu depuis l'ancre (`anchorText`) donc dans la langue du lecteur, et
+   * non figé dans celle du signaleur.
+   */
+  title?: string;
   anchor: Anchor;
   messages: Message[];
 }

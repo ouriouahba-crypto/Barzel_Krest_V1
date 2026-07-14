@@ -10,7 +10,7 @@
 import { useMemo, useState } from "react";
 import { useCollabStore } from "@/lib/collab/store";
 import { feedAnchorTargets } from "@/lib/collab/seed";
-import { FEED_CATEGORIES, accountOf, type Anchor, type FeedCategory } from "@/lib/collab/types";
+import { FEED_CATEGORIES, accountOf, type FeedCategory, type LabelAnchor } from "@/lib/collab/types";
 import { resolveText } from "@/lib/collab/i18nText";
 import { useT } from "@/lib/i18n/useT";
 import { Avatar } from "./Avatar";
@@ -32,7 +32,7 @@ export function FeedComposer({ citySlug }: { citySlug: string }) {
   const [category, setCategory] = useState<FeedCategory>("offre");
   const [anchorIdx, setAnchorIdx] = useState(-1); // -1 = aucun impact
 
-  const targets = useMemo<Anchor[]>(() => feedAnchorTargets(citySlug), [citySlug]);
+  const targets = useMemo<LabelAnchor[]>(() => feedAnchorTargets(citySlug), [citySlug]);
   const canSend = title.trim().length > 0 && summary.trim().length > 0 && source.trim().length > 0;
 
   const reset = () => {

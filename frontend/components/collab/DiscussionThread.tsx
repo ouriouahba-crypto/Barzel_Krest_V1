@@ -8,8 +8,8 @@
 
 import type { Thread } from "@/lib/collab/types";
 import { accountOf } from "@/lib/collab/types";
-import { resolveText } from "@/lib/collab/i18nText";
-import { useT } from "@/lib/i18n/useT";
+import { anchorText, resolveText } from "@/lib/collab/i18nText";
+import { useT, useLang } from "@/lib/i18n/useT";
 import { Avatar } from "./Avatar";
 import { AnchorChip } from "./AnchorChip";
 import { NotifDot } from "./NotifDot";
@@ -25,6 +25,7 @@ export function DiscussionThread({
   highlight?: boolean;
 }) {
   const t = useT();
+  const lang = useLang();
   return (
     <article
       id={`thread-${thread.id}`}
@@ -35,8 +36,12 @@ export function DiscussionThread({
       {/* Chip d'objet cliquable (lot C3) : ramène à l'objet dans le dashboard. */}
       <AnchorChip anchor={thread.anchor} citySlug={thread.citySlug} />
       <div className="flex items-start gap-2">
-        {/* Titre : clé cs.* pour un fil seedé, saisie verbatim pour un fil de session. */}
-        <h3 className="min-w-0 flex-1 font-display text-[17px] leading-snug text-navy">{resolveText(t, thread.title)}</h3>
+        {/* Titre : clé cs.* pour un fil seedé, saisie verbatim pour un fil de session.
+            Un fil ouvert par SIGNALEMENT n'en porte pas : son titre est son objet, rendu
+            depuis l'ancre, donc dans la langue du lecteur (lot QA-1d). */}
+        <h3 className="min-w-0 flex-1 font-display text-[17px] leading-snug text-navy">
+          {thread.title ? resolveText(t, thread.title) : anchorText(t, lang, thread.anchor)}
+        </h3>
         {unread > 0 && <span className="mt-1.5 shrink-0"><NotifDot count={unread} /></span>}
       </div>
 
