@@ -956,18 +956,29 @@ def test_lot3_energie_actif_type_median_and_spread_base():
     assert porto["cedofeitavitoria"] == 3801, porto["cedofeitavitoria"]
     assert gaia["santamarinhaesaopedrodaafurada"] == 2721, gaia["santamarinhaesaopedrodaafurada"]
 
-    # (11) la cascade ET l'en-tête du tableau explicitent la base via un suffixe
-    # DATA-DRIVEN (« médiane {baseLabel} »), jamais « Gaia » codé en dur.
+    # (11) la cascade ET l'en-tête du tableau explicitent la base du spread de façon
+    # DATA-DRIVEN. Le front a été KEYÉ (lot i18n) : le littéral « médiane {baseLabel} »
+    # a disparu au profit de la clé i18n `ar.vsMedianBase` (« vs médiane {base} »),
+    # composée par t() à partir de la prop `baseLabel` (dérivée par la page). On
+    # vérifie donc le MÉCANISME keyé, pas le littéral FR. Marqueur stable présent dans
+    # les DEUX composants : la prop `baseLabel` (SpreadWaterfall l'injecte dans la base
+    # de la cascade ; ArbitrageTable la place via `ar.vsMedianBase`). L'esprit du test
+    # est inchangé (la base est explicitée et data-driven, jamais « Gaia » en dur) : il
+    # tombe toujours si quelqu'un recode la base en dur ou casse sa dérivation.
     page = (front / "app" / "arbitrage" / "page.tsx").read_text(encoding="utf-8")
     table = (front / "components" / "ArbitrageTable.tsx").read_text(encoding="utf-8")
-    assert "médiane ${baseLabel}" in spread, "base du spread (cascade) non data-driven"
-    assert "médiane ${baseLabel}" in table, "base du spread (tableau) non data-driven"
+    assert "baseLabel" in spread, "base du spread (cascade) doit rester la prop data-driven baseLabel"
+    assert "baseLabel" in table, "base du spread (tableau) doit rester la prop data-driven baseLabel"
+    assert "ar.vsMedianBase" in table, "le tableau doit composer la base via la clé i18n ar.vsMedianBase"
     assert "spread" in spread.lower()
     for f in (spread, table, page):
         assert "médiane gaia" not in f.lower(), "aucune « médiane Gaia » codée en dur"
     # La page dérive la base : prix_marche constant sur toutes les lignes -> médiane
-    # ville ; sinon médiane de la maille (city.zoneNoun) ; repli « de marché ».
-    assert "baseIsCity" in page and "de marché" in page and "city.zoneNoun" in page
+    # ville (baseIsCity) ; sinon médiane de la maille (city.zoneNoun) ; repli marché.
+    # Le suffixe « de marché » a lui aussi été KEYÉ (clé i18n ar.base.market), même
+    # dette que « médiane {baseLabel} » : on vérifie le mécanisme keyé de dérivation
+    # à trois cas, jamais un nom de ville en dur.
+    assert "baseIsCity" in page and "ar.base.market" in page and "city.zoneNoun" in page
 
 
 if __name__ == "__main__":  # dependency-free smoke run

@@ -29,7 +29,6 @@ app/
 components/
   Header.tsx          bandeau : titre, market line, recherche multi-freguesias, sélecteurs MODE + CLASSE
   Sidebar.tsx         modules + Export PDF + "IA Analyste" (désactivé)
-  ScoreCards.tsx      4 cartes de score (une par mode), la carte active mise en avant
   GaiaMap.tsx         choroplèthe Leaflet (client, ssr:false) + repère or Haya
   DetailPanel.tsx     panneau droite : piliers + chiffres clés
   HayaSlider.tsx      moment tactile : curseur prix, marge/verdict recalculés en direct
