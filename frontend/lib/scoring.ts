@@ -166,16 +166,6 @@ export const MODE_KPI: Record<Mode, { pillar: string; label: string; unit: strin
   landbank: { pillar: "constructibilite", label: "Constructibilité méd.", unit: "/100", digits: 0 },
 };
 
-// Native headline per mode (fallbacks if the API label is missing)
-export function nativeHint(mode: Mode): string {
-  return {
-    promotion: "marge % · absorption",
-    detention: "rendement net % · énergie",
-    arbitrage: "spread % · appétit",
-    landbank: "constructibilité · valorisation max",
-  }[mode];
-}
-
 // Displayed title for a pillar key. Default humanises the key; overrides give a
 // clearer wording. "valeur_meilleur_usage" is the max multi-usage VALUATION, not
 // the Foncier destination reco (which keeps "meilleur usage") : titled

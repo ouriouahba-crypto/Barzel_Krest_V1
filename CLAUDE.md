@@ -66,9 +66,7 @@ non migrés — à convertir s'ils sont réutilisés.
   sombre, texte clair, 7,5:1), repris par les pilules verdict énergie.
 - **Outils** : `frontend/shots/audit_contrast.js` (audit WCAG des 10 pages,
   gère le `fill` des `<text>` SVG et la composition alpha des fonds ; sortie
-  JSON + pires ratios) et `frontend/shots/check_matrix.js` (10 pages × Chrome +
-  WebKit × 1280/1440/1920 : pageerror, console.error, débordement horizontal ;
-  bruit filtré : prefetch RSC WebKit + warning Recharts `defaultProps`).
+  JSON + pires ratios).
 
 ### Posture produit (règles dures)
 - **Jamais** afficher : « simulation », « confiance », les sources, ni les
