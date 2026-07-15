@@ -10,9 +10,14 @@
 // clés. Les NOMS PROPRES restent en clair : libellés d'ancre (« Haya Towers ·
 // Afurada »), mailles d'impact (« Santa Marinha »), sources de presse.
 //
+// i18n (lot QA-1d) : une ancre de VERDICT n'est plus un libellé (« Promotion · Go »
+// était du français en dur, donc affiché tel quel en EN/PT, et comparé à un libellé
+// TRADUIT lors d'un signalement : jamais apparié hors FR). Elle porte les CLÉS
+// CANONIQUES du moteur (mode + verdict), composées à l'affichage par `anchorText`.
+//
 // Villes couvertes : gaia, lisbonne, porto, bruxelles (slugs du registre).
 
-import type { Thread, FeedItem, ActivityItem, Anchor } from "./types";
+import { anchorKey, type Thread, type FeedItem, type ActivityItem, type Anchor, type LabelAnchor } from "./types";
 
 // --- Fils de discussion (2 à 3 par ville) --------------------------------
 
@@ -33,7 +38,7 @@ const THREADS: Thread[] = [
     id: "gaia-t2",
     citySlug: "gaia",
     title: "cs.gaia.t2.title",
-    anchor: { kind: "verdict", label: "Promotion · Go" },
+    anchor: { kind: "verdict", mode: "promotion", verdict: "Go" },
     messages: [
       { id: "gaia-t2-m1", authorId: "A", time: "col.time.daysAgo", timeParams: { n: 3 }, text: "cs.gaia.t2.m1.text" },
       { id: "gaia-t2-m2", authorId: "B", time: "col.time.daysAgo", timeParams: { n: 2 }, text: "cs.gaia.t2.m2.text" },
@@ -66,7 +71,7 @@ const THREADS: Thread[] = [
     id: "lisbonne-t2",
     citySlug: "lisbonne",
     title: "cs.lisbonne.t2.title",
-    anchor: { kind: "verdict", label: "Détention · Céder" },
+    anchor: { kind: "verdict", mode: "detention", verdict: "Ceder" },
     messages: [
       { id: "lisbonne-t2-m1", authorId: "A", time: "col.time.daysAgo", timeParams: { n: 3 }, text: "cs.lisbonne.t2.m1.text" },
       { id: "lisbonne-t2-m2", authorId: "B", time: "col.time.daysAgo", timeParams: { n: 2 }, text: "cs.lisbonne.t2.m2.text" },
@@ -99,7 +104,7 @@ const THREADS: Thread[] = [
     id: "porto-t2",
     citySlug: "porto",
     title: "cs.porto.t2.title",
-    anchor: { kind: "verdict", label: "Promotion · Go" },
+    anchor: { kind: "verdict", mode: "promotion", verdict: "Go" },
     messages: [
       { id: "porto-t2-m1", authorId: "A", time: "col.time.daysAgo", timeParams: { n: 3 }, text: "cs.porto.t2.m1.text" },
       { id: "porto-t2-m2", authorId: "B", time: "col.time.daysAgo", timeParams: { n: 2 }, text: "cs.porto.t2.m2.text" },
@@ -132,7 +137,7 @@ const THREADS: Thread[] = [
     id: "bruxelles-t2",
     citySlug: "bruxelles",
     title: "cs.bruxelles.t2.title",
-    anchor: { kind: "verdict", label: "Détention · Céder" },
+    anchor: { kind: "verdict", mode: "detention", verdict: "Ceder" },
     messages: [
       { id: "bruxelles-t2-m1", authorId: "A", time: "col.time.daysAgo", timeParams: { n: 3 }, text: "cs.bruxelles.t2.m1.text" },
       { id: "bruxelles-t2-m2", authorId: "B", time: "col.time.daysAgo", timeParams: { n: 2 }, text: "cs.bruxelles.t2.m2.text" },
@@ -355,7 +360,7 @@ const FEED: FeedItem[] = [
 // couvrir les objets déjà cités dans les items seedés. Un item posté avec un de ces
 // objets porte un tag d'impact cliquable (retour à la maille dans le dashboard).
 // Les libellés sont des NOMS DE MAILLES : donnée, non traduits.
-const FEED_ANCHOR_TARGETS: Record<string, Anchor[]> = {
+const FEED_ANCHOR_TARGETS: Record<string, LabelAnchor[]> = {
   gaia: [
     { kind: "zone", label: "Santa Marinha e Afurada", zoneId: "santamarinhaesaopedrodaafurada", route: "/gaia" },
     { kind: "zone", label: "Madalena", zoneId: "madalena", route: "/gaia" },
@@ -424,18 +429,20 @@ export function seedActivity(citySlug: string): ActivityItem[] {
 
 // Objets navigables proposés au compositeur du fil d'info (lot C4). Vide pour une
 // ville non listée (le compositeur retombe alors sur « Aucun » impact).
-export function feedAnchorTargets(citySlug: string): Anchor[] {
+export function feedAnchorTargets(citySlug: string): LabelAnchor[] {
   return FEED_ANCHOR_TARGETS[citySlug] ?? [];
 }
 
 // Objets d'ancrage déjà présents dans le seed d'une ville (lot C2) : proposés au
-// compositeur de nouveau fil, en plus de « Général ville » (défaut). Dédupliqués
-// par libellé, dans l'ordre du seed.
+// compositeur de nouveau fil, en plus de « Général ville » (défaut). Dédupliqués par
+// IDENTITÉ CANONIQUE (`anchorKey`, lot QA-1d : un verdict s'identifie par ses clés
+// moteur, pas par un libellé traduit), dans l'ordre du seed.
 export function seedAnchors(citySlug: string): Anchor[] {
-  const byLabel = new Map<string, Anchor>();
+  const byKey = new Map<string, Anchor>();
   for (const t of THREADS) {
     if (t.citySlug !== citySlug) continue;
-    if (!byLabel.has(t.anchor.label)) byLabel.set(t.anchor.label, t.anchor);
+    const key = anchorKey(t.anchor);
+    if (!byKey.has(key)) byKey.set(key, t.anchor);
   }
-  return [...byLabel.values()];
+  return [...byKey.values()];
 }

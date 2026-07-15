@@ -13,12 +13,13 @@ import { useRouter } from "next/navigation";
 import { useReducedMotion } from "framer-motion";
 import { useTransition } from "@/lib/transitionStore";
 import { setPendingFocus } from "@/lib/collab/focusBridge";
-import { resolveText } from "@/lib/collab/i18nText";
-import { useT } from "@/lib/i18n/useT";
+import { anchorText } from "@/lib/collab/i18nText";
+import { useT, useLang } from "@/lib/i18n/useT";
 import type { Anchor, AnchorKind } from "@/lib/collab/types";
 
 const GLYPH: Record<AnchorKind, string> = { zone: "▣", asset: "◈", verdict: "◆", general: "◇" };
-// Clés i18n du type d'objet (le libellé, lui, reste de la donnée : nom propre).
+// Clés i18n du type d'objet (le libellé de l'objet, lui, est un nom propre de donnée
+// ou, pour un verdict, composé des clés moteur : cf. `anchorText`).
 const KIND_KEY: Record<AnchorKind, string> = {
   zone: "col.anchor.kind.zone",
   asset: "col.anchor.kind.asset",
@@ -31,6 +32,7 @@ const COVER_MS = 360;
 export function AnchorChip({ anchor, citySlug }: { anchor: Anchor; citySlug: string }) {
   const router = useRouter();
   const t = useT();
+  const lang = useLang();
   const cover = useTransition((s) => s.cover);
   const reduce = useReducedMotion();
   const route = anchor.route ?? "/vue-ensemble";
@@ -55,7 +57,7 @@ export function AnchorChip({ anchor, citySlug }: { anchor: Anchor; citySlug: str
       <span aria-hidden>{GLYPH[anchor.kind] ?? GLYPH.general}</span>
       <span className="uppercase tracking-[0.12em]">{t(KIND_KEY[anchor.kind] ?? KIND_KEY.general)}</span>
       <span className="text-gold-700/70">·</span>
-      <span className="truncate normal-case tracking-normal">{resolveText(t, anchor.label)}</span>
+      <span className="truncate normal-case tracking-normal">{anchorText(t, lang, anchor)}</span>
       <span aria-hidden className="text-gold-700/50 transition-transform group-hover:translate-x-0.5">
         →
       </span>

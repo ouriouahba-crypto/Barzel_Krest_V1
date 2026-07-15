@@ -17,7 +17,7 @@
 
 import { create } from "zustand";
 import type { AccountId, ActivityItem, Anchor, FeedCategory, FeedItem, Message, SeenMap, Thread } from "./types";
-import { DEFAULT_ACCOUNT } from "./types";
+import { anchorKey, DEFAULT_ACCOUNT } from "./types";
 import { seedActivity, seedFeed, seedThreads } from "./seed";
 
 const ROLE_KEY = "barzel_collab_role";
@@ -59,8 +59,10 @@ interface CollabState {
   /**
    * Signale un objet du dashboard (lot C3) : remonte une note dans la discussion de
    * la ville, ancrée à l'objet. Si un fil ancré au MÊME objet existe déjà (seed ou
-   * créé), la note s'y ajoute ; sinon un fil ancré est ouvert (titre = nom de
-   * l'objet). Même mécanique de séquence/non-lus que `addReply`/`addThread`.
+   * créé), la note s'y ajoute ; sinon un fil ancré est ouvert (son titre est son
+   * objet, rendu depuis l'ancre). « Le même objet » se juge sur l'identité canonique
+   * de l'ancre (`anchorKey`), pas sur un libellé traduit : l'appariement est le même
+   * dans les 3 langues. Même mécanique de séquence/non-lus que `addReply`/`addThread`.
    */
   addSignal: (input: { citySlug: string; anchor: Anchor; authorId: AccountId; text: string }) => void;
   /** marque la discussion de la ville comme lue pour le compte (vide la pastille) */
@@ -185,13 +187,14 @@ export const useCollabStore = create<CollabState>((set, get) => ({
     const s = get().seq;
     const created = get().created;
     const message: Message = { id: `sess-m${s}`, authorId, time: "col.time.now", text: body, seq: s };
-    // Fil ancré au même objet (seed OU créé) : on y ajoute la note ; sinon on ouvre
-    // un fil ancré. Correspondance par (type d'ancre, libellé) : les objets signalés
-    // depuis le dashboard portent le libellé exact des ancres du seed (nom de maille,
-    // « Mode · Verdict »), donc une note sur un objet déjà discuté le rejoint.
-    const existing = threadsForCity(citySlug, created).find(
-      (t) => t.anchor.kind === anchor.kind && t.anchor.label === anchor.label,
-    );
+    // Fil ancré au même objet (seed OU créé) : on y ajoute la note ; sinon on ouvre un
+    // fil ancré. Correspondance par IDENTITÉ CANONIQUE (`anchorKey`, lot QA-1d) : un
+    // verdict s'apparie sur ses clés moteur (mode + verdict), JAMAIS sur un libellé
+    // affiché. C'est ce qui rend l'appariement indépendant de la langue : une note
+    // signalée depuis un dashboard EN (« Hold · Sell ») rejoint le fil ouvert en FR
+    // (« Détention · Céder »), au lieu d'ouvrir un doublon.
+    const key = anchorKey(anchor);
+    const existing = threadsForCity(citySlug, created).find((t) => anchorKey(t.anchor) === key);
     let next: Created;
     if (existing) {
       next = {
@@ -202,7 +205,10 @@ export const useCollabStore = create<CollabState>((set, get) => ({
         },
       };
     } else {
-      const thread: Thread = { id: `sess-t${s}`, citySlug, title: anchor.label, anchor, messages: [message] };
+      // Pas de `title` : le titre d'un fil ouvert par signalement EST son objet. Il est
+      // rendu depuis l'ancre (`anchorText`), donc dans la langue du LECTEUR, au lieu
+      // d'être figé dans celle du signaleur. Le store reste ainsi lang-agnostique.
+      const thread: Thread = { id: `sess-t${s}`, citySlug, anchor, messages: [message] };
       next = { ...created, threads: [...created.threads, thread] };
     }
     const seq = s + 1;
