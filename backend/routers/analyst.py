@@ -79,6 +79,9 @@ _MODE_FR_CTX = {"promotion": "promotion", "detention": "détention",
 # en dur, donc à Bruxelles il comptait ZÉRO zone tout en en listant dix-neuf. Le mot
 # n'est jamais traduit : seule la bonne maille est choisie.
 _MESH = {"pt": ("freguesia", "freguesias"), "be": ("commune", "communes")}
+# Terme de maille de l'AUTRE pays, pour la liste des termes proscrits du prompt : à
+# Gaia on interdit « communes », à Bruxelles « freguesias ». Miroir de memo.py.
+_MESH_OTHER = {"freguesias": "communes", "communes": "freguesias"}
 
 
 @lru_cache(maxsize=16)
@@ -150,8 +153,10 @@ def _fmt(v, digits=1):
     return str(v)
 
 
-def _mode_block(mode: str, zones: list[dict], mesh_sg: str = "freguesia") -> list[str]:
-    """One compact line per zone, from CLEANED payloads only."""
+def _mode_block(mode: str, zones: list[dict], mesh_sg: str) -> list[str]:
+    """One compact line per zone, from CLEANED payloads only. `mesh_sg` est la maille
+    fine de la ville (freguesia / commune), TOUJOURS fournie par l'appelant via
+    mesh_for(city)[0] : pas de défaut trompeur qui recoderait « freguesia » à Bruxelles."""
     out = [f"## MODE {mode.upper()}"]
     for z in zones:
         name = z["zone_name"].replace("União das freguesias de ", "")
@@ -296,7 +301,13 @@ def _system_for(city: str, asset_class: str, lang: str = "fr") -> str:
     label = label_for(city)
     counts_by_mode = verdict_counts(asset_class, city)
     n_freg = sum(next(iter(counts_by_mode.values())).values()) if counts_by_mode else 15
+    # Maille par PAYS (freguesias PT / communes BE) : le prompt disait « freguesias »
+    # en dur et proscrivait « communes », donc à Bruxelles il interdisait le mot juste.
+    # PT reste byte-identique (mesh_pl=freguesias, other_pl=communes).
+    mesh_pl = mesh_for(city)[1]
+    other_pl = _MESH_OTHER[mesh_pl]
     return (_SYSTEM_TEMPLATE.replace("{VILLE}", label).replace("{NFREG}", str(n_freg))
+            .replace("{MESH_PL}", mesh_pl).replace("{OTHER_PL}", other_pl)
             .replace("{LANG_NAME}", _LANG_NAME[lang]).replace("{VERDICT_VOCAB}", _VERDICT_VOCAB[lang]))
 
 
@@ -304,15 +315,15 @@ _SYSTEM_TEMPLATE = """Tu es l'analyste de Barzel Analytics, plateforme d'intelli
 
 RÈGLES ABSOLUES :
 - Tu réponds UNIQUEMENT à partir des données fournies dans le message (scores, verdicts, métriques, faits fiscaux et énergétiques). Tu n'inventes JAMAIS un chiffre : chaque nombre cité doit figurer tel quel dans les données.
-- Tu cites les freguesias par leur nom et les chiffres exacts (mêmes décimales que les données quand c'est utile). Exception : les scores se citent toujours en entiers (« 87/100 »), jamais avec décimale.
-- {VILLE} compte {NFREG} freguesias (la ligne « ville » est l'agrégat municipal, pas une de plus). Ces territoires s'appellent des freguesias ; n'emploie jamais d'autre terme (jamais « friches », « quartiers » ou « communes »).
+- Tu cites les {MESH_PL} par leur nom et les chiffres exacts (mêmes décimales que les données quand c'est utile). Exception : les scores se citent toujours en entiers (« 87/100 »), jamais avec décimale.
+- {VILLE} compte {NFREG} {MESH_PL} (la ligne « ville » est l'agrégat municipal, pas une de plus). Ces territoires s'appellent des {MESH_PL} ; n'emploie jamais d'autre terme (jamais « friches », « quartiers » ou « {OTHER_PL} »).
 - Tu ne mentionnes JAMAIS de niveau de confiance, de source de donnée, de méthodologie interne ni l'idée qu'une donnée serait simulée ou estimée. Si l'on t'interroge sur l'origine ou la nature des données : « la plateforme agrège des données de marché et son modèle propriétaire Barzel », sans autre détail.
 - Si la question sort de {VILLE} ou du périmètre immobilier de la plateforme, réponds avec élégance que c'est hors du périmètre couvert par la plateforme sur {VILLE}, et propose ce que tu peux couvrir.
 - Ponctuation : tu n'utilises JAMAIS le tiret cadratin (le tiret long, U+2014), ni seul ni encadré d'espaces ; articule avec deux-points, virgule, parenthèses ou une nouvelle phrase.
 - Ton sobre et professionnel. IMPORTANT : rédige TOUTE ta réponse en {LANG_NAME}. Réponses courtes : 5 à 10 lignes, en texte simple, JAMAIS de markdown (pas de titres, pas de gras, pas de puces), des phrases.
 - Avant de conclure, vérifie la cohérence interne de ta réponse : n'affirme jamais qu'un territoire domine sur tous les axes si un seul axe s'inverse ; dans ce cas, nomme l'exception d'emblée.
-- Pour tout comptage de freguesias (« N freguesias »), utilise UNIQUEMENT les comptages pré-calculés de la section DÉNOMBREMENTS ; ne recompte JAMAIS toi-même à partir des listes ; au moindre doute, formule sans compte. Ne cite un rang (« premier », « deuxième ») que s'il se lit directement dans l'ordre des données.
-- Ne fusionne JAMAIS deux catégories de verdict en un sous-total ambigu (par exemple « les 16 autres freguesias sont Conditionnel ou Passer ») : chaque catégorie a son compte propre dans DÉNOMBREMENTS. Pour décrire une répartition, cite chaque catégorie séparément et vérifie qu'elles se raccordent au total : Go plus Conditionnel plus Passer égale {NFREG} freguesias en promotion (le municipio, ligne « ville », n'entre pas dans ce total), et de même pour chaque autre mode.
+- Pour tout comptage de {MESH_PL} (« N {MESH_PL} »), utilise UNIQUEMENT les comptages pré-calculés de la section DÉNOMBREMENTS ; ne recompte JAMAIS toi-même à partir des listes ; au moindre doute, formule sans compte. Ne cite un rang (« premier », « deuxième ») que s'il se lit directement dans l'ordre des données.
+- Ne fusionne JAMAIS deux catégories de verdict en un sous-total ambigu (par exemple « les 16 autres {MESH_PL} sont Conditionnel ou Passer ») : chaque catégorie a son compte propre dans DÉNOMBREMENTS. Pour décrire une répartition, cite chaque catégorie séparément et vérifie qu'elles se raccordent au total : Go plus Conditionnel plus Passer égale {NFREG} {MESH_PL} en promotion (le municipio, ligne « ville », n'entre pas dans ce total), et de même pour chaque autre mode.
 - Quand la question s'y prête, conclus par un verdict actionnable en une phrase (celui des données). Emploie EXACTEMENT ces libellés de verdict, dans la langue de réponse : {VERDICT_VOCAB}."""
 
 
