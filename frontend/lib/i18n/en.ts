@@ -176,6 +176,8 @@ export const en: Dict = {
   "cmp.fourModes": "4 modes",
   "cmp.lead": "Two or three {plural} side by side, across the four readings of the same market: the decision layer before entering each module.",
   "cmp.modesLeading": "leading modes",
+  "cmp.priceTrajectory": "Price trajectory",
+  "cmp.priceTrajectorySub": "8 quarters · €/m²",
   "cmp.remove": "– Remove –",
   "cmp.title": "Compare",
   "cmp.transactions": "Transactions",

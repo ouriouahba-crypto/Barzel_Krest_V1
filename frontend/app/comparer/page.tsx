@@ -18,6 +18,8 @@ import { fmtNumber } from "@/lib/i18n/format";
 import { modeLabel, classLabelFor } from "@/lib/i18n/domain";
 import { translate } from "@/lib/i18n";
 import type { Lang } from "@/lib/i18n/types";
+import { PriceTrendCompare, type CompareSeries } from "@/components/PriceTrendCompare";
+import { priceTrajectory } from "@/lib/priceHistory";
 
 // Ligne marché : registre des villes (lib/cities.ts).
 
@@ -47,6 +49,9 @@ function metricDisplay(c: CompareModeCell, lang: Lang): string {
     default: return translate("cmp.metric.uplift", lang, { x: pctSigned(c.metric) });
   }
 }
+
+// Palette des courbes de trajectoire (comparer) : une couleur par quartier.
+const TRAJ_COLORS = ["#1E3559", "#B8965A", "#97514E"];
 
 export default function ComparerPage() {
   const t = useT();
@@ -129,6 +134,21 @@ export default function ComparerPage() {
     const i = wonBy.indexOf(Math.max(...wonBy));
     return { short: columns[i].short, won: wonBy[i] };
   }, [columns]);
+
+  // Une courbe de trajectoire par quartier selectionne, ancree sur son prix
+  // et son yoy reels (meme mecanique deterministe que la vue d'ensemble).
+  const trajSeries = useMemo<CompareSeries[]>(
+    () =>
+      columns
+        .filter((c) => c.price != null && c.yoy != null)
+        .map((c, i) => ({
+          zone: c.zone,
+          name: c.name,
+          color: TRAJ_COLORS[i % TRAJ_COLORS.length],
+          points: priceTrajectory(c.price as number, c.yoy as number, `${cls}:${c.zone}`),
+        })),
+    [columns, cls],
+  );
 
   const setPick = (slot: number, value: string) => {
     setUserPicked(true);
@@ -275,6 +295,21 @@ export default function ComparerPage() {
                 ) : undefined
               }
             />
+          )}
+          {/* Price trajectory by area (full width, under the synthesis) */}
+          {trajSeries.length > 0 && (
+            <section className="rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
+              <div className="flex items-center gap-3">
+                <span className="inline-block h-5 w-1.5 rounded-full bg-gold" />
+                <h3 className="font-display text-[20px] leading-none text-navy">{t("cmp.priceTrajectory")}</h3>
+                <span className="rounded-full border border-gold/40 bg-gold/[0.06] px-2.5 py-0.5 text-label font-medium text-gold-700">
+                  {t("cmp.priceTrajectorySub")} · {classLabelFor(cls, lang)}
+                </span>
+              </div>
+              <div className="mt-4 h-[340px] w-full">
+                <PriceTrendCompare series={trajSeries} />
+              </div>
+            </section>
           )}
         </main>
       </div>
