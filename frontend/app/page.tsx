@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { EntryShell } from "@/components/entry/EntryShell";
+import { KrestLogo } from "@/components/brand/KrestLogo";
 import { useT } from "@/lib/i18n/useT";
 
 // Landing Barzel (plus le dashboard) : point d'entrée du parcours pays puis
@@ -14,11 +15,10 @@ export default function Landing() {
   return (
     <EntryShell>
       <div className="fade-up mx-auto max-w-3xl text-center">
-        <img
-          src="/barzel-logo.webp"
-          alt="Barzel Analytics"
-          className="mx-auto h-auto w-[clamp(320px,40vw,420px)]"
-        />
+        <KrestLogo className="mx-auto h-auto w-[clamp(320px,40vw,420px)] text-cream" />
+        <p className="mt-6 text-label uppercase tracking-[0.28em] text-cream/55">
+          Powered by Barzel Analytics
+        </p>
         <div className="mt-12 flex items-center justify-center">
           <Link
             href="/pays"
