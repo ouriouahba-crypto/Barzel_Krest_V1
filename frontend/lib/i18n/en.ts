@@ -241,6 +241,14 @@ export const en: Dict = {
   "ai.input_placeholder_class": "Your question about {city} ({cls})…",
   "ai.send": "Ask",
   "ai.typing": "typing…",
+  // hist
+  "hist.delete": "Delete",
+  "hist.empty": "No analysis yet",
+  "hist.hide": "Hide history",
+  "hist.new": "New analysis",
+  "hist.show": "Show history",
+  "hist.title": "History",
+  "hist.untitled": "Untitled",
   // pg
   "pg.analysisNote": "Analysis note",
   "pg.backendError": "Backend unreachable: start the API (uvicorn backend.main:app).",

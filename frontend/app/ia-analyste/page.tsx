@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { api } from "@/lib/api";
@@ -10,6 +10,9 @@ import { AnalystIcon, cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
 import { useT, useLang } from "@/lib/i18n/useT";
 import { cityShortName } from "@/lib/i18n/display";
+import { useChatStore } from "@/lib/chatStore";
+import { useHistoryPanelStore } from "@/lib/historyPanelStore";
+import { HistoryPanel } from "@/components/ai/HistoryPanel";
 
 // Lignes et suggestions par ville : registre lib/cities.ts. Icône fine (trait
 // 1.5) par clé de suggestion.
@@ -72,10 +75,25 @@ export default function IaAnalystePage() {
   const SUGGESTIONS = city.texts.analystSuggestions.map(({ q, icon }) => ({ q: t(q), icon: ICONS[icon] }));
   const cityShort = cityShortName(city.slug, lang);
   const [selected, setSelected] = useState<string[]>([]);
-  const [messages, setMessages] = useState<Msg[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
+
+  const conversations = useChatStore((s) => s.conversations);
+  const createConv = useChatStore((s) => s.create);
+  const appendMsg = useChatStore((s) => s.append);
+  const renameConv = useChatStore((s) => s.rename);
+  const hydrateChats = useChatStore((s) => s.hydrate);
+  const hydratePanel = useHistoryPanelStore((s) => s.hydrate);
+  useEffect(() => {
+    hydrateChats();
+    hydratePanel();
+  }, [hydrateChats, hydratePanel]);
+
+  const messages: Msg[] = activeId
+    ? conversations.find((c) => c.id === activeId)?.messages ?? []
+    : [];
 
   const cls = g.assetClass;
   const empty = messages.length === 0 && !busy;
@@ -83,15 +101,22 @@ export default function IaAnalystePage() {
   const ask = async (question: string) => {
     const q = question.trim();
     if (!q || busy) return;
+    // Conversation active : creee au premier message, titre = premiere question.
+    let id = activeId;
+    if (!id) {
+      id = createConv("analyst", city.slug, cls, lang);
+      setActiveId(id);
+      renameConv(id, q.length > 60 ? `${q.slice(0, 58)}…` : q);
+    }
     setInput("");
     setBusy(true);
-    setMessages((m) => [...m, { role: "user", text: q, at: now() }]);
+    appendMsg(id, { role: "user", text: q, at: now() });
     setTimeout(() => endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }), 60);
     try {
       const r = await api.analystAsk(q, cls, lang);
-      setMessages((m) => [...m, { role: "assistant", text: r.answer, at: now() }]);
+      appendMsg(id, { role: "assistant", text: r.answer, at: now() });
     } catch {
-      setMessages((m) => [...m, { role: "error", text: t("ai.error"), at: now() }]);
+      appendMsg(id, { role: "error", text: t("ai.error"), at: now() });
     } finally {
       setBusy(false);
       setTimeout(() => endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }), 60);
@@ -101,6 +126,12 @@ export default function IaAnalystePage() {
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
+      <HistoryPanel
+        kind="analyst"
+        activeId={activeId}
+        onSelect={setActiveId}
+        onNew={() => setActiveId(null)}
+      />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
           marketLine={t(city.texts.marketLines.iaAnalyste)}

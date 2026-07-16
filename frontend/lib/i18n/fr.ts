@@ -240,6 +240,14 @@ export const fr: Dict = {
   "ai.input_placeholder_class": "Votre question sur {city} ({cls})…",
   "ai.send": "Demander",
   "ai.typing": "rédige…",
+  // hist
+  "hist.delete": "Supprimer",
+  "hist.empty": "Aucune analyse pour l'instant",
+  "hist.hide": "Masquer l'historique",
+  "hist.new": "Nouvelle analyse",
+  "hist.show": "Afficher l'historique",
+  "hist.title": "Historique",
+  "hist.untitled": "Sans titre",
   // pg
   "pg.analysisNote": "Note d'analyse",
   "pg.backendError": "Backend injoignable : lancez l'API (uvicorn backend.main:app).",
