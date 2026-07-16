@@ -4,6 +4,7 @@ import "./globals.css";
 import { CityKey } from "@/components/CityKey";
 import { HtmlLang } from "@/components/i18n/HtmlLang";
 import { TransitionCurtain } from "@/components/entry/TransitionCurtain";
+import { AiChatDock } from "@/components/ai/AiChatDock";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <HtmlLang />
         <TransitionCurtain />
         <CityKey>{children}</CityKey>
+        <AiChatDock />
       </body>
     </html>
   );

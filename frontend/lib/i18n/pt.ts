@@ -245,6 +245,12 @@ export const pt: Dict = {
   "hist.show": "Mostrar histórico",
   "hist.title": "Histórico",
   "hist.untitled": "Sem título",
+  // dock
+  "dock.close": "Fechar",
+  "dock.hint": "Faça uma pergunta sobre o que vê.",
+  "dock.new": "Nova",
+  "dock.open": "Abrir o analista",
+  "dock.placeholder": "A sua pergunta…",
   // pg
   "pg.analysisNote": "Nota de análise",
   "pg.backendError": "Backend inacessível: inicie a API (uvicorn backend.main:app).",
