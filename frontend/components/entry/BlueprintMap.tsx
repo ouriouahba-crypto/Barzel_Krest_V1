@@ -302,9 +302,9 @@ export default function BlueprintMap({ initialStep, onCitySelected }: BlueprintM
               key={i}
               d={d}
               fill="none"
-              stroke="#6B7A8D"
-              strokeWidth={0.7}
-              opacity={dim ? 0.1 : 0.2}
+              stroke="#F8F5EE"
+              strokeWidth={1.1}
+              opacity={dim ? 0.22 : 0.42}
               vectorEffect="non-scaling-stroke"
               style={{ transition: "opacity 1s ease", pointerEvents: "none" }}
             />
