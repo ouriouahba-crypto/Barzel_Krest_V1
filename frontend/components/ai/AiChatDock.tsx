@@ -106,7 +106,7 @@ export function AiChatDock() {
   }
 
   return (
-    <aside className="fixed right-0 top-0 z-40 flex h-screen w-full max-w-[400px] flex-col border-l border-navy/10 bg-cream-200 shadow-[-16px_0_50px_rgba(10,22,40,0.18)]">
+    <aside className="fixed right-0 top-0 z-[1100] flex h-screen w-full max-w-[400px] flex-col border-l border-navy/10 bg-cream-200 shadow-[-16px_0_50px_rgba(10,22,40,0.18)]">
       <div className="flex items-center justify-between bg-navy px-5 py-3.5">
         <div>
           <div className="text-label uppercase tracking-[0.2em] text-gold">{t("ai.analyst_label")}</div>
