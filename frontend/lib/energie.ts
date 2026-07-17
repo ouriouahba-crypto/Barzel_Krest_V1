@@ -119,10 +119,10 @@ export type SceGrade = (typeof SCE_SCALE)[number];
 
 // € / m² habitable par saut de classe (cumulatifs le long de l'échelle).
 const STEP_CAPEX: Record<string, number> = {
-  "F→E": 70,   // isolation toiture + étanchéité
-  "E→D": 80,   // ETICS partiel
-  "D→C": 120,  // menuiseries complètes + PAC AQS
-  "C→B": 180,  // PAC chauffage + solaire
+  "F→E": 130,   // isolation toiture + étanchéité
+  "E→D": 150,   // ETICS partiel
+  "D→C": 220,  // menuiseries complètes + PAC AQS
+  "C→B": 300,  // PAC chauffage + solaire
 };
 
 export function capexPerM2(from: SceGrade, to: SceGrade): number | null {
