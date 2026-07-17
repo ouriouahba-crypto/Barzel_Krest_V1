@@ -46,6 +46,8 @@ _MAX_TOKENS = 4000  # analyse complete ; marge pour ne jamais tronquer la recomm
 _MAX_FILES = 3
 _MAX_BYTES = 20 * 1024 * 1024  # 20 Mo par fichier
 _MAX_DOC_CHARS = 60_000  # borne du texte extrait (envoi LLM + stockage front)
+_CLS_ALL = "all"  # « toutes classes confondues » : dossier mixte, contexte des 5 classes
+_CLS_ORDER = ("residential", "office", "hotel", "logistics", "retail")
 
 
 # --------------------------------------------------------------------------- #
@@ -157,9 +159,18 @@ def _system_for(city: str, lang: str) -> str:
             .replace("{VERDICT_VOCAB}", _VERDICT_VOCAB[lang]))
 
 
+def _context_for(asset_class: str, city: str) -> str:
+    """Contexte Barzel : une classe, ou les cinq concatenees si « all » (dossier
+    mixte residentiel + commerce, etc.). Chaque bloc porte deja son en-tete de classe."""
+    if asset_class == _CLS_ALL:
+        return "\n\n".join(_build_context(c, city) for c in _CLS_ORDER)
+    return _build_context(asset_class, city)
+
+
 @router.post("/analyze")
 def analyze(payload: AnalyzePayload) -> dict:
-    asset_class = _require_class(payload.asset_class)
+    raw_cls = payload.asset_class or "residential"
+    asset_class = _CLS_ALL if raw_cls == _CLS_ALL else _require_class(raw_cls)
     city = _require_city(payload.city)
     lang = _norm_lang(payload.lang)
     doc_text = (payload.doc_text or "").strip()[:_MAX_DOC_CHARS]
@@ -175,9 +186,11 @@ def analyze(payload: AnalyzePayload) -> dict:
 
     # 1er message : contexte Barzel + document + consignes initiales (turns[0]).
     # Tours suivants : l'historique metier tel quel (le doc reste dans le 1er message).
+    mix_note = ("\n(Dossier potentiellement mixte : les donnees ci-dessus couvrent les cinq classes "
+                "d'actifs de la ville.)" if asset_class == _CLS_ALL else "")
     msgs: list[dict] = [{
         "role": "user",
-        "content": (f"{_build_context(asset_class, city)}\n\n"
+        "content": (f"{_context_for(asset_class, city)}{mix_note}\n\n"
                     f"# DOCUMENT EXTERNE\n{doc_text}\n\n"
                     f"# CONSIGNES DE L'INVESTISSEUR\n{turns[0].text}"),
     }]
