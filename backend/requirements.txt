@@ -1,6 +1,9 @@
-# Barzel backend API — runtime deps.
+# Barzel backend API - runtime deps.
 fastapi>=0.111
 uvicorn>=0.30
-# The scoring engine itself is stdlib-only (json, csv, statistics) — no pandas needed.
+anthropic>=0.40
+pypdf>=5.0
+python-pptx>=1.0
+# The scoring engine itself is stdlib-only (json, csv, statistics) - no pandas needed.
 # Tests use the FastAPI TestClient (httpx) and optionally pytest:
 #   pip install httpx pytest
