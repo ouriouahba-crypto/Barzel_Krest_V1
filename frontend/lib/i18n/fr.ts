@@ -242,11 +242,13 @@ export const fr: Dict = {
   "ai.send": "Demander",
   "ai.typing": "rédige…",
   // hist
+  "hist.all": "Tout",
   "hist.delete": "Supprimer",
   "hist.empty": "Aucune analyse pour l'instant",
   "hist.hide": "Masquer l'historique",
   "hist.new": "Nouvelle analyse",
   "hist.show": "Afficher l'historique",
+  "hist.thisPage": "Cette page",
   "hist.title": "Historique",
   "hist.untitled": "Sans titre",
   // dock

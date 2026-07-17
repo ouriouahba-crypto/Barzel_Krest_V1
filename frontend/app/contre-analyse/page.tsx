@@ -84,6 +84,11 @@ export default function ContreAnalysePage() {
   useEffect(() => {
     hydrateChats();
     hydratePanel();
+    const c = new URLSearchParams(window.location.search).get("c");
+    if (c) {
+      setActiveId(c);
+      window.history.replaceState(null, "", window.location.pathname);
+    }
   }, [hydrateChats, hydratePanel]);
 
   const conv = activeId ? conversations.find((c) => c.id === activeId) : undefined;

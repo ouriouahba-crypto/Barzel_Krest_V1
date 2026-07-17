@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useChatStore, type ChatKind } from "@/lib/chatStore";
 import { useHistoryPanelStore } from "@/lib/historyPanelStore";
 import { useLang, useT } from "@/lib/i18n/useT";
@@ -8,10 +9,34 @@ import { cityShortName } from "@/lib/i18n/display";
 import { localeFor } from "@/lib/i18n/format";
 
 // Panneau d'historique des conversations IA (navy, escamotable, persiste).
-// Liste les conversations du `kind` demande, la plus recente en haut. Selectionner
-// charge la conversation ; « nouvelle » repart d'une conversation vierge. Ferme, il
-// se replie en une bande fine avec un bouton de reouverture (aucun impact sur le
+// Liste les conversations, la plus recente en haut. Selectionner charge la
+// conversation ; « nouvelle » repart d'une conversation vierge. Ferme, il se
+// replie en une bande fine avec un bouton de reouverture (aucun impact sur le
 // Header, autonome). Meme sobriete que la Sidebar.
+//
+// Deux vues, par l'onglet en tete. « Cette page » (defaut) ne montre que le
+// `kind` de la page courante : c'est le comportement historique. « Tout » reunit
+// les conversations des surfaces IA, celles d'une autre surface portant un badge
+// d'origine. Selectionner une conversation d'un autre `kind` bascule vers sa
+// page en la chargeant : l'id voyage en `?c=`, que la page cible lit au montage
+// depuis window.location. Pas de useSearchParams : en Next 14 ce hook impose une
+// frontiere Suspense et bascule la page en rendu dynamique.
+//
+// Le dock lateral n'a pas de page propre : il ecrit ses echanges en `kind`
+// "analyst" (cf. AiChatDock) et se reprend donc sur la page Analyste, d'ou la
+// route et le libelle analyste pour ce `kind`.
+
+const KIND_ROUTE: Record<ChatKind, string> = {
+  analyst: "/ia-analyste",
+  sidebar: "/ia-analyste",
+  "second-opinion": "/contre-analyse",
+};
+
+const KIND_LABEL: Record<ChatKind, string> = {
+  analyst: "nav.aiAnalyst",
+  sidebar: "nav.aiAnalyst",
+  "second-opinion": "nav.secondOpinion",
+};
 
 export function HistoryPanel({
   kind,
@@ -28,15 +53,27 @@ export function HistoryPanel({
 }) {
   const t = useT();
   const lang = useLang();
+  const router = useRouter();
   const conversations = useChatStore((s) => s.conversations);
   const remove = useChatStore((s) => s.remove);
   const open = useHistoryPanelStore((s) => s.open);
   const toggle = useHistoryPanelStore((s) => s.toggle);
+  const [all, setAll] = useState(false);
 
   const list = useMemo(
-    () => conversations.filter((c) => c.kind === kind).sort((a, b) => b.updatedAt - a.updatedAt),
-    [conversations, kind],
+    () =>
+      conversations
+        .filter((c) => all || c.kind === kind)
+        .sort((a, b) => b.updatedAt - a.updatedAt),
+    [conversations, kind, all],
   );
+
+  // Meme surface : on charge sur place. Autre surface : sa page prend le relais
+  // et lit l'id en `?c=`.
+  const select = (id: string, k: ChatKind) => {
+    if (k === kind) onSelect(id);
+    else router.push(`${KIND_ROUTE[k]}?c=${encodeURIComponent(id)}`);
+  };
 
   const fmtDate = (ts: number) => {
     try {
@@ -74,6 +111,28 @@ export function HistoryPanel({
             >
               + {newLabel ?? t("hist.new")}
             </button>
+            <div className="mb-2 flex rounded-xl bg-white/[0.06] p-1">
+              <button
+                type="button"
+                onClick={() => setAll(false)}
+                aria-pressed={!all}
+                className={`flex-1 rounded-lg py-1.5 text-btn font-medium transition-colors ${
+                  all ? "text-cream/70 hover:text-cream" : "bg-gold/[0.16] text-gold-300"
+                }`}
+              >
+                {t("hist.thisPage")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setAll(true)}
+                aria-pressed={all}
+                className={`flex-1 rounded-lg py-1.5 text-btn font-medium transition-colors ${
+                  all ? "bg-gold/[0.16] text-gold-300" : "text-cream/70 hover:text-cream"
+                }`}
+              >
+                {t("hist.all")}
+              </button>
+            </div>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-4">
             {list.length === 0 ? (
@@ -82,7 +141,7 @@ export function HistoryPanel({
               list.map((c) => (
                 <div
                   key={c.id}
-                  onClick={() => onSelect(c.id)}
+                  onClick={() => select(c.id, c.kind)}
                   className={`group mb-1 cursor-pointer rounded-xl px-3 py-2.5 transition-colors ${
                     c.id === activeId ? "bg-gold/[0.12] ring-1 ring-gold/35" : "hover:bg-white/[0.05]"
                   }`}
@@ -105,8 +164,13 @@ export function HistoryPanel({
                       ×
                     </button>
                   </div>
-                  <div className="mt-1 flex items-center gap-2">
+                  <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
                     <span className="text-label text-cream/45">{fmtDate(c.updatedAt)}</span>
+                    {c.kind !== kind && (
+                      <span className="rounded-full border border-gold/30 bg-gold/[0.10] px-2 py-px text-label text-gold-300">
+                        {t(KIND_LABEL[c.kind])}
+                      </span>
+                    )}
                     <span className="rounded-full bg-white/[0.07] px-2 py-px text-label text-cream/60">
                       {cityShortName(c.city, lang)}
                     </span>

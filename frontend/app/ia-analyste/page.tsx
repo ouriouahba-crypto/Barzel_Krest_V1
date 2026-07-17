@@ -89,6 +89,11 @@ export default function IaAnalystePage() {
   useEffect(() => {
     hydrateChats();
     hydratePanel();
+    const c = new URLSearchParams(window.location.search).get("c");
+    if (c) {
+      setActiveId(c);
+      window.history.replaceState(null, "", window.location.pathname);
+    }
   }, [hydrateChats, hydratePanel]);
 
   const messages: Msg[] = activeId
