@@ -42,7 +42,7 @@ log = logging.getLogger("routers.second_opinion")
 
 router = APIRouter(prefix="/api/second-opinion", tags=["second-opinion"])
 
-_MAX_TOKENS = 1800  # analyse complete, plus longue que l'analyste courant
+_MAX_TOKENS = 4000  # analyse complete ; marge pour ne jamais tronquer la recommandation finale
 _MAX_FILES = 3
 _MAX_BYTES = 20 * 1024 * 1024  # 20 Mo par fichier
 _MAX_DOC_CHARS = 60_000  # borne du texte extrait (envoi LLM + stockage front)
