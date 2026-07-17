@@ -101,7 +101,7 @@ export function RetrofitSimulator({ row, placeLabel, efShare }: { row: RdRow; pl
             from,
             to,
             capex,
-            compression: impact.compression.toFixed(2).replace(".", ","),
+            compression: impact.compression.toFixed(2),
             place: placeLabel,
             value: fmtNumber(Math.round(value ?? impact.value), lang),
           })}
