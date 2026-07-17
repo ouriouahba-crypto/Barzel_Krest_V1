@@ -56,10 +56,10 @@ export function PriceMarginTable({
 
   const SEP = "sep" as const;
   const items = useMemo<(PmRow | typeof SEP)[]>(() => {
-    const byMargin = (a: PmRow, b: PmRow) => b.marginPct - a.marginPct;
+    const byScore = (a: PmRow, b: PmRow) => Math.round(b.total) - Math.round(a.total) || b.marginPct - a.marginPct;
     if (!userSorted) {
-      const viable = rows.filter((r) => verdictTone(mode, r.verdict) !== "low").sort(byMargin);
-      const passer = rows.filter((r) => verdictTone(mode, r.verdict) === "low").sort(byMargin);
+      const viable = rows.filter((r) => verdictTone(mode, r.verdict) !== "low").sort(byScore);
+      const passer = rows.filter((r) => verdictTone(mode, r.verdict) === "low").sort(byScore);
       return viable.length && passer.length ? [...viable, SEP, ...passer] : [...viable, ...passer];
     }
     const { key, dir } = sort;
@@ -96,7 +96,7 @@ export function PriceMarginTable({
           <thead className="bg-cream-200">
             <tr className="border-b border-navy/10">
               {cols.map((c) => {
-                const active = sort.key === c.key;
+                const active = userSorted && sort.key === c.key;
                 return (
                   <th
                     key={c.key}
