@@ -22,6 +22,7 @@ export interface PmRow {
   soft: number;                // frais annexes €/m²
   finance: number;             // financement €/m²
   netSale: number;             // prix net de TVA €/m²
+  vatPct: number;              // TVA % sur la vente (21 BE neuf ; 0 PT/commercial)
   costTotal: number;
   marginPct: number;
 }
@@ -44,6 +45,7 @@ function toRow(z: CityResponse["zones"][number]): PmRow | null {
     soft: b.soft,
     finance: b.finance,
     netSale: b.net_sale,
+    vatPct: b.vat_pct,
     costTotal: b.cost_total,
     marginPct: b.margin_pct,
   };
