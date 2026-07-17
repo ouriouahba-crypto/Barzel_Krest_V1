@@ -431,25 +431,25 @@
   "note": "Economies commerciales Porto V0 (base PT de reference + facteurs de zone generatifs). A calibrer 2b.",
   "classes": {
    "office": {
-    "yield_pct": 5.25,
+    "yield_pct": 6.25,
     "rent_eur_m2_month": 17,
     "construction_eur_m2": 1500,
     "land_pct": 34
    },
    "hotel": {
-    "yield_pct": 6.0,
+    "yield_pct": 6.75,
     "rent_eur_m2_month": 20,
     "construction_eur_m2": 2200,
     "land_pct": 21
    },
    "logistics": {
-    "yield_pct": 6.0,
+    "yield_pct": 7.25,
     "rent_eur_m2_month": 5.5,
     "construction_eur_m2": 500,
     "land_pct": 26
    },
    "retail": {
-    "yield_pct": 5.5,
+    "yield_pct": 7.5,
     "rent_eur_m2_month": 15,
     "construction_eur_m2": 1200,
     "land_pct": 30
