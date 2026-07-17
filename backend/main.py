@@ -14,7 +14,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import analyst, cities, memo, scoring
+from .routers import analyst, cities, memo, scoring, second_opinion
 from .services import mode_scoring
 
 logging.basicConfig(
@@ -42,6 +42,7 @@ app.include_router(scoring.router)
 app.include_router(cities.router)
 app.include_router(analyst.router)
 app.include_router(memo.router)
+app.include_router(second_opinion.router)
 
 
 @app.on_event("startup")
