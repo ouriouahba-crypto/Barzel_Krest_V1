@@ -49,8 +49,11 @@ export function MarginWaterfall({
       headline={`${fmtNum(row.marginPct, 1)}%`}
       accent={marginColor}
       accentText={inkVerdict}
-      base={{ label: t("wf.salePrice"), value: row.netSale }}
+      base={{ label: t("wf.salePrice"), value: row.vatPct > 0 ? row.realizable : row.netSale }}
       deductions={[
+        ...(row.vatPct > 0
+          ? [{ label: t("wf.vat", { pct: fmtNum(row.vatPct, 0) }), value: row.realizable - row.netSale }]
+          : []),
         { label: t("pm.construction"), value: row.construction },
         { label: t("pm.land"), value: row.land },
         { label: t("wf.ancillaryFees"), value: soft },

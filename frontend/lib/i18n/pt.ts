@@ -121,6 +121,7 @@ export const pt: Dict = {
   "pillar.valeur_meilleur_usage": "valorização máxima",
   "wf.marginPerM2": "Margem / m²",
   "wf.salePrice": "Preço de venda",
+  "wf.vat": "IVA {pct}%",
   "wf.financing": "Financiamento",
   "wf.developerMargin": "= Margem do promotor",
   "wf.loss": "= Perda",

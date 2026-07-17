@@ -125,6 +125,7 @@ export const en: Dict = {
   // Cascades (etapes et stats).
   "wf.marginPerM2": "Margin / m²",
   "wf.salePrice": "Sale price",
+  "wf.vat": "VAT {pct}%",
   "wf.financing": "Financing",
   "wf.developerMargin": "= Developer margin",
   "wf.loss": "= Loss",
