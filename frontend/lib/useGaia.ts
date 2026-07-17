@@ -8,6 +8,7 @@ import { setMemoDefaults } from "./session";
 import { normFreguesia } from "./normalize";
 import { cityBySlug } from "./cities";
 import { useCityStore } from "./cityStore";
+import { useAiContextStore } from "./aiContextStore";
 import { useT, useLang } from "@/lib/i18n/useT";
 import { fmtNumber } from "@/lib/i18n/format";
 import type { Lang } from "@/lib/i18n/types";
@@ -49,6 +50,12 @@ export function useGaia() {
   const [zoneAll, setZoneAll] = useState<ZoneAllModes | null>(null);
   const [haya, setHaya] = useState<AssetResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Publie la classe affichee vers le contexte IA volatil (chat lateral global).
+  const publishAiCls = useAiContextStore((s) => s.setCls);
+  useEffect(() => {
+    publishAiCls(assetClass);
+  }, [assetClass, publishAiCls]);
 
   const keyOf = (m: Mode, c: string) => `${m}|${c}`;
 

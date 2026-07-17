@@ -249,6 +249,12 @@ export const en: Dict = {
   "hist.show": "Show history",
   "hist.title": "History",
   "hist.untitled": "Untitled",
+  // dock
+  "dock.close": "Close",
+  "dock.hint": "Ask about what you see.",
+  "dock.new": "New",
+  "dock.open": "Open the analyst",
+  "dock.placeholder": "Your question…",
   // pg
   "pg.analysisNote": "Analysis note",
   "pg.backendError": "Backend unreachable: start the API (uvicorn backend.main:app).",
