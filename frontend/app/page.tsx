@@ -6,7 +6,7 @@ import { KrestLogo } from "@/components/brand/KrestLogo";
 import { useT } from "@/lib/i18n/useT";
 
 // Landing Barzel (plus le dashboard) : point d'entrée du parcours pays puis
-// ville. Le logo Barzel remplace le bloc titre texte ; le fond navy et le
+// ville. Le logo KREST (client) remplace le bloc titre texte ; le fond navy et le
 // bouton d'entrée restent inchangés. Composant client : le libellé du bouton
 // d'entrée passe par t() (i18n).
 

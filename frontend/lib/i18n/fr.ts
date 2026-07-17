@@ -259,6 +259,7 @@ export const fr: Dict = {
   "dock.placeholder": "Votre question…",
   // ca (contre-analyse)
   "ca.title": "Contre-analyse",
+  "ca.marketLine": "Confrontez un dossier externe à l'intelligence Barzel.",
   "ca.newAnalysis": "Nouvelle contre-analyse",
   "ca.submitTitle": "Soumettre un dossier",
   "ca.submitSub": "Un pitch de broker ou une note de conseil, confronté à l'intelligence Barzel.",
