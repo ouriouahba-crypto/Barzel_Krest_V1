@@ -28,6 +28,8 @@ export interface Conversation {
   messages: ChatMsg[];
   createdAt: number;
   updatedAt: number;
+  docText?: string; // Contre-analyse : texte extrait du/des document(s)
+  docNames?: string[];
 }
 
 interface ChatState {
@@ -38,6 +40,7 @@ interface ChatState {
   append: (id: string, msg: ChatMsg) => void;
   rename: (id: string, title: string) => void;
   remove: (id: string) => void;
+  setDoc: (id: string, docText: string, docNames: string[]) => void;
 }
 
 function persist(list: Conversation[]) {
@@ -93,6 +96,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
   remove: (id) =>
     set((s) => {
       const list = s.conversations.filter((c) => c.id !== id);
+      persist(list);
+      return { conversations: list };
+    }),
+  setDoc: (id, docText, docNames) =>
+    set((s) => {
+      const list = s.conversations.map((c) =>
+        c.id === id ? { ...c, docText, docNames, updatedAt: Date.now() } : c,
+      );
       persist(list);
       return { conversations: list };
     }),

@@ -18,11 +18,13 @@ export function HistoryPanel({
   activeId,
   onSelect,
   onNew,
+  newLabel,
 }: {
   kind: ChatKind;
   activeId: string | null;
   onSelect: (id: string) => void;
   onNew: () => void;
+  newLabel?: string;
 }) {
   const t = useT();
   const lang = useLang();
@@ -70,7 +72,7 @@ export function HistoryPanel({
               onClick={onNew}
               className="mb-2 flex w-full items-center justify-center gap-2 rounded-xl border border-gold/50 py-2.5 text-btn font-medium text-gold-300 transition-colors hover:border-gold hover:bg-gold/10"
             >
-              + {t("hist.new")}
+              + {newLabel ?? t("hist.new")}
             </button>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-4">
