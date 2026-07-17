@@ -710,7 +710,7 @@ export const fr: Dict = {
   "fsx.be.insight.promo": "Sur un cycle promotion résidentiel à {city}, la fiscalité représente ~{x}% du prix de sortie, dominée par la TVA à 21% sur le neuf et les droits d'enregistrement sur le foncier.",
   "fsx.be.insight.detention": "Sur un cycle détention {cls} à {city}, la fiscalité absorbe ~{x}% du loyer annuel (précompte immobilier puis impôt des sociétés à 25% sur les loyers nets), après ~{entry} de frais à l'entrée.",
   "fsx.be.page.marketLine": "Région de Bruxelles-Capitale : ce que le fisc prend à chaque étape pour un investisseur institutionnel, et comment c'est déjà intégré dans nos verdicts.",
-  "fsx.be.page.intro": "Acquérir, détenir, céder : les prélèvements bruxellois pour un véhicule société (pas primo-acquéreur), aux taux réels 2025, et l'endroit exact où chacun est déjà compté dans les cascades de la plateforme.",
+  "fsx.be.page.intro": "Acquérir, détenir, céder : les prélèvements bruxellois pour un véhicule société (pas primo-acquéreur), aux taux réels 2026, et l'endroit exact où chacun est déjà compté dans les cascades de la plateforme.",
   "fsx.be.page.bannerEyebrowPrefix": "Poids fiscal du cycle",
   "fsx.be.page.entryMaxLabel": "Frais d'entrée max",
   "fsx.be.page.entryMaxSub": "droits + notaire",
@@ -724,7 +724,7 @@ export const fr: Dict = {
   "fsx.be.page.col.pct": "% du prix",
   "fsx.be.page.baremeNote": "Bruxelles, existant : droits d'enregistrement 12,5% sur pleine base (abattement de 200 000 € réservé aux personnes physiques en résidence principale, non applicable à un fonds) ; neuf assujetti à la TVA 21% sans droits ; terrain à bâtir 12,5%. Repère : Wallonie 3% et Flandre 2% pour l'habitation propre et unique, Bruxelles la plus chère à l'entrée.",
   "fsx.be.page.simulatorCaption": "Frais d'entrée bruxellois : droits d'enregistrement 12,5% plus notaire, soit un ordre de 14 à 15% du prix.",
-  "fsx.be.page.sources": "Régime bruxellois 2025 : droits d'enregistrement 12,5% (Région de Bruxelles-Capitale), TVA construction neuve 21%, précompte immobilier régional, impôt des sociétés 25%. Repères Wallonie 3% et Flandre 2% (habitation propre et unique).",
+  "fsx.be.page.sources": "Régime bruxellois 2026 : droits d'enregistrement 12,5% (Région de Bruxelles-Capitale), TVA construction neuve 21%, précompte immobilier régional, impôt des sociétés 25%. Repères Wallonie 3% et Flandre 2% (habitation propre et unique).",
 
   // --- Energie : verdicts PARTAGES (nrgx.verdict.*), regime PT (nrgx.pt.*) et
   // regime BE (nrgx.be.*). Les VALEURS ci-dessous sont la prose FR d'origine des

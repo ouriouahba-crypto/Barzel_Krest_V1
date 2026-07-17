@@ -712,7 +712,7 @@ export const en: Dict = {
   "fsx.be.insight.promo": "Over a residential development cycle in {city}, tax comes to ~{x}% of the exit price, driven by 21% VAT on new-build and registration duties on the land.",
   "fsx.be.insight.detention": "Over a {cls} holding cycle in {city}, tax absorbs ~{x}% of the annual rent (précompte immobilier then 25% corporate tax on net rents), after ~{entry} of entry costs.",
   "fsx.be.page.marketLine": "Brussels-Capital Region: what the taxman takes at each stage for an institutional investor, and how it is already built into our verdicts.",
-  "fsx.be.page.intro": "Acquire, hold, sell: Brussels levies for a corporate vehicle (not a first-time buyer), at the real 2025 rates, and the exact place where each is already counted in the platform's waterfalls.",
+  "fsx.be.page.intro": "Acquire, hold, sell: Brussels levies for a corporate vehicle (not a first-time buyer), at the real 2026 rates, and the exact place where each is already counted in the platform's waterfalls.",
   "fsx.be.page.bannerEyebrowPrefix": "Tax weight of the cycle",
   "fsx.be.page.entryMaxLabel": "Max entry costs",
   "fsx.be.page.entryMaxSub": "duties + notary",
@@ -726,7 +726,7 @@ export const en: Dict = {
   "fsx.be.page.col.pct": "% of price",
   "fsx.be.page.baremeNote": "Brussels, existing: 12.5% registration duties on the full base (the 200,000 € allowance is reserved for natural persons in their main residence, not available to a fund); new-build subject to 21% VAT with no duties; building land 12.5%. Benchmark: Wallonia 3% and Flanders 2% for a sole owner-occupied home, Brussels the most expensive at entry.",
   "fsx.be.page.simulatorCaption": "Brussels entry costs: 12.5% registration duties plus notary, on the order of 14 to 15% of the price.",
-  "fsx.be.page.sources": "Brussels 2025 regime: 12.5% registration duties (Brussels-Capital Region), 21% VAT on new construction, regional précompte immobilier, 25% corporate tax. Benchmarks Wallonia 3% and Flanders 2% (sole owner-occupied home).",
+  "fsx.be.page.sources": "Brussels 2026 regime: 12.5% registration duties (Brussels-Capital Region), 21% VAT on new construction, regional précompte immobilier, 25% corporate tax. Benchmarks Wallonia 3% and Flanders 2% (sole owner-occupied home).",
 
   // --- Energie : verdicts PARTAGES (nrgx.verdict.*), regime PT (nrgx.pt.*) et
   // regime BE (nrgx.be.*). Les VALEURS ci-dessous sont la prose FR d'origine des

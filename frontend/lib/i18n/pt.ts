@@ -708,7 +708,7 @@ export const pt: Dict = {
   "fsx.be.insight.promo": "Num ciclo de promoção residencial em {city}, a fiscalidade representa ~{x}% do preço de saída, dominada pelo IVA de 21% sobre a construção nova e pelos direitos de registo sobre o terreno.",
   "fsx.be.insight.detention": "Num ciclo de detenção {cls} em {city}, a fiscalidade absorve ~{x}% da renda anual (précompte immobilier depois imposto sobre sociedades a 25% sobre as rendas líquidas), após ~{entry} de encargos à entrada.",
   "fsx.be.page.marketLine": "Região de Bruxelas-Capital: o que o fisco leva em cada etapa para um investidor institucional, e como já está integrado nos nossos vereditos.",
-  "fsx.be.page.intro": "Adquirir, deter, alienar: os impostos bruxelenses para um veículo sociedade (não primo-adquirente), às taxas reais 2025, e o local exato onde cada um já está contabilizado nas cascatas da plataforma.",
+  "fsx.be.page.intro": "Adquirir, deter, alienar: os impostos bruxelenses para um veículo sociedade (não primo-adquirente), às taxas reais 2026, e o local exato onde cada um já está contabilizado nas cascatas da plataforma.",
   "fsx.be.page.bannerEyebrowPrefix": "Peso fiscal do ciclo",
   "fsx.be.page.entryMaxLabel": "Custos de entrada máx.",
   "fsx.be.page.entryMaxSub": "direitos + notário",
@@ -722,7 +722,7 @@ export const pt: Dict = {
   "fsx.be.page.col.pct": "% do preço",
   "fsx.be.page.baremeNote": "Bruxelas, existente: direitos de registo de 12,5% sobre a base plena (abatimento de 200 000 € reservado a pessoas singulares em residência principal, não aplicável a um fundo); construção nova sujeita a IVA de 21% sem direitos; terreno para construção 12,5%. Referência: Valónia 3% e Flandres 2% para a habitação própria e única, Bruxelas a mais cara à entrada.",
   "fsx.be.page.simulatorCaption": "Custos de entrada bruxelenses: direitos de registo de 12,5% mais notário, na ordem dos 14 a 15% do preço.",
-  "fsx.be.page.sources": "Regime bruxelense 2025: direitos de registo de 12,5% (Região de Bruxelas-Capital), IVA de 21% sobre construção nova, précompte immobilier regional, imposto sobre sociedades de 25%. Referências Valónia 3% e Flandres 2% (habitação própria e única).",
+  "fsx.be.page.sources": "Regime bruxelense 2026: direitos de registo de 12,5% (Região de Bruxelas-Capital), IVA de 21% sobre construção nova, précompte immobilier regional, imposto sobre sociedades de 25%. Referências Valónia 3% e Flandres 2% (habitação própria e única).",
 
   // --- Energie : verdicts PARTAGES (nrgx.verdict.*), regime PT (nrgx.pt.*) et
   // regime BE (nrgx.be.*). Les VALEURS ci-dessous sont la prose FR d'origine des
