@@ -164,7 +164,7 @@ export default function ContreAnalysePage() {
       />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          marketLine={t(city.texts.marketLines.iaAnalyste)}
+          marketLine={t("ca.marketLine")}
           freguesias={[]}
           selected={[]}
           onSelected={() => {

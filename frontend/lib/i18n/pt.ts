@@ -256,6 +256,7 @@ export const pt: Dict = {
   "dock.placeholder": "A sua pergunta…",
   // ca (contra-análise)
   "ca.title": "Contra-análise",
+  "ca.marketLine": "Confronte um dossiê externo com a inteligência Barzel.",
   "ca.newAnalysis": "Nova contra-análise",
   "ca.submitTitle": "Submeter um dossiê",
   "ca.submitSub": "Um argumentário de corretor ou nota de consultor, confrontado com a inteligência Barzel.",

@@ -260,6 +260,7 @@ export const en: Dict = {
   "dock.placeholder": "Your question…",
   // ca (second opinion)
   "ca.title": "Second Opinion",
+  "ca.marketLine": "Challenge an external dossier against Barzel intelligence.",
   "ca.newAnalysis": "New second opinion",
   "ca.submitTitle": "Submit a dossier",
   "ca.submitSub": "A broker pitch or advisor note, challenged against Barzel intelligence.",
