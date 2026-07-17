@@ -95,6 +95,15 @@ export function Sidebar() {
                 <span className={`w-4 text-center ${pathname === "/ia-analyste" ? "text-gold" : "text-gold/60"}`}>✦</span>
                 {t("nav.aiAnalyst")}
               </Link>
+              <Link
+                href="/contre-analyse"
+                className={`mt-0.5 flex items-center gap-3 rounded-lg px-3 py-2 text-btn transition-colors ${
+                  pathname === "/contre-analyse" ? "bg-white/10 text-cream" : "text-cream/70 hover:bg-white/5 hover:text-cream/90"
+                }`}
+              >
+                <span className={`w-4 text-center ${pathname === "/contre-analyse" ? "text-gold" : "text-gold/60"}`}>◎</span>
+                {t("nav.secondOpinion")}
+              </Link>
             </div>
           </nav>
 

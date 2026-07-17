@@ -154,6 +154,28 @@ export const api = {
     if (!res.ok) throw new Error(`API ${res.status}`);
     return res.json();
   },
+  secondOpinionExtract: async (files: File[]): Promise<{ doc_text: string; doc_names: string[]; chars: number }> => {
+    const fd = new FormData();
+    for (const f of files) fd.append("files", f);
+    const res = await fetch(`${BASE}/api/second-opinion/extract`, { method: "POST", body: fd });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    return res.json();
+  },
+  secondOpinionAnalyze: async (
+    city: string,
+    docText: string,
+    messages: { role: string; text: string }[],
+    assetClass: string,
+    lang: string,
+  ): Promise<{ answer: string }> => {
+    const res = await fetch(`${BASE}/api/second-opinion/analyze`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ city, doc_text: docText, messages, asset_class: assetClass, lang }),
+    });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    return res.json();
+  },
   memoDraft: async (body: object, lang: Lang): Promise<MemoDraft> => {
     const res = await fetch(`${BASE}/api/memo/draft`, {
       method: "POST",

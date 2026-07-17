@@ -21,7 +21,7 @@ import { useCityStore } from "@/lib/cityStore";
 // Il DOIT hydrater le store avant toute ecriture, sinon une premiere question
 // ecraserait l'historique persiste. Masque sur les pages d'entree et /ia-analyste.
 
-const HIDE_ON = new Set(["/", "/pays", "/villes", "/accueil", "/ia-analyste"]);
+const HIDE_ON = new Set(["/", "/pays", "/villes", "/accueil", "/ia-analyste", "/contre-analyse"]);
 
 const now = () => new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
 
