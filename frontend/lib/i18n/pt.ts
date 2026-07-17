@@ -239,11 +239,13 @@ export const pt: Dict = {
   "ai.send": "Perguntar",
   "ai.typing": "a redigir…",
   // hist
+  "hist.all": "Tudo",
   "hist.delete": "Eliminar",
   "hist.empty": "Ainda sem análises",
   "hist.hide": "Ocultar histórico",
   "hist.new": "Nova análise",
   "hist.show": "Mostrar histórico",
+  "hist.thisPage": "Esta página",
   "hist.title": "Histórico",
   "hist.untitled": "Sem título",
   // dock
