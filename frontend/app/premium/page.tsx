@@ -6,6 +6,10 @@ import { Sidebar } from "@/components/Sidebar";
 import { KeyFigures } from "@/components/KeyFigures";
 import { PremiumTierTable } from "@/components/PremiumTierTable";
 import { PremiumCurve } from "@/components/PremiumCurve";
+import { PremiumPivot } from "@/components/PremiumPivot";
+import { PremiumPockets } from "@/components/PremiumPockets";
+import { PremiumAssets } from "@/components/PremiumAssets";
+import { PremiumSustainability } from "@/components/PremiumSustainability";
 import { cityBySlug } from "@/lib/cities";
 import { useCityStore } from "@/lib/cityStore";
 import { getPremiumCity, computeCity, type TierKey } from "@/lib/premium";
@@ -122,6 +126,50 @@ export default function PremiumPage() {
                   ceilingTier={pc.ceilingTier}
                   tierLabel={tierLabel}
                 />
+              </div>
+
+              {/* Bloc pivot : carte navy propre, pas de carte blanche englobante */}
+              <div>
+                <h3 className="font-display text-[18px] text-navy">{t("pr.block.pivot")}</h3>
+                <p className="mt-1 text-body text-ink-soft">{t("pr.block.pivotInsight")}</p>
+                <div className="mt-4">
+                  <PremiumPivot city={pc} tiers={computed.tiers} tierLabel={tierLabel} />
+                </div>
+              </div>
+
+              {/* Bloc poches */}
+              <div className="rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
+                <h3 className="font-display text-[18px] text-navy">{t("pr.block.pockets")}</h3>
+                <p className="mt-1 text-body text-ink-soft">{t("pr.block.pocketsInsight")}</p>
+                <div className="mt-4">
+                  <PremiumPockets pockets={pc.pockets} medianPricePerSqm={pc.medianPricePerSqm} />
+                </div>
+              </div>
+
+              {/* Bloc actifs */}
+              <div className="rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
+                <h3 className="font-display text-[18px] text-navy">{t("pr.block.assets")}</h3>
+                <p className="mt-1 text-body text-ink-soft">{t("pr.block.assetsInsight")}</p>
+                <div className="mt-4">
+                  <PremiumAssets
+                    assets={pc.assets}
+                    referencePricePerSqm={pc.referencePricePerSqm}
+                    tierLabel={tierLabel}
+                  />
+                </div>
+              </div>
+
+              {/* Bloc soutenabilite */}
+              <div className="rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
+                <h3 className="font-display text-[18px] text-navy">{t("pr.block.sustainability")}</h3>
+                <p className="mt-1 text-body text-ink-soft">{t("pr.block.sustainabilityInsight")}</p>
+                <div className="mt-4">
+                  <PremiumSustainability
+                    drivers={pc.sustainability}
+                    structuralShare={computed.structuralShare}
+                    cyclicalShare={computed.cyclicalShare}
+                  />
+                </div>
               </div>
 
               {/* Notes de bas de page */}
