@@ -1306,4 +1306,14 @@ export const pt: Dict = {
   "pr.source.portfolio": "Dados de carteira, a confirmar com o cliente.",
   "pr.source.barzel": "Apreciação Barzel Analytics.",
   "pr.vintage": "Dados reportados a junho de 2026",
+  // premium foncier (lot 6)
+  "pr.block.landValue": "Encargo fundiário admissível",
+  "pr.block.landValueInsight": "A bolsa onde se pode licitar mais alto pelo terreno raramente é a mais cara.",
+  "pr.land.targetMargin": "Margem alvo",
+  "pr.land.formula": "Preço de venda menos construção, IVA, comercialização, carrego e margem alvo.",
+  "pr.land.admissible": "Encargo fundiário admissível",
+  "pr.land.matchedTier": "Patamar correspondente",
+  "pr.land.notViable": "Não viável",
+  "pr.land.best": "Licitação máxima",
+  "pr.land.legend": "O que o terreno pode absorver por metro quadrado mantendo a margem alvo.",
 };

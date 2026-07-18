@@ -8,6 +8,7 @@ import { PremiumTierTable } from "@/components/PremiumTierTable";
 import { PremiumCurve } from "@/components/PremiumCurve";
 import { PremiumPivot } from "@/components/PremiumPivot";
 import { PremiumPockets } from "@/components/PremiumPockets";
+import { PremiumLandValue } from "@/components/PremiumLandValue";
 import { PremiumAssets } from "@/components/PremiumAssets";
 import { PremiumSustainability } from "@/components/PremiumSustainability";
 import { cityBySlug } from "@/lib/cities";
@@ -149,6 +150,18 @@ export default function PremiumPage() {
                 </div>
                 <p className="mt-4 text-label text-muted">
                   {t("pr.source.label")} : {t("pr.source.market")}
+                </p>
+              </div>
+
+              {/* Bloc charge fonciere admissible */}
+              <div className="rounded-2xl border border-navy/10 bg-white p-5 shadow-card">
+                <h3 className="font-display text-[18px] text-navy">{t("pr.block.landValue")}</h3>
+                <p className="mt-1 text-body text-ink-soft">{t("pr.block.landValueInsight")}</p>
+                <div className="mt-4">
+                  <PremiumLandValue city={pc} tierLabel={tierLabel} />
+                </div>
+                <p className="mt-4 text-label text-muted">
+                  {t("pr.source.label")} : {t("pr.source.cost")}
                 </p>
               </div>
 

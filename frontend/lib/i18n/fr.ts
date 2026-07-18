@@ -1315,4 +1315,14 @@ export const fr: Dict = {
   "pr.source.portfolio": "Données de portefeuille, à confirmer avec le client.",
   "pr.source.barzel": "Appréciation Barzel Analytics.",
   "pr.vintage": "Données arrêtées à juin 2026",
+  // premium foncier (lot 6)
+  "pr.block.landValue": "Charge foncière admissible",
+  "pr.block.landValueInsight": "La poche où l'on peut surenchérir le plus sur le terrain est rarement la plus chère.",
+  "pr.land.targetMargin": "Marge cible",
+  "pr.land.formula": "Prix de vente moins construction, TVA, commercialisation, portage et marge cible.",
+  "pr.land.admissible": "Charge foncière admissible",
+  "pr.land.matchedTier": "Palier apparié",
+  "pr.land.notViable": "Non viable",
+  "pr.land.best": "Surenchère maximale",
+  "pr.land.legend": "Ce que le site peut absorber au mètre carré tout en tenant la marge cible.",
 };

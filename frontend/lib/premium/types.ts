@@ -94,3 +94,19 @@ export interface CityComputation {
   cyclicalShare: number;
   tiers: TierComputation[];
 }
+
+// Charge fonciere admissible (lot 6) : une ligne par poche, inversion de la
+// cascade de marge. `carryFactor` est expose pour rendre le calcul auditable.
+export interface LandValueRow {
+  pocketKey: string;
+  pocketName: string;
+  pocketPricePerSqm: number;
+  tierKey: TierKey;
+  vatRate: number;
+  vatPerSqm: number;
+  capexPerSqm: number;
+  marketingPerSqm: number;
+  carryFactor: number;
+  admissibleLandPerSqm: number;
+  viable: boolean;
+}
