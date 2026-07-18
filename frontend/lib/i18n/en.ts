@@ -1298,4 +1298,16 @@ export const en: Dict = {
   "pr.na": "n/a",
   "pr.footnote.vat": "Portugal: reduced construction VAT applies up to a sale price threshold per dwelling. Belgium: the reduced rate is reserved for long term rental.",
   "pr.footnote.carry": "Carry cost applies to capital committed beyond a twelve month reference absorption.",
+  // premium correctif (lot 5)
+  "pr.pivot.cursorArea": "Unit floor area",
+  "pr.pivot.unitPrice": "Resulting unit price",
+  "pr.pivot.threshold": "VAT threshold",
+  "pr.pivot.headroom": "Headroom to threshold",
+  "pr.source.label": "Sources",
+  "pr.source.market": "Listing medians and registered transactions.",
+  "pr.source.cost": "Construction cost benchmarks and tax rates in force.",
+  "pr.source.tax": "Tax legislation in force.",
+  "pr.source.portfolio": "Portfolio data, to be confirmed with the client.",
+  "pr.source.barzel": "Barzel Analytics assessment.",
+  "pr.vintage": "Data as at June 2026",
 };

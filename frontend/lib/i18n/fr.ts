@@ -1303,4 +1303,16 @@ export const fr: Dict = {
   "pr.na": "n/a",
   "pr.footnote.vat": "Portugal : la TVA construction réduite s'applique jusqu'à un seuil de prix de vente par logement. Belgique : le taux réduit est réservé au locatif longue durée.",
   "pr.footnote.carry": "Le coût de portage s'applique au capital immobilisé au-delà d'une absorption de référence de douze mois.",
+  // premium correctif (lot 5)
+  "pr.pivot.cursorArea": "Surface du logement",
+  "pr.pivot.unitPrice": "Prix de l'unité obtenu",
+  "pr.pivot.threshold": "Seuil de TVA",
+  "pr.pivot.headroom": "Marge avant le seuil",
+  "pr.source.label": "Sources",
+  "pr.source.market": "Médianes d'annonces et transactions enregistrées.",
+  "pr.source.cost": "Références de coûts de construction et taux de TVA en vigueur.",
+  "pr.source.tax": "Législation fiscale en vigueur.",
+  "pr.source.portfolio": "Données de portefeuille, à confirmer avec le client.",
+  "pr.source.barzel": "Appréciation Barzel Analytics.",
+  "pr.vintage": "Données arrêtées à juin 2026",
 };

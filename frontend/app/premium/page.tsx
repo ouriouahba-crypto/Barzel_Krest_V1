@@ -126,6 +126,9 @@ export default function PremiumPage() {
                   ceilingTier={pc.ceilingTier}
                   tierLabel={tierLabel}
                 />
+                <p className="mt-4 text-label text-muted">
+                  {t("pr.source.label")} : {t("pr.source.cost")}
+                </p>
               </div>
 
               {/* Bloc pivot : carte navy propre, pas de carte blanche englobante */}
@@ -144,6 +147,9 @@ export default function PremiumPage() {
                 <div className="mt-4">
                   <PremiumPockets pockets={pc.pockets} medianPricePerSqm={pc.medianPricePerSqm} />
                 </div>
+                <p className="mt-4 text-label text-muted">
+                  {t("pr.source.label")} : {t("pr.source.market")}
+                </p>
               </div>
 
               {/* Bloc actifs */}
@@ -157,6 +163,9 @@ export default function PremiumPage() {
                     tierLabel={tierLabel}
                   />
                 </div>
+                <p className="mt-4 text-label text-muted">
+                  {t("pr.source.label")} : {t("pr.source.portfolio")}
+                </p>
               </div>
 
               {/* Bloc soutenabilite */}
@@ -170,12 +179,15 @@ export default function PremiumPage() {
                     cyclicalShare={computed.cyclicalShare}
                   />
                 </div>
+                <p className="mt-4 text-label text-muted">
+                  {t("pr.source.label")} : {t("pr.source.barzel")}
+                </p>
               </div>
 
               {/* Notes de bas de page */}
               <div className="rounded-2xl border border-navy/10 bg-white p-5 text-label text-muted shadow-card">
                 <p>{t("pr.footnote.vat")}</p>
-                <p className="mt-2">{t("pr.footnote.carry")}</p>
+                <p className="mt-2">{t("pr.footnote.carry")} · {t("pr.vintage")}</p>
               </div>
             </>
           )}

@@ -56,6 +56,27 @@ export const bruxelles: PremiumCity = {
   ],
   pockets: [
     {
+      key: "canalDansaert",
+      name: "Dansaert / Sainte-Catherine",
+      pricePerSqm: 5200,
+      depthUnitsPerYear: 90,
+      drivers: ["heritage", "connectivity"],
+    },
+    {
+      key: "tourTaxis",
+      name: "Tour & Taxis",
+      pricePerSqm: 4600,
+      depthUnitsPerYear: 140,
+      drivers: ["signature", "connectivity", "energyStandard"],
+    },
+    {
+      key: "charbonnages",
+      name: "Quai des Charbonnages",
+      pricePerSqm: 3900,
+      depthUnitsPerYear: 180,
+      drivers: ["connectivity", "energyStandard"],
+    },
+    {
       key: "ixelles",
       name: "Ixelles",
       pricePerSqm: 6400,
@@ -68,27 +89,6 @@ export const bruxelles: PremiumCity = {
       pricePerSqm: 6100,
       depthUnitsPerYear: 140,
       drivers: ["landScarcity", "view"],
-    },
-    {
-      key: "woluweStPierre",
-      name: "Woluwe-Saint-Pierre",
-      pricePerSqm: 6300,
-      depthUnitsPerYear: 110,
-      drivers: ["landScarcity", "connectivity"],
-    },
-    {
-      key: "sablon",
-      name: "Sablon",
-      pricePerSqm: 6900,
-      depthUnitsPerYear: 45,
-      drivers: ["heritage", "signature"],
-    },
-    {
-      key: "canal",
-      name: "Canal / Dansaert",
-      pricePerSqm: 4300,
-      depthUnitsPerYear: 260,
-      drivers: ["signature", "connectivity", "energyStandard"],
     },
   ],
   assets: [

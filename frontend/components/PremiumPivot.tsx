@@ -23,6 +23,9 @@ export function PremiumPivot({
   const lang = useLang();
   const eur = (v: number) => fmtNumber(Math.round(v), lang, { maximumFractionDigits: 0 });
   const [price, setPrice] = useState(city.referencePricePerSqm);
+  const [area, setArea] = useState(
+    city.tiers.find((tier) => tier.key === "prime")?.referenceAreaSqm ?? 120
+  );
 
   // Belgique : le taux ne depend pas du prix mais de la destination du produit.
   // Pas de curseur ; comparaison sur le palier standard (tiers[0]).
@@ -50,6 +53,9 @@ export function PremiumPivot({
             {eur(delta)} {t("pr.unit.eurSqm")}
           </span>
         </div>
+        <p className="mt-4 text-label text-cream/60">
+          {t("pr.source.label")} : {t("pr.source.tax")}
+        </p>
       </div>
     );
   }
@@ -59,7 +65,11 @@ export function PremiumPivot({
   const min = tiers[0].pricePerSqm;
   const max = tiers[tiers.length - 1].pricePerSqm;
   const pct = ((price - min) / (max - min)) * 100;
+  const areaPct = ((area - 40) / (260 - 40)) * 100;
   const pivot = pivotAreaForPrice(city, price);
+  // Regime PT : le seuil de TVA est toujours defini (voir compute.pivotAreaForPrice).
+  const threshold = city.vatThresholdEur as number;
+  const unitPrice = price * area;
 
   return (
     <div className="rounded-2xl bg-navy p-5 shadow-card">
@@ -82,6 +92,55 @@ export function PremiumPivot({
       <div className="mt-1 flex justify-between text-label text-cream/60">
         <span>{fmtNumber(min, lang)}</span>
         <span>{fmtNumber(max, lang)}</span>
+      </div>
+
+      {/* Second curseur : la surface, pour simuler le prix d'unite complet. */}
+      <div className="mt-4 flex items-baseline justify-between">
+        <span className="text-label text-cream/70">{t("pr.pivot.cursorArea")}</span>
+        <span className="font-display text-xl text-gold tabular-nums">
+          {fmtNumber(area, lang)} {t("pr.unit.sqm")}
+        </span>
+      </div>
+      <input
+        type="range"
+        className="haya-range mt-3 w-full"
+        min={40}
+        max={260}
+        step={5}
+        value={area}
+        onChange={(e) => setArea(Number(e.target.value))}
+        style={{ ["--pct" as any]: `${areaPct}%` }}
+      />
+      <div className="mt-1 flex justify-between text-label text-cream/60">
+        <span>{fmtNumber(40, lang)}</span>
+        <span>{fmtNumber(260, lang)}</span>
+      </div>
+
+      {/* Encart de resultat : prix d'unite obtenu vs seuil de TVA. */}
+      <div className="mt-4 flex flex-col gap-2 border-t border-cream/15 pt-3">
+        <div className="flex items-baseline justify-between">
+          <span className="text-label text-cream/70">{t("pr.pivot.unitPrice")}</span>
+          <span className="font-display text-xl text-gold tabular-nums">{eur(unitPrice)}</span>
+        </div>
+        <div className="flex items-baseline justify-between">
+          <span className="text-label text-cream/70">{t("pr.pivot.threshold")}</span>
+          <span className="text-td tabular-nums text-cream/85">{eur(threshold)}</span>
+        </div>
+        <div className="flex items-baseline justify-between">
+          <span className="text-label text-cream/70">{t("pr.pivot.headroom")}</span>
+          <span className="text-td tabular-nums text-cream/85">{eur(threshold - unitPrice)}</span>
+        </div>
+        <div className="flex justify-end">
+          <span
+            className={`rounded-full border px-2 py-0.5 text-label ${
+              unitPrice <= threshold
+                ? "border-gold/40 bg-gold/[0.12] text-gold"
+                : "border-cream/25 bg-cream/[0.08] text-cream/70"
+            }`}
+          >
+            {unitPrice <= threshold ? t("pr.pivot.below") : t("pr.pivot.above")}
+          </span>
+        </div>
       </div>
 
       <div className="mt-4 flex items-baseline justify-between border-t border-cream/15 pt-3">
@@ -116,6 +175,10 @@ export function PremiumPivot({
           );
         })}
       </div>
+
+      <p className="mt-4 text-label text-cream/60">
+        {t("pr.source.label")} : {t("pr.source.tax")}
+      </p>
     </div>
   );
 }
