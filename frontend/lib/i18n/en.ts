@@ -1310,4 +1310,14 @@ export const en: Dict = {
   "pr.source.portfolio": "Portfolio data, to be confirmed with the client.",
   "pr.source.barzel": "Barzel Analytics assessment.",
   "pr.vintage": "Data as at June 2026",
+  // premium foncier (lot 6)
+  "pr.block.landValue": "Admissible land value",
+  "pr.block.landValueInsight": "The pocket where you can bid highest for land is rarely the most expensive one.",
+  "pr.land.targetMargin": "Target margin",
+  "pr.land.formula": "Sale price less construction, VAT, marketing, carry and target margin.",
+  "pr.land.admissible": "Admissible land value",
+  "pr.land.matchedTier": "Matched tier",
+  "pr.land.notViable": "Not viable",
+  "pr.land.best": "Highest bid",
+  "pr.land.legend": "What the site can absorb per square metre while still meeting the target margin.",
 };
