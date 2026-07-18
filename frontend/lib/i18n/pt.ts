@@ -1294,4 +1294,16 @@ export const pt: Dict = {
   "pr.na": "n/d",
   "pr.footnote.vat": "Portugal: o IVA reduzido na construção aplica-se até um limiar de preço de venda por fogo. Bélgica: a taxa reduzida está reservada ao arrendamento de longa duração.",
   "pr.footnote.carry": "O custo de carrego aplica-se ao capital imobilizado para além de uma absorção de referência de doze meses.",
+  // premium correctif (lot 5)
+  "pr.pivot.cursorArea": "Área do fogo",
+  "pr.pivot.unitPrice": "Preço da unidade resultante",
+  "pr.pivot.threshold": "Limiar de IVA",
+  "pr.pivot.headroom": "Margem até ao limiar",
+  "pr.source.label": "Fontes",
+  "pr.source.market": "Medianas de anúncios e transações registadas.",
+  "pr.source.cost": "Referências de custos de construção e taxas de IVA em vigor.",
+  "pr.source.tax": "Legislação fiscal em vigor.",
+  "pr.source.portfolio": "Dados de carteira, a confirmar com o cliente.",
+  "pr.source.barzel": "Apreciação Barzel Analytics.",
+  "pr.vintage": "Dados reportados a junho de 2026",
 };
