@@ -20,6 +20,7 @@ const MODULES: { key: string; tKey: string; icon: string; route: string }[] = [
   { key: "landbank", tKey: "nav.land", icon: "▣", route: "/foncier" },
   { key: "tax", tKey: "nav.tax", icon: "§", route: "/fiscalite" },
   { key: "energy", tKey: "nav.energy", icon: "⚡", route: "/energie" },
+  { key: "premium", tKey: "nav.premium", icon: "◆", route: "/premium" },
 ];
 
 // Hydratation avant paint côté client, repli useEffect côté serveur (même
