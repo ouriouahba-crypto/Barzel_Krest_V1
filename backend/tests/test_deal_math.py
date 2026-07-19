@@ -9,11 +9,13 @@ from __future__ import annotations
 
 import re
 
-from backend.services.deal_math import retreated_balance
+from backend.services.deal_math import barzel_reference, retreated_balance
 
 
 # Dossier Vanderborght (Bruxelles). land_area_m2 est la surface de la parcelle,
-# necessaire au seul prix du foncier par metre carre de terrain.
+# necessaire au seul prix du foncier par metre carre de terrain. Les valeurs
+# Barzel ne figurent plus ici : elles sont lues dans le moteur par
+# barzel_reference() (voir BARZEL_REF, injecte explicitement pour ce test pur).
 VANDERBORGHT = dict(
     saleable_area_resi_m2=8520,
     saleable_area_total_m2=9720,
@@ -32,8 +34,14 @@ VANDERBORGHT = dict(
     revenue_total_stated=43784000,
     sale_price_eur_m2_resi=4600,
     country="be",
+)
+
+# Reference Barzel pour Bruxelles-Ville, telle que la produit barzel_reference()
+# (lecture du moteur). Injectee en dur ici pour garder ce test pur et hors-ligne.
+BARZEL_REF = dict(
     realizable_sale_eur_m2=4344,
     cost_total_eur_m2=3367,
+    barzel_zone_name="Bruxelles-Ville",
 )
 
 
@@ -49,9 +57,10 @@ def _result_of(block: str, label: str) -> float:
 
 
 def test_vanderborght_expected_values():
-    block = retreated_balance(VANDERBORGHT)
+    block = retreated_balance({**VANDERBORGHT, **BARZEL_REF})
 
     assert block.startswith("# BILAN RETRAITE, CALCULE")
+    assert "Zone de reference Barzel : Bruxelles-Ville" in block
     assert block.rstrip().endswith("plutot que de la calculer.")
 
     # Tolerance 1 unite sur chaque grandeur derivee.
@@ -77,3 +86,26 @@ def test_empty_input_returns_empty_string():
     # Cles presentes mais toutes None : rien de calculable, aucune exception.
     all_none = {k: None for k in VANDERBORGHT}
     assert retreated_balance(all_none) == ""
+
+
+def test_barzel_reference_reads_engine_not_llm():
+    """Les quatre valeurs Barzel sont lues dans le moteur, jamais devinees par le
+    LLM : realizable_sale_eur_m2 vaut la valeur reelle du moteur (4344), pas 3765."""
+    from backend.services import mode_scoring as ms
+
+    rows = ms.score_city("bruxelles", "promotion", "residential")
+    bxl = next(r for r in rows if r["zone_name"] == "Bruxelles-Ville")
+    engine_real = next(p for p in bxl["pillars"]
+                       if p["pillar"] == "marge")["breakdown"]["realizable_sale"]
+
+    ref = barzel_reference("bruxelles", "Bruxelles-Ville")
+    assert ref["realizable_sale_eur_m2"] == engine_real  # lu dans le moteur
+    assert ref["realizable_sale_eur_m2"] == 4344         # valeur reelle du moteur
+    assert ref["realizable_sale_eur_m2"] != 3765         # jamais la valeur inventee par le LLM
+    assert set(ref) == {"realizable_sale_eur_m2", "cost_total_eur_m2",
+                        "land_market_eur_m2", "residual_value_eur_m2"}
+
+
+def test_barzel_reference_unknown_zone_returns_empty():
+    """Zone introuvable : dict vide, aucune exception, aucune valeur inventee."""
+    assert barzel_reference("bruxelles", "zone inexistante") == {}

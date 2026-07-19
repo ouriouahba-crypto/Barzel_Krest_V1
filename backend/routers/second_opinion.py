@@ -26,7 +26,7 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 from pydantic import BaseModel
 
 from ..services.cities import label_for
-from ..services.deal_math import retreated_balance
+from ..services.deal_math import barzel_reference, retreated_balance
 from .analyst import (
     _MODEL,
     _LANG_NAME,
@@ -205,9 +205,9 @@ def _context_for(asset_class: str, city: str) -> str:
 # Extraction prealable : un appel LLM qui RECOPIE des nombres, jamais ne calcule #
 # --------------------------------------------------------------------------- #
 
-_EXTRACT_SYSTEM = """Tu es un extracteur de donnees numeriques. On te fournit un CONTEXTE Barzel et un DOCUMENT EXTERNE. Ta seule tache : LIRE et RECOPIER des nombres, jamais calculer.
+_EXTRACT_SYSTEM = """Tu es un extracteur de donnees numeriques. On te fournit un CONTEXTE Barzel et un DOCUMENT EXTERNE. Ta seule tache : LIRE et RECOPIER des valeurs DU DOCUMENT, jamais calculer. Tu ne recopies AUCUNE valeur du CONTEXTE Barzel.
 
-INTERDICTION ABSOLUE DE CALCULER : aucune operation, ni somme, ni soustraction, ni multiplication, ni division, ni pourcentage, ni conversion. Tu recopies uniquement des valeurs qui figurent telles quelles dans les textes. Si une valeur n'apparait pas explicitement, tu mets null. Tu n'inventes rien, tu ne deduis rien.
+INTERDICTION ABSOLUE DE CALCULER : aucune operation, ni somme, ni soustraction, ni multiplication, ni division, ni pourcentage, ni conversion. Tu recopies uniquement des valeurs qui figurent telles quelles dans le DOCUMENT. Si une valeur n'apparait pas explicitement, tu mets null. Tu n'inventes rien, tu ne deduis rien.
 
 Tu reponds UNIQUEMENT par un objet JSON valide, sans texte avant ou apres, sans balise markdown, sans commentaire. Toutes les cles sont presentes ; une valeur absente vaut null. Les nombres sont bruts (pas de separateur de milliers, point pour les decimales), sans unite ni symbole.
 
@@ -215,11 +215,9 @@ Cles a renseigner depuis le DOCUMENT (bilan promoteur, argumentaire de vente) :
   saleable_area_resi_m2, saleable_area_total_m2, gross_area_total_m2, land_area_m2, units_count,
   construction_cost_total, fees_total, remediation_total, finance_cost_total, land_price, transfer_duties_total, cost_total_stated,
   revenue_resi, revenue_parking, revenue_other, revenue_total_stated, margin_pct_stated,
-  sale_price_eur_m2_resi, country
-Cles a renseigner depuis le CONTEXTE Barzel (valeurs de la plateforme) :
-  realizable_sale_eur_m2, cost_total_eur_m2, land_market_eur_m2, residual_value_eur_m2
+  sale_price_eur_m2_resi, country, zone_hint
 
-land_area_m2 est la surface du terrain (parcelle) si le document la donne. country vaut "be", "pt" ou null selon le pays du document. Toutes les autres valeurs sont numeriques ou null."""
+land_area_m2 est la surface du terrain (parcelle) si le document la donne. country vaut "be", "pt" ou null selon le pays du document. zone_hint est le nom de la COMMUNE administrative du bien tel qu'il figure dans le DOCUMENT (par exemple la valeur d'un champ Commune, ou la ville indiquee par le code postal de l'adresse) ; a defaut seulement, le nom du quartier. C'est une chaine de caracteres recopiee telle quelle du document, JAMAIS un chiffre, ou null si absent. Toutes les autres valeurs sont numeriques ou null."""
 
 
 def _loads_json(raw: str) -> dict | None:
@@ -293,6 +291,14 @@ def analyze(payload: AnalyzePayload) -> dict:
     try:
         data = _extract_numbers(context, doc_text, key)
         if data:
+            # Les quatre valeurs Barzel ne sont JAMAIS extraites par le LLM : on les
+            # lit dans le moteur de scoring pour la zone du bien (zone_hint recopie
+            # du document), en lecture seule, puis on les fusionne dans le dict.
+            zone_hint = data.get("zone_hint")
+            ref = barzel_reference(city, str(zone_hint)) if zone_hint else {}
+            if ref:
+                data.update(ref)
+            data["barzel_zone_name"] = str(zone_hint) if ref else None
             block = retreated_balance(data) or ""
     except Exception:  # noqa: BLE001 ; degradation silencieuse, aucun 503 supplementaire
         block = ""
