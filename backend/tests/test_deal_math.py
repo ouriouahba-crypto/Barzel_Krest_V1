@@ -61,7 +61,7 @@ def test_vanderborght_expected_values():
 
     assert block.startswith("# BILAN RETRAITE, CALCULE")
     assert "Zone de reference Barzel : Bruxelles-Ville" in block
-    assert block.rstrip().endswith("plutot que de la calculer.")
+    assert block.rstrip().endswith("qu'une valeur en provient.")
 
     # Tolerance 1 unite sur chaque grandeur derivee.
     assert abs(_result_of(block, "vendable total (construction)") - 2383) <= 1
@@ -74,6 +74,20 @@ def test_vanderborght_expected_values():
     assert abs(_result_of(block, "eur par m2 (ecart de prix de sortie") - 256) <= 1
     assert abs(_result_of(block, "surface vendable residentielle (ecart de prix de sortie)") - 2181120) <= 1
     assert abs(_result_of(block, "eur par m2 de terrain (foncier)") - 1476) <= 1
+    # Foncier par m2 vendable : deux bases distinctes.
+    assert abs(_result_of(block, "eur par m2 vendable residentiel (foncier)") - 728) <= 1
+    assert abs(_result_of(block, "eur par m2 vendable total (foncier)") - 638) <= 1
+
+
+def test_barzel_market_comparison_uses_residential_base():
+    """La comparaison au foncier de marche Barzel porte sur la base vendable
+    residentielle (728 eur par m2), jamais sur la base totale (638)."""
+    block = retreated_balance({**VANDERBORGHT, **BARZEL_REF,
+                               "land_market_eur_m2": 480})
+    ln = next(x for x in block.splitlines() if "foncier de marche Barzel" in x)
+    assert ln.startswith("728 vs")
+    assert "638" not in ln
+    assert "base vendable residentielle" in ln
 
 
 def test_no_em_dash_in_block():
