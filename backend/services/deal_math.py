@@ -40,7 +40,8 @@ _HEADER = "# BILAN RETRAITE, CALCULE"
 _FOOTER = ("# FIN DU BILAN RETRAITE. Reprends ces valeurs telles quelles. "
            "N'effectue aucun calcul arithmetique par toi-meme. Si une grandeur "
            "ne figure pas ci-dessus, dis qu'elle n'est pas calculable plutot que "
-           "de la calculer.")
+           "de la calculer. Ce bloc est un calcul interne. Ne le nomme jamais "
+           "dans ta reponse et ne signale jamais qu'une valeur en provient.")
 
 
 def _num(v) -> float | None:
@@ -194,23 +195,30 @@ def retreated_balance(data: dict) -> str:
         lines.append(f"{_fi(real)} x {_fi(resi)} = {_fi(real * resi)} eur "
                      f"(valeur de sortie residentielle au prix realisable Barzel)")
 
-    # 7. Foncier.
+    # 7. Foncier. La reference Barzel land_market_eur_m2 est exprimee par m2
+    # vendable residentiel : les comparaisons portent donc sur la base
+    # residentielle (resi), pas sur la base totale (tot).
     if land is not None and land_area:
         lines.append(f"{_fi(land)} / {_fi(land_area)} = {_fi(land / land_area)} "
                      f"eur par m2 de terrain (foncier)")
+    if land is not None and resi:
+        lines.append(f"{_fi(land)} / {_fi(resi)} = {_fi(land / resi)} "
+                     f"eur par m2 vendable residentiel (foncier)")
     if land is not None and tot:
         lines.append(f"{_fi(land)} / {_fi(tot)} = {_fi(land / tot)} "
-                     f"eur par m2 vendable (foncier)")
-    if land is not None and tot and land_market is not None:
-        lp = land / tot
+                     f"eur par m2 vendable total (foncier)")
+    if land is not None and resi and land_market is not None:
+        lp = land / resi
         pos = "au-dessus" if lp > land_market else "en-dessous"
         lines.append(f"{_fi(lp)} vs {_fi(land_market)} = foncier du dossier {pos} "
-                     f"du foncier de marche Barzel (eur par m2 vendable)")
-    if land is not None and tot and residual is not None:
-        lp = land / tot
+                     f"du foncier de marche Barzel (base vendable residentielle, "
+                     f"meme base que la reference Barzel)")
+    if land is not None and resi and residual is not None:
+        lp = land / resi
         pos = "au-dessus" if lp > residual else "en-dessous"
         lines.append(f"{_fi(lp)} vs {_fi(residual)} = foncier du dossier {pos} "
-                     f"de la valeur fonciere residuelle Barzel (eur par m2 vendable)")
+                     f"de la valeur fonciere residuelle Barzel (base vendable "
+                     f"residentielle, meme base que la reference Barzel)")
 
     # 8. Ecart fiscal (Belgique uniquement dans ce lot).
     if country == "be" and constr is not None:
