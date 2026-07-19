@@ -19,12 +19,14 @@ tiret cadratin (filet strip_em_dashes). Cle Anthropic lue de backend/.env.
 from __future__ import annotations
 
 import io
+import json
 import logging
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from pydantic import BaseModel
 
 from ..services.cities import label_for
+from ..services.deal_math import barzel_reference, retreated_balance
 from .analyst import (
     _MODEL,
     _LANG_NAME,
@@ -43,6 +45,7 @@ log = logging.getLogger("routers.second_opinion")
 router = APIRouter(prefix="/api/second-opinion", tags=["second-opinion"])
 
 _MAX_TOKENS = 8000  # analyse complete ; marge pour ne jamais tronquer la recommandation finale
+_EXTRACT_MAX_TOKENS = 2000  # extraction JSON : recopie de nombres, jamais de prose
 _MAX_FILES = 3
 _MAX_BYTES = 20 * 1024 * 1024  # 20 Mo par fichier
 _MAX_DOC_CHARS = 60_000  # borne du texte extrait (envoi LLM + stockage front)
@@ -198,6 +201,66 @@ def _context_for(asset_class: str, city: str) -> str:
     return _build_context(asset_class, city)
 
 
+# --------------------------------------------------------------------------- #
+# Extraction prealable : un appel LLM qui RECOPIE des nombres, jamais ne calcule #
+# --------------------------------------------------------------------------- #
+
+_EXTRACT_SYSTEM = """Tu es un extracteur de donnees numeriques. On te fournit un CONTEXTE Barzel et un DOCUMENT EXTERNE. Ta seule tache : LIRE et RECOPIER des valeurs DU DOCUMENT, jamais calculer. Tu ne recopies AUCUNE valeur du CONTEXTE Barzel.
+
+INTERDICTION ABSOLUE DE CALCULER : aucune operation, ni somme, ni soustraction, ni multiplication, ni division, ni pourcentage, ni conversion. Tu recopies uniquement des valeurs qui figurent telles quelles dans le DOCUMENT. Si une valeur n'apparait pas explicitement, tu mets null. Tu n'inventes rien, tu ne deduis rien.
+
+Tu reponds UNIQUEMENT par un objet JSON valide, sans texte avant ou apres, sans balise markdown, sans commentaire. Toutes les cles sont presentes ; une valeur absente vaut null. Les nombres sont bruts (pas de separateur de milliers, point pour les decimales), sans unite ni symbole.
+
+Cles a renseigner depuis le DOCUMENT (bilan promoteur, argumentaire de vente) :
+  saleable_area_resi_m2, saleable_area_total_m2, gross_area_total_m2, land_area_m2, units_count,
+  construction_cost_total, fees_total, remediation_total, finance_cost_total, land_price, transfer_duties_total, cost_total_stated,
+  revenue_resi, revenue_parking, revenue_other, revenue_total_stated, margin_pct_stated,
+  sale_price_eur_m2_resi, country, zone_hint
+
+land_area_m2 est la surface du terrain (parcelle) si le document la donne. country vaut "be", "pt" ou null selon le pays du document. zone_hint est le nom de la COMMUNE administrative du bien tel qu'il figure dans le DOCUMENT (par exemple la valeur d'un champ Commune, ou la ville indiquee par le code postal de l'adresse) ; a defaut seulement, le nom du quartier. C'est une chaine de caracteres recopiee telle quelle du document, JAMAIS un chiffre, ou null si absent. Toutes les autres valeurs sont numeriques ou null."""
+
+
+def _loads_json(raw: str) -> dict | None:
+    """Parse tolerant : retire une eventuelle cloture markdown, sinon isole { ... }."""
+    s = (raw or "").strip()
+    if s.startswith("```"):
+        s = s.split("\n", 1)[1] if "\n" in s else ""
+        if s.rstrip().endswith("```"):
+            s = s.rstrip()[:-3]
+        s = s.strip()
+    for cand in (s, s[s.find("{"): s.rfind("}") + 1] if "{" in s and "}" in s else ""):
+        try:
+            obj = json.loads(cand)
+        except (ValueError, TypeError):
+            continue
+        if isinstance(obj, dict):
+            return obj
+    return None
+
+
+def _extract_numbers(context: str, doc_text: str, key: str) -> dict | None:
+    """Appel d'extraction. Degradation silencieuse : renvoie None a la moindre erreur."""
+    try:
+        import anthropic
+
+        client = anthropic.Anthropic(api_key=key)
+        message = client.messages.create(
+            model=_MODEL,
+            max_tokens=_EXTRACT_MAX_TOKENS,
+            temperature=0,
+            system=_EXTRACT_SYSTEM,
+            messages=[{
+                "role": "user",
+                "content": f"{context}\n\n# DOCUMENT EXTERNE\n{doc_text}",
+            }],
+        )
+        raw = "".join(b.text for b in message.content if getattr(b, "type", "") == "text").strip()
+        return _loads_json(raw)
+    except Exception as exc:  # noqa: BLE001 ; le bilan retraite est un bonus, jamais bloquant
+        log.info("second-opinion extraction skipped: %s", type(exc).__name__)
+        return None
+
+
 @router.post("/analyze")
 def analyze(payload: AnalyzePayload) -> dict:
     raw_cls = payload.asset_class or "residential"
@@ -215,13 +278,35 @@ def analyze(payload: AnalyzePayload) -> dict:
     if not key:
         raise HTTPException(status_code=503, detail="contre-analyse momentanement indisponible")
 
-    # 1er message : contexte Barzel + document + consignes initiales (turns[0]).
-    # Tours suivants : l'historique metier tel quel (le doc reste dans le 1er message).
+    # 1er message : bilan retraite calcule (si disponible) + contexte Barzel +
+    # document + consignes initiales (turns[0]). Tours suivants : l'historique
+    # metier tel quel (le doc reste dans le 1er message).
     mix_note = ("\n(Dossier potentiellement mixte : les donnees ci-dessus couvrent les cinq classes "
                 "d'actifs de la ville.)" if asset_class == _CLS_ALL else "")
+    context = _context_for(asset_class, city)
+
+    # Etape 1 (extraction, appel LLM qui recopie) puis etape 2 (calcul Python pur).
+    # Tout echec laisse l'analyse se derouler exactement comme sans bloc.
+    block = ""
+    try:
+        data = _extract_numbers(context, doc_text, key)
+        if data:
+            # Les quatre valeurs Barzel ne sont JAMAIS extraites par le LLM : on les
+            # lit dans le moteur de scoring pour la zone du bien (zone_hint recopie
+            # du document), en lecture seule, puis on les fusionne dans le dict.
+            zone_hint = data.get("zone_hint")
+            ref = barzel_reference(city, str(zone_hint)) if zone_hint else {}
+            if ref:
+                data.update(ref)
+            data["barzel_zone_name"] = str(zone_hint) if ref else None
+            block = retreated_balance(data) or ""
+    except Exception:  # noqa: BLE001 ; degradation silencieuse, aucun 503 supplementaire
+        block = ""
+    prefix = f"{block}\n\n" if block else ""
+
     msgs: list[dict] = [{
         "role": "user",
-        "content": (f"{_context_for(asset_class, city)}{mix_note}\n\n"
+        "content": (f"{prefix}{context}{mix_note}\n\n"
                     f"# DOCUMENT EXTERNE\n{doc_text}\n\n"
                     f"# CONSIGNES DE L'INVESTISSEUR\n{turns[0].text}"),
     }]
